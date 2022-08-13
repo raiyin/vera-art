@@ -18,6 +18,13 @@
 	/* Legacy iOS */
 }
 
+@font-face {
+	font-family: 'AmaticSC';
+	font-style: normal;
+	font-weight: 400;
+	src: url('../fonts/AmaticSC-Regular.ttf');
+}
+
 
 .nav-item {
 	font-family: "Montserrat", "Verdana regular", "Ebrima bold";
@@ -25,17 +32,16 @@
 	font-variant-caps: all-petite-caps;
 }
 
-.dropdown-menu > li.active
-{
-  background-color: #73D1BE;
+.dropdown-menu>li.active {
+	background-color: #73D1BE;
 }
 
-.dropdown-menu > li:hover:active
-{
+.dropdown-menu>li:hover:active {
 	--bs-dropdown-link-active-bg: #4b9e90;
 }
 
-.custom-navbar .fa-brands, .fa{
+.custom-navbar .fa-brands,
+.fa {
 	font-size: 30px;
 	color: #73D1BE;
 }
@@ -80,4 +86,14 @@
 
 .navbar-right {
 	flex-wrap: nowrap;
+}
+
+.slogan>p {
+	font-family: AmaticSC;
+	font-size: xx-large;
+	text-align: right;
+}
+
+.works{
+	margin-top: 10vh;
 }
