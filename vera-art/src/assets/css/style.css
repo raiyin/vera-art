@@ -25,69 +25,6 @@
 	src: url('../fonts/AmaticSC-Regular.ttf');
 }
 
-
-.nav-item {
-	font-family: "Montserrat", "Verdana regular", "Ebrima bold";
-	font-size: 14pt;
-	font-variant-caps: all-petite-caps;
-}
-
-.dropdown-menu>li.active {
-	background-color: #73D1BE;
-}
-
-.dropdown-menu>li:hover:active {
-	--bs-dropdown-link-active-bg: #4b9e90;
-}
-
-.custom-navbar .fa-brands,
-.fa {
-	font-size: 30px;
-	color: #73D1BE;
-}
-
-.navbar-brand :hover {
-	transform: scale(1.05) rotate(-5deg);
-	transition-duration: 0.5s;
-}
-
-@media (max-width:768px) {
-	.custom-navbar .navbar-right {
-		float: right;
-		padding-right: 15px;
-	}
-
-	.custom-navbar .nav.navbar-nav.navbar-right li {
-		float: right;
-	}
-
-	.custom-navbar .nav.navbar-nav.navbar-right li>a {
-		padding: 8px 5px;
-	}
-
-	.custom-navbar .navbar-toggle {
-		float: left
-	}
-
-	.custom-navbar .navbar-header {
-		float: left;
-		width: auto !important;
-	}
-
-	.custom-navbar .navbar-collapse {
-		clear: both;
-		float: none;
-	}
-
-	.navbar-right {
-		visibility: hidden;
-	}
-}
-
-.navbar-right {
-	flex-wrap: nowrap;
-}
-
 .slogan>p {
 	font-family: AmaticSC;
 	font-size: xx-large;

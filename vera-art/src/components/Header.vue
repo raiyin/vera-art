@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
     <section class="container shadow p-3 mb-5 bg-body rounded">
         <nav class="navbar navbar-expand-md custom-navbar">
-            <a class="navbar-brand" href="#">
+            <router-link class="navbar-brand" to="/">
                 <img src="../assets/icons/logo-small.png" alt="" width="130" height="123">
-            </a>
+            </router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                 aria-controls="navbarToggler" aria-expanded="fasle" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -16,29 +17,42 @@
 
                 <ul class="navbar-nav me-auto my-2 my-lg-">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        <router-link class="nav-link dropdown-toggle" to="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             Кто&nbsp;я?
-                        </a>
+                        </router-link>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="./whoami/briefly.html">Кратко</a></li>
-                            <li><a class="dropdown-item" href="./whoami/atist.html">Художник</a></li>
-                            <li><a class="dropdown-item" href="./whoami/illustrator.html">2D artist/Иллюстратор</a></li>
-                            <li><a class="dropdown-item" href="./whoami/volunteer.html">Волонтёр/Наставник</a></li>
-                            <li><a class="dropdown-item" href="./whoami/teacher.html">Преподаватель</a></li>
+                            <li>
+                                <router-link class="dropdown-item" to="/briefly">Кратко</router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/artist">Художник</router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/illustrator">2D artist/Иллюстратор
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/volunteer">Волонтёр/Наставник
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/teacher">Преподаватель
+                                </router-link>
+                            </li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./menu/all_works.html">Все&nbsp;работы</a>
+                        <router-link class="nav-link" to="/allworks">Все&nbsp;работы</router-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./menu/services.html">Услуги</a>
+                        <router-link class="nav-link" to="/services">Услуги</router-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./menu/news.html">Новости</a>
+                        <router-link class="nav-link" to="/news">Новости</router-link>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="./menu/pay_deliver.html">Оплата/Доставка</a>
+                        <router-link class="nav-link" to="/paydelivery">Оплата/Доставка</router-link>
                     </li>
                 </ul>
 
@@ -66,4 +80,65 @@
 </template>
 
 <style scoped>
+.nav-item {
+    font-family: "Montserrat", "Verdana regular", "Ebrima bold";
+    font-size: 14pt;
+    font-variant-caps: all-petite-caps;
+}
+
+.dropdown-menu>li.active {
+    background-color: #73D1BE;
+}
+
+.dropdown-menu>li:hover:active {
+    --bs-dropdown-link-active-bg: #4b9e90;
+}
+
+.custom-navbar .fa-brands,
+.fa {
+    font-size: 30px;
+    color: #73D1BE;
+}
+
+.navbar-brand :hover {
+    transform: scale(1.05) rotate(-5deg);
+    transition-duration: 0.5s;
+}
+
+@media (max-width:768px) {
+    .custom-navbar .navbar-right {
+        float: right;
+        padding-right: 15px;
+    }
+
+    .custom-navbar .nav.navbar-nav.navbar-right li {
+        float: right;
+    }
+
+    .custom-navbar .nav.navbar-nav.navbar-right li>a {
+        padding: 8px 5px;
+    }
+
+    .custom-navbar .navbar-toggle {
+        float: left
+    }
+
+    .custom-navbar .navbar-header {
+        float: left;
+        width: auto !important;
+    }
+
+    .custom-navbar .navbar-collapse {
+        clear: both;
+        float: none;
+    }
+
+    .navbar-right {
+        visibility: hidden;
+    }
+}
+
+.navbar-right {
+    flex-wrap: nowrap;
+}
 </style>
