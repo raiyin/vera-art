@@ -16,8 +16,8 @@ import { RouterLink, RouterView } from "vue-router";
             <div class="collapse navbar-collapse" id="navbarToggler">
 
                 <ul class="navbar-nav me-auto my-2 my-lg-">
-                    <li class="nav-item dropdown">
-                        <router-link class="nav-link dropdown-toggle" to="#" role="button" data-bs-toggle="dropdown"
+                    <li class="nav-item dropdown ">
+                        <router-link class="nav-link dropdown-toggle menu-item" to="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
                             Кто&nbsp;я?
                         </router-link>
@@ -43,16 +43,16 @@ import { RouterLink, RouterView } from "vue-router";
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/allworks">Все&nbsp;работы</router-link>
+                        <router-link class="nav-link menu-item" to="/allworks">Все&nbsp;работы</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/services">Услуги</router-link>
+                        <router-link class="nav-link menu-item" to="/services">Услуги</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/news">Новости</router-link>
+                        <router-link class="nav-link menu-item" to="/news">Новости</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link" to="/paydelivery">Оплата/Доставка</router-link>
+                        <router-link class="nav-link menu-item" to="/paydelivery">Оплата/Доставка</router-link>
                     </li>
                 </ul>
 
@@ -84,6 +84,26 @@ import { RouterLink, RouterView } from "vue-router";
     font-family: "Montserrat", "Verdana regular", "Ebrima bold";
     font-size: 14pt;
     font-variant-caps: all-petite-caps;
+}
+
+.menu-item {
+    --c: #73D1BE;
+    --h: 1.5em;
+
+    line-height: var(--h);
+    background: linear-gradient(var(--c) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200% var(--_p, .08em);
+    color: #0000;
+    overflow: hidden;
+    text-shadow:
+        0 calc(-1*var(--_t, 0em)) var(--c),
+        0 calc(var(--h) - var(--_t, 0em)) #fff;
+    transition: .3s var(--_s, 0s), background-position .3s calc(.3s - var(--_s, 0s));
+}
+
+.menu-item:hover {
+    --_t: var(--h);
+    --_p: 100%;
+    --_s: .3s
 }
 
 .dropdown-menu>li.active {
@@ -140,5 +160,10 @@ import { RouterLink, RouterView } from "vue-router";
 
 .navbar-right {
     flex-wrap: nowrap;
+}
+
+.fa:hover,
+.fa-brands:hover {
+    filter: drop-shadow(2px 2px 2px #808080)
 }
 </style>
