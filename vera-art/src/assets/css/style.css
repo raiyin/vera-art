@@ -25,6 +25,12 @@
 	src: url('../fonts/AmaticSC-Regular.ttf');
 }
 
+html, body, #app{
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 .slogan>p {
 	font-family: AmaticSC;
 	font-size: xx-large;

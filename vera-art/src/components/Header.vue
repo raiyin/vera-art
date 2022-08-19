@@ -19,7 +19,7 @@ import { RouterLink, RouterView } from "vue-router";
                     <li class="nav-item dropdown ">
                         <router-link class="nav-link dropdown-toggle menu-item" to="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            Кто&nbsp;я?
+                            Кто&nbsp;я?..
                         </router-link>
                         <ul class="dropdown-menu">
                             <li>
