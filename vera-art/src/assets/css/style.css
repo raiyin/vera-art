@@ -30,13 +30,3 @@ html, body, #app{
     display: flex;
     flex-direction: column;
 }
-
-.slogan>p {
-	font-family: AmaticSC;
-	font-size: xx-large;
-	text-align: right;
-}
-
-.works{
-	margin-top: 10vh;
-}

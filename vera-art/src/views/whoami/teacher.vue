@@ -2,16 +2,12 @@
 
 import Header from "../../components/Header.vue"
 import Footer from "../../components/Footer.vue"
+import Slogan from "../../components/Slogan.vue"
 
 </script>
 
 <template>
     <Header />
-
-    <section class="container slogan">
-        <p>Мы - то,что нас окружает...</p>
-        <hr>
-    </section>
-
+    <Slogan />
     <Footer />
 </template>

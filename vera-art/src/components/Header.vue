@@ -80,6 +80,7 @@ import { RouterLink, RouterView } from "vue-router";
 </template>
 
 <style scoped>
+
 .nav-item {
     font-family: "Montserrat", "Verdana regular", "Ebrima bold";
     font-size: 14pt;

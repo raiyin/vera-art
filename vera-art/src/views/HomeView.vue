@@ -3,16 +3,13 @@
 import Card from "../components/Card.vue"
 import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
+import Slogan from "../components/Slogan.vue"
 
 </script>
 
 <template>
     <Header />
-
-    <section class="container slogan">
-        <p>Мы - то,что нас окружает...</p>
-        <hr>
-    </section>
+    <Slogan />
 
     <section class="container text-center works">
         <div class="row">
@@ -25,3 +22,9 @@ import Footer from "../components/Footer.vue"
 
     <Footer />
 </template>
+
+<style scoped>
+.works {
+    margin-top: 10vh;
+}
+</style>
