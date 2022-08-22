@@ -1,0 +1,25 @@
+{
+    "name_ru": "Аллея в центральном парке",
+    "name_en": "Alley in Central Park",
+    "base": "canvas",
+    "material": "oil",
+    "size": "50x70",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Аллея в центральном парке",
+            "name_en":"Alley in Central Park",
+            "base": "canvas",
+            "material":"oil",
+            "size":"50x70"
+        },
+        {
+            "name_ru":"Аллея в центральном парке",
+            "name_en":"Alley in Central Park",
+            "base": "canvas",
+            "material":"oil",
+            "size":"50x70"
+        }
+    ]
+}

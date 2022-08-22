@@ -1,0 +1,25 @@
+{
+    "name_ru": "Селёдка",
+    "name_en": "Herring",
+    "base": "canvas",
+    "material": "oil",
+    "size": "30x40",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        },
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

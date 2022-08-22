@@ -3,7 +3,7 @@
 
 <template>
     <section class="container slogan">
-        <p>Мы - то,что нас окружает...</p>
+        <p>Мы - то, что нас окружает...</p>
         <hr>
     </section>
 </template>

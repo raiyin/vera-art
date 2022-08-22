@@ -1,0 +1,25 @@
+{
+    "name_ru": "Натюрморт с пионами",
+    "name_en": "Still life with peonies",
+    "base": "canvas",
+    "material": "oil",
+    "size": "30x40",
+    "year": "2020",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        },
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

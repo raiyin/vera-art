@@ -1,0 +1,53 @@
+{
+    "name_ru":"Триптих",
+    "name_en":"Triptych",
+    "base": "canvas",
+    "material":"oil",
+    "size":"",
+    "year":"2020",
+    "price":"",
+    "parts":[
+        {
+            "name_ru":"Пленер за городом, часть 1",
+            "name_en":"Plein air outside the city, part 1",
+            "base": "canvas",
+            "material":"oil",
+            "size":"30x40"
+        },
+        {
+            "name_ru":"Пленер за городом, часть 1",
+            "name_en":"Plein air outside the city, part 1",
+            "base": "canvas",
+            "material":"oil",
+            "size":"30x40"
+        },
+        {
+            "name_ru":"Пленер за городом, часть 2",
+            "name_en":"Plein air outside the city, part 2",
+            "base": "canvas",
+            "material":"oil",
+            "size":"35x25"
+        },
+        {
+            "name_ru":"Пленер за городом, часть 2",
+            "name_en":"Plein air outside the city, part 2",
+            "base": "canvas",
+            "material":"oil",
+            "size":"35x25"
+        },
+        {            
+            "name_ru":"Пленер за городом, часть 3",
+            "name_en":"Plein air outside the city, part 3",
+            "base": "canvas",
+            "material":"oil",
+            "size":"30x40"
+        },
+        {            
+            "name_ru":"Пленер за городом, часть 3",
+            "name_en":"Plein air outside the city, part 3",
+            "base": "canvas",
+            "material":"oil",
+            "size":"30x40"
+        }
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "name_ru": "Сирень",
+    "name_en": "Lilac",
+    "base": "canvas on cardboard",
+    "material": "acrylic",
+    "size": "30x40",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

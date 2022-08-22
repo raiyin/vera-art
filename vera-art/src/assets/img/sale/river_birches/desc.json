@@ -1,0 +1,25 @@
+{
+    "name_ru": "Река с берёзами",
+    "name_en": "River with birches",
+    "base": "canvas",
+    "material": "oil",
+    "size": "60x90",
+    "year": "2020",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        },
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

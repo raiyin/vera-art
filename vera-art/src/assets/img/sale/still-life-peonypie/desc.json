@@ -1,0 +1,18 @@
+{
+    "name_ru": "Натюрморт с пионами и пирогом",
+    "name_en": "Still life with peonies and pie",
+    "base": "paper",
+    "material": "watercolour",
+    "size": "42x29",
+    "year": "2018",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

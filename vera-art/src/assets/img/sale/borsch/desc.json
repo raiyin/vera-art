@@ -1,0 +1,25 @@
+{
+    "name_ru": "Борщ",
+    "name_en": "Borsch",
+    "base": "canvas",
+    "material": "oil",
+    "size": "50x40",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Борщ",
+            "name_en":"Borsch",
+            "base": "canvas",
+            "material":"oil",
+            "size":"50x40"
+        },
+        {
+            "name_ru":"Борщ",
+            "name_en":"Borsch",
+            "base": "canvas",
+            "material":"oil",
+            "size":"50x40"
+        }
+    ]
+}

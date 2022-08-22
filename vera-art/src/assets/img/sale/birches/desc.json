@@ -1,0 +1,25 @@
+{
+    "name_ru": "Берёзы",
+    "name_en": "Birches",
+    "base": "canvas",
+    "material": "oil",
+    "size": "40x50",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Берёзы",
+            "name_en":"Birches",
+            "base": "canvas",
+            "material":"oil",
+            "size":"40x50"
+        },
+        {
+            "name_ru":"Берёзы",
+            "name_en":"Birches",
+            "base": "canvas",
+            "material":"oil",
+            "size":"40x50"
+        }
+    ]
+}
