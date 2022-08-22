@@ -13,6 +13,7 @@ let base = ref()
 let material = ref()
 let size = ref()
 let year = ref()
+let price = ref()
 
 const imgIdModalToLink = computed(() => {
     return "#" + jsonFile.value.split("/").slice(-2)[0] + "Modal"
@@ -37,20 +38,36 @@ onMounted(async () => {
         .replace("acrylic", "акрил")
     size.value = desc.size
     year.value = desc.year
+    price.value = desc.price
 })
 </script>
 
 <template>
-    <div class="card shadow-sm p-3 mb-5 bg-body rounded" style="width: 18rem;">
+    <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 18rem;">
         <img :src=filename class="card-img-top" alt="..." data-bs-toggle="modal" :data-bs-target=imgIdModalToLink>
         <div class="card-body">
-            <h5 class="card-title">{{ name }}</h5>
-            <p class="card-text">{{ base }}, {{ material }}, {{ size }}, {{ year }}</p>
-            <a href="#" class="btn btn-primary">В корзину</a>
+            <div class="desc">
+                <h5 class="card-title">{{ name }}</h5>
+                <p class="card-text">{{ base }}, {{ material }}, {{ size }}, {{ year }}</p>
+                <p>Цена: {{price}} р.</p>
+                <a href="#" class="btn btn-primary">В корзину</a>
+            </div>
         </div>
         <Modal :jsonFile=jsonFile />
     </div>
 </template>
 
 <style scoped>
+.card-body {
+    display: flex;
+    align-items: center;
+}
+
+.desc {
+    /* display: flex; */
+    /* flex-direction: column; */
+    align-self: flex-end;
+    /* justify-content: center; */
+    width: 100%;
+}
 </style>

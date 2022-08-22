@@ -5,7 +5,7 @@
     "material": "coal",
     "size": "50x70",
     "year": "2019",
-    "price": "",
+    "price": "25000",
     "parts":[
         {
             "name_ru":"Облако",

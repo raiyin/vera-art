@@ -1,14 +1,14 @@
 {
-    "name_ru": "Тайнадвух цветков",
+    "name_ru": "Тайна двух цветков",
     "name_en": "The secret of two flowers",
     "base": "canvas",
     "material": "acrylic",
     "size": "50x50",
     "year": "2020",
-    "price": "",
+    "price": "10000",
     "parts": [
         {
-            "name_ru": "Тайнадвух цветков, часть 1",
+            "name_ru": "Тайна двух цветков, часть 1",
             "name_en": "The secret of two flowers, part 1",
             "base": "canvas",
             "material": "acrylic",
@@ -16,7 +16,7 @@
             "year": "2020"
         },
         {
-            "name_ru": "Тайнадвух цветков, часть 2",
+            "name_ru": "Тайна двух цветков, часть 2",
             "name_en": "The secret of two flowers, part two",
             "base": "canvas",
             "material": "acrylic",

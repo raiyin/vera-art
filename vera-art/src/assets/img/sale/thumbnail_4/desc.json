@@ -5,7 +5,7 @@
     "material": "oil",
     "size": "18x24",
     "year": "2021",
-    "price": "",
+    "price": "1500",
     "parts":[
         {
             "name_ru":"Облако",

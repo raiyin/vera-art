@@ -1,0 +1,25 @@
+{
+    "name_ru": "Флора и Фауна",
+    "name_en": "Flora and Fauna",
+    "base": "canvas",
+    "material": "oil",
+    "size": "30x40",
+    "year": "2020",
+    "price": "нет",
+    "parts":[
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        },
+        {
+            "name_ru":"Облако",
+            "name_en":"Cloud",
+            "base": "canvas",
+            "material":"oil",
+            "size":"120x100"
+        }
+    ]
+}

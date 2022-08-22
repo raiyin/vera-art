@@ -88,11 +88,12 @@ import { RouterLink, RouterView } from "vue-router";
 }
 
 .menu-item {
-    --c: #73D1BE;
-    --h: 1.5em;
+    --c: #000000;
+    --m: #73D1BE;
+    --h: 1.75em;
 
     line-height: var(--h);
-    background: linear-gradient(var(--c) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200% var(--_p, .08em);
+    background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200% var(--_p, .08em);
     color: #0000;
     overflow: hidden;
     text-shadow:

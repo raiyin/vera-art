@@ -5,7 +5,7 @@
     "material": "oil",
     "size": "50x60",
     "year": "2021",
-    "price": "",
+    "price": "10000",
     "parts":[
         {
             "name_ru":"Облако",
