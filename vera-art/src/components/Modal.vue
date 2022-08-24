@@ -33,4 +33,12 @@ const imgIdModal = computed(() => {
 </template>
 
 <style scoped>
+.modal-dialog {
+    position: relative;
+    display: table;
+    /* This is important */
+    overflow-y: auto;
+    overflow-x: auto;
+    width: auto;
+}
 </style>
