@@ -1,0 +1,25 @@
+{
+    "name_ru": "Волчёк",
+    "name_en": "Wolf",
+    "base": "бумага",
+    "material": "уголь, карандаш",
+    "size": "50x70",
+    "year": "2019",
+    "price": "",
+    "parts": [
+        {
+            "name_ru": "Волчёк",
+            "name_en": "Wolf",
+            "base": "бумага",
+            "material": "уголь, карандаш",
+            "size": "50x70"
+        },
+        {
+            "name_ru": "Волчёк",
+            "name_en": "Wolf",
+            "base": "бумага",
+            "material": "уголь, карандаш",
+            "size": "50x70"
+        }
+    ]
+}

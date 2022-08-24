@@ -1,8 +1,8 @@
 {
     "name_ru": "Тайна двух цветков",
     "name_en": "The secret of two flowers",
-    "base": "canvas",
-    "material": "acrylic",
+    "base": "холст",
+    "material": "акрил",
     "size": "50x50",
     "year": "2020",
     "price": "10000",
@@ -10,32 +10,32 @@
         {
             "name_ru": "Тайна двух цветков, часть 1",
             "name_en": "The secret of two flowers, part 1",
-            "base": "canvas",
-            "material": "acrylic",
+            "base": "холст",
+            "material": "акрил",
+            "size": "50x50",
+            "year": "2020"
+        },
+        {
+            "name_ru": "Тайна двух цветков, часть 1",
+            "name_en": "The secret of two flowers, part 1",
+            "base": "холст",
+            "material": "акрил",
+            "size": "50x50"
+        },
+        {
+            "name_ru": "Тайна двух цветков, часть 2",
+            "name_en": "The secret of two flowers, part two",
+            "base": "холст",
+            "material": "акрил",
             "size": "50x50",
             "year": "2020"
         },
         {
             "name_ru": "Тайна двух цветков, часть 2",
-            "name_en": "The secret of two flowers, part two",
-            "base": "canvas",
-            "material": "acrylic",
-            "size": "50x50",
-            "year": "2020"
-        },
-        {
-            "name_ru": "Облако",
-            "name_en": "Cloud",
-            "base": "canvas",
-            "material": "oil",
-            "size": "120x100"
-        },
-        {
-            "name_ru": "Облако",
-            "name_en": "Cloud",
-            "base": "canvas",
-            "material": "oil",
-            "size": "120x100"
+            "name_en": "The secret of two flowers, part 2",
+            "base": "холст",
+            "material": "акрил",
+            "size": "50x50"
         }
     ]
 }

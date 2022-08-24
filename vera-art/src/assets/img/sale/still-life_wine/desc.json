@@ -1,25 +1,25 @@
 {
     "name_ru": "Натюрморт",
     "name_en": "Still-life",
-    "base": "canvas",
-    "material": "oil",
+    "base": "холст",
+    "material": "масло",
     "size": "50x60",
     "year": "2019",
     "price": "15000",
     "parts":[
         {
-            "name_ru":"Облако",
-            "name_en":"Cloud",
-            "base": "canvas",
-            "material":"oil",
-            "size":"120x100"
+            "name_ru":"Натюрморт",
+            "name_en":"Still-life",
+            "base": "холст",
+            "material":"масло",
+            "size":"50x60"
         },
         {
-            "name_ru":"Облако",
-            "name_en":"Cloud",
-            "base": "canvas",
-            "material":"oil",
-            "size":"120x100"
+            "name_ru":"Натюрморт",
+            "name_en":"Still-life",
+            "base": "холст",
+            "material":"масло",
+            "size":"50x60"
         }
     ]
 }

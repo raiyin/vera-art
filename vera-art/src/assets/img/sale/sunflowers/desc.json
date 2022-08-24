@@ -1,18 +1,18 @@
 {
     "name_ru": "Подсолнухи",
     "name_en": "Sunflowers",
-    "base": "paper",
-    "material": "watercolour",
+    "base": "бумага",
+    "material": "акварель",
     "size": "41x30",
     "year": "2022",
     "price": "10000",
-    "parts":[
+    "parts": [
         {
-            "name_ru":"Облако",
-            "name_en":"Cloud",
-            "base": "canvas",
-            "material":"oil",
-            "size":"120x100"
+            "name_ru": "Подсолнухи",
+            "name_en": "Sunflowers",
+            "base": "бумага",
+            "material": "акварель",
+            "size": "41x30"
         }
     ]
 }

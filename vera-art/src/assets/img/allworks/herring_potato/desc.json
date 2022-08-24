@@ -1,0 +1,25 @@
+{
+    "name_ru": "Селёдка",
+    "name_en": "Herring",
+    "base": "холст",
+    "material": "масло",
+    "size": "30x40",
+    "year": "2019",
+    "price": "",
+    "parts":[
+        {
+            "name_ru":"Селёдка",
+            "name_en":"Herring",
+            "base": "холст",
+            "material":"масло",
+            "size":"30x40"
+        },
+        {
+            "name_ru":"Селёдка",
+            "name_en":"Herring",
+            "base": "холст",
+            "material":"масло",
+            "size":"30x40"
+        }
+    ]
+}

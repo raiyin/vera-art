@@ -1,23 +1,23 @@
 {
     "dirs": [
-        "alley",
-        "birches",
-        "botanical_garden",
-        "distant_landscapes",
         "hidden_place",
         "horse",
-        "pond_swifts",
-        "still-life_wine",
-        "stilllife-peony",
-        "still-life-peonypie",
+        "birches",
         "sunflowers",
+        "alley",
+        "botanical_garden",
+        "triptych",
+        "stilllife-peony",
+        "pond_swifts",
+        "two_flowers_secret",
+        "still-life_wine",
         "sunset_sengeley",
-        "thumbnail_1",
         "thumbnail_2",
         "thumbnail_3",
         "thumbnail_4",
-        "triptych",
-        "two_flowers_secret",
-        "wolf_gate"
+        "thumbnail_1",
+        "distant_landscapes",
+        "wolf_gate",
+        "still-life-peonypie"
     ]
 }

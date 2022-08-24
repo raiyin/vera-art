@@ -1,0 +1,25 @@
+{
+    "name_ru": "Флора и Фауна",
+    "name_en": "Flora and Fauna",
+    "base": "холст",
+    "material": "масло",
+    "size": "30x40",
+    "year": "2020",
+    "price": "",
+    "parts": [
+        {
+            "name_ru": "Флора и Фауна",
+            "name_en": "Flora and Fauna",
+            "base": "холст",
+            "material": "масло",
+            "size": "30x40"
+        },
+        {
+            "name_ru": "Флора и Фауна",
+            "name_en": "Flora and Fauna",
+            "base": "холст",
+            "material": "масло",
+            "size": "30x40"
+        }
+    ]
+}

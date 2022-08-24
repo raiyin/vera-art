@@ -24,18 +24,18 @@ onMounted(async () => {
     const desc = await res.json()
     name.value = desc.name_ru
     base.value = desc.base
-        .replace("canvas on cardboard", "холст на картоне")
-        .replace("canvas", "холст")
-        .replace("paperboard", "картон")
-        .replace("paper", "бумага")
+        // .replace("canvas on cardboard", "холст на картоне")
+        // .replace("canvas", "холст")
+        // .replace("paperboard", "картон")
+        // .replace("paper", "бумага")
 
     material.value = desc.material
-        .replace("oil", "масло")
-        .replace("watercolour", "акварель")
-        .replace("texture paste", "текстурная паста")
-        .replace("coal", "уголь")
-        .replace("gouache", "гуашь")
-        .replace("acrylic", "акрил")
+        // .replace("oil", "масло")
+        // .replace("watercolour", "акварель")
+        // .replace("texture paste", "текстурная паста")
+        // .replace("coal", "уголь")
+        // .replace("gouache", "гуашь")
+        // .replace("acrylic", "акрил")
     size.value = desc.size
     year.value = desc.year
     price.value = desc.price
@@ -49,8 +49,8 @@ onMounted(async () => {
             <div class="desc">
                 <h5 class="card-title">{{ name }}</h5>
                 <p class="card-text">{{ base }}, {{ material }}, {{ size }}, {{ year }}</p>
-                <p>Цена: {{price}} р.</p>
-                <a href="#" class="btn btn-primary">В корзину</a>
+                <p v-if="price">Цена: {{price}} р.</p>
+                <a v-if="price" href="#" class="btn btn-primary">В корзину</a>
             </div>
         </div>
         <Modal :jsonFile=jsonFile />

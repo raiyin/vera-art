@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-    <section class="container shadow p-3 mb-5 bg-body rounded">
+    <section class="container shadow bg-body rounded">
         <nav class="navbar navbar-expand-md custom-navbar">
             <router-link class="navbar-brand" to="/">
                 <img src="../assets/icons/logo-small.png" alt="" width="130" height="123">

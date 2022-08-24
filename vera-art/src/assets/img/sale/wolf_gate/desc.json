@@ -1,25 +1,25 @@
 {
     "name_ru": "Сенгилеевский закат",
     "name_en": "Sengileyevsky sunset",
-    "base": "canvas",
-    "material": "oil",
+    "base": "холст",
+    "material": "масло",
     "size": "50x60",
     "year": "2019",
     "price": "5000",
-    "parts":[
+    "parts": [
         {
-            "name_ru":"Облако",
-            "name_en":"Cloud",
-            "base": "canvas",
-            "material":"oil",
-            "size":"120x100"
+            "name_ru": "Сенгилеевский закат",
+            "name_en": "Sengileyevsky sunset",
+            "base": "холст",
+            "material": "масло",
+            "size": "50x60"
         },
         {
-            "name_ru":"Облако",
-            "name_en":"Cloud",
-            "base": "canvas",
-            "material":"oil",
-            "size":"120x100"
+            "name_ru": "Сенгилеевский закат",
+            "name_en": "CloSengileyevsky sunsetud",
+            "base": "холст",
+            "material": "масло",
+            "size": "50x60"
         }
     ]
 }
