@@ -7,7 +7,6 @@ import Slogan from "../components/Slogan.vue"
 
 import { ref, onMounted, computed } from 'vue'
 
-const extension = ".jpg"
 const baseDir = "/src/assets/img/sale/"
 let dirs = ref()
 

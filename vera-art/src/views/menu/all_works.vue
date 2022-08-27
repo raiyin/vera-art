@@ -4,6 +4,7 @@ import Card from "../../components/Card.vue"
 import Header from "../../components/Header.vue"
 import Footer from "../../components/Footer.vue"
 import Slogan from "../../components/Slogan.vue"
+import Gallery from "@/components/Gallery.vue"
 
 import { ref, onMounted, computed } from 'vue'
 
@@ -45,19 +46,23 @@ onMounted(async () => {
         </ul>
         <div class="tab-content border-right border-left" id="myTabContent">
             <div class="tab-pane fade show active" id="painting" role="tabpanel" aria-labelledby="painting-tab">
-                <section class="container text-center works">
+                
+                <Gallery gallaryDir="../../src/assets/img/allworks/painting/" />
+
+                <!-- <section class="container text-center works">
                     <div class="row">
-                        <template v-for="value, index in dirs">
+                        <template v-for="value in dirs">
                             <div class="col d-flex justify-content-center">
                                 <Card :jsonFile="makeFullFileName(value, 'desc.json')"
                                     :filename="makeFullFileName(value, '1.jpg')" />
                             </div>
                         </template>
                     </div>
-                </section>
-            </div>
-            <div class="tab-pane fade" id="Illustration" role="tabpanel" aria-labelledby="Illustration-tab">
+                </section> -->
 
+            </div>
+            <div class="tab-pane fade" id="Illustration" role="tabpanel" aria-labelledby="Illustration-tab">                
+                <Gallery gallaryDir="../../src/assets/img/allworks/illustration/" />
             </div>
             <div class="tab-pane fade" id="graphics3d" role="tabpanel" aria-labelledby="graphics3d-tab">
 
