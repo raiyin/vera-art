@@ -9,5 +9,17 @@ import Slogan from "../../components/Slogan.vue"
 <template>
     <Header />
     <Slogan />
+    <section class="container about">
+
+    </section>
     <Footer />
 </template>
+
+
+<style scoped>
+.about{
+    height: 960px;
+    width: 1280px;
+    background-image: url("../../assets/img/about/me.jpg");
+}
+</style>

@@ -4,6 +4,7 @@ import Card from "../components/Card.vue"
 import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
 import Slogan from "../components/Slogan.vue"
+import Gallery from "@/components/Gallery.vue"
 
 import { ref, onMounted, computed } from 'vue'
 
@@ -22,25 +23,11 @@ onMounted(async () => {
 </script>
 
 <template>
-
     <Header />
     <Slogan />
-
-    <section class="container text-center works">
-        <div class="row">
-            <template v-for="value, index in dirs">
-                <div class="col d-flex justify-content-center">
-                    <Card :jsonFile="makeFullFileName(value, 'desc.json')" :filename="makeFullFileName(value, '1.jpg')" />
-                </div>
-            </template>
-        </div>
-    </section>
-
+    <Gallery gallaryDir="../../src/assets/img/sale/" />
     <Footer />
 </template>
 
 <style scoped>
-.works {
-    margin-top: 10vh;
-}
 </style>

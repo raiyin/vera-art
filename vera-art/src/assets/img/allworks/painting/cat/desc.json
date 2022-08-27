@@ -1,0 +1,18 @@
+{
+    "name_ru": "Кот",
+    "name_en": "Cat",
+    "base": "картон",
+    "material": "карандаш",
+    "size": "",
+    "year": "2019",
+    "price": "",
+    "parts": [
+        {
+            "name_ru": "Кот",
+            "name_en": "Cat",
+            "base": "картон",
+            "material": "карандаш",
+            "size": ""
+        }
+    ]
+}

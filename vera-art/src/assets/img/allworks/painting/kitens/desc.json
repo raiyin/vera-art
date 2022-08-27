@@ -1,0 +1,39 @@
+{
+    "name_ru": "Котята",
+    "name_en": "Kitens",
+    "base": "картон",
+    "material": "акварель",
+    "size": "",
+    "year": "2018",
+    "price": "",
+    "parts": [
+        {
+            "name_ru": "Котята",
+            "name_en": "Kitens",
+            "base": "картон",
+            "material": "акварель",
+            "size": ""
+        },        
+        {
+            "name_ru": "Котята",
+            "name_en": "Kitens",
+            "base": "картон",
+            "material": "акварель",
+            "size": ""
+        },        
+        {
+            "name_ru": "Котята",
+            "name_en": "Kitens",
+            "base": "картон",
+            "material": "акварель",
+            "size": ""
+        },
+        {
+            "name_ru": "Котята",
+            "name_en": "Kitens",
+            "base": "картон",
+            "material": "акварель",
+            "size": ""
+        }
+    ]
+}
