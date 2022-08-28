@@ -164,8 +164,7 @@ import { RouterLink, RouterView } from "vue-router";
     flex-wrap: nowrap;
 }
 
-.fa:hover,
-.fa-brands:hover {
+.fa:hover, .fa-brands:hover {
     filter: drop-shadow(2px 2px 2px #808080)
 }
 </style>

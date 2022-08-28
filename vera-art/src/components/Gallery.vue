@@ -37,7 +37,4 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.works {
-    margin-top: 10vh;
-}
 </style>

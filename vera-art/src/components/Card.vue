@@ -33,7 +33,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 18rem;">
+    <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 20rem;">
         <img :src=filename class="card-img-top" alt="..." data-bs-toggle="modal" :data-bs-target=imgIdModalToLink>
         <div class="card-body">
             <div class="desc">
@@ -64,5 +64,9 @@ onMounted(async () => {
     align-self: flex-end;
     /* justify-content: center; */
     width: 100%;
+}
+
+.card>img:hover{
+    cursor: pointer;
 }
 </style>

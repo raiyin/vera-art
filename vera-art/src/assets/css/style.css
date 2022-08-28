@@ -25,6 +25,13 @@
 	src: url('../fonts/AmaticSC-Regular.ttf');
 }
 
+@font-face {
+	font-family: 'Ubuntu';
+	font-style: normal;
+	font-weight: 400;
+	src: url('../fonts/Ubuntu-Regular.ttf');
+}
+
 html, body, #app{
     min-height: 100vh;
     display: flex;
