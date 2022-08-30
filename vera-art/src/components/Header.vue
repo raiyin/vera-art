@@ -58,18 +58,18 @@ import { RouterLink, RouterView } from "vue-router";
 
                 <ul class="nav navbar-nav navbar-right">
                     <li class="me-3">
-                        <a href="https://t.me/MilayaV">
+                        <a href="https://t.me/MilayaV" target="_blank" rel="noopener noreferrer">
                             <i class="fa-brands fa-telegram">
                             </i>
                         </a>
                     </li>
                     <li class="me-3">
-                        <a href="https://vk.com/perczukowa">
+                        <a href="https://vk.com/perczukowa" target="_blank" rel="noopener noreferrer">
                             <i class="fa-brands fa-vk"></i>
                         </a>
                     </li>
                     <li>
-                        <a href="mailto:perczukowa@yandex.ru">
+                        <a href="mailto:perczukowa@yandex.ru" target="_blank" rel="noopener noreferrer">
                             <i class="fa fa-envelope"></i>
                         </a>
                     </li>
