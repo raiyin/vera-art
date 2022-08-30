@@ -24,7 +24,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <section class="container text-center works">
+    <section class="container text-center main-content">
         <div class="row">
             <template v-for="value in imgDirs">
                 <div class="col d-flex justify-content-center">

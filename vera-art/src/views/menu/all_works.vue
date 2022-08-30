@@ -29,7 +29,7 @@ onMounted(async () => {
     <Slogan />
 
 
-    <section class="container shadow bg-body rounded border-right border-left">
+    <section class="container shadow bg-body rounded border-right border-left main-content">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="painting-tab" data-bs-toggle="tab" data-bs-target="#painting"

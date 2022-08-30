@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import CalendarIcon from "@/components/icons/IconCalendar.vue"
 </script>
 
 <template>
     <section class="container text-center px-0">
-
         <div class="col d-flex justify-content-center">
             <div class="news-item">
                 <router-link to="/news/newsitem">
@@ -12,11 +12,7 @@
                             <p>Учебный год начинается!</p>
                             <p>Запрыгиваем!!!</p>
                             <p>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                    class="bi bi-calendar" viewBox="0 0 16 16">
-                                    <path
-                                        d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                                </svg>
+                                <CalendarIcon />
                                 <span> 28 августа, 2022</span>
                             </p>
                         </div>
@@ -39,7 +35,7 @@
 .img-holder {
     width: 100%;
     height: 100%;
-    background-image: url("../assets/img/news/2022/08/28/back.jpg");
+    background-image: url("@/assets/img/news/2022/08/28/back.jpg");
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100%;

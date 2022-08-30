@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import Header from "../components/Header.vue"
-import Footer from "../components/Footer.vue"
-import Slogan from "../components/Slogan.vue"
-import SideNewsItem from "@/components/SideNewsItem.vue";
-import NewsItemDescription from "@/components/NewsItemDescription.vue"
+import Header from "@/components/Header.vue"
+import Footer from "@/components/Footer.vue"
+import Slogan from "@/components/Slogan.vue"
+import SideNewsItem from "@/components/News/SideNewsTrailer.vue";
+import NewsItemDescription from "@/components/News/NewsItemDescription.vue"
 
 </script>
     
@@ -13,11 +13,11 @@ import NewsItemDescription from "@/components/NewsItemDescription.vue"
     <Header />
     <Slogan />
 
-    <section class="container text-center px-0">
+    <section class="container text-center px-0 main-content">
         <article>
             <div class="news-header">
                 <div class="news_img">
-                    <img src="../assets/img/news/2022/08/28/back_full.png" />
+                    <img src="@/assets/img/news/2022/08/28/back_full.png" />
                 </div>
                 <div class="other-news">
                     <SideNewsItem/>
@@ -101,55 +101,11 @@ import NewsItemDescription from "@/components/NewsItemDescription.vue"
     flex-direction: column;
 }
 
-.other-news-item-wrapper {
-    margin-bottom: 1rem;
-}
-
-.other-news-item {
-    display: flex;
-    text-decoration: none;
-    color: black;
-}
-
-.other-news-img {
-    width: 70px;
-    height: 70px;
-    margin-right: 1rem;
-}
-
-.other-news-img>img {
-    max-width: 100%;
-    max-height: 100%;
-}
-
-.other-news-desc {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 0.1em;
-}
-
 .news_img {
     display: flex;
     flex-direction: row;
     justify-content: left;
     margin-right: 2rem;
-}
-
-.desc {
-    margin-bottom: 2rem;
-}
-
-.title {
-    margin-top: 2rem;
-    text-align: left;
-    color: black;
-    vertical-align: bottom;
-}
-
-.title>span {
-    padding-bottom: 0;
-    vertical-align: bottom;
 }
 
 .news-text {

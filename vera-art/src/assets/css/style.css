@@ -37,3 +37,8 @@ html, body, #app{
     display: flex;
     flex-direction: column;
 }
+
+.main-content{
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}

@@ -3,7 +3,7 @@
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import Slogan from "@/components/Slogan.vue"
-import NewsPreview from "@/components/NewsPreview.vue";
+import NewsTrailer from "@/components/News/NewsTrailer.vue";
 
 </script>
 
@@ -11,17 +11,17 @@ import NewsPreview from "@/components/NewsPreview.vue";
     <Header />
     <Slogan />
 
-    <section class="container text-center works">
+    <section class="container text-center main-content">
         <div class="row gx-0">
 
             <div class="col d-flex justify-content-center">
-                <NewsPreview />
+                <NewsTrailer />
             </div>
             <div class="col d-flex justify-content-center">
-                <NewsPreview />
+                <NewsTrailer />
             </div>
             <div class="col d-flex justify-content-center">
-                <NewsPreview />
+                <NewsTrailer />
             </div>
         </div>
     </section>
