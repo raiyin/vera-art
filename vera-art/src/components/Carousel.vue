@@ -48,7 +48,7 @@ onBeforeMount(async () => {
                 <div :class="index === 0 ? 'carousel-item active' : 'carousel-item'">
                     <img :src="makeFileName(dir, index + 1)" class="d-block" alt="...">
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>{{ value.name_ru }}</h5>
+                        <h5>{{  value.name_ru  }}</h5>
                     </div>
                 </div>
             </template>
@@ -69,8 +69,15 @@ onBeforeMount(async () => {
 </template>
 
 <style scoped>
+@media (orientation: landscape) {
+    img {
+        max-height: 90vh;
+    }
+}
 
-img {
-    max-height: 90vh;
+@media (orientation: portrait) {
+    img {
+        max-width: 90vw;
+    }
 }
 </style>
