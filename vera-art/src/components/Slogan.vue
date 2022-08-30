@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <section class="container slogan">
+    <section class="container slogan px-0">
         <p>Мы - то, что нас окружает...</p>
         <hr>
     </section>

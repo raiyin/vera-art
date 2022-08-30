@@ -9,9 +9,10 @@ import IllustratorView from "../views/whoami/illustrator.vue";
 import TeacherView from "../views/whoami/teacher.vue";
 import VolunteerView from "../views/whoami/volunteer.vue";
 import AllWorksView from "../views/menu/all_works.vue";
-import NewsView from "../views/menu/news.vue";
+import NewsShortsView from "../views/menu/newsshorts.vue";
 import PayDeliveryView from "../views/menu/pay_deliver.vue";
 import ServicesView from "../views/menu/services.vue";
+import NewsItemView from "../views/NewsItemView.vue";
 //end_max
 
 const router = createRouter({
@@ -60,7 +61,7 @@ const router = createRouter({
     {
       path: "/news",
       name: "news",
-      component: NewsView,
+      component: NewsShortsView,
     },
     {
       path: "/paydelivery",
@@ -71,6 +72,11 @@ const router = createRouter({
       path: "/services",
       name: "services",
       component: ServicesView,
+    },
+    {
+      path: "/news/newsitem",
+      name: "newsitem",
+      component: NewsItemView,
     },
   ],
 });
