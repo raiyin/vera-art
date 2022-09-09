@@ -20,6 +20,5 @@ import Slogan from "../../components/Slogan.vue"
 .about{
     height: 960px;
     width: 1280px;
-    background-image: url("../../assets/img/about/me.jpg");
 }
 </style>

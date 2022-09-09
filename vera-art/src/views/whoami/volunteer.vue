@@ -9,5 +9,15 @@ import Slogan from "../../components/Slogan.vue"
 <template>
     <Header />
     <Slogan />
+    <section class="container volunteer">
+
+    </section>
     <Footer />
 </template>
+
+<style scoped>
+.volunteer{
+    height: 960px;
+    width: 1280px;
+}
+</style>

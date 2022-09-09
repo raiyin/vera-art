@@ -1,0 +1,525 @@
+{
+  "sale": [
+    {
+      "id": "alley",
+      "dir": "\\src\\assets\\img\\sale\\alley\\",
+      "name_ru": "Аллея в центральном парке",
+      "name_en": "Alley in Central Park",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x70",
+      "year": "2019",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Аллея в центральном парке",
+          "name_en": "Alley in Central Park",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x70"
+        },
+        {
+          "name_ru": "Аллея в центральном парке",
+          "name_en": "Alley in Central Park",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x70"
+        }
+      ]
+    },
+    {
+      "id": "birches",
+      "dir": "\\src\\assets\\img\\sale\\birches\\",
+      "name_ru": "Берёзы",
+      "name_en": "Birches",
+      "base": "холст",
+      "material": "масло",
+      "size": "40x50",
+      "year": "2019",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Берёзы",
+          "name_en": "Birches",
+          "base": "холст",
+          "material": "масло",
+          "size": "40x50"
+        },
+        {
+          "name_ru": "Берёзы",
+          "name_en": "Birches",
+          "base": "холст",
+          "material": "масло",
+          "size": "40x50"
+        }
+      ]
+    },
+    {
+      "id": "botanical_garden",
+      "dir": "\\src\\assets\\img\\sale\\botanical_garden\\",
+      "name_ru": "В ботаническом саду",
+      "name_en": "In the botanical garden",
+      "base": "холст",
+      "material": "акварель",
+      "size": "35x25",
+      "year": "2021",
+      "price": "4000",
+      "parts": [
+        {
+          "name_ru": "В ботаническом саду",
+          "name_en": "In the botanical garden",
+          "base": "холст",
+          "material": "акварель",
+          "size": "35x25"
+        },
+        {
+          "name_ru": "В ботаническом саду",
+          "name_en": "In the botanical garden",
+          "base": "холст",
+          "material": "акварель",
+          "size": "35x25"
+        }
+      ]
+    },
+    {
+      "id": "distant_landscapes",
+      "dir": "\\src\\assets\\img\\sale\\distant_landscapes\\",
+      "name_ru": "Далёкие пейзажи",
+      "name_en": "Distant landscapes",
+      "base": "холст",
+      "material": "масло, текстурная паста",
+      "size": "55x95",
+      "year": "2018",
+      "price": "25000",
+      "parts": [
+        {
+          "name_ru": "Далёкие пейзажи",
+          "name_en": "Distant landscapes",
+          "base": "холст",
+          "material": "масло",
+          "size": "55x95"
+        }
+      ]
+    },
+    {
+      "id": "hidden_place",
+      "dir": "\\src\\assets\\img\\sale\\hidden_place\\",
+      "name_ru": "Потаённое место",
+      "name_en": "A hidden place",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x60",
+      "year": "2021",
+      "price": "20000",
+      "parts": [
+        {
+          "name_ru": "Потаённое место",
+          "name_en": "A hidden place",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        },
+        {
+          "name_ru": "Потаённое место",
+          "name_en": "A hidden place",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        }
+      ]
+    },
+    {
+      "id": "horse",
+      "dir": "\\src\\assets\\img\\sale\\horse\\",
+      "name_ru": "Конь",
+      "name_en": "Horse",
+      "base": "бумага",
+      "material": "уголь",
+      "size": "50x70",
+      "year": "2019",
+      "price": "25000",
+      "parts": [
+        {
+          "name_ru": "Конь",
+          "name_en": "Horse",
+          "base": "бумага",
+          "material": "уголь",
+          "size": "50x70"
+        }
+      ]
+    },
+    {
+      "id": "pond_swifts",
+      "dir": "\\src\\assets\\img\\sale\\pond_swifts\\",
+      "name_ru": "Пруд и стрижи",
+      "name_en": "Pond and swifts",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x40",
+      "year": "2021",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Пруд и стрижи",
+          "name_en": "Pond and swifts",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x40"
+        },
+        {
+          "name_ru": "Пруд и стрижи",
+          "name_en": "Pond and swifts",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x40"
+        }
+      ]
+    },
+    {
+      "id": "stilllife-peony",
+      "dir": "\\src\\assets\\img\\sale\\stilllife-peony\\",
+      "name_ru": "Натюрморт",
+      "name_en": "Still-life",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x60",
+      "year": "2019",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Натюрморт",
+          "name_en": "Still-life",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        },
+        {
+          "name_ru": "Натюрморт",
+          "name_en": "Still-life",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        }
+      ]
+    },
+    {
+      "id": "still-life_wine",
+      "dir": "\\src\\assets\\img\\sale\\still-life_wine\\",
+      "name_ru": "Натюрморт с пионами",
+      "name_en": "Still life with peonies",
+      "base": "холст",
+      "material": "масло",
+      "size": "30x40",
+      "year": "2020",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Натюрморт с пионами",
+          "name_en": "Still life with peonies",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Натюрморт с пионами",
+          "name_en": "Still life with peonies",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        }
+      ]
+    },
+    {
+      "id": "still-life-peonypie",
+      "dir": "\\src\\assets\\img\\sale\\still-life-peonypie\\",
+      "name_ru": "Натюрморт с пионами и пирогом",
+      "name_en": "Still life with peonies and pie",
+      "base": "бумага",
+      "material": "акварель",
+      "size": "42x29",
+      "year": "2018",
+      "price": "10000",
+      "parts": [
+        {
+          "name_ru": "Натюрморт с пионами и пирогом",
+          "name_en": "Still life with peonies and pie",
+          "base": "бумага",
+          "material": "акварель",
+          "size": "42x29"
+        }
+      ]
+    },
+    {
+      "id": "sunflowers",
+      "dir": "\\src\\assets\\img\\sale\\sunflowers\\",
+      "name_ru": "Подсолнухи",
+      "name_en": "Sunflowers",
+      "base": "бумага",
+      "material": "акварель",
+      "size": "41x30",
+      "year": "2022",
+      "price": "10000",
+      "parts": [
+        {
+          "name_ru": "Подсолнухи",
+          "name_en": "Sunflowers",
+          "base": "бумага",
+          "material": "акварель",
+          "size": "41x30"
+        }
+      ]
+    },
+    {
+      "id": "sunset_sengeley",
+      "dir": "\\src\\assets\\img\\sale\\sunset_sengeley\\",
+      "name_ru": "На закате, Сенгилеевское водохранилище",
+      "name_en": "At sunset, the Sengileevsky reservoir",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x60",
+      "year": "2021",
+      "price": "10000",
+      "parts": [
+        {
+          "name_ru": "На закате, Сенгилеевское водохранилище",
+          "name_en": "At sunset, the Sengileevsky reservoir",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        },
+        {
+          "name_ru": "На закате, Сенгилеевское водохранилище",
+          "name_en": "At sunset, the Sengileevsky reservoir",
+          "base": "холст",
+          "material": "oiмаслоl",
+          "size": "50x60"
+        }
+      ]
+    },
+    {
+      "id": "swan",
+      "dir": "\\src\\assets\\img\\sale\\swan\\",
+      "name_ru": "Иллюстрация. Лебедь и лебёдушка",
+      "name_en": "Illustration. The swan and the swanny",
+      "base": "бумага",
+      "material": "акварель",
+      "size": "30x42",
+      "year": "2020",
+      "price": "15000",
+      "parts": [
+        {
+          "name_ru": "Иллюстрация. Лебедь и лебёдушка",
+          "name_en": "Illustration. The swan and the swanny",
+          "base": "canбумагаvas",
+          "material": "акварель",
+          "size": "30x42"
+        }
+      ]
+    },
+    {
+      "id": "thumbnail_1",
+      "dir": "\\src\\assets\\img\\sale\\thumbnail_1\\",
+      "name_ru": "Миниатюра",
+      "name_en": "Thumbnail",
+      "base": "холст на картоне",
+      "material": "масло",
+      "size": "18x24",
+      "year": "2021",
+      "price": "1500",
+      "parts": [
+        {
+          "name_ru": "Миниатюра",
+          "name_en": "Thumbnail",
+          "base": "холст на картоне",
+          "material": "масло",
+          "size": "18x24"
+        }
+      ]
+    },
+    {
+      "id": "thumbnail_2",
+      "dir": "\\src\\assets\\img\\sale\\thumbnail_2\\",
+      "name_ru": "Миниатюра",
+      "name_en": "Thumbnail",
+      "base": "холст на картоне",
+      "material": "масло",
+      "size": "18x24",
+      "year": "2021",
+      "price": "1500",
+      "parts": [
+        {
+          "name_ru": "Миниатюра",
+          "name_en": "Thumbnail",
+          "base": "холст на картоне",
+          "material": "масло",
+          "size": "18x24"
+        }
+      ]
+    },
+    {
+      "id": "thumbnail_3",
+      "dir": "\\src\\assets\\img\\sale\\thumbnail_3\\",
+      "name_ru": "Миниатюра",
+      "name_en": "Thumbnail",
+      "base": "холст на картоне",
+      "material": "масло",
+      "size": "18x24",
+      "year": "2021",
+      "price": "1500",
+      "parts": [
+        {
+          "name_ru": "Миниатюра",
+          "name_en": "Thumbnail",
+          "base": "холст на картоне",
+          "material": "масло",
+          "size": "18x24"
+        }
+      ]
+    },
+    {
+      "id": "thumbnail_4",
+      "dir": "\\src\\assets\\img\\sale\\thumbnail_4\\",
+      "name_ru": "Миниатюра",
+      "name_en": "Thumbnail",
+      "base": "холст на картоне",
+      "material": "масло",
+      "size": "18x24",
+      "year": "2021",
+      "price": "1500",
+      "parts": [
+        {
+          "name_ru": "Миниатюра",
+          "name_en": "Thumbnail",
+          "base": "холст на картоне",
+          "material": "масло",
+          "size": "18x24"
+        }
+      ]
+    },
+    {
+      "id": "triptych",
+      "dir": "\\src\\assets\\img\\sale\\triptych\\",
+      "name_ru": "Триптих",
+      "name_en": "Triptych",
+      "base": "холст",
+      "material": "масло",
+      "size": "",
+      "year": "2020",
+      "price": "30000",
+      "parts": [
+        {
+          "name_ru": "Пленер за городом, часть 1",
+          "name_en": "Plein air outside the city, part 1",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Пленер за городом, часть 1",
+          "name_en": "Plein air outside the city, part 1",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Пленер за городом, часть 2",
+          "name_en": "Plein air outside the city, part 2",
+          "base": "холст",
+          "material": "масло",
+          "size": "35x25"
+        },
+        {
+          "name_ru": "Пленер за городом, часть 2",
+          "name_en": "Plein air outside the city, part 2",
+          "base": "холст",
+          "material": "масло",
+          "size": "35x25"
+        },
+        {
+          "name_ru": "Пленер за городом, часть 3",
+          "name_en": "Plein air outside the city, part 3",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Пленер за городом, часть 3",
+          "name_en": "Plein air outside the city, part 3",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        }
+      ]
+    },
+    {
+      "id": "two_flowers_secret",
+      "dir": "\\src\\assets\\img\\sale\\two_flowers_secret\\",
+      "name_ru": "Тайна двух цветков",
+      "name_en": "The secret of two flowers",
+      "base": "холст",
+      "material": "акрил",
+      "size": "50x50",
+      "year": "2020",
+      "price": "10000",
+      "parts": [
+        {
+          "name_ru": "Тайна двух цветков, часть 1",
+          "name_en": "The secret of two flowers, part 1",
+          "base": "холст",
+          "material": "акрил",
+          "size": "50x50",
+          "year": "2020"
+        },
+        {
+          "name_ru": "Тайна двух цветков, часть 1",
+          "name_en": "The secret of two flowers, part 1",
+          "base": "холст",
+          "material": "акрил",
+          "size": "50x50"
+        },
+        {
+          "name_ru": "Тайна двух цветков, часть 2",
+          "name_en": "The secret of two flowers, part two",
+          "base": "холст",
+          "material": "акрил",
+          "size": "50x50",
+          "year": "2020"
+        },
+        {
+          "name_ru": "Тайна двух цветков, часть 2",
+          "name_en": "The secret of two flowers, part 2",
+          "base": "холст",
+          "material": "акрил",
+          "size": "50x50"
+        }
+      ]
+    },
+    {
+      "id": "wolf_gate",
+      "dir": "\\src\\assets\\img\\sale\\wolf_gate\\",
+      "name_ru": "Сенгилеевский закат",
+      "name_en": "Sengileyevsky sunset",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x60",
+      "year": "2019",
+      "price": "5000",
+      "parts": [
+        {
+          "name_ru": "Сенгилеевский закат",
+          "name_en": "Sengileyevsky sunset",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        },
+        {
+          "name_ru": "Сенгилеевский закат",
+          "name_en": "CloSengileyevsky sunsetud",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x60"
+        }
+      ]
+    }
+  ]
+}

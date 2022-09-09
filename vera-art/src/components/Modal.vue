@@ -3,17 +3,13 @@ import Carousel from "./Carousel.vue"
 import { ref, onMounted, computed, toRefs } from 'vue'
 
 const props = defineProps<{
-    jsonFile: string;
+    imageObject: any
 }>();
 
-const { jsonFile } = toRefs(props);
-
-const imgId = computed(() => {
-    return jsonFile.value.split("/").slice(-2)[0]
-})
+var imageObject = props.imageObject;
 
 const imgIdModal = computed(() => {
-    return jsonFile.value.split("/").slice(-2)[0] + "Modal"
+    return imageObject.id + "Modal"
 })
 
 </script>
@@ -24,7 +20,7 @@ const imgIdModal = computed(() => {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    <Carousel :jsonFile=jsonFile :imageId=imgId />
+                    <Carousel :imageObject=imageObject :imageId=imageObject.id />
                 </div>
             </div>
         </div>

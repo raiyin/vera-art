@@ -2,11 +2,11 @@
 import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 
 const props = defineProps<{
-    jsonFile: string;
+    imageObject: any;
     imageId: string
 }>();
 
-const { jsonFile } = toRefs(props);
+var imageObject = props.imageObject;
 const { imageId } = toRefs(props);
 let dir = ref()
 let parts = ref()
@@ -18,16 +18,14 @@ function makeFileName(dir: string, index: number) {
 }
 
 const imgIdtoLink = computed(() => {
-    return "#" + jsonFile.value.split("/").slice(-2)[0]
+    return "#" + imageObject.id
 })
 
 onBeforeMount(async () => {
-    const res = await fetch(jsonFile.value)
-    const total = await res.json()
-    dir.value = jsonFile.value.substring(0, jsonFile.value.lastIndexOf("/") + 1)
-    parts.value = total.parts
+    parts.value = imageObject.parts
     imgCountGTOne.value = parts.value.length > 1
 })
+
 
 </script>
 
@@ -46,7 +44,7 @@ onBeforeMount(async () => {
 
             <template v-for="value, index in parts">
                 <div :class="index === 0 ? 'carousel-item active' : 'carousel-item'">
-                    <img :src="makeFileName(dir, index + 1)" class="d-block" alt="...">
+                    <img :src="makeFileName(imageObject.dir, index + 1)" class="d-block" alt="...">
                     <div class="carousel-caption d-none d-md-block">
                         <h5>{{  value.name_ru  }}</h5>
                     </div>

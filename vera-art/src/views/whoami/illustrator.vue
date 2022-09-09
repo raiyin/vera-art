@@ -9,5 +9,15 @@ import Slogan from "../../components/Slogan.vue"
 <template>
     <Header />
     <Slogan />
+    <section class="container illustrator">
+
+    </section>
     <Footer />
 </template>
+
+<style scoped>
+.illustrator {
+    height: 960px;
+    width: 1280px;
+}
+</style>
