@@ -1,19 +1,29 @@
 <script setup lang="ts">
-    import CalendarIcon from "@/components/icons/IconCalendar.vue"
+import CalendarIcon from "@/components/icons/IconCalendar.vue"
+import { computed } from "vue";
+
+const props = defineProps<{
+    sideNewsObject: any
+}>();
+
+var sideNews = props.sideNewsObject;
+const newsId = computed(() => {
+    return "/newsitem/" + sideNews.id
+})
 </script>
         
 <template>
 
     <div class="other-news-item-wrapper">
-        <router-link to="/news/newsitem" class="other-news-item">
+        <router-link :to=newsId class="other-news-item">
             <div class="other-news-img">
-                <img src="@/assets/img/news/2022/08/28/back.jpg" />
+                <img :src="sideNews.img_back" />
             </div>
             <div class="other-news-desc">
-                <h6>Учебный год начинается! Запрыгиваем!!!</h6>
+                <h6>{{sideNews.title}}&nbsp;{{sideNews.subTitle}}</h6>
                 <div class="date">
                     <CalendarIcon />
-                    <span> 28 августа, 2022</span>
+                    <span>&nbsp;{{sideNews.datetimehuman}}</span>
                 </div>
             </div>
         </router-link>

@@ -1,34 +1,16 @@
 <script setup lang="ts">
 
-import Card from "../../components/Card.vue"
 import Header from "../../components/Header.vue"
 import Footer from "../../components/Footer.vue"
 import Slogan from "../../components/Slogan.vue"
 import Gallery from "@/components/Gallery.vue"
 
-import { ref, onMounted, computed } from 'vue'
-
-const extension = ".jpg"
-const baseDir = "/src/assets/img/allworks/painting/"
-let dirs = ref()
-
-function makeFullFileName(dir: string, fileName: string) {
-    return baseDir + dir + "/" + fileName
-}
-
-onMounted(async () => {
-    const res = await fetch("../../src/assets/img/allworks/painting/total.json")
-    const total = await res.json()
-    dirs.value = total.dirs
-})
 </script>
 
 <template>
 
     <Header />
     <Slogan />
-
-
     <section class="container shadow bg-body rounded border-right border-left main-content">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -46,10 +28,10 @@ onMounted(async () => {
         </ul>
         <div class="tab-content border-right border-left" id="myTabContent">
             <div class="tab-pane fade show active" id="painting" role="tabpanel" aria-labelledby="painting-tab">
-                <Gallery gallaryDir="../../src/assets/img/allworks/painting/" />
+                <Gallery gallaryDir="painting" />
             </div>
             <div class="tab-pane fade" id="Illustration" role="tabpanel" aria-labelledby="Illustration-tab">
-                <Gallery gallaryDir="../../src/assets/img/allworks/illustration/" />
+                <Gallery gallaryDir="illustration" />
             </div>
             <div class="tab-pane fade" id="graphics3d" role="tabpanel" aria-labelledby="graphics3d-tab">
             </div>

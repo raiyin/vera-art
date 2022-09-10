@@ -9,16 +9,11 @@ const props = defineProps<{
 
 
 var { gallaryDir } = toRefs(props);
-let imgDirs = ref()
 let images = ref()
-
-function makeFullFileName(imgDir: string, fileName: string) {
-    return gallaryDir.value + imgDir + "/" + fileName
-}
 
 async function fetchPosts() {
     try {
-        const response = await axios.get('http://localhost:3001/sale');
+        const response = await axios.get('http://localhost:3001/' + gallaryDir.value);
         images.value = response.data;
     }
     catch (e) {
@@ -28,12 +23,6 @@ async function fetchPosts() {
 
 onBeforeMount(async () => {
     await fetchPosts()
-})
-
-onMounted(async () => {
-    const res = await fetch(gallaryDir.value + "/total.json")
-    const total = await res.json()
-    imgDirs.value = total.dirs
 })
 
 </script>

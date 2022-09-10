@@ -23,11 +23,6 @@ const router = createRouter({
       name: "home",
       component: HomeView,
     },
-    // {
-    //   path: "/about",
-    //   name: "about",
-    //   component: () => import("../views/AboutView.vue"),
-    // },
     {
       path: "/artist",
       name: "artist",
@@ -74,10 +69,10 @@ const router = createRouter({
       component: ServicesView,
     },
     {
-      path: "/news/newsitem",
+      path: "/newsitem/:id",
       name: "newsitem",
       component: NewsItemView,
-    },
+    }
   ],
 });
 

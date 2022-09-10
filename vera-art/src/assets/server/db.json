@@ -521,5 +521,666 @@
         }
       ]
     }
+  ],
+  "painting": [
+    {
+      "id": "birds",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\birds\\",
+      "name_ru": "Птицы",
+      "name_en": "Birds",
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Птицы",
+          "name_en": "Birds",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        },
+        {
+          "name_ru": "Птицы",
+          "name_en": "Birds",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "borsch",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\borsch\\",
+      "name_ru": "Борщ",
+      "name_en": "Borsch",
+      "base": "холст",
+      "material": "масло",
+      "size": "50x40",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Борщ",
+          "name_en": "Borsch",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x40"
+        },
+        {
+          "name_ru": "Борщ",
+          "name_en": "Borsch",
+          "base": "холст",
+          "material": "масло",
+          "size": "50x40"
+        }
+      ]
+    },
+    {
+      "id": "branch",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\branch\\",
+      "name_ru": "Ветвь",
+      "name_en": "Branch",
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": "2012",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Ветвь",
+          "name_en": "Икфтср",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cat\\",
+      "name_ru": "Кот",
+      "name_en": "Cat",
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Кот",
+          "name_en": "Cat",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "cloud",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cloud\\",
+      "name_ru": "Облако",
+      "name_en": "Cloud",
+      "base": "холст",
+      "material": "масло",
+      "size": "120x100",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Облако",
+          "name_en": "Cloud",
+          "base": "холст",
+          "material": "масло",
+          "size": "120x100"
+        },
+        {
+          "name_ru": "Облако",
+          "name_en": "Cloud",
+          "base": "холст",
+          "material": "масло",
+          "size": "120x100"
+        }
+      ]
+    },
+    {
+      "id": "cold_springs",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cold_springs\\",
+      "name_ru": "Холодные родники города Ставрополя",
+      "name_en": "Cold springs of the city of Stavropol",
+      "base": "холст",
+      "material": "масло",
+      "size": "25x35",
+      "year": "2021",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Холодные родники города Ставрополя",
+          "name_en": "Cold springs of the city of Stavropol",
+          "base": "холст",
+          "material": "масло",
+          "size": "25x35"
+        }
+      ]
+    },
+    {
+      "id": "equestrienne",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\equestrienne\\",
+      "name_ru": "Наездница",
+      "name_en": "Equestrienne",
+      "base": "картон",
+      "material": "фломпстер",
+      "size": "",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Наездница",
+          "name_en": "Equestrienne",
+          "base": "картон",
+          "material": "фломастер",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "eye",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\eye\\",
+      "name_ru": "Глаз",
+      "name_en": "Eye",
+      "base": "картон",
+      "material": "пастель, уголь",
+      "size": "",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Глаз",
+          "name_en": "Eye",
+          "base": "картон",
+          "material": "пастель, уголь",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "flora_fauna",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\flora_fauna\\",
+      "name_ru": "Флора и Фауна",
+      "name_en": "Flora and Fauna",
+      "base": "холст",
+      "material": "масло",
+      "size": "30x40",
+      "year": "2020",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Флора и Фауна",
+          "name_en": "Flora and Fauna",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Флора и Фауна",
+          "name_en": "Flora and Fauna",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        }
+      ]
+    },
+    {
+      "id": "fluff",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\fluff\\",
+      "name_ru": "Пушок",
+      "name_en": "Fluff",
+      "base": "картон",
+      "material": "масло",
+      "size": "24x18",
+      "year": "2022",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Пушок",
+          "name_en": "Fluff",
+          "base": "картон",
+          "material": "масло",
+          "size": "24x18"
+        }
+      ]
+    },
+    {
+      "id": "herring_potato",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\herring_potato\\",
+      "name_ru": "Сельдь на газете",
+      "name_en": "Herring on the newspaper",
+      "base": "бумага",
+      "material": "акварель",
+      "size": "29x42",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Сельдь на газете",
+          "name_en": "Herring on the newspaper",
+          "base": "бумага",
+          "material": "акварель",
+          "size": "29x42"
+        }
+      ]
+    },
+    {
+      "id": "herring",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\herring\\",
+      "name_ru": "Селёдка",
+      "name_en": "Herring",
+      "base": "холст",
+      "material": "масло",
+      "size": "30x40",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Селёдка",
+          "name_en": "Herring",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        },
+        {
+          "name_ru": "Селёдка",
+          "name_en": "Herring",
+          "base": "холст",
+          "material": "масло",
+          "size": "30x40"
+        }
+      ]
+    },
+    {
+      "id": "homeland",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\homeland\\",
+      "name_ru": "Моя Родина",
+      "name_en": "My Homeland",
+      "base": "бумага",
+      "material": "гуашь",
+      "size": "15x21",
+      "year": "2022",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Моя Родина",
+          "name_en": "My Homeland",
+          "base": "бумага",
+          "material": "гуашь",
+          "size": "15x21"
+        }
+      ]
+    },
+    {
+      "id": "iris",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\iris\\",
+      "name_ru": "Ирисы",
+      "name_en": "Irises",
+      "base": "холст на картоне",
+      "material": "масло",
+      "size": "70x50",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Ирисы",
+          "name_en": "Irises",
+          "base": "холст на картоне",
+          "material": "масло",
+          "size": "70x50"
+        }
+      ]
+    },
+    {
+      "id": "king",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\king\\",
+      "name_ru": "Король",
+      "name_en": "King",
+      "base": "картон",
+      "material": "чернила",
+      "size": "",
+      "year": "2007",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Король",
+          "name_en": "King",
+          "base": "картон",
+          "material": "чернила",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "kitens",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\kitens\\",
+      "name_ru": "Котята",
+      "name_en": "Kitens",
+      "base": "картон",
+      "material": "акварель",
+      "size": "",
+      "year": "2018",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "lilac",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\lilac\\",
+      "name_ru": "Сирень",
+      "name_en": "Lilac",
+      "base": "холст на картоне",
+      "material": "акрил",
+      "size": "30x40",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Сирень",
+          "name_en": "Lilac",
+          "base": "холст на картоне",
+          "material": "акрил",
+          "size": "30x40"
+        }
+      ]
+    },
+    {
+      "id": "multipano_sunflower",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\multipano_sunflower\\",
+      "name_ru": "Мультипанно. Подсолнухи",
+      "name_en": "Multiparty. Sunflowers",
+      "base": "холст",
+      "material": "масло",
+      "size": "",
+      "year": "2021",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Мультипанно. Подсолнухи, 1",
+          "name_en": "Multiparty. Sunflowers, 1",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        },
+        {
+          "name_ru": "Мультипанно. Подсолнухи, 2",
+          "name_en": "Multiparty. Sunflowers, 2",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        },
+        {
+          "name_ru": "Мультипанно. Подсолнухи, 3",
+          "name_en": "Multiparty. Sunflowers, 3",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        },
+        {
+          "name_ru": "Мультипанно. Подсолнухи, 4",
+          "name_en": "Multiparty. Sunflowers, 4",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        },
+        {
+          "name_ru": "Мультипанно. Подсолнухи, 5",
+          "name_en": "Multiparty. Sunflowers, 5",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        },
+        {
+          "name_ru": "Мультипанно. Подсолнухи, общее",
+          "name_en": "Multiparty. Sunflowers, common",
+          "base": "холст",
+          "material": "масло",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "planet",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\planet\\",
+      "name_ru": "Планета",
+      "name_en": "Planet",
+      "base": "холст",
+      "material": "акрил",
+      "size": "",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Планета",
+          "name_en": "Planet",
+          "base": "холст",
+          "material": "акрил",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "Podaliri",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\Podaliri\\",
+      "name_ru": "Подалирий",
+      "name_en": "Podaliri",
+      "base": "картон",
+      "material": "акрил",
+      "size": "21x18",
+      "year": "2022",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Подалирий",
+          "name_en": "Podaliri",
+          "base": "картон",
+          "material": "акрил",
+          "size": "21x18"
+        }
+      ]
+    },
+    {
+      "id": "river_birches",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\river_birches\\",
+      "name_ru": "Река с берёзами",
+      "name_en": "River with birches",
+      "base": "холст",
+      "material": "масло",
+      "size": "60x90",
+      "year": "2020",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Река с берёзами",
+          "name_en": "River with birches",
+          "base": "холст",
+          "material": "масло",
+          "size": "60x90"
+        },
+        {
+          "name_ru": "Река с берёзами",
+          "name_en": "River with birches",
+          "base": "холст",
+          "material": "масло",
+          "size": "60x90"
+        }
+      ]
+    },
+    {
+      "id": "wolf",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\wolf\\",
+      "name_ru": "Волчёк",
+      "name_en": "Wolf",
+      "base": "бумага",
+      "material": "уголь, карандаш",
+      "size": "50x70",
+      "year": "2019",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Волчёк",
+          "name_en": "Wolf",
+          "base": "бумага",
+          "material": "уголь, карандаш",
+          "size": "50x70"
+        },
+        {
+          "name_ru": "Волчёк",
+          "name_en": "Wolf",
+          "base": "бумага",
+          "material": "уголь, карандаш",
+          "size": "50x70"
+        }
+      ]
+    }
+  ],
+  "illustration": [
+    {
+      "id": "Dragon",
+      "dir": "\\src\\assets\\img\\allworks\\Illustration\\Dragon\\",
+      "name_ru": "Дракон",
+      "name_en": "Dragon",
+      "base": "Adobe Photoshop",
+      "material": "",
+      "size": "",
+      "year": "2017",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Дракон",
+          "name_en": "Dragon",
+          "base": "Adobe Photoshop",
+          "material": "",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "Dragons",
+      "dir": "\\src\\assets\\img\\allworks\\Illustration\\Dragons\\",
+      "name_ru": "Драконы",
+      "name_en": "Dragons",
+      "base": "Adobe Photoshop",
+      "material": "",
+      "size": "",
+      "year": "2017",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Драконы",
+          "name_en": "Dragons",
+          "base": "Adobe Photoshop",
+          "material": "",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "Goldfinch",
+      "dir": "\\src\\assets\\img\\allworks\\Illustration\\Goldfinch\\",
+      "name_ru": "Щегол",
+      "name_en": "Goldfinch",
+      "base": "Adobe Photoshop",
+      "material": "",
+      "size": "",
+      "year": "2017",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Щегол",
+          "name_en": "Gonldfinch",
+          "base": "Adobe Photoshop",
+          "material": "",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "Horse",
+      "dir": "\\src\\assets\\img\\allworks\\Illustration\\Horse\\",
+      "name_ru": "Лошадь",
+      "name_en": "Horse",
+      "base": "Adobe Photoshop",
+      "material": "",
+      "size": "",
+      "year": "2017",
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Лошадь",
+          "name_en": "Horse",
+          "base": "Adobe Photoshop",
+          "material": "",
+          "size": ""
+        }
+      ]
+    }
+  ],
+  "news": [
+    {
+      "id": "20220828_1",
+      "datetime": "2022-08-28T13:37:27.141Z",
+      "datetimehuman": "21 августа, 2022",
+      "img_back": "\\src\\assets\\img\\news\\2022\\08\\28\\back.jpg",
+      "img_backfull": "\\src\\assets\\img\\news\\2022\\08\\28\\back_full.png",
+      "title": "Учебный год начинается!",
+      "subTitle": "Запрыгиваем!",
+      "text": "text"
+    },
+    {
+      "id": "20220828_2",
+      "datetime": "2022-08-28T13:37:27.141Z",
+      "datetimehuman": "22 августа, 2022",
+      "img_back": "\\src\\assets\\img\\news\\2022\\08\\28\\back.jpg",
+      "img_backfull": "\\src\\assets\\img\\news\\2022\\08\\28\\back_full.png",
+      "title": "Учебный год начинается!",
+      "subTitle": "Запрыгиваем!",
+      "text": "text"
+    },
+    {
+      "id": "20220828_3",
+      "datetime": "2022-08-28T13:37:27.141Z",
+      "datetimehuman": "23 августа, 2022",
+      "img_back": "\\src\\assets\\img\\news\\2022\\08\\28\\back.jpg",
+      "img_backfull": "\\src\\assets\\img\\news\\2022\\08\\28\\back_full.png",
+      "title": "Учебный год начинается!",
+      "subTitle": "Запрыгиваем!",
+      "text": "text"
+    }
   ]
 }

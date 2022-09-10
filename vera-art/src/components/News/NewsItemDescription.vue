@@ -1,14 +1,20 @@
 <script setup lang="ts">
-    import CalendarIcon from "@/components/icons/IconCalendar.vue"
+import CalendarIcon from "@/components/icons/IconCalendar.vue"
+
+const props = defineProps<{
+    newsObject: any
+}>();
+
+var newsObject = props.newsObject;
 </script>
         
 <template>
     <div class="desc">
         <div class="title">
-            <h2>Учебный год начинается! Запрыгиваем!!!</h2>
+            <h2>{{newsObject.title}}&nbsp;{{newsObject.subTitle}}</h2>
             <div class="date">
                 <CalendarIcon />
-                <span> 28 августа, 2022</span>
+                <span>&nbsp;{{newsObject.datetimehuman}}</span>
             </div>
         </div>
     </div>

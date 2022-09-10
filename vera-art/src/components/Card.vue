@@ -7,15 +7,11 @@ const props = defineProps<{
 }>();
 
 var imageObject = props.imageObject;
-
-
 const imgIdModalToLink = computed(() => {
     return "#" + imageObject.id + "Modal"
 })
 
-const mainCardImage = computed(() => {
-    console.log("@/"+ imageObject.dir + '1.jpg');
-    
+const mainCardImage = computed(() => {    
     return imageObject.dir + '1.jpg'
 })
 

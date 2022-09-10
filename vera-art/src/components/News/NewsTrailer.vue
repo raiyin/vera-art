@@ -1,19 +1,30 @@
 <script setup lang="ts">
 import CalendarIcon from "@/components/icons/IconCalendar.vue"
+import { ref, onMounted, computed, toRefs } from 'vue'
+
+const props = defineProps<{
+    newsObject: any
+}>();
+
+var newsObject = props.newsObject;
+
+const newsId = computed(() => {
+    return "/newsitem/" + newsObject.id
+})
 </script>
 
 <template>
     <section class="container text-center px-0">
         <div class="col d-flex justify-content-center">
             <div class="news-item">
-                <router-link to="/news/newsitem">
+                <router-link :to=newsId>
                     <div class="img-holder">
                         <div class="news-content">
-                            <p>Учебный год начинается!</p>
-                            <p>Запрыгиваем!!!</p>
+                            <p>{{newsObject.title}}</p>
+                            <p>{{newsObject.subTitle}}</p>
                             <p>
                                 <CalendarIcon />
-                                <span> 28 августа, 2022</span>
+                                <span>&nbsp;{{newsObject.datetimehuman}}</span>
                             </p>
                         </div>
                     </div>
