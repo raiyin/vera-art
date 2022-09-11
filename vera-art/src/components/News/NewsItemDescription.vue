@@ -1,11 +1,23 @@
-<script setup lang="ts">
+<script>
 import CalendarIcon from "@/components/icons/IconCalendar.vue"
 
-const props = defineProps<{
-    newsObject: any
-}>();
-
-var newsObject = props.newsObject;
+export default {
+    components: {
+        CalendarIcon,
+    },
+    props: {
+        newsObject: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+        return {
+            news: [],
+            currentNews: {}
+        }
+    }
+}
 </script>
         
 <template>

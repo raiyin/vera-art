@@ -1,29 +1,44 @@
-<script setup lang="ts">
+<script>
 import CalendarIcon from "@/components/icons/IconCalendar.vue"
 import { computed } from "vue";
 
-const props = defineProps<{
-    sideNewsObject: any
-}>();
-
-var sideNews = props.sideNewsObject;
-const newsId = computed(() => {
-    return "/newsitem/" + sideNews.id
-})
+export default {
+    components: {
+        CalendarIcon
+    },
+    props: {
+        sideNewsObject: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+    },
+    computed: {
+    },
+    //created() {
+    //    this.$watch(
+    //        () => this.$route.params,
+    //        (toParams, previousParams) => {
+    //            console.log(toParams);
+    //        }
+    //    )
+    //},
+}
 </script>
         
 <template>
 
     <div class="other-news-item-wrapper">
-        <router-link :to=newsId class="other-news-item">
+        <router-link :to=sideNewsObject.id class="other-news-item">
             <div class="other-news-img">
-                <img :src="sideNews.img_back" />
+                <img :src="sideNewsObject.img_back" />
             </div>
             <div class="other-news-desc">
-                <h6>{{sideNews.title}}&nbsp;{{sideNews.subTitle}}</h6>
+                <h6>{{sideNewsObject.title}}&nbsp;{{sideNewsObject.subTitle}}</h6>
                 <div class="date">
                     <CalendarIcon />
-                    <span>&nbsp;{{sideNews.datetimehuman}}</span>
+                    <span>&nbsp;{{sideNewsObject.datetimehuman}}</span>
                 </div>
             </div>
         </router-link>

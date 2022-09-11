@@ -1,44 +1,60 @@
-<script setup lang="ts">
+<script>
 
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import Slogan from "@/components/Slogan.vue"
-import SideNewsItem from "@/components/News/SideNewsTrailer.vue";
+import SideNewsTrailer from "@/components/News/SideNewsTrailer.vue";
 import NewsItemDescription from "@/components/News/NewsItemDescription.vue"
-import { onBeforeMount, onMounted, ref } from "vue";
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import axios from "axios";
 
-let newsArray = ref()
-let newsObject = ref()
-const route = useRoute()
-const router = useRouter()
 
-async function fetchData(path: String) {
-    try {
-        let newsid = path.substring(path.lastIndexOf('/') + 1)
-        var response = await axios.get('http://localhost:3001/news', { params: { id: newsid } });
-        newsObject.value = response.data[0];
+export default {
+    components: {
+        Header,
+        Footer, 
+        Slogan, 
+        SideNewsTrailer, 
+        NewsItemDescription
+    },
+    data() {
+        return {
+            news: [],
+            currentNews: {}
+        }
+    },
+    setup() {
+        const route = useRoute();
+        const router = useRouter()
+    },
+    methods: {
+        async fetchData() {
+            try {
+                let newsid = this.$route.path.substring(this.$route.path.lastIndexOf('/') + 1)
+                var response = await axios.get('http://localhost:3001/news', { params: { id: newsid } });
+                this.currentNews = response.data[0];
 
-        response = await axios.get('http://localhost:3001/news', { params: { id_ne: newsid } });
-        newsArray.value = response.data;
-
-        console.log("2" + Date.now);
-    }
-    catch (e) {
-        alert('Error')
+                response = await axios.get('http://localhost:3001/news', { params: { id_ne: newsid } });
+                this.news = response.data;
+            }
+            catch (e) {
+                console.log(e);
+                var propertyNames = Object.getOwnPropertyNames(e);
+                propertyNames.forEach(function (property) {
+                    var descriptor = Object.getOwnPropertyDescriptor(e, property);
+                    console.log(property + ":" + e[property] + ":" + propsToStr(descriptor));
+                });
+            }
+        },
+    },
+    mounted() {
+        this.fetchData();
+    },
+    async onBeforeMount() {
+        await router.isReady()
     }
 }
 
-onBeforeMount(async () => {
-    await router.isReady()
-    await fetchData(route.path)
-    console.log("1" + Date.now);    
-})
-
-onMounted(async () => {
-    console.log("3" + Date.now());
-})
 </script>
     
 <template>
@@ -50,17 +66,17 @@ onMounted(async () => {
         <article>
             <div class="news-header">
                 <div class="news_img">
-                    <img :src="newsObject.img_backfull" />
+                    <img :src="currentNews.img_backfull" />
                 </div>
                 <div class="other-news">
-                    <template v-for="index in 2" :key="index">
-                        <SideNewsItem :sideNewsObject="newsArray[index-1]" />
+                    <template v-for="newsItem in news">
+                        <SideNewsTrailer :sideNewsObject="newsItem" />
                     </template>
                 </div>
             </div>
-            <NewsItemDescription :newsObject="newsObject" />
+            <NewsItemDescription :newsObject="currentNews" />
             <div class="news-text">
-                <p>{{newsObject.text}}</p>
+                <p>{{currentNews.text}}</p>
             </div>
         </article>
     </section>
