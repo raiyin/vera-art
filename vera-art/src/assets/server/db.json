@@ -5,11 +5,13 @@
       "dir": "\\src\\assets\\img\\sale\\alley\\",
       "name_ru": "Аллея в центральном парке",
       "name_en": "Alley in Central Park",
+      "width": 50,
+      "height": 70,
       "base": "холст",
       "material": "масло",
       "size": "50x70",
-      "year": "2019",
-      "price": "15000",
+      "year": 2019,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Аллея в центральном парке",
@@ -32,25 +34,27 @@
       "dir": "\\src\\assets\\img\\sale\\birches\\",
       "name_ru": "Берёзы",
       "name_en": "Birches",
+      "width": 50,
+      "height": 40,
       "base": "холст",
       "material": "масло",
-      "size": "40x50",
-      "year": "2019",
-      "price": "15000",
+      "size": "50x40",
+      "year": 2019,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Берёзы",
           "name_en": "Birches",
           "base": "холст",
           "material": "масло",
-          "size": "40x50"
+          "size": "50x40"
         },
         {
           "name_ru": "Берёзы",
           "name_en": "Birches",
           "base": "холст",
           "material": "масло",
-          "size": "40x50"
+          "size": "50x40"
         }
       ]
     },
@@ -59,25 +63,27 @@
       "dir": "\\src\\assets\\img\\sale\\botanical_garden\\",
       "name_ru": "В ботаническом саду",
       "name_en": "In the botanical garden",
+      "width": 25,
+      "height": 35,
       "base": "холст",
       "material": "акварель",
-      "size": "35x25",
-      "year": "2021",
-      "price": "4000",
+      "size": "25x35",
+      "year": 2021,
+      "price": 4000,
       "parts": [
         {
           "name_ru": "В ботаническом саду",
           "name_en": "In the botanical garden",
           "base": "холст",
           "material": "акварель",
-          "size": "35x25"
+          "size": "25x35"
         },
         {
           "name_ru": "В ботаническом саду",
           "name_en": "In the botanical garden",
           "base": "холст",
           "material": "акварель",
-          "size": "35x25"
+          "size": "25x35"
         }
       ]
     },
@@ -86,18 +92,20 @@
       "dir": "\\src\\assets\\img\\sale\\distant_landscapes\\",
       "name_ru": "Далёкие пейзажи",
       "name_en": "Distant landscapes",
+      "width": 95,
+      "height": 55,
       "base": "холст",
       "material": "масло, текстурная паста",
-      "size": "55x95",
-      "year": "2018",
-      "price": "25000",
+      "size": "95x55",
+      "year": 2018,
+      "price": 25000,
       "parts": [
         {
           "name_ru": "Далёкие пейзажи",
           "name_en": "Distant landscapes",
           "base": "холст",
           "material": "масло",
-          "size": "55x95"
+          "size": "95x55"
         }
       ]
     },
@@ -106,25 +114,27 @@
       "dir": "\\src\\assets\\img\\sale\\hidden_place\\",
       "name_ru": "Потаённое место",
       "name_en": "A hidden place",
+      "width": 60,
+      "height": 50,
       "base": "холст",
       "material": "масло",
-      "size": "50x60",
-      "year": "2021",
-      "price": "20000",
+      "size": "60x50",
+      "year": 2021,
+      "price": 20000,
       "parts": [
         {
           "name_ru": "Потаённое место",
           "name_en": "A hidden place",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "60x50"
         },
         {
           "name_ru": "Потаённое место",
           "name_en": "A hidden place",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "60x50"
         }
       ]
     },
@@ -133,18 +143,20 @@
       "dir": "\\src\\assets\\img\\sale\\horse\\",
       "name_ru": "Конь",
       "name_en": "Horse",
+      "width": 70,
+      "height": 50,
       "base": "бумага",
       "material": "уголь",
-      "size": "50x70",
-      "year": "2019",
-      "price": "25000",
+      "size": "70x50",
+      "year": 2019,
+      "price": 25000,
       "parts": [
         {
           "name_ru": "Конь",
           "name_en": "Horse",
           "base": "бумага",
           "material": "уголь",
-          "size": "50x70"
+          "size": "70x50"
         }
       ]
     },
@@ -153,11 +165,13 @@
       "dir": "\\src\\assets\\img\\sale\\pond_swifts\\",
       "name_ru": "Пруд и стрижи",
       "name_en": "Pond and swifts",
+      "width": 50,
+      "height": 40,
       "base": "холст",
       "material": "масло",
       "size": "50x40",
-      "year": "2021",
-      "price": "15000",
+      "year": 2021,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Пруд и стрижи",
@@ -178,54 +192,58 @@
     {
       "id": "stilllife-peony",
       "dir": "\\src\\assets\\img\\sale\\stilllife-peony\\",
-      "name_ru": "Натюрморт",
-      "name_en": "Still-life",
+      "name_ru": "Натюрморт с пионами",
+      "name_en": "Still-life with peonies",
+      "width": 40,
+      "height": 30,
       "base": "холст",
       "material": "масло",
-      "size": "50x60",
-      "year": "2019",
-      "price": "15000",
+      "size": "40x30",
+      "year": 2020,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Натюрморт",
-          "name_en": "Still-life",
+          "name_en": "Still-life with peonies",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "40x30"
         },
         {
           "name_ru": "Натюрморт",
-          "name_en": "Still-life",
+          "name_en": "Still-life with peonies",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "40x30"
         }
       ]
     },
     {
       "id": "still-life_wine",
       "dir": "\\src\\assets\\img\\sale\\still-life_wine\\",
-      "name_ru": "Натюрморт с пионами",
-      "name_en": "Still life with peonies",
+      "name_ru": "Натюрморт",
+      "name_en": "Still life",
+      "width": 60,
+      "height": 50,
       "base": "холст",
       "material": "масло",
-      "size": "30x40",
-      "year": "2020",
-      "price": "15000",
+      "size": "60x50",
+      "year": 2019,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Натюрморт с пионами",
           "name_en": "Still life with peonies",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "60x50"
         },
         {
           "name_ru": "Натюрморт с пионами",
           "name_en": "Still life with peonies",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "60x50"
         }
       ]
     },
@@ -234,18 +252,20 @@
       "dir": "\\src\\assets\\img\\sale\\still-life-peonypie\\",
       "name_ru": "Натюрморт с пионами и пирогом",
       "name_en": "Still life with peonies and pie",
+      "width": 29,
+      "height": 42,
       "base": "бумага",
       "material": "акварель",
-      "size": "42x29",
-      "year": "2018",
-      "price": "10000",
+      "size": "29x42",
+      "year": 2018,
+      "price": 10000,
       "parts": [
         {
           "name_ru": "Натюрморт с пионами и пирогом",
           "name_en": "Still life with peonies and pie",
           "base": "бумага",
           "material": "акварель",
-          "size": "42x29"
+          "size": "29x42"
         }
       ]
     },
@@ -254,18 +274,20 @@
       "dir": "\\src\\assets\\img\\sale\\sunflowers\\",
       "name_ru": "Подсолнухи",
       "name_en": "Sunflowers",
+      "width": 30,
+      "height": 41,
       "base": "бумага",
       "material": "акварель",
-      "size": "41x30",
-      "year": "2022",
-      "price": "10000",
+      "size": "30x41",
+      "year": 2022,
+      "price": 10000,
       "parts": [
         {
           "name_ru": "Подсолнухи",
           "name_en": "Sunflowers",
           "base": "бумага",
           "material": "акварель",
-          "size": "41x30"
+          "size": "30x41"
         }
       ]
     },
@@ -274,25 +296,27 @@
       "dir": "\\src\\assets\\img\\sale\\sunset_sengeley\\",
       "name_ru": "На закате, Сенгилеевское водохранилище",
       "name_en": "At sunset, the Sengileevsky reservoir",
+      "width": 60,
+      "height": 50,
       "base": "холст",
       "material": "масло",
-      "size": "50x60",
-      "year": "2021",
-      "price": "10000",
+      "size": "60x50",
+      "year": 2021,
+      "price": 10000,
       "parts": [
         {
           "name_ru": "На закате, Сенгилеевское водохранилище",
           "name_en": "At sunset, the Sengileevsky reservoir",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "60x50"
         },
         {
           "name_ru": "На закате, Сенгилеевское водохранилище",
           "name_en": "At sunset, the Sengileevsky reservoir",
           "base": "холст",
           "material": "oiмаслоl",
-          "size": "50x60"
+          "size": "60x50"
         }
       ]
     },
@@ -301,18 +325,20 @@
       "dir": "\\src\\assets\\img\\sale\\swan\\",
       "name_ru": "Иллюстрация. Лебедь и лебёдушка",
       "name_en": "Illustration. The swan and the swanny",
+      "width": 42,
+      "height": 30,
       "base": "бумага",
       "material": "акварель",
-      "size": "30x42",
-      "year": "2020",
-      "price": "15000",
+      "size": "42x30",
+      "year": 2020,
+      "price": 15000,
       "parts": [
         {
           "name_ru": "Иллюстрация. Лебедь и лебёдушка",
           "name_en": "Illustration. The swan and the swanny",
           "base": "canбумагаvas",
           "material": "акварель",
-          "size": "30x42"
+          "size": "42x30"
         }
       ]
     },
@@ -321,18 +347,20 @@
       "dir": "\\src\\assets\\img\\sale\\thumbnail_1\\",
       "name_ru": "Миниатюра",
       "name_en": "Thumbnail",
+      "width": 24,
+      "height": 18,
       "base": "холст на картоне",
       "material": "масло",
-      "size": "18x24",
-      "year": "2021",
-      "price": "1500",
+      "size": "24x18",
+      "year": 2021,
+      "price": 1500,
       "parts": [
         {
           "name_ru": "Миниатюра",
           "name_en": "Thumbnail",
           "base": "холст на картоне",
           "material": "масло",
-          "size": "18x24"
+          "size": "24x18"
         }
       ]
     },
@@ -341,11 +369,13 @@
       "dir": "\\src\\assets\\img\\sale\\thumbnail_2\\",
       "name_ru": "Миниатюра",
       "name_en": "Thumbnail",
+      "width": 18,
+      "height": 24,
       "base": "холст на картоне",
       "material": "масло",
       "size": "18x24",
-      "year": "2021",
-      "price": "1500",
+      "year": 2021,
+      "price": 1500,
       "parts": [
         {
           "name_ru": "Миниатюра",
@@ -361,11 +391,13 @@
       "dir": "\\src\\assets\\img\\sale\\thumbnail_3\\",
       "name_ru": "Миниатюра",
       "name_en": "Thumbnail",
+      "width": 18,
+      "height": 24,
       "base": "холст на картоне",
       "material": "масло",
       "size": "18x24",
-      "year": "2021",
-      "price": "1500",
+      "year": 2021,
+      "price": 1500,
       "parts": [
         {
           "name_ru": "Миниатюра",
@@ -381,11 +413,13 @@
       "dir": "\\src\\assets\\img\\sale\\thumbnail_4\\",
       "name_ru": "Миниатюра",
       "name_en": "Thumbnail",
+      "width": 18,
+      "height": 24,
       "base": "холст на картоне",
       "material": "масло",
       "size": "18x24",
-      "year": "2021",
-      "price": "1500",
+      "year": 2021,
+      "price": 1500,
       "parts": [
         {
           "name_ru": "Миниатюра",
@@ -401,53 +435,55 @@
       "dir": "\\src\\assets\\img\\sale\\triptych\\",
       "name_ru": "Триптих",
       "name_en": "Triptych",
+      "width": 0,
+      "height": 0,
       "base": "холст",
       "material": "масло",
       "size": "",
-      "year": "2020",
-      "price": "30000",
+      "year": 2020,
+      "price": 30000,
       "parts": [
         {
           "name_ru": "Пленер за городом, часть 1",
           "name_en": "Plein air outside the city, part 1",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         },
         {
           "name_ru": "Пленер за городом, часть 1",
           "name_en": "Plein air outside the city, part 1",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         },
         {
           "name_ru": "Пленер за городом, часть 2",
           "name_en": "Plein air outside the city, part 2",
           "base": "холст",
           "material": "масло",
-          "size": "35x25"
+          "size": "25x35"
         },
         {
           "name_ru": "Пленер за городом, часть 2",
           "name_en": "Plein air outside the city, part 2",
           "base": "холст",
           "material": "масло",
-          "size": "35x25"
+          "size": "25x35"
         },
         {
           "name_ru": "Пленер за городом, часть 3",
           "name_en": "Plein air outside the city, part 3",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         },
         {
           "name_ru": "Пленер за городом, часть 3",
           "name_en": "Plein air outside the city, part 3",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         }
       ]
     },
@@ -456,11 +492,13 @@
       "dir": "\\src\\assets\\img\\sale\\two_flowers_secret\\",
       "name_ru": "Тайна двух цветков",
       "name_en": "The secret of two flowers",
+      "width": 50,
+      "height": 50,
       "base": "холст",
       "material": "акрил",
       "size": "50x50",
-      "year": "2020",
-      "price": "10000",
+      "year": 2020,
+      "price": 10000,
       "parts": [
         {
           "name_ru": "Тайна двух цветков, часть 1",
@@ -468,7 +506,7 @@
           "base": "холст",
           "material": "акрил",
           "size": "50x50",
-          "year": "2020"
+          "year": 2020
         },
         {
           "name_ru": "Тайна двух цветков, часть 1",
@@ -483,7 +521,7 @@
           "base": "холст",
           "material": "акрил",
           "size": "50x50",
-          "year": "2020"
+          "year": 2020
         },
         {
           "name_ru": "Тайна двух цветков, часть 2",
@@ -499,10 +537,12 @@
       "dir": "\\src\\assets\\img\\sale\\wolf_gate\\",
       "name_ru": "Сенгилеевский закат",
       "name_en": "Sengileyevsky sunset",
+      "width": 60,
+      "height": 50,
       "base": "холст",
       "material": "масло",
-      "size": "50x60",
-      "year": "2019",
+      "size": "60x50",
+      "year": 2019,
       "price": "5000",
       "parts": [
         {
@@ -510,14 +550,14 @@
           "name_en": "Sengileyevsky sunset",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "60x50"
         },
         {
           "name_ru": "Сенгилеевский закат",
           "name_en": "CloSengileyevsky sunsetud",
           "base": "холст",
           "material": "масло",
-          "size": "50x60"
+          "size": "60x50"
         }
       ]
     }
@@ -528,10 +568,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\birds\\",
       "name_ru": "Птицы",
       "name_en": "Birds",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "карандаш",
       "size": "",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -555,10 +597,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\borsch\\",
       "name_ru": "Борщ",
       "name_en": "Borsch",
+      "width": 40,
+      "height": 50,
       "base": "холст",
       "material": "масло",
       "size": "50x40",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -566,14 +610,14 @@
           "name_en": "Borsch",
           "base": "холст",
           "material": "масло",
-          "size": "50x40"
+          "size": "40x50"
         },
         {
           "name_ru": "Борщ",
           "name_en": "Borsch",
           "base": "холст",
           "material": "масло",
-          "size": "50x40"
+          "size": "40x50"
         }
       ]
     },
@@ -582,10 +626,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\branch\\",
       "name_ru": "Ветвь",
       "name_en": "Branch",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "карандаш",
       "size": "",
-      "year": "2012",
+      "year": 2012,
       "price": "",
       "parts": [
         {
@@ -602,10 +648,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\cat\\",
       "name_ru": "Кот",
       "name_en": "Cat",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "карандаш",
       "size": "",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -622,10 +670,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\cloud\\",
       "name_ru": "Облако",
       "name_en": "Cloud",
+      "width": 100,
+      "height": 120,
       "base": "холст",
       "material": "масло",
       "size": "120x100",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -633,14 +683,14 @@
           "name_en": "Cloud",
           "base": "холст",
           "material": "масло",
-          "size": "120x100"
+          "size": "100x120"
         },
         {
           "name_ru": "Облако",
           "name_en": "Cloud",
           "base": "холст",
           "material": "масло",
-          "size": "120x100"
+          "size": "100x120"
         }
       ]
     },
@@ -649,10 +699,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\cold_springs\\",
       "name_ru": "Холодные родники города Ставрополя",
       "name_en": "Cold springs of the city of Stavropol",
+      "width": 35,
+      "height": 25,
       "base": "холст",
       "material": "масло",
-      "size": "25x35",
-      "year": "2021",
+      "size": "35x25",
+      "year": 2021,
       "price": "",
       "parts": [
         {
@@ -660,7 +712,7 @@
           "name_en": "Cold springs of the city of Stavropol",
           "base": "холст",
           "material": "масло",
-          "size": "25x35"
+          "size": "35x25"
         }
       ]
     },
@@ -669,10 +721,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\equestrienne\\",
       "name_ru": "Наездница",
       "name_en": "Equestrienne",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "фломпстер",
       "size": "",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -689,10 +743,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\eye\\",
       "name_ru": "Глаз",
       "name_en": "Eye",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "пастель, уголь",
       "size": "",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -709,10 +765,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\flora_fauna\\",
       "name_ru": "Флора и Фауна",
       "name_en": "Flora and Fauna",
+      "width": 40,
+      "height": 30,
       "base": "холст",
       "material": "масло",
       "size": "30x40",
-      "year": "2020",
+      "year": 2020,
       "price": "",
       "parts": [
         {
@@ -720,14 +778,14 @@
           "name_en": "Flora and Fauna",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         },
         {
           "name_ru": "Флора и Фауна",
           "name_en": "Flora and Fauna",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         }
       ]
     },
@@ -736,10 +794,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\fluff\\",
       "name_ru": "Пушок",
       "name_en": "Fluff",
+      "width": 18,
+      "height": 24,
       "base": "картон",
       "material": "масло",
-      "size": "24x18",
-      "year": "2022",
+      "size": "18x24",
+      "year": 2022,
       "price": "",
       "parts": [
         {
@@ -747,7 +807,7 @@
           "name_en": "Fluff",
           "base": "картон",
           "material": "масло",
-          "size": "24x18"
+          "size": "18x24"
         }
       ]
     },
@@ -756,10 +816,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\herring_potato\\",
       "name_ru": "Сельдь на газете",
       "name_en": "Herring on the newspaper",
+      "width": 42,
+      "height": 29,
       "base": "бумага",
       "material": "акварель",
-      "size": "29x42",
-      "year": "2019",
+      "size": "42x29",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -767,7 +829,7 @@
           "name_en": "Herring on the newspaper",
           "base": "бумага",
           "material": "акварель",
-          "size": "29x42"
+          "size": "42x29"
         }
       ]
     },
@@ -776,10 +838,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\herring\\",
       "name_ru": "Селёдка",
       "name_en": "Herring",
+      "width": 40,
+      "height": 30,
       "base": "холст",
       "material": "масло",
-      "size": "30x40",
-      "year": "2019",
+      "size": "40x30",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -787,14 +851,14 @@
           "name_en": "Herring",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         },
         {
           "name_ru": "Селёдка",
           "name_en": "Herring",
           "base": "холст",
           "material": "масло",
-          "size": "30x40"
+          "size": "40x30"
         }
       ]
     },
@@ -803,10 +867,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\homeland\\",
       "name_ru": "Моя Родина",
       "name_en": "My Homeland",
+      "width": 21,
+      "height": 15,
       "base": "бумага",
       "material": "гуашь",
-      "size": "15x21",
-      "year": "2022",
+      "size": "21x15",
+      "year": 2022,
       "price": "",
       "parts": [
         {
@@ -814,7 +880,7 @@
           "name_en": "My Homeland",
           "base": "бумага",
           "material": "гуашь",
-          "size": "15x21"
+          "size": "21x15"
         }
       ]
     },
@@ -823,10 +889,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\iris\\",
       "name_ru": "Ирисы",
       "name_en": "Irises",
+      "width": 50,
+      "height": 70,
       "base": "холст на картоне",
       "material": "масло",
-      "size": "70x50",
-      "year": "2019",
+      "size": "50x70",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -834,7 +902,7 @@
           "name_en": "Irises",
           "base": "холст на картоне",
           "material": "масло",
-          "size": "70x50"
+          "size": "50x70"
         }
       ]
     },
@@ -843,10 +911,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\king\\",
       "name_ru": "Король",
       "name_en": "King",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "чернила",
       "size": "",
-      "year": "2007",
+      "year": 2007,
       "price": "",
       "parts": [
         {
@@ -863,10 +933,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\kitens\\",
       "name_ru": "Котята",
       "name_en": "Kitens",
+      "width": 0,
+      "height": 0,
       "base": "картон",
       "material": "акварель",
       "size": "",
-      "year": "2018",
+      "year": 2018,
       "price": "",
       "parts": [
         {
@@ -904,10 +976,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\lilac\\",
       "name_ru": "Сирень",
       "name_en": "Lilac",
+      "width": 40,
+      "height": 30,
       "base": "холст на картоне",
       "material": "акрил",
-      "size": "30x40",
-      "year": "2019",
+      "size": "40x30",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -915,7 +989,7 @@
           "name_en": "Lilac",
           "base": "холст на картоне",
           "material": "акрил",
-          "size": "30x40"
+          "size": "40x30"
         }
       ]
     },
@@ -924,10 +998,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\multipano_sunflower\\",
       "name_ru": "Мультипанно. Подсолнухи",
       "name_en": "Multiparty. Sunflowers",
+      "width": 0,
+      "height": 0,
       "base": "холст",
       "material": "масло",
       "size": "",
-      "year": "2021",
+      "year": 2021,
       "price": "",
       "parts": [
         {
@@ -979,10 +1055,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\planet\\",
       "name_ru": "Планета",
       "name_en": "Planet",
+      "width": 0,
+      "height": 0,
       "base": "холст",
       "material": "акрил",
       "size": "",
-      "year": "2019",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -999,10 +1077,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\Podaliri\\",
       "name_ru": "Подалирий",
       "name_en": "Podaliri",
+      "width": 18,
+      "height": 21,
       "base": "картон",
       "material": "акрил",
-      "size": "21x18",
-      "year": "2022",
+      "size": "18x21",
+      "year": 2022,
       "price": "",
       "parts": [
         {
@@ -1010,7 +1090,7 @@
           "name_en": "Podaliri",
           "base": "картон",
           "material": "акрил",
-          "size": "21x18"
+          "size": "18x21"
         }
       ]
     },
@@ -1019,10 +1099,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\river_birches\\",
       "name_ru": "Река с берёзами",
       "name_en": "River with birches",
+      "width": 90,
+      "height": 60,
       "base": "холст",
       "material": "масло",
-      "size": "60x90",
-      "year": "2020",
+      "size": "90x60",
+      "year": 2020,
       "price": "",
       "parts": [
         {
@@ -1030,14 +1112,14 @@
           "name_en": "River with birches",
           "base": "холст",
           "material": "масло",
-          "size": "60x90"
+          "size": "90x60"
         },
         {
           "name_ru": "Река с берёзами",
           "name_en": "River with birches",
           "base": "холст",
           "material": "масло",
-          "size": "60x90"
+          "size": "90x60"
         }
       ]
     },
@@ -1046,10 +1128,12 @@
       "dir": "\\src\\assets\\img\\allworks\\painting\\wolf\\",
       "name_ru": "Волчёк",
       "name_en": "Wolf",
+      "width": 70,
+      "height": 50,
       "base": "бумага",
       "material": "уголь, карандаш",
-      "size": "50x70",
-      "year": "2019",
+      "size": "70x50",
+      "year": 2019,
       "price": "",
       "parts": [
         {
@@ -1057,14 +1141,14 @@
           "name_en": "Wolf",
           "base": "бумага",
           "material": "уголь, карандаш",
-          "size": "50x70"
+          "size": "70x50"
         },
         {
           "name_ru": "Волчёк",
           "name_en": "Wolf",
           "base": "бумага",
           "material": "уголь, карандаш",
-          "size": "50x70"
+          "size": "70x50"
         }
       ]
     }
@@ -1078,7 +1162,7 @@
       "base": "Adobe Photoshop",
       "material": "",
       "size": "",
-      "year": "2017",
+      "year": 2017,
       "price": "",
       "parts": [
         {
@@ -1098,7 +1182,7 @@
       "base": "Adobe Photoshop",
       "material": "",
       "size": "",
-      "year": "2017",
+      "year": 2017,
       "price": "",
       "parts": [
         {
@@ -1118,7 +1202,7 @@
       "base": "Adobe Photoshop",
       "material": "",
       "size": "",
-      "year": "2017",
+      "year": 2017,
       "price": "",
       "parts": [
         {
@@ -1138,7 +1222,7 @@
       "base": "Adobe Photoshop",
       "material": "",
       "size": "",
-      "year": "2017",
+      "year": 2017,
       "price": "",
       "parts": [
         {
@@ -1158,7 +1242,7 @@
       "datetimehuman": "21 августа, 2022",
       "img_back": "\\src\\assets\\img\\news\\2022\\08\\28\\back.jpg",
       "img_backfull": "\\src\\assets\\img\\news\\2022\\08\\28\\back_full.png",
-      "title": "Учебный год начинается!",
+      "title": "Учебный год отправляется!",
       "subTitle": "Запрыгиваем!",
       "text": "text"
     },
