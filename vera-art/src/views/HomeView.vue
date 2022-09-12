@@ -6,6 +6,8 @@ import Slogan from "../components/Slogan.vue"
 import Gallery from "@/components/Gallery.vue"
 import MySelect from "@/components/MySelect.vue"
 import axios from 'axios'
+import vSelect from 'vue-select'
+import 'vue-select/dist/vue-select.css';
 
 export default {
     components: {
@@ -13,7 +15,8 @@ export default {
         Footer,
         Slogan,
         Gallery,
-        MySelect
+        MySelect,
+        vSelect
     },
     props: [],
     data() {
@@ -22,7 +25,7 @@ export default {
             selectedSort: '',
             sortOptions: [
                 { value: "name_ru", name: 'По названию' },
-                { value: "year", name: 'По году' },
+                { value: "year", name: 'По новизне' },
                 { value: "height", name: 'По высоте' },
                 { value: "width", name: 'По ширине' }
             ],
@@ -45,32 +48,50 @@ export default {
                     console.log(property + ":" + e[property] + ":" + propsToStr(descriptor));
                 });
             }
-        },
+        }
     },
     mounted() {
         this.fetchData();
     },
     computed: {
-        sortedImages() {
-            return [...this.images].sort((images_first, images_second) => {
-                if (typeof images_first[this.selectedSort]==="string")
-                    return images_first[this.selectedSort]?.localeCompare(images_second[this.selectedSort])
-                if (typeof images_first[this.selectedSort] === "number")
-                    return images_first[this.selectedSort] - images_second[this.selectedSort]
+        // sortedImages() {
+        //     return [...this.images].sort((image_first, image_second) => {
+        //         if (typeof image_first[this.selectedSort] === "string")
+        //             return image_first[this.selectedSort]?.localeCompare(image_second[this.selectedSort])
+        //         if (typeof image_first[this.selectedSort] === "number")
+        //             return image_first[this.selectedSort] - image_second[this.selectedSort]
+        //     })
+        // }
+    },
+    watch: {
+        selectedSort(newValue, oldValue) {
+            this.images.sort((image_first, image_second) => {
+                if (typeof image_first[this.selectedSort] === "string")
+                    return image_first[this.selectedSort]?.localeCompare(image_second[this.selectedSort])
+                if (typeof image_first[this.selectedSort] === "number")
+                    return image_first[this.selectedSort] - image_second[this.selectedSort]
+
             })
         }
-    }
+    },
 }
 </script>
 
 <template>
     <Header />
     <Slogan />
-    <my-select v-model="selectedSort" :options="sortOptions" />
-    <Gallery :images="sortedImages" />
+    <!-- <my-select v-model="selectedSort" :options="sortOptions" /> -->
+    <section class="container px-0 uniselect">
+        <v-select :options="sortOptions" :reduce="item => item.value" label="name" v-model="selectedSort"
+            inputId="value" placeholder="Выберите из списка">
+            Выберите из списка
+        </v-select>
+
+    </section>
+    <!-- <Gallery :images="sortedImages" /> -->
+    <Gallery :images="images" />
     <Footer />
 </template>
 
 <style scoped>
-
 </style>
