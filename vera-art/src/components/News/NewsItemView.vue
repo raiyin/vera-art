@@ -1,8 +1,5 @@
 <script>
 
-import Header from "@/components/Header.vue"
-import Footer from "@/components/Footer.vue"
-import Slogan from "@/components/Slogan.vue"
 import SideNewsTrailer from "@/components/News/SideNewsTrailer.vue";
 import NewsItemDescription from "@/components/News/NewsItemDescription.vue"
 import { useRouter, useRoute } from 'vue-router'
@@ -11,10 +8,7 @@ import axios from "axios";
 
 export default {
     components: {
-        Header,
-        Footer, 
-        Slogan, 
-        SideNewsTrailer, 
+        SideNewsTrailer,
         NewsItemDescription
     },
     data() {
@@ -59,9 +53,6 @@ export default {
     
 <template>
 
-    <Header />
-    <Slogan />
-
     <section class="container text-center px-0 main-content">
         <article>
             <div class="news-header">
@@ -80,7 +71,6 @@ export default {
             </div>
         </article>
     </section>
-    <Footer />
 </template>
     
 <style scoped>

@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-    <section class="container-fluid my-shadow bg-body rounded px-2">
+    <section class="container-fluid my-shadow bg-body rounded">
         <nav class="navbar navbar-expand-md custom-navbar">
             <router-link class="navbar-brand" to="/">
                 <img src="../assets/icons/logo-small.png" alt="" width="65" height="62">
@@ -43,16 +43,16 @@ import { RouterLink, RouterView } from "vue-router";
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/shop">Магазин</router-link>
-                    </li>
-                    <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/allworks">Все&nbsp;работы</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/services">Услуги</router-link>
+                        <router-link class="nav-link menu-item" to="/news">Новости</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/news">Новости</router-link>
+                        <router-link class="nav-link menu-item" to="/shop">Магазин</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link menu-item" to="/services">Услуги</router-link>
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/paydelivery">Оплата/Доставка</router-link>

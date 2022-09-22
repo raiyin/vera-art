@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "axios": "^0.27.2",
+    "gsap": "^3.11.1",
     "mdb-vue-ui-kit": "^2.0.0",
     "pinia": "^2.0.17",
     "vue": "^3.2.37",

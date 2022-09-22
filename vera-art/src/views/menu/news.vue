@@ -1,7 +1,5 @@
 <script setup lang="ts">
 
-import Header from "@/components/Header.vue"
-import Footer from "@/components/Footer.vue"
 import NewsTrailer from "@/components/News/NewsTrailer.vue";
 import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 import axios from 'axios'
@@ -25,8 +23,6 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-    <Header />
-
     <section class="container text-center main-content">
         <div class="row gx-0">
             <template v-for="newsObject in news">
@@ -36,7 +32,6 @@ onBeforeMount(async () => {
             </template>
         </div>
     </section>
-    <Footer />
 </template>
 
 <style scoped>

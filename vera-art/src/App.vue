@@ -1,11 +1,37 @@
-<script setup lang="ts">
+<script>
 import { RouterLink, RouterView } from "vue-router";
+import Header from "@/components/Header.vue"
+import Footer from "@/components/Footer.vue"
 
+export default {
+    components: {
+        Header,
+        Footer,
+    },
+    props: [],
+    data() {
+        return {
+        }
+    },
+    setup() {
+    },
+    methods: {
+    },
+    mounted() {
+    },
+    computed: {
+    },
+    watch: {
+    },
+}
 </script>
 
 <template>
+    <Header />
     <router-view :key="$route.fullPath"></router-view>
+    <Footer />
 </template>
 
 <style scoped>
+
 </style>

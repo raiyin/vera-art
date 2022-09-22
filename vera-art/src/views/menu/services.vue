@@ -1,11 +1,16 @@
 <script setup lang="ts">
 
-import Header from "../../components/Header.vue"
-import Footer from "../../components/Footer.vue"
-
 </script>
 
 <template>
-    <Header />
-    <Footer />
+    <section class="container services">
+
+    </section>
 </template>
+
+<style scoped>
+.services {
+    height: 960px;
+    width: 1280px;
+}
+</style>

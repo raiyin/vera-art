@@ -1,15 +1,10 @@
 <script>
 
-import Header from "../../components/Header.vue"
-import Footer from "../../components/Footer.vue"
 import Gallery from "@/components/Gallery.vue"
 import axios from 'axios'
 
-
 export default {
     components: {
-        Header,
-        Footer,
         Gallery,
     },
     props: [],
@@ -55,7 +50,6 @@ export default {
 
 <template>
 
-    <Header />
     <section class="container bg-body rounded border-right border-left main-content">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -84,8 +78,6 @@ export default {
         </div>
 
     </section>
-
-    <Footer />
 </template>
 
 <style scoped>

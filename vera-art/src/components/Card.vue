@@ -1,20 +1,49 @@
-<script setup lang="ts">
+<script>
 import Modal from "./Modal.vue";
 import { ref, onMounted, computed, toRefs } from 'vue'
+import gsap from 'gsap'
 
-const props = defineProps<{
-    imageObject: any
-}>();
+// const props = defineProps<{
+//     imageObject: any
+// }>();
 
-var imageObject = props.imageObject;
-const imgIdModalToLink = computed(() => {
-    return "#" + imageObject.id + "Modal"
-})
+// var imageObject = props.imageObject;
+// const imgIdModalToLink = computed(() => {
+//     return "#" + imageObject.id + "Modal"
+// })
 
-const mainCardImage = computed(() => {
-    return imageObject.dir + '1.jpg'
-})
+// const mainCardImage = computed(() => {
+//     return imageObject.dir + '1.jpg'
+// })
 
+
+
+export default {
+    components: {
+        Modal
+    },
+    props: {
+        imageObject: {
+            type: Object
+        }
+    },
+    setup() {
+    },
+    methods: {
+    },
+    mounted() {
+    },
+    computed: {
+        imgIdModalToLink() {
+            return "#" + this.imageObject.id + "Modal"
+        },
+        mainCardImage() {
+            return this.imageObject.dir + '1.jpg'
+        }
+    },
+    watch: {
+    },
+}
 </script>
 
 <template>
@@ -44,6 +73,10 @@ const mainCardImage = computed(() => {
 .card-body {
     display: flex;
     align-items: center;
+}
+
+.card {
+    opacity: 1;
 }
 
 .desc {
