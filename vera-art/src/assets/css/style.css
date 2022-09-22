@@ -32,13 +32,34 @@
 	src: url('../fonts/Ubuntu-Regular.ttf');
 }
 
-html, body, #app{
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
+html,
+body,
+#app {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
 }
 
-.main-content{
-	margin-top: 2rem;
-	margin-bottom: 2rem;
+/* body {
+	overflow: scroll;
+} */
+body::-webkit-scrollbar {
+	display: none;
+}
+
+body {
+	-ms-overflow-style: none;
+	/* IE and Edge */
+	scrollbar-width: none;
+	/* Firefox */
+	height: 100%;
+}
+
+html {
+	height: 100%;
+}
+
+.main-content {
+	margin-top: 1rem;
+	flex-grow: 1;
 }

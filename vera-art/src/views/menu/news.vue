@@ -2,7 +2,6 @@
 
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
-import Slogan from "@/components/Slogan.vue"
 import NewsTrailer from "@/components/News/NewsTrailer.vue";
 import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 import axios from 'axios'
@@ -27,7 +26,6 @@ onBeforeMount(async () => {
 
 <template>
     <Header />
-    <Slogan />
 
     <section class="container text-center main-content">
         <div class="row gx-0">

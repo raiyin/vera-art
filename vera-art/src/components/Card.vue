@@ -18,8 +18,8 @@ const mainCardImage = computed(() => {
 </script>
 
 <template>
-    <div class="col d-flex justify-content-center">
-        <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 20rem;">
+    <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
+        <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 100%;">
             <img :src=mainCardImage class="card-img-top" alt="..." data-bs-toggle="modal"
                 :data-bs-target=imgIdModalToLink>
             <div class="card-body">

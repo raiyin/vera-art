@@ -27,7 +27,7 @@ export default {
 </script>
 
 <template>
-    <section class="container text-center main-content">
+    <section class="container text-center main-content px-0">
         <div class="row">
             <Card v-for="imgObject in images" :imageObject="imgObject" :key="imgObject.id" />
         </div>

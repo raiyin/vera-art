@@ -8,6 +8,7 @@ import BrieflyView from "../views/whoami/briefly.vue";
 import IllustratorView from "../views/whoami/illustrator.vue";
 import TeacherView from "../views/whoami/teacher.vue";
 import VolunteerView from "../views/whoami/volunteer.vue";
+import Shop from "../views/menu/shop.vue";
 import AllWorksView from "../views/menu/all_works.vue";
 import NewsView from "../views/menu/news.vue";
 import PayDeliveryView from "../views/menu/pay_deliver.vue";
@@ -47,6 +48,11 @@ const router = createRouter({
       path: "/volunteer",
       name: "volunteer",
       component: VolunteerView,
+    },
+    {
+      path: "/shop",
+      name: "shop",
+      component: Shop,
     },
     {
       path: "/allworks",

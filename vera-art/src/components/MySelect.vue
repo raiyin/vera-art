@@ -31,18 +31,18 @@ export default {
 </script>
 
 <template>
-    <section class="container px-0">
-        <v-select :options="options" label="name" :reduce="item => item.value" @input="changeOption" :value="selected">
-            Выберите из списка
-        </v-select>
+    <v-select :options="options" label="name" :reduce="item => item.value" @input="changeOption" :value="selected">
+        Выберите из списка
+    </v-select>
 
-        <!-- <select name="" id="" v-model="modelValue" @change="changeOption">
+    <!-- <select name="" id="" v-model="modelValue" @change="changeOption">
             <option disable value="">Выберите из списка</option>
             <option v-for="option in options" :key="option.value" :value="option.value">{{ option.name }}</option>
         </select> -->
-    </section>
 </template>
 
 <style scoped>
-
+.sort-select {
+    max-width: 100px;
+}
 </style>

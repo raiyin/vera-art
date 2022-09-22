@@ -1,17 +1,62 @@
-<script setup lang="ts">
+<script>
 
 import Header from "../../components/Header.vue"
 import Footer from "../../components/Footer.vue"
-import Slogan from "../../components/Slogan.vue"
 import Gallery from "@/components/Gallery.vue"
+import axios from 'axios'
 
+
+export default {
+    components: {
+        Header,
+        Footer,
+        Gallery,
+    },
+    props: [],
+    data() {
+        return {
+            paintingImages: [],
+            illustrationImages: [],
+            threeDImages: [],
+        }
+    },
+    setup() {
+    },
+    methods: {
+        async fetchData() {
+            try {
+                var response = await axios.get('http://localhost:3001/painting');
+                this.paintingImages = response.data;
+                response = await axios.get('http://localhost:3001/illustration');
+                this.illustrationImages = response.data;
+                response = await axios.get('http://localhost:3001/3d');
+                this.threeDImages = response.data;
+            }
+            catch (e) {
+                alert('Error')
+                console.log(e);
+                var propertyNames = Object.getOwnPropertyNames(e);
+                propertyNames.forEach(function (property) {
+                    var descriptor = Object.getOwnPropertyDescriptor(e, property);
+                    console.log(property + ":" + e[property] + ":" + propsToStr(descriptor));
+                });
+            }
+        }
+    },
+    mounted() {
+        this.fetchData();
+    },
+    computed: {
+    },
+    watch: {
+    },
+}
 </script>
 
 <template>
 
     <Header />
-    <Slogan />
-    <section class="container shadow bg-body rounded border-right border-left main-content">
+    <section class="container bg-body rounded border-right border-left main-content">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="painting-tab" data-bs-toggle="tab" data-bs-target="#painting"
@@ -28,12 +73,13 @@ import Gallery from "@/components/Gallery.vue"
         </ul>
         <div class="tab-content border-right border-left" id="myTabContent">
             <div class="tab-pane fade show active" id="painting" role="tabpanel" aria-labelledby="painting-tab">
-                <Gallery gallaryDir="painting" />
+                <Gallery :images="paintingImages" />
             </div>
             <div class="tab-pane fade" id="Illustration" role="tabpanel" aria-labelledby="Illustration-tab">
-                <Gallery gallaryDir="illustration" />
+                <Gallery :images="illustrationImages" />
             </div>
             <div class="tab-pane fade" id="graphics3d" role="tabpanel" aria-labelledby="graphics3d-tab">
+                <Gallery :images="threeDImages" />
             </div>
         </div>
 

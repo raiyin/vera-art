@@ -3,10 +3,10 @@ import { RouterLink, RouterView } from "vue-router";
 </script>
 
 <template>
-    <section class="container shadow bg-body rounded px-0">
+    <section class="container-fluid my-shadow bg-body rounded px-2">
         <nav class="navbar navbar-expand-md custom-navbar">
             <router-link class="navbar-brand" to="/">
-                <img src="../assets/icons/logo-small.png" alt="" width="130" height="123">
+                <img src="../assets/icons/logo-small.png" alt="" width="65" height="62">
             </router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggler"
                 aria-controls="navbarToggler" aria-expanded="fasle" aria-label="Toggle navigation">
@@ -17,9 +17,9 @@ import { RouterLink, RouterView } from "vue-router";
 
                 <ul class="navbar-nav me-auto my-2 my-lg-">
                     <li class="nav-item dropdown ">
-                        <router-link class="nav-link dropdown-toggle menu-item" to="#" role="button" data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Кто&nbsp;я?..
+                        <router-link class="nav-link dropdown-toggle menu-item" to="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Обо&nbsp;мне
                         </router-link>
                         <ul class="dropdown-menu">
                             <li>
@@ -41,6 +41,9 @@ import { RouterLink, RouterView } from "vue-router";
                                 </router-link>
                             </li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <router-link class="nav-link menu-item" to="/shop">Магазин</router-link>
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/allworks">Все&nbsp;работы</router-link>
@@ -80,6 +83,9 @@ import { RouterLink, RouterView } from "vue-router";
 </template>
 
 <style scoped>
+.my-shadow {
+    box-shadow: 0 0 0.5rem 0.5rem rgba(0, 0, 0, .15) !important;
+}
 
 .nav-item {
     font-family: "Montserrat", "Verdana regular", "Ebrima bold";
@@ -164,7 +170,8 @@ import { RouterLink, RouterView } from "vue-router";
     flex-wrap: nowrap;
 }
 
-.fa:hover, .fa-brands:hover {
+.fa:hover,
+.fa-brands:hover {
     filter: drop-shadow(2px 2px 2px #808080)
 }
 </style>

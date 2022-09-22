@@ -9,6 +9,6 @@
 
 <style scoped>
 footer {
-    margin-top: auto;
+    margin-top: 1rem;
 }
 </style>

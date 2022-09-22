@@ -852,13 +852,6 @@
           "base": "холст",
           "material": "масло",
           "size": "40x30"
-        },
-        {
-          "name_ru": "Селёдка",
-          "name_en": "Herring",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
         }
       ]
     },
@@ -1231,6 +1224,95 @@
           "base": "Adobe Photoshop",
           "material": "",
           "size": ""
+        }
+      ]
+    }
+  ],
+  "3d": [
+    {
+      "id": "ajax",
+      "dir": "\\src\\assets\\img\\allworks\\graphics3d\\ajax\\",
+      "name_ru": "Головная боль Аякса",
+      "base": "Autodesk 3ds Max, V-Ray",
+      "material": "",
+      "size": "",
+      "year": 2020,
+      "parts": [
+        {
+          "name_ru": "Головная боль Аякса",
+          "base": "Autodesk 3ds Max, V-Ray"
+        }
+      ]
+    },
+    {
+      "id": "gingerbreads",
+      "dir": "\\src\\assets\\img\\allworks\\graphics3d\\gingerbreads\\",
+      "name_ru": "Пряники",
+      "base": "Autodesk 3ds Max, V-Ray",
+      "year": 2020,
+      "parts": [
+        {
+          "name_ru": "Пряники",
+          "base": "Autodesk 3ds Max, V-Ray"
+        }
+      ]
+    },
+    {
+      "id": "gnome",
+      "dir": "\\src\\assets\\img\\allworks\\graphics3d\\gnome\\",
+      "name_ru": "Домик гнома",
+      "base": "Autodesk 3ds Max, V-Ray",
+      "year": 2020,
+      "parts": [
+        {
+          "name_ru": "Домик гнома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        },
+        {
+          "name_ru": "Домик гнома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        },
+        {
+          "name_ru": "Домик гнома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        }
+      ]
+    },
+    {
+      "id": "groot",
+      "dir": "\\src\\assets\\img\\allworks\\graphics3d\\groot\\",
+      "name_ru": "Грут",
+      "base": "Autodesk 3ds Max, V-Ray",
+      "year": 2020,
+      "parts": [
+        {
+          "name_ru": "Грут",
+          "base": "Autodesk 3ds Max, V-Ray"
+        }
+      ]
+    },
+    {
+      "id": "house",
+      "dir": "\\src\\assets\\img\\allworks\\graphics3d\\house\\",
+      "name_ru": "Проект дома",
+      "base": "Autodesk 3ds Max, V-Ray",
+      "year": 2020,
+      "parts": [
+        {
+          "name_ru": "Проект дома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        },
+        {
+          "name_ru": "Проект дома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        },
+        {
+          "name_ru": "Проект дома",
+          "base": "Autodesk 3ds Max, V-Ray"
+        },
+        {
+          "name_ru": "Проект дома",
+          "base": "Autodesk 3ds Max, V-Ray"
         }
       ]
     }

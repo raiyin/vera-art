@@ -2,13 +2,11 @@
 
 import Header from "../../components/Header.vue"
 import Footer from "../../components/Footer.vue"
-import Slogan from "../../components/Slogan.vue"
 
 </script>
 
 <template>
     <Header />
-    <Slogan />
     <section class="container about">
 
     </section>
@@ -17,7 +15,7 @@ import Slogan from "../../components/Slogan.vue"
 
 
 <style scoped>
-.about{
+.about {
     height: 960px;
     width: 1280px;
 }

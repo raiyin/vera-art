@@ -2,9 +2,7 @@
 
 import Header from "../components/Header.vue"
 import Footer from "../components/Footer.vue"
-import Slogan from "../components/Slogan.vue"
 import Gallery from "@/components/Gallery.vue"
-import MySelect from "@/components/MySelect.vue"
 import axios from 'axios'
 import vSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css';
@@ -13,9 +11,7 @@ export default {
     components: {
         Header,
         Footer,
-        Slogan,
         Gallery,
-        MySelect,
         vSelect
     },
     props: [],
@@ -79,19 +75,19 @@ export default {
 
 <template>
     <Header />
-    <Slogan />
-    <!-- <my-select v-model="selectedSort" :options="sortOptions" /> -->
-    <section class="container px-0 uniselect">
+    <section class="container mt-3 px-0">
         <v-select :options="sortOptions" :reduce="item => item.value" label="name" v-model="selectedSort"
             inputId="value" placeholder="Выберите из списка">
             Выберите из списка
         </v-select>
-
     </section>
-    <!-- <Gallery :images="sortedImages" /> -->
     <Gallery :images="images" />
     <Footer />
 </template>
 
 <style scoped>
+.v-select {
+    width: 20rem;
+    box-sizing: border-box;
+}
 </style>
