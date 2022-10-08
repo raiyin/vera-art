@@ -12,18 +12,11 @@ export default {
             required: true
         }
     },
-    data() {
-    },
     computed: {
+        background() {
+            return this.sideNewsObject.base_dir + this.sideNewsObject.img_backfull;
+        }
     },
-    //created() {
-    //    this.$watch(
-    //        () => this.$route.params,
-    //        (toParams, previousParams) => {
-    //            console.log(toParams);
-    //        }
-    //    )
-    //},
 }
 </script>
         
@@ -32,7 +25,7 @@ export default {
     <div class="other-news-item-wrapper">
         <router-link :to=sideNewsObject.id class="other-news-item">
             <div class="other-news-img">
-                <img :src="sideNewsObject.img_back" />
+                <img :src="background" />
             </div>
             <div class="other-news-desc">
                 <h6>{{sideNewsObject.title}}&nbsp;{{sideNewsObject.subTitle}}</h6>

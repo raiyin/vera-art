@@ -26,7 +26,7 @@ onBeforeMount(async () => {
     <section class="container text-center main-content">
         <div class="row gx-0">
             <template v-for="newsObject in news">
-                <div class="col d-flex justify-content-center">
+                <div class="col d-flex justify-content-center mb-5">
                     <NewsTrailer :newsObject="newsObject" />
                 </div>
             </template>

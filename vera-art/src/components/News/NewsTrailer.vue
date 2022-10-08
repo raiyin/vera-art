@@ -1,16 +1,26 @@
-<script setup lang="ts">
+<script>
 import CalendarIcon from "@/components/icons/IconCalendar.vue"
 import { ref, onMounted, computed, toRefs } from 'vue'
 
-const props = defineProps<{
-    newsObject: any
-}>();
-
-var newsObject = props.newsObject;
-
-const newsId = computed(() => {
-    return "/newsitem/" + newsObject.id
-})
+export default {
+    components: {
+        CalendarIcon
+    },
+    props: {
+        newsObject: {
+            type: Object,
+            required: true
+        }
+    },
+    computed: {
+        newsId() {
+            return "/newsitem/" + this.newsObject.id
+        },
+        bgImage() {
+            return `url("${this.newsObject.base_dir + this.newsObject.img_back}")`
+        }
+    }
+}
 </script>
 
 <template>
@@ -46,7 +56,7 @@ const newsId = computed(() => {
 .img-holder {
     width: 100%;
     height: 100%;
-    background-image: url("@/assets/img/news/2022/08/28/back.jpg");
+    background-image: v-bind(bgImage);
     background-position: center;
     background-repeat: no-repeat;
     background-size: 100%;
@@ -71,7 +81,7 @@ const newsId = computed(() => {
     text-indent: 2rem;
     line-height: 0.4rem;
     top: 17rem;
-    color: white;
+    color: gainsboro;
     letter-spacing: 0.05rem;
 }
 
