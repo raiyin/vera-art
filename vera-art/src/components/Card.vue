@@ -61,7 +61,7 @@ export default {
                         <span v-if="imageObject.year">, {{ imageObject.year }}</span>
                     </p>
                     <p v-if="imageObject.price">Цена: {{ imageObject.price }} р.</p>
-                    <a v-if="imageObject.price" href="#" class="btn btn-primary">В корзину</a>
+                    <!-- <a v-if="imageObject.price" href="#" class="btn btn-primary">В корзину</a> -->
                 </div>
             </div>
             <Modal :imageObject=imageObject />

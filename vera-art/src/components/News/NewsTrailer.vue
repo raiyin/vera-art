@@ -80,7 +80,7 @@ export default {
     text-align: left;
     text-indent: 2rem;
     line-height: 0.4rem;
-    top: 17rem;
+    top: 15rem;
     color: gainsboro;
     letter-spacing: 0.05rem;
 }

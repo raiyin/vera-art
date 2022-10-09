@@ -84,7 +84,7 @@ export default {
             </div>
             <NewsItemDescription :newsObject="currentNews" />
             <div class="news-text">
-                <p>{{currentNews.text}}</p>
+                <p v-html="currentNews.text" />
             </div>
         </article>
 

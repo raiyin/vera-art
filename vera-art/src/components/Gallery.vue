@@ -17,15 +17,10 @@ export default {
         }
     },
     setup() {
-        // const myrow = ref(null)
-        // return {
-        //     myrow
-        // }
     },
     methods: {
         animate() {
             let query = gsap.utils.selector(this.$el);
-            //let query = gsap.utils.selector(this.$refs.myrow);
             gsap.from(query('.card'), {
                 opacity: 0,
                 duration: 1
@@ -42,7 +37,6 @@ export default {
 
 <template>
     <section class="container text-center main-content px-0">
-        <!-- <div class="row" ref="myrow"> -->
         <div class="row">
             <Card v-for="imgObject in images" :imageObject="imgObject" :key="imgObject.id" />
         </div>

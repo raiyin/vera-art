@@ -16,7 +16,7 @@ import { RouterLink, RouterView } from "vue-router";
             <div class="collapse navbar-collapse" id="navbarToggler">
 
                 <ul class="navbar-nav me-auto my-2 my-lg-">
-                    <li class="nav-item dropdown ">
+                    <li v-if="false" class="nav-item dropdown ">
                         <router-link class="nav-link dropdown-toggle menu-item" to="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">
                             Обо&nbsp;мне

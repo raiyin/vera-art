@@ -51,8 +51,8 @@ export default {
 }
 
 .other-news-img {
-    width: 70px;
-    height: 70px;
+    width: 90px;
+    height: 90px;
     margin-right: 1rem;
 }
 
@@ -66,6 +66,10 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     line-height: 0.1em;
+}
+
+.other-news-desc>h6 {
+    text-align: left;
 }
 </style>
         
