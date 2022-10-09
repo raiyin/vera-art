@@ -48,6 +48,12 @@ export default {
         },
         makeVideoName(index) {
             return this.currentNews.base_dir + index + ".mp4"
+        },
+        makeModalId(index) {
+            return "exampleModal" + index;
+        },
+        makeModalIdLink(index) {
+            return "#exampleModal" + index;
         }
     },
     mounted() {
@@ -92,19 +98,56 @@ export default {
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
                     <img v-if="image_index%3==1" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" />
+                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
+                        :data-bs-target=makeModalIdLink(image_index) />
+
+                    <div v-if="image_index%3==1" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img :src=makeImageName(image_index) />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </template>
             </div>
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
                     <img v-if="image_index%3==2" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" />
+                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
+                        :data-bs-target=makeModalIdLink(image_index) />
+
+                    <div v-if="image_index%3==2" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img :src=makeImageName(image_index) />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </div>
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
                     <img v-if="image_index%3==0" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" />
+                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
+                        :data-bs-target=makeModalIdLink(image_index) />
+
+                    <div v-if="image_index%3==0" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
+                        aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img :src=makeImageName(image_index) />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </template>
             </div>
         </div>
@@ -180,6 +223,27 @@ export default {
 .news_img {
     width: 696px;
     height: 468px;
+}
+
+@media (orientation: landscape) {
+    .modal-body>img {
+        max-height: 90vh;
+    }
+}
+
+@media (orientation: portrait) {
+    .modal-body>img {
+        max-width: 90vw;
+    }
+}
+
+.modal-dialog {
+    position: relative;
+    display: table;
+    /* This is important */
+    overflow-y: auto;
+    overflow-x: auto;
+    width: auto;
 }
 </style>
     
