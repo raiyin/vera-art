@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "both": "concurrently \"npm run dev\" \"npm run server\"",
+    "both": "concurrently \"npm run dev -- --host\" \"npm run server\"",
     "build": "run-p type-check build-only",
     "preview": "vite preview --port 4173",
     "test:unit": "vitest --environment jsdom",
@@ -12,7 +12,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "server": "json-server -w src/assets/server/db.json -p 3001"
+    "server": "json-server -w src/assets/server/db.json -p 3001 --host 192.168.0.106"
   },
   "dependencies": {
     "axios": "^0.27.2",

@@ -564,203 +564,6 @@
   ],
   "painting": [
     {
-      "id": "birds",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\birds\\",
-      "name_ru": "Птицы",
-      "name_en": "Birds",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Птицы",
-          "name_en": "Birds",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        },
-        {
-          "name_ru": "Птицы",
-          "name_en": "Birds",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "borsch",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\borsch\\",
-      "name_ru": "Борщ",
-      "name_en": "Borsch",
-      "width": 40,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "50x40",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Борщ",
-          "name_en": "Borsch",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x50"
-        },
-        {
-          "name_ru": "Борщ",
-          "name_en": "Borsch",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x50"
-        }
-      ]
-    },
-    {
-      "id": "branch",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\branch\\",
-      "name_ru": "Ветвь",
-      "name_en": "Branch",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2012,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Ветвь",
-          "name_en": "Икфтср",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "cat",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\cat\\",
-      "name_ru": "Кот",
-      "name_en": "Cat",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Кот",
-          "name_en": "Cat",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "cloud",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\cloud\\",
-      "name_ru": "Облако",
-      "name_en": "Cloud",
-      "width": 100,
-      "height": 120,
-      "base": "холст",
-      "material": "масло",
-      "size": "120x100",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Облако",
-          "name_en": "Cloud",
-          "base": "холст",
-          "material": "масло",
-          "size": "100x120"
-        },
-        {
-          "name_ru": "Облако",
-          "name_en": "Cloud",
-          "base": "холст",
-          "material": "масло",
-          "size": "100x120"
-        }
-      ]
-    },
-    {
-      "id": "cold_springs",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\cold_springs\\",
-      "name_ru": "Холодные родники города Ставрополя",
-      "name_en": "Cold springs of the city of Stavropol",
-      "width": 35,
-      "height": 25,
-      "base": "холст",
-      "material": "масло",
-      "size": "35x25",
-      "year": 2021,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Холодные родники города Ставрополя",
-          "name_en": "Cold springs of the city of Stavropol",
-          "base": "холст",
-          "material": "масло",
-          "size": "35x25"
-        }
-      ]
-    },
-    {
-      "id": "equestrienne",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\equestrienne\\",
-      "name_ru": "Наездница",
-      "name_en": "Equestrienne",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "фломпстер",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Наездница",
-          "name_en": "Equestrienne",
-          "base": "картон",
-          "material": "фломастер",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "eye",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\eye\\",
-      "name_ru": "Глаз",
-      "name_en": "Eye",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "пастель, уголь",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Глаз",
-          "name_en": "Eye",
-          "base": "картон",
-          "material": "пастель, уголь",
-          "size": ""
-        }
-      ]
-    },
-    {
       "id": "flora_fauna",
       "dir": "\\src\\assets\\img\\allworks\\painting\\flora_fauna\\",
       "name_ru": "Флора и Фауна",
@@ -790,94 +593,6 @@
       ]
     },
     {
-      "id": "fluff",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\fluff\\",
-      "name_ru": "Пушок",
-      "name_en": "Fluff",
-      "width": 18,
-      "height": 24,
-      "base": "картон",
-      "material": "масло",
-      "size": "18x24",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Пушок",
-          "name_en": "Fluff",
-          "base": "картон",
-          "material": "масло",
-          "size": "18x24"
-        }
-      ]
-    },
-    {
-      "id": "herring_potato",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\herring_potato\\",
-      "name_ru": "Сельдь на газете",
-      "name_en": "Herring on the newspaper",
-      "width": 42,
-      "height": 29,
-      "base": "бумага",
-      "material": "акварель",
-      "size": "42x29",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Сельдь на газете",
-          "name_en": "Herring on the newspaper",
-          "base": "бумага",
-          "material": "акварель",
-          "size": "42x29"
-        }
-      ]
-    },
-    {
-      "id": "herring",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\herring\\",
-      "name_ru": "Селёдка",
-      "name_en": "Herring",
-      "width": 40,
-      "height": 30,
-      "base": "холст",
-      "material": "масло",
-      "size": "40x30",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Селёдка",
-          "name_en": "Herring",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "homeland",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\homeland\\",
-      "name_ru": "Моя Родина",
-      "name_en": "My Homeland",
-      "width": 21,
-      "height": 15,
-      "base": "бумага",
-      "material": "гуашь",
-      "size": "21x15",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Моя Родина",
-          "name_en": "My Homeland",
-          "base": "бумага",
-          "material": "гуашь",
-          "size": "21x15"
-        }
-      ]
-    },
-    {
       "id": "iris",
       "dir": "\\src\\assets\\img\\allworks\\painting\\iris\\",
       "name_ru": "Ирисы",
@@ -896,93 +611,6 @@
           "base": "холст на картоне",
           "material": "масло",
           "size": "50x70"
-        }
-      ]
-    },
-    {
-      "id": "king",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\king\\",
-      "name_ru": "Король",
-      "name_en": "King",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "чернила",
-      "size": "",
-      "year": 2007,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Король",
-          "name_en": "King",
-          "base": "картон",
-          "material": "чернила",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "kitens",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\kitens\\",
-      "name_ru": "Котята",
-      "name_en": "Kitens",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "акварель",
-      "size": "",
-      "year": 2018,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
-        },
-        {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
-        },
-        {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
-        },
-        {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "lilac",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\lilac\\",
-      "name_ru": "Сирень",
-      "name_en": "Lilac",
-      "width": 40,
-      "height": 30,
-      "base": "холст на картоне",
-      "material": "акрил",
-      "size": "40x30",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Сирень",
-          "name_en": "Lilac",
-          "base": "холст на картоне",
-          "material": "акрил",
-          "size": "40x30"
         }
       ]
     },
@@ -1044,46 +672,24 @@
       ]
     },
     {
-      "id": "planet",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\planet\\",
-      "name_ru": "Планета",
-      "name_en": "Planet",
-      "width": 0,
-      "height": 0,
-      "base": "холст",
+      "id": "lilac",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\lilac\\",
+      "name_ru": "Сирень",
+      "name_en": "Lilac",
+      "width": 40,
+      "height": 30,
+      "base": "холст на картоне",
       "material": "акрил",
-      "size": "",
+      "size": "40x30",
       "year": 2019,
       "price": "",
       "parts": [
         {
-          "name_ru": "Планета",
-          "name_en": "Planet",
-          "base": "холст",
+          "name_ru": "Сирень",
+          "name_en": "Lilac",
+          "base": "холст на картоне",
           "material": "акрил",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "Podaliri",
-      "dir": "\\src\\assets\\img\\allworks\\painting\\Podaliri\\",
-      "name_ru": "Подалирий",
-      "name_en": "Podaliri",
-      "width": 18,
-      "height": 21,
-      "base": "картон",
-      "material": "акрил",
-      "size": "18x21",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Подалирий",
-          "name_en": "Podaliri",
-          "base": "картон",
-          "material": "акрил",
-          "size": "18x21"
+          "size": "40x30"
         }
       ]
     },
@@ -1117,6 +723,152 @@
       ]
     },
     {
+      "id": "cloud",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cloud\\",
+      "name_ru": "Облако",
+      "name_en": "Cloud",
+      "width": 100,
+      "height": 120,
+      "base": "холст",
+      "material": "масло",
+      "size": "120x100",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Облако",
+          "name_en": "Cloud",
+          "base": "холст",
+          "material": "масло",
+          "size": "100x120"
+        },
+        {
+          "name_ru": "Облако",
+          "name_en": "Cloud",
+          "base": "холст",
+          "material": "масло",
+          "size": "100x120"
+        }
+      ]
+    },
+    {
+      "id": "borsch",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\borsch\\",
+      "name_ru": "Борщ",
+      "name_en": "Borsch",
+      "width": 40,
+      "height": 50,
+      "base": "холст",
+      "material": "масло",
+      "size": "50x40",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Борщ",
+          "name_en": "Borsch",
+          "base": "холст",
+          "material": "масло",
+          "size": "40x50"
+        },
+        {
+          "name_ru": "Борщ",
+          "name_en": "Borsch",
+          "base": "холст",
+          "material": "масло",
+          "size": "40x50"
+        }
+      ]
+    },
+    {
+      "id": "herring",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\herring\\",
+      "name_ru": "Сельдь на газете",
+      "name_en": "Herring on the newspaper",
+      "width": 42,
+      "height": 29,
+      "base": "бумага",
+      "material": "акварель",
+      "size": "42x29",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Сельдь на газете",
+          "name_en": "Herring on the newspaper",
+          "base": "бумага",
+          "material": "акварель",
+          "size": "42x29"
+        }
+      ]
+    },
+    {
+      "id": "herring_potato",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\herring_potato\\",
+      "name_ru": "Селёдка",
+      "name_en": "Herring",
+      "width": 40,
+      "height": 30,
+      "base": "холст",
+      "material": "масло",
+      "size": "40x30",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Селёдка",
+          "name_en": "Herring",
+          "base": "холст",
+          "material": "масло",
+          "size": "40x30"
+        }
+      ]
+    },
+    {
+      "id": "fluff",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\fluff\\",
+      "name_ru": "Пушок",
+      "name_en": "Fluff",
+      "width": 18,
+      "height": 24,
+      "base": "картон",
+      "material": "масло",
+      "size": "18x24",
+      "year": 2022,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Пушок",
+          "name_en": "Fluff",
+          "base": "картон",
+          "material": "масло",
+          "size": "18x24"
+        }
+      ]
+    },
+    {
+      "id": "homeland",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\homeland\\",
+      "name_ru": "Моя Родина",
+      "name_en": "My Homeland",
+      "width": 21,
+      "height": 15,
+      "base": "бумага",
+      "material": "гуашь",
+      "size": "21x15",
+      "year": 2022,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Моя Родина",
+          "name_en": "My Homeland",
+          "base": "бумага",
+          "material": "гуашь",
+          "size": "21x15"
+        }
+      ]
+    },
+    {
       "id": "wolf",
       "dir": "\\src\\assets\\img\\allworks\\painting\\wolf\\",
       "name_ru": "Волчёк",
@@ -1142,6 +894,254 @@
           "base": "бумага",
           "material": "уголь, карандаш",
           "size": "70x50"
+        }
+      ]
+    },
+    {
+      "id": "birds",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\birds\\",
+      "name_ru": "Птицы",
+      "name_en": "Birds",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Птицы",
+          "name_en": "Birds",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        },
+        {
+          "name_ru": "Птицы",
+          "name_en": "Birds",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "kitens",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\kitens\\",
+      "name_ru": "Котята",
+      "name_en": "Kitens",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "акварель",
+      "size": "",
+      "year": 2018,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        },
+        {
+          "name_ru": "Котята",
+          "name_en": "Kitens",
+          "base": "картон",
+          "material": "акварель",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "Podaliri",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\Podaliri\\",
+      "name_ru": "Подалирий",
+      "name_en": "Podaliri",
+      "width": 18,
+      "height": 21,
+      "base": "картон",
+      "material": "акрил",
+      "size": "18x21",
+      "year": 2022,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Подалирий",
+          "name_en": "Podaliri",
+          "base": "картон",
+          "material": "акрил",
+          "size": "18x21"
+        }
+      ]
+    },
+    {
+      "id": "equestrienne",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\equestrienne\\",
+      "name_ru": "Наездница",
+      "name_en": "Equestrienne",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "фломпстер",
+      "size": "",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Наездница",
+          "name_en": "Equestrienne",
+          "base": "картон",
+          "material": "фломастер",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "cat",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cat\\",
+      "name_ru": "Кот",
+      "name_en": "Cat",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Кот",
+          "name_en": "Cat",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "planet",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\planet\\",
+      "name_ru": "Планета",
+      "name_en": "Planet",
+      "width": 0,
+      "height": 0,
+      "base": "холст",
+      "material": "акрил",
+      "size": "",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Планета",
+          "name_en": "Planet",
+          "base": "холст",
+          "material": "акрил",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "eye",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\eye\\",
+      "name_ru": "Глаз",
+      "name_en": "Eye",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "пастель, уголь",
+      "size": "",
+      "year": 2019,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Глаз",
+          "name_en": "Eye",
+          "base": "картон",
+          "material": "пастель, уголь",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "king",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\king\\",
+      "name_ru": "Король",
+      "name_en": "King",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "чернила",
+      "size": "",
+      "year": 2007,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Король",
+          "name_en": "King",
+          "base": "картон",
+          "material": "чернила",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "branch",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\branch\\",
+      "name_ru": "Ветка вербы",
+      "name_en": "Willow branch",
+      "width": 0,
+      "height": 0,
+      "base": "картон",
+      "material": "карандаш",
+      "size": "",
+      "year": 2012,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Ветка вербы",
+          "name_en": "Willow branch",
+          "base": "картон",
+          "material": "карандаш",
+          "size": ""
+        }
+      ]
+    },
+    {
+      "id": "cold_springs",
+      "dir": "\\src\\assets\\img\\allworks\\painting\\cold_springs\\",
+      "name_ru": "Холодные родники города Ставрополя",
+      "name_en": "Cold springs of the city of Stavropol",
+      "width": 35,
+      "height": 25,
+      "base": "холст",
+      "material": "масло",
+      "size": "35x25",
+      "year": 2021,
+      "price": "",
+      "parts": [
+        {
+          "name_ru": "Холодные родники города Ставрополя",
+          "name_en": "Cold springs of the city of Stavropol",
+          "base": "холст",
+          "material": "масло",
+          "size": "35x25"
         }
       ]
     }
@@ -1392,7 +1392,7 @@
       "base_dir": "/src/assets/img/news/2022/07/30/",
       "img_back": "back.jpg",
       "img_backfull": "back_full.jpg",
-      "imagescount": 27,
+      "imagescount": 26,
       "videoscount": 0,
       "text": "Сегодня вырвалась из суеты мирской и отправилась с детьми на выставку работ известного российского художника Николаса Сафронова. Есть над чем подумать..."
     },
@@ -1427,13 +1427,13 @@
       "datetime": "2022-06-03T00:00:01.000Z",
       "datetimehuman": "3 июня, 2022",
       "title": "Художники за любой движ!",
-      "subTitle": "Утка сврать не даст!",
+      "subTitle": "Утка соврать не даст!",
       "base_dir": "/src/assets/img/news/2022/06/03/",
       "img_back": "back.jpg",
       "img_backfull": "back_full.jpg",
       "imagescount": 53,
       "videoscount": 6,
-      "text": "Когда мы зашли в зоопарк, повисла мёртвая тишина. Замолкли обычно шумные курицы, пропали из вида олени, волки, поджав хвост, спрятались в норы, оскалились и еле слышно заскулили львы с тиграми. И только недавно привезённая обезьянка беззаботно продолжала оглядываться по сторонам, непонимая наступивших в зоопарке перемен. Она ещё не знала, что будет дальше...<p>Такую картину рисовало моё живое воображение, когда я привела ватагу девчат в ставропольский зоопарк. Но всё обошлось. Мы просто стали танцевать с верблюдами, гонятся за утками. Ах-да... И немного рисовать. Ни одна утка в процессе рисованияне пострадала.</p>"
+      "text": "Когда мы зашли в зоопарк, повисла мёртвая тишина. Замолкли обычно шумные курицы, пропали из вида олени, волки, поджав хвост, спрятались в норы, оскалились и еле слышно заскулили львы с тиграми. И только недавно привезённая обезьянка беззаботно продолжала оглядываться по сторонам, непонимая наступивших в зоопарке перемен. Она ещё не знала, что будет дальше...<p>Такую картину рисовало моё живое воображение, когда я привела ватагу девчат в Ставропольский зоопарк. Но всё обошлось. Мы просто стали танцевать с верблюдами, гонятся за утками. Ах-да... И немного рисовать. Ни одна утка в процессе рисования не пострадала.</p>"
     },
     {
       "id": "20220531",

@@ -8,7 +8,7 @@ let news = ref()
 
 async function fetchPosts() {
     try {
-        const response = await axios.get('http://localhost:3001/news');
+        const response = await axios.get('http://192.168.0.106:3001/news');
         news.value = response.data;
     }
     catch (e) {

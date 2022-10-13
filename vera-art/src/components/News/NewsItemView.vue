@@ -25,10 +25,10 @@ export default {
         async fetchData() {
             try {
                 let newsid = this.$route.path.substring(this.$route.path.lastIndexOf('/') + 1)
-                var response = await axios.get('http://localhost:3001/news', { params: { id: newsid } });
+                var response = await axios.get('http://192.168.0.106:3001/news', { params: { id: newsid } });
                 this.currentNews = response.data[0];
 
-                response = await axios.get('http://localhost:3001/news', { params: { id_ne: newsid, _limit: 5 } });
+                response = await axios.get('http://192.168.0.106:3001/news', { params: { id_ne: newsid, _limit: 5 } });
                 this.news = response.data;
             }
             catch (e) {
@@ -153,7 +153,7 @@ export default {
         </div>
 
         <div id="carouselVideoExample" class="carousel slide carousel-fade" data-mdb-ride="carousel">
-            <div class="carousel-indicators">
+            <div v-if="currentNews.videoscount>1" class="carousel-indicators">
                 <template v-for="video_index in currentNews.videoscount">
                     <button v-if="video_index==1" type="button" data-mdb-target="#carouselVideoExample"
                         :data-mdb-slide-to="video_index" class="active" aria-current="true"
@@ -181,17 +181,18 @@ export default {
                 </template>
             </div>
 
-            <button class="carousel-control-prev" type="button" data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="prev">
+            <button v-if="currentNews.videoscount>1" class="carousel-control-prev" type="button"
+                data-mdb-target="#carouselVideoExample" data-mdb-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
-            <button class="carousel-control-next" type="button" data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="next">
+            <button v-if="currentNews.videoscount>1" class="carousel-control-next" type="button"
+                data-mdb-target="#carouselVideoExample" data-mdb-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
+
 
     </section>
 </template>
@@ -225,16 +226,28 @@ export default {
     height: 468px;
 }
 
+.carousel-inner {
+    object-fit: cover;
+}
+
 @media (orientation: landscape) {
-    .modal-body>img {
+
+    .modal-body>img,
+    .img-fluid {
         max-height: 90vh;
     }
 }
 
 @media (orientation: portrait) {
-    .modal-body>img {
+
+    .modal-body>img,
+    .img-fluid {
         max-width: 90vw;
     }
+}
+
+.video-self {
+    object-fit: fill;
 }
 
 .modal-dialog {
