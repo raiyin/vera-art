@@ -12,11 +12,10 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "server": "json-server -w src/assets/server/db.json -p 3001 --host 192.168.0.106"
+    "server": "json-server -w src/assets/server/db.json -p 3001 --host localhost"
   },
   "dependencies": {
     "axios": "^0.27.2",
-    "gsap": "^3.11.1",
     "mdb-vue-ui-kit": "^2.0.0",
     "pinia": "^2.0.17",
     "vue": "^3.2.37",
@@ -36,7 +35,9 @@
     "concurrently": "^7.4.0",
     "cypress": "^10.4.0",
     "eslint": "^8.21.0",
+    "eslint-import-resolver-typescript": "^3.5.1",
     "eslint-plugin-cypress": "^2.12.1",
+    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-vue": "^9.3.0",
     "jsdom": "^20.0.0",
     "json-server": "^0.17.0",

@@ -1,15 +1,15 @@
-<script setup lang="ts">
-
+<script>
+export default {}
 </script>
 
 <template>
-    <section class="container volunteer">
+    <section class="container illustrator">
 
     </section>
 </template>
 
 <style scoped>
-.volunteer {
+.illustrator {
     height: 960px;
     width: 1280px;
 }

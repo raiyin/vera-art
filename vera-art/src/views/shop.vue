@@ -3,7 +3,8 @@
 import Gallery from "@/components/Gallery.vue"
 import axios from 'axios'
 import vSelect from 'vue-select'
-import 'vue-select/dist/vue-select.css';
+import 'vue-select/dist/vue-select.css'
+import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 
 
 export default {
@@ -29,7 +30,7 @@ export default {
     methods: {
         async fetchData() {
             try {
-                const response = await axios.get('http://192.168.0.106:3001/sale');
+                const response = await axios.get('http://localhost:3001/sale');
                 this.images = response.data;
             }
             catch (e) {

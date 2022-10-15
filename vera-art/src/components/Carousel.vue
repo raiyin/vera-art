@@ -1,32 +1,73 @@
-<script setup lang="ts">
+<script>
+
 import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 
-const props = defineProps<{
-    imageObject: any;
-    imageId: string
-}>();
+// const props = defineProps<{
+//     imageObject: any;
+//     imageId: string
+// }>();
 
-var imageObject = props.imageObject;
-const { imageId } = toRefs(props);
-let dir = ref()
-let parts = ref()
-let imgCountGTOne = ref()
-const extension = ".jpg"
+// var imageObject = props.imageObject;
+// const { imageId } = toRefs(props);
+// let parts = ref()
+// let imgCountGTOne = ref()
+// const extension = ".jpg"
 
-function makeFileName(dir: string, index: number) {
-    return dir + index + extension
+// function makeFileName(dir: string, index: number) {
+//     return dir + index + extension
+// }
+
+// const imgIdtoLink = computed(() => {
+//     return "#" + imageObject.id
+// })
+
+// onBeforeMount(async () => {
+//     parts.value = imageObject.parts
+//     imgCountGTOne.value = parts.value.length > 1
+// })
+
+
+
+export default {
+    components: {
+    },
+    props: {
+        imageObject: {
+            type: Object
+        },
+        imageId: {
+            type: String
+        }
+    },
+    data() {
+        return {
+            parts: Object,
+            imgCountGTOne: false,
+            extension: ".jpg",
+        }
+    },
+    setup() {
+    },
+    methods: {
+        makeFileName(dir, index) {
+            return dir + index + this.extension
+        }
+    },
+    mounted() {
+    },
+    computed: {
+        imgIdtoLink() {
+            return "#" + this.imageObject.id
+        }
+    },
+    beforeMount() {
+        //console.log(this.imageObject.parts);
+        this.parts = this.imageObject.parts;
+        this.imgCountGTOne = this.parts.length > 1;
+    },
+    watch: {
+    },
 }
-
-const imgIdtoLink = computed(() => {
-    return "#" + imageObject.id
-})
-
-onBeforeMount(async () => {
-    parts.value = imageObject.parts
-    imgCountGTOne.value = parts.value.length > 1
-})
-
-
 </script>
 
 <template>
@@ -41,12 +82,11 @@ onBeforeMount(async () => {
 
         </div>
         <div class="carousel-inner">
-
             <template v-for="value, index in parts">
                 <div :class="index === 0 ? 'carousel-item active' : 'carousel-item'">
                     <img :src="makeFileName(imageObject.dir, index + 1)" class="d-block" alt="...">
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>{{  value.name_ru  }}</h5>
+                        <h5>{{ value.name_ru }}</h5>
                     </div>
                 </div>
             </template>

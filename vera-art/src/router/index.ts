@@ -1,20 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
-//import HomeView from "../views/HomeView.vue";
-//max
 
-import HomeView from "../views/HomeView.vue";
-import ArtistView from "../views/whoami/artist.vue";
-import BrieflyView from "../views/whoami/briefly.vue";
-import IllustratorView from "../views/whoami/illustrator.vue";
-import TeacherView from "../views/whoami/teacher.vue";
-import VolunteerView from "../views/whoami/volunteer.vue";
-import Shop from "../views/menu/shop.vue";
-import AllWorksView from "../views/menu/all_works.vue";
-import NewsView from "../views/menu/news.vue";
-import PayDeliveryView from "../views/menu/pay_deliver.vue";
-import ServicesView from "../views/menu/services.vue";
-import NewsItemView from "../components/News/NewsItemView.vue";
-//end_max
+import HomeView from "@/views/HomeView.vue";
+import ArtistView from "@/views/artist.vue";
+import BrieflyView from "@/views/briefly.vue";
+import IllustratorView from "@/views/illustrator.vue";
+import TeacherView from "@/views/teacher.vue";
+import VolunteerView from "@/views/volunteer.vue";
+import Shop from "@/views/shop.vue";
+import AllWorksView from "@/views/all_works.vue";
+import NewsView from "@/views/news.vue";
+import PayDeliveryView from "@/views/pay_deliver.vue";
+import ServicesView from "@/views/services.vue";
+import NewsItemView from "@/components/News/NewsItemView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

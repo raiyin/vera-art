@@ -1,22 +1,6 @@
 <script>
 import Modal from "./Modal.vue";
 import { ref, onMounted, computed, toRefs } from 'vue'
-import gsap from 'gsap'
-
-// const props = defineProps<{
-//     imageObject: any
-// }>();
-
-// var imageObject = props.imageObject;
-// const imgIdModalToLink = computed(() => {
-//     return "#" + imageObject.id + "Modal"
-// })
-
-// const mainCardImage = computed(() => {
-//     return imageObject.dir + '1.jpg'
-// })
-
-
 
 export default {
     components: {

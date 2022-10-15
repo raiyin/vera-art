@@ -1,14 +1,15 @@
-<script setup lang="ts">
+<script>
+export default {}
 </script>
 
 <template>
-    <section class="container teacher">
+    <section class="container volunteer">
 
     </section>
 </template>
 
 <style scoped>
-.teacher {
+.volunteer {
     height: 960px;
     width: 1280px;
 }
