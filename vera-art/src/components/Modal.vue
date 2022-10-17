@@ -1,17 +1,36 @@
-<script setup lang="ts">
-import Carousel from "./Carousel.vue"
+<script>
+import Carousel from "@/components/Carousel.vue"
 import { ref, onMounted, computed, toRefs } from 'vue'
 
-const props = defineProps<{
-    imageObject: any
-}>();
-
-var imageObject = props.imageObject;
-
-const imgIdModal = computed(() => {
-    return imageObject.id + "Modal"
-})
-
+export default {
+    inject: ["host"],
+    components: {
+        Carousel,
+    },
+    props: {
+        imageObject: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+        return {
+        }
+    },
+    setup() {
+    },
+    methods: {
+    },
+    mounted() {
+    },
+    computed: {
+        imgIdModal() {
+            return this.imageObject.id + "Modal";
+        }
+    },
+    watch: {
+    },
+}
 </script>
 
 <template>

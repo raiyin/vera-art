@@ -8,6 +8,7 @@ import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 
 
 export default {
+    inject: ["host"],
     components: {
         Gallery,
         vSelect
@@ -30,7 +31,7 @@ export default {
     methods: {
         async fetchData() {
             try {
-                const response = await axios.get('http://localhost:3001/sale');
+                const response = await axios.get('http://' + this.host + ':3001/sale');
                 this.images = response.data;
             }
             catch (e) {

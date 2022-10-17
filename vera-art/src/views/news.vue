@@ -5,6 +5,7 @@ import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 import axios from 'axios'
 
 export default {
+    inject: ["host"],
     components: {
         NewsTrailer,
     },
@@ -19,7 +20,7 @@ export default {
     methods: {
         async fetchPosts() {
             try {
-                const response = await axios.get('http://localhost:3001/news');
+                const response = await axios.get('http://' + this.host + ':3001/news');
                 this.news = response.data;
             }
             catch (e) {

@@ -1,9 +1,9 @@
 <script>
-
 import Gallery from "@/components/Gallery.vue"
 import axios from 'axios'
 
 export default {
+    inject: ["host"],
     components: {
         Gallery,
     },
@@ -20,11 +20,11 @@ export default {
     methods: {
         async fetchData() {
             try {
-                var response = await axios.get('http://localhost:3001/painting');
+                var response = await axios.get('http://' + this.host + ':3001/painting');
                 this.paintingImages = response.data;
-                response = await axios.get('http://localhost:3001/illustration');
+                response = await axios.get('http://' + this.host + ':3001/illustration');
                 this.illustrationImages = response.data;
-                response = await axios.get('http://localhost:3001/3d');
+                response = await axios.get('http://' + this.host + ':3001/3d');
                 this.threeDImages = response.data;
             }
             catch (e) {

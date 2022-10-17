@@ -7,6 +7,7 @@ import axios from "axios";
 
 
 export default {
+    inject: ["host"],
     components: {
         SideNewsTrailer,
         NewsItemDescription
@@ -25,10 +26,10 @@ export default {
         async fetchData() {
             try {
                 let newsid = this.$route.path.substring(this.$route.path.lastIndexOf('/') + 1)
-                var response = await axios.get('http://localhost:3001/news', { params: { id: newsid } });
+                var response = await axios.get('http://' + this.host + ':3001/news', { params: { id: newsid } });
                 this.currentNews = response.data[0];
 
-                response = await axios.get('http://localhost:3001/news', { params: { id_ne: newsid, _limit: 5 } });
+                response = await axios.get('http://' + this.host + ':3001/news', { params: { id_ne: newsid, _limit: 5 } });
                 this.news = response.data;
             }
             catch (e) {

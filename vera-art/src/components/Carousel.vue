@@ -2,32 +2,6 @@
 
 import { ref, onMounted, computed, toRefs, onBeforeMount } from 'vue'
 
-// const props = defineProps<{
-//     imageObject: any;
-//     imageId: string
-// }>();
-
-// var imageObject = props.imageObject;
-// const { imageId } = toRefs(props);
-// let parts = ref()
-// let imgCountGTOne = ref()
-// const extension = ".jpg"
-
-// function makeFileName(dir: string, index: number) {
-//     return dir + index + extension
-// }
-
-// const imgIdtoLink = computed(() => {
-//     return "#" + imageObject.id
-// })
-
-// onBeforeMount(async () => {
-//     parts.value = imageObject.parts
-//     imgCountGTOne.value = parts.value.length > 1
-// })
-
-
-
 export default {
     components: {
     },
