@@ -12,7 +12,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "server": "json-server -w src/assets/server/db.json -p 3001 --host localhost"
+    "server": "json-server -w src/assets/server/db.json --port 3001 --host localhost"
   },
   "dependencies": {
     "axios": "^0.27.2",
