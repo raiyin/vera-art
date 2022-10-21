@@ -1,5 +1,6 @@
 <script>
 export default {
+  inject: ["imagebasedir"],
   components: {},
   props: {
     imageObject: {
@@ -18,7 +19,7 @@ export default {
   },
   methods: {
     makeFileName(dir, index) {
-      return dir + index + this.extension;
+      return this.imagebasedir + dir + index + this.extension;
     },
   },
   computed: {

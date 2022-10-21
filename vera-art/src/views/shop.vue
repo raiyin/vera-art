@@ -28,7 +28,6 @@ export default {
         const response = await axios.get(this.jsonserverhost + "sale");
         this.images = response.data;
       } catch (e) {
-        alert("Error");
         console.log(e);
       }
     },

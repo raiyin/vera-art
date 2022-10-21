@@ -4,7 +4,7 @@ import NewsItemDescription from "@/components/News/NewsItemDescription.vue";
 import axios from "axios";
 
 export default {
-  inject: ["jsonserverhost"],
+  inject: ["jsonserverhost", "imagebasedir"],
   components: {
     SideNewsTrailer,
     NewsItemDescription,
@@ -35,13 +35,13 @@ export default {
       }
     },
     makeImageName(index) {
-      return this.currentNews.base_dir + index + ".jpg";
+      return this.imagebasedir + this.currentNews.dir + index + ".jpg";
     },
     makeVideoSlideLabel(index) {
       return "Видеослайд " + index;
     },
     makeVideoName(index) {
-      return this.currentNews.base_dir + index + ".mp4";
+      return this.imagebasedir + this.currentNews.dir + index + ".mp4";
     },
     makeModalId(index) {
       return "exampleModal" + index;
@@ -58,7 +58,9 @@ export default {
   },
   computed: {
     background() {
-      return this.currentNews.base_dir + this.currentNews.img_backfull;
+      return (
+        this.imagebasedir + this.currentNews.dir + this.currentNews.img_backfull
+      );
     },
   },
 };

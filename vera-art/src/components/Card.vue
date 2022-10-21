@@ -2,6 +2,7 @@
 import Modal from "./Modal.vue";
 
 export default {
+  inject: ["imagebasedir"],
   components: {
     Modal,
   },
@@ -15,7 +16,7 @@ export default {
       return "#" + this.imageObject.id + "Modal";
     },
     mainCardImage() {
-      return this.imageObject.dir + "1.jpg";
+      return this.imagebasedir + this.imageObject.dir + "1.jpg";
     },
   },
   watch: {},

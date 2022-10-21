@@ -2,6 +2,7 @@
 import CalendarIcon from "@/components/icons/IconCalendar.vue";
 
 export default {
+  inject: ["imagebasedir"],
   components: {
     CalendarIcon,
   },
@@ -13,7 +14,11 @@ export default {
   },
   computed: {
     background() {
-      return this.sideNewsObject.base_dir + this.sideNewsObject.img_backfull;
+      return (
+        this.imagebasedir +
+        this.sideNewsObject.dir +
+        this.sideNewsObject.img_backfull
+      );
     },
   },
 };
