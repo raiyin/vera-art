@@ -20,27 +20,21 @@ export default {
 </script>
 
 <template>
-  <div class="other-news-item-wrapper">
-    <router-link :to="sideNewsObject.id" class="other-news-item">
-      <div class="other-news-img">
-        <img :src="background" />
+  <router-link :to="sideNewsObject.id" class="other-news-item">
+    <div class="other-news-img">
+      <img :src="background" />
+    </div>
+    <div class="other-news-desc">
+      <h6>{{ sideNewsObject.title }}&nbsp;{{ sideNewsObject.subTitle }}</h6>
+      <div class="date">
+        <CalendarIcon />
+        <span>&nbsp;{{ sideNewsObject.datetimehuman }}</span>
       </div>
-      <div class="other-news-desc">
-        <h6>{{ sideNewsObject.title }}&nbsp;{{ sideNewsObject.subTitle }}</h6>
-        <div class="date">
-          <CalendarIcon />
-          <span>&nbsp;{{ sideNewsObject.datetimehuman }}</span>
-        </div>
-      </div>
-    </router-link>
-  </div>
+    </div>
+  </router-link>
 </template>
 
 <style scoped>
-.other-news-item-wrapper {
-  margin-bottom: 1rem;
-}
-
 .other-news-item {
   display: flex;
   text-decoration: none;
@@ -49,7 +43,6 @@ export default {
 
 .other-news-img {
   width: 90px;
-  height: 90px;
   margin-right: 1rem;
 }
 

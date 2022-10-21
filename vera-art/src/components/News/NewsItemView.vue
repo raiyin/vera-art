@@ -73,7 +73,9 @@ export default {
         </div>
         <div class="other-news">
           <template v-for="newsItem in news" v-bind:key="newsItem">
-            <SideNewsTrailer :sideNewsObject="newsItem" />
+            <div class="other-news-item-wrapper">
+              <SideNewsTrailer :sideNewsObject="newsItem" />
+            </div>
           </template>
         </div>
       </div>
@@ -108,6 +110,12 @@ export default {
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-body">
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                   <img :src="makeImageName(image_index)" />
                 </div>
               </div>
@@ -138,6 +146,12 @@ export default {
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-body">
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                   <img :src="makeImageName(image_index)" />
                 </div>
               </div>
@@ -168,6 +182,12 @@ export default {
             <div class="modal-dialog">
               <div class="modal-content">
                 <div class="modal-body">
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
                   <img :src="makeImageName(image_index)" />
                 </div>
               </div>
@@ -265,9 +285,11 @@ export default {
   flex-direction: column;
 }
 
+.other-news-item-wrapper {
+  margin-bottom: 0.8rem;
+}
+
 .news_img {
-  display: flex;
-  flex-direction: row;
   justify-content: left;
   margin-right: 2rem;
 }
@@ -278,12 +300,31 @@ export default {
 }
 
 .news_img {
-  width: 696px;
-  height: 468px;
+  max-width: 696px;
+  max-height: 468px;
+}
+
+.btn-close {
+  position: absolute;
+  right: 16px;
+  background-color: bisque;
 }
 
 .carousel-inner {
   object-fit: cover;
+}
+
+.video-self {
+  object-fit: fill;
+}
+
+.modal-dialog {
+  position: relative;
+  display: table;
+  /* This is important */
+  overflow-y: auto;
+  overflow-x: auto;
+  width: auto;
 }
 
 @media (orientation: landscape) {
@@ -300,16 +341,22 @@ export default {
   }
 }
 
-.video-self {
-  object-fit: fill;
-}
+@media screen and (max-width: 1000px) {
+  .news-header {
+    flex-direction: column;
+  }
 
-.modal-dialog {
-  position: relative;
-  display: table;
-  /* This is important */
-  overflow-y: auto;
-  overflow-x: auto;
-  width: auto;
+  .other-news {
+    padding-top: 0.8rem;
+  }
+
+  .other-news-item-wrapper {
+    margin-bottom: 0.8rem;
+  }
+
+  .news_img,
+  .news_img > img {
+    max-width: 100%;
+  }
 }
 </style>
