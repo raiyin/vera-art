@@ -4,7 +4,7 @@ import App from "./App.vue";
 import router from "./router";
 
 const app = createApp(App);
-app.provide('host', 'localhost');
+app.provide('jsonserverhost', 'http://localhost:3001/');
 app.use(createPinia());
 app.use(router);
 app.mount("#app");

@@ -1,92 +1,91 @@
 <script>
-import CalendarIcon from "@/components/icons/IconCalendar.vue"
-import { ref, onMounted, computed, toRefs } from 'vue'
+import CalendarIcon from "@/components/icons/IconCalendar.vue";
 
 export default {
-    components: {
-        CalendarIcon
+  components: {
+    CalendarIcon,
+  },
+  props: {
+    newsObject: {
+      type: Object,
+      required: true,
     },
-    props: {
-        newsObject: {
-            type: Object,
-            required: true
-        }
+  },
+  computed: {
+    newsId() {
+      return "/newsitem/" + this.newsObject.id;
     },
-    computed: {
-        newsId() {
-            return "/newsitem/" + this.newsObject.id
-        },
-        bgImage() {
-            return `url("${this.newsObject.base_dir + this.newsObject.img_back}")`
-        }
-    }
-}
+    bgImage() {
+      return `url("${this.newsObject.base_dir + this.newsObject.img_back}")`;
+    },
+  },
+};
 </script>
 
 <template>
-    <section class="container text-center px-0">
-        <div class="col d-flex justify-content-center">
-            <div class="news-item">
-                <router-link :to=newsId>
-                    <div class="img-holder">
-                        <div class="news-content">
-                            <p>{{newsObject.title}}</p>
-                            <p>{{newsObject.subTitle}}</p>
-                            <p>
-                                <CalendarIcon />
-                                <span>&nbsp;{{newsObject.datetimehuman}}</span>
-                            </p>
-                        </div>
-                    </div>
-                </router-link>
+  <section class="container text-center px-0">
+    <div class="col d-flex justify-content-center">
+      <div class="news-item">
+        <router-link :to="newsId">
+          <div class="img-holder">
+            <div class="news-content">
+              <p>{{ newsObject.title }}</p>
+              <p>{{ newsObject.subTitle }}</p>
+              <p>
+                <CalendarIcon />
+                <span>&nbsp;{{ newsObject.datetimehuman }}</span>
+              </p>
             </div>
-        </div>
-    </section>
+          </div>
+        </router-link>
+      </div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
 .news-item {
-    width: 22rem;
-    height: 22rem;
-    border-radius: 0.3rem;
-    border: 1px solid wheat;
-    overflow: hidden;
+  width: 22rem;
+  height: 22rem;
+  border-radius: 0.3rem;
+  border: 1px solid wheat;
+  overflow: hidden;
 }
 
 .img-holder {
-    width: 100%;
-    height: 100%;
-    background-image: v-bind(bgImage);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100%;
-    transition: background-size 1s ease-out;
+  width: 100%;
+  height: 100%;
+  background-image: v-bind(bgImage);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  transition: background-size 1s ease-out;
 }
 
-.news-item>a {
-    text-decoration: none;
+.news-item > a {
+  text-decoration: none;
 }
 
 .img-holder:hover {
-    background-size: 110%;
-    cursor: pointer;
+  background-size: 110%;
+  cursor: pointer;
 }
 
 .news-content {
-    position: relative;
-    font-family: Ubuntu;
-    font-weight: bold;
-    font-size: larger;
-    text-align: left;
-    text-indent: 2rem;
-    line-height: 0.4rem;
-    top: 15rem;
-    color: gainsboro;
-    letter-spacing: 0.05rem;
+  position: relative;
+  font-family: Ubuntu;
+  font-weight: bold;
+  font-size: larger;
+  text-align: left;
+  text-indent: 2rem;
+  line-height: 0.4rem;
+  top: 15rem;
+  color: gainsboro;
+  letter-spacing: 0.05rem;
 }
 
-.news-content>p>span {
-    font-size: small;
-    font-weight: lighter;
+.news-content > p > span {
+  font-size: small;
+  font-weight: lighter;
 }
 </style>

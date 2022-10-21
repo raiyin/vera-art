@@ -1,262 +1,315 @@
 <script>
-
 import SideNewsTrailer from "@/components/News/SideNewsTrailer.vue";
-import NewsItemDescription from "@/components/News/NewsItemDescription.vue"
-import { useRouter, useRoute } from 'vue-router'
+import NewsItemDescription from "@/components/News/NewsItemDescription.vue";
 import axios from "axios";
 
-
 export default {
-    inject: ["host"],
-    components: {
-        SideNewsTrailer,
-        NewsItemDescription
-    },
-    data() {
-        return {
-            news: [],
-            currentNews: {}
-        }
-    },
-    setup() {
-        const route = useRoute();
-        const router = useRouter()
-    },
-    methods: {
-        async fetchData() {
-            try {
-                let newsid = this.$route.path.substring(this.$route.path.lastIndexOf('/') + 1)
-                var response = await axios.get('http://' + this.host + ':3001/news', { params: { id: newsid } });
-                this.currentNews = response.data[0];
+  inject: ["jsonserverhost"],
+  components: {
+    SideNewsTrailer,
+    NewsItemDescription,
+  },
+  data() {
+    return {
+      news: [],
+      currentNews: {},
+    };
+  },
+  methods: {
+    async fetchData() {
+      try {
+        const newsid = this.$route.path.substring(
+          this.$route.path.lastIndexOf("/") + 1
+        );
+        let response = await axios.get(this.jsonserverhost + "news", {
+          params: { id: newsid },
+        });
+        this.currentNews = response.data[0];
 
-                response = await axios.get('http://' + this.host + ':3001/news', { params: { id_ne: newsid, _limit: 5 } });
-                this.news = response.data;
-            }
-            catch (e) {
-                console.log(e);
-                var propertyNames = Object.getOwnPropertyNames(e);
-                propertyNames.forEach(function (property) {
-                    var descriptor = Object.getOwnPropertyDescriptor(e, property);
-                });
-            }
-        },
-        makeImageName(index) {
-            return this.currentNews.base_dir + index + ".jpg"
-        },
-        makeVideoSlideLabel(index) {
-            return "Видеослайд " + index
-        },
-        makeVideoName(index) {
-            return this.currentNews.base_dir + index + ".mp4"
-        },
-        makeModalId(index) {
-            return "exampleModal" + index;
-        },
-        makeModalIdLink(index) {
-            return "#exampleModal" + index;
-        }
+        response = await axios.get(this.jsonserverhost + "news", {
+          params: { id_ne: newsid, _limit: 5 },
+        });
+        this.news = response.data;
+      } catch (e) {
+        console.log(e);
+      }
     },
-    mounted() {
-        this.fetchData();
-        let mdbScript = document.createElement('script')
-        mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js')
-        document.head.appendChild(mdbScript)
+    makeImageName(index) {
+      return this.currentNews.base_dir + index + ".jpg";
     },
-    async onBeforeMount() {
-        await router.isReady()
+    makeVideoSlideLabel(index) {
+      return "Видеослайд " + index;
     },
-    computed: {
-        background() {
-            return this.currentNews.base_dir + this.currentNews.img_backfull;
-        }
-    }
-}
-
+    makeVideoName(index) {
+      return this.currentNews.base_dir + index + ".mp4";
+    },
+    makeModalId(index) {
+      return "exampleModal" + index;
+    },
+    makeModalIdLink(index) {
+      return "#exampleModal" + index;
+    },
+  },
+  mounted() {
+    this.fetchData();
+    const mdbScript = document.createElement("script");
+    mdbScript.setAttribute("src", "/src/assets/js/mdb.min.js");
+    document.head.appendChild(mdbScript);
+  },
+  computed: {
+    background() {
+      return this.currentNews.base_dir + this.currentNews.img_backfull;
+    },
+  },
+};
 </script>
-    
+
 <template>
-
-    <section class="container text-center px-0 main-content">
-        <article>
-            <div class="news-header">
-                <div class="news_img">
-                    <img :src="background" />
-                </div>
-                <div class="other-news">
-                    <template v-for="newsItem in news">
-                        <SideNewsTrailer :sideNewsObject="newsItem" />
-                    </template>
-                </div>
-            </div>
-            <NewsItemDescription :newsObject="currentNews" />
-            <div class="news-text">
-                <p v-html="currentNews.text" />
-            </div>
-        </article>
-
-        <div class="row">
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
-                    <img v-if="image_index%3==1" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
-                        :data-bs-target=makeModalIdLink(image_index) />
-
-                    <div v-if="image_index%3==1" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <img :src=makeImageName(image_index) />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </template>
-            </div>
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
-                    <img v-if="image_index%3==2" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
-                        :data-bs-target=makeModalIdLink(image_index) />
-
-                    <div v-if="image_index%3==2" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <img :src=makeImageName(image_index) />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
-                    <img v-if="image_index%3==0" :src=makeImageName(image_index)
-                        class="w-100 shadow-1-strong rounded mb-4" data-bs-toggle="modal"
-                        :data-bs-target=makeModalIdLink(image_index) />
-
-                    <div v-if="image_index%3==0" class="modal fade" :id=makeModalId(image_index) tabindex="-1"
-                        aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <img :src=makeImageName(image_index) />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
+  <section class="container text-center px-0 main-content">
+    <article class="container">
+      <div class="news-header">
+        <div class="news_img">
+          <img :src="background" />
         </div>
-
-        <div id="carouselVideoExample" class="carousel slide carousel-fade" data-mdb-ride="carousel">
-            <div v-if="currentNews.videoscount>1" class="carousel-indicators">
-                <template v-for="video_index in currentNews.videoscount">
-                    <button v-if="video_index==1" type="button" data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index" class="active" aria-current="true"
-                        :aria-label="makeVideoSlideLabel(video_index)">
-                    </button>
-                    <button v-if="video_index!=1" type="button" data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index" :aria-label="makeVideoSlideLabel(video_index)">
-                    </button>
-                </template>
-            </div>
-
-            <div class="carousel-inner">
-                <template v-for="video_index in currentNews.videoscount">
-                    <div v-if="video_index==1" class="carousel-item active">
-                        <video class="img-fluid" autoplay loop muted>
-                            <source :src=makeVideoName(video_index) type="video/mp4" />
-                        </video>
-                    </div>
-
-                    <div v-if="video_index!=1" class="carousel-item">
-                        <video class="img-fluid" autoplay loop muted>
-                            <source :src=makeVideoName(video_index) type="video/mp4" />
-                        </video>
-                    </div>
-                </template>
-            </div>
-
-            <button v-if="currentNews.videoscount>1" class="carousel-control-prev" type="button"
-                data-mdb-target="#carouselVideoExample" data-mdb-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button v-if="currentNews.videoscount>1" class="carousel-control-next" type="button"
-                data-mdb-target="#carouselVideoExample" data-mdb-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
+        <div class="other-news">
+          <template v-for="newsItem in news" v-bind:key="newsItem">
+            <SideNewsTrailer :sideNewsObject="newsItem" />
+          </template>
         </div>
+      </div>
+      <NewsItemDescription :newsObject="currentNews" />
+      <div class="news-text">
+        <p v-html="currentNews.text" />
+      </div>
+    </article>
 
+    <!-- photo section -->
+    <div class="row">
+      <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+        <template v-for="image_index in currentNews.imagescount">
+          <img
+            v-if="image_index % 3 == 1"
+            v-bind:key="image_index"
+            :src="makeImageName(image_index)"
+            class="w-100 shadow-1-strong rounded mb-4"
+            data-bs-toggle="modal"
+            :data-bs-target="makeModalIdLink(image_index)"
+          />
 
-    </section>
+          <div
+            v-if="image_index % 3 == 1"
+            v-bind:key="image_index"
+            class="modal fade"
+            :id="makeModalId(image_index)"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <img :src="makeImageName(image_index)" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+        <template v-for="image_index in currentNews.imagescount">
+          <img
+            v-if="image_index % 3 == 2"
+            v-bind:key="image_index"
+            :src="makeImageName(image_index)"
+            class="w-100 shadow-1-strong rounded mb-4"
+            data-bs-toggle="modal"
+            :data-bs-target="makeModalIdLink(image_index)"
+          />
+
+          <div
+            v-if="image_index % 3 == 2"
+            v-bind:key="image_index"
+            class="modal fade"
+            :id="makeModalId(image_index)"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <img :src="makeImageName(image_index)" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+        <template v-for="image_index in currentNews.imagescount">
+          <img
+            v-if="image_index % 3 == 0"
+            v-bind:key="image_index"
+            :src="makeImageName(image_index)"
+            class="w-100 shadow-1-strong rounded mb-4"
+            data-bs-toggle="modal"
+            :data-bs-target="makeModalIdLink(image_index)"
+          />
+
+          <div
+            v-if="image_index % 3 == 0"
+            v-bind:key="image_index"
+            class="modal fade"
+            :id="makeModalId(image_index)"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-body">
+                  <img :src="makeImageName(image_index)" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <!-- video section -->
+    <div
+      id="carouselVideoExample"
+      class="carousel slide carousel-fade"
+      data-mdb-ride="carousel"
+    >
+      <div v-if="currentNews.videoscount > 1" class="carousel-indicators">
+        <template v-for="video_index in currentNews.videoscount">
+          <button
+            v-if="video_index == 1"
+            v-bind:key="video_index"
+            type="button"
+            data-mdb-target="#carouselVideoExample"
+            :data-mdb-slide-to="video_index"
+            class="active"
+            aria-current="true"
+            :aria-label="makeVideoSlideLabel(video_index)"
+          ></button>
+          <button
+            v-if="video_index != 1"
+            v-bind:key="video_index"
+            type="button"
+            data-mdb-target="#carouselVideoExample"
+            :data-mdb-slide-to="video_index"
+            :aria-label="makeVideoSlideLabel(video_index)"
+          ></button>
+        </template>
+      </div>
+
+      <div class="carousel-inner">
+        <template
+          v-for="video_index in currentNews.videoscount"
+          v-bind:key="video_index"
+        >
+          <div v-if="video_index == 1" class="carousel-item active">
+            <video class="img-fluid" autoplay loop muted>
+              <source :src="makeVideoName(video_index)" type="video/mp4" />
+            </video>
+          </div>
+
+          <div
+            v-if="video_index != 1"
+            v-bind:key="video_index"
+            class="carousel-item"
+          >
+            <video class="img-fluid" autoplay loop muted>
+              <source :src="makeVideoName(video_index)" type="video/mp4" />
+            </video>
+          </div>
+        </template>
+      </div>
+
+      <button
+        v-if="currentNews.videoscount > 1"
+        class="carousel-control-prev"
+        type="button"
+        data-mdb-target="#carouselVideoExample"
+        data-mdb-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        v-if="currentNews.videoscount > 1"
+        class="carousel-control-next"
+        type="button"
+        data-mdb-target="#carouselVideoExample"
+        data-mdb-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>
 </template>
-    
+
 <style scoped>
-@import '@/assets/css/mdb.min.css';
+@import "@/assets/css/mdb.min.css";
 
 .news-header {
-    display: flex;
+  display: flex;
 }
 
 .other-news {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .news_img {
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    margin-right: 2rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  margin-right: 2rem;
 }
 
 .news-text {
-    text-align: left;
-    margin-bottom: 2rem;
+  text-align: left;
+  margin-bottom: 2rem;
 }
 
 .news_img {
-    width: 696px;
-    height: 468px;
+  width: 696px;
+  height: 468px;
 }
 
 .carousel-inner {
-    object-fit: cover;
+  object-fit: cover;
 }
 
 @media (orientation: landscape) {
-
-    .modal-body>img,
-    .img-fluid {
-        max-height: 90vh;
-    }
+  .modal-body > img,
+  .img-fluid {
+    max-height: 90vh;
+  }
 }
 
 @media (orientation: portrait) {
-
-    .modal-body>img,
-    .img-fluid {
-        max-width: 90vw;
-    }
+  .modal-body > img,
+  .img-fluid {
+    max-width: 90vw;
+  }
 }
 
 .video-self {
-    object-fit: fill;
+  object-fit: fill;
 }
 
 .modal-dialog {
-    position: relative;
-    display: table;
-    /* This is important */
-    overflow-y: auto;
-    overflow-x: auto;
-    width: auto;
+  position: relative;
+  display: table;
+  /* This is important */
+  overflow-y: auto;
+  overflow-x: auto;
+  width: auto;
 }
 </style>
-    
