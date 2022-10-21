@@ -42,6 +42,7 @@ export default {
 <style scoped>
 .other-news-item {
   display: flex;
+  flex: 1 0 auto;
   text-decoration: none;
   color: black;
 }
@@ -52,8 +53,7 @@ export default {
 }
 
 .other-news-img > img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90px;
 }
 
 .other-news-desc {
