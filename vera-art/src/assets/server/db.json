@@ -1149,7 +1149,7 @@
   "illustration": [
     {
       "id": "Dragon",
-      "dir": "/img/allworks/Illustration/Dragon/",
+      "dir": "/img/allworks/illustration/dragon/",
       "name_ru": "Дракон",
       "name_en": "Dragon",
       "base": "Adobe Photoshop",
@@ -1169,7 +1169,7 @@
     },
     {
       "id": "Dragons",
-      "dir": "/img/allworks/Illustration/Dragons/",
+      "dir": "/img/allworks/illustration/dragons/",
       "name_ru": "Драконы",
       "name_en": "Dragons",
       "base": "Adobe Photoshop",
@@ -1189,7 +1189,7 @@
     },
     {
       "id": "Goldfinch",
-      "dir": "/img/allworks/Illustration/Goldfinch/",
+      "dir": "/img/allworks/illustration/goldfinch/",
       "name_ru": "Щегол",
       "name_en": "Goldfinch",
       "base": "Adobe Photoshop",
@@ -1209,7 +1209,7 @@
     },
     {
       "id": "Horse",
-      "dir": "/img/allworks/Illustration/Horse/",
+      "dir": "/img/allworks/illustration/horse/",
       "name_ru": "Лошадь",
       "name_en": "Horse",
       "base": "Adobe Photoshop",
@@ -1368,7 +1368,7 @@
       "img_backfull": "back_full.jpg",
       "imagescount": 2,
       "videoscount": 0,
-      "text": "Сегодня моему любимому учителю исполнилось 75! Человеку, который сформировал меня как профессионала, привил чувство вкуса, научил владению цветом и копозицией, я безгранично благодарна. От всей души желаю вам здоровья, счастья и хорошего настроения! И прошу и дальше нести знания в мир!"
+      "text": "Сегодня моему любимому учителю Алмосову Льву Ивановичу исполнилось 75! Человеку, который сформировал меня как профессионала, привил чувство вкуса, научил владению цветом и композицией, я безгранично благодарна. От всей души желаю Вам здоровья, счастья и хорошего настроения! Прошу и дальше нести знания в мир!"
     },
     {
       "id": "20220828",
@@ -1711,8 +1711,8 @@
       "id": "20220122",
       "datetime": "2022-01-22T00:00:01.000Z",
       "datetimehuman": "22 января, 2022",
-      "title": "Чай работе не помеха!!",
-      "subTitle": "Даешь мастер-класс!!",
+      "title": "Чай работе не помеха!!!",
+      "subTitle": "Даешь мастер-класс!!!",
       "dir": "/img/news/2022/01/22/",
       "img_back": "back.jpg",
       "img_backfull": "back_full.jpg",

@@ -35,6 +35,12 @@ export default {
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-body">
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
           <Carousel :imageObject="imageObject" :imageId="imageObject.id" />
         </div>
       </div>
@@ -43,6 +49,13 @@ export default {
 </template>
 
 <style scoped>
+.btn-close {
+  position: absolute;
+  right: 16px;
+  background-color: bisque;
+  z-index: 100;
+}
+
 .modal-dialog {
   position: relative;
   display: table;

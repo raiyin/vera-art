@@ -95,7 +95,7 @@ export default {
             v-if="image_index % 3 == 1"
             v-bind:key="image_index"
             :src="makeImageName(image_index)"
-            class="w-100 shadow-1-strong rounded mb-4"
+            class="w-100 shadow-1-strong rounded mb-4 img-item"
             data-bs-toggle="modal"
             :data-bs-target="makeModalIdLink(image_index)"
           />
@@ -131,7 +131,7 @@ export default {
             v-if="image_index % 3 == 2"
             v-bind:key="image_index"
             :src="makeImageName(image_index)"
-            class="w-100 shadow-1-strong rounded mb-4"
+            class="w-100 shadow-1-strong rounded mb-4 img-item"
             data-bs-toggle="modal"
             :data-bs-target="makeModalIdLink(image_index)"
           />
@@ -167,7 +167,7 @@ export default {
             v-if="image_index % 3 == 0"
             v-bind:key="image_index"
             :src="makeImageName(image_index)"
-            class="w-100 shadow-1-strong rounded mb-4"
+            class="w-100 shadow-1-strong rounded mb-4 img-item"
             data-bs-toggle="modal"
             :data-bs-target="makeModalIdLink(image_index)"
           />
@@ -299,6 +299,10 @@ export default {
 .news-text {
   text-align: left;
   margin-bottom: 2rem;
+}
+
+.img-item {
+  cursor: pointer;
 }
 
 .news_img {
