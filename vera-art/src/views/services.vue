@@ -26,6 +26,5 @@ export default {};
 .services {
   margin-top: 5rem;
   height: 960px;
-  width: 1280px;
 }
 </style>
