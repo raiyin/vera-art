@@ -13,6 +13,8 @@ export default {
   data() {
     return {
       images: [],
+      page: 1,
+      limit: 9,
       selectedSort: "",
       sortOptions: [
         { value: "name_ru", name: "По названию" },
@@ -23,17 +25,47 @@ export default {
     };
   },
   methods: {
-    async fetchData() {
+    async loadWorks() {
       try {
-        const response = await axios.get(this.jsonserverhost + "sale");
+        const response = await axios.get(this.jsonserverhost + "sale", {
+          params: {
+            _page: this.page,
+            _limit: this.limit,
+          },
+        });
         this.images = response.data;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async loadMoreWorks() {
+      try {
+        this.page += 1;
+        const response = await axios.get(this.jsonserverhost + "sale", {
+          params: {
+            _page: this.page,
+            _limit: this.limit,
+          },
+        });
+        this.images = [...this.images, ...response.data];
       } catch (e) {
         console.log(e);
       }
     },
   },
   mounted() {
-    this.fetchData();
+    this.loadWorks();
+    const options = {
+      rootMargin: "0px",
+      threshold: 1.0,
+    };
+    const callback = (entries, observer) => {
+      if (entries[0].isIntersecting) {
+        this.loadMoreWorks();
+      }
+    };
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer);
   },
   computed: {},
   watch: {
@@ -67,11 +99,16 @@ export default {
     </v-select>
   </section>
   <Gallery :images="images" />
+  <div ref="observer" class="observer"></div>
 </template>
 
 <style scoped>
 .v-select {
   width: 20rem;
   box-sizing: border-box;
+}
+
+.observer {
+  height: 0px;
 }
 </style>

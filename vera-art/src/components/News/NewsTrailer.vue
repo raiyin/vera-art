@@ -30,15 +30,14 @@ export default {
     <div class="col d-flex justify-content-center">
       <div class="news-item">
         <router-link :to="newsId">
-          <div class="img-holder">
-            <div class="news-content">
-              <p>{{ newsObject.title }}</p>
-              <p>{{ newsObject.subTitle }}</p>
-              <p>
-                <CalendarIcon />
-                <span>&nbsp;{{ newsObject.datetimehuman }}</span>
-              </p>
-            </div>
+          <div class="img-holder"></div>
+          <div class="news-content">
+            <p>{{ newsObject.title }}</p>
+            <p>{{ newsObject.subTitle }}</p>
+            <p>
+              <CalendarIcon />
+              <span>&nbsp;{{ newsObject.datetimehuman }}</span>
+            </p>
           </div>
         </router-link>
       </div>
@@ -49,7 +48,7 @@ export default {
 <style scoped>
 .news-item {
   width: 22rem;
-  height: 22rem;
+  height: 27rem;
   border-radius: 0.3rem;
   border: 1px solid wheat;
   overflow: hidden;
@@ -57,12 +56,13 @@ export default {
 
 .img-holder {
   width: 100%;
-  height: 100%;
+  height: 79%;
   background-image: v-bind(bgImage);
   background-position: center;
   background-repeat: no-repeat;
   background-size: 100%;
   transition: background-size 1s ease-out;
+  margin-bottom: 1rem;
 }
 
 .news-item > a {
@@ -80,10 +80,9 @@ export default {
   font-weight: bold;
   font-size: larger;
   text-align: left;
-  text-indent: 2rem;
+  text-indent: 1rem;
   line-height: 0.4rem;
-  top: 15rem;
-  color: gainsboro;
+  color: black;
   letter-spacing: 0.05rem;
 }
 

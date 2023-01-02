@@ -1,1776 +1,1815 @@
 {
-  "sale": [
-    {
-      "id": "alley",
-      "dir": "/img/sale/alley/",
-      "name_ru": "Аллея в центральном парке",
-      "name_en": "Alley in Central Park",
-      "width": 50,
-      "height": 70,
-      "base": "холст",
-      "material": "масло",
-      "size": "50x70",
-      "year": 2019,
-      "price": 15000,
-      "parts": [
+    "sale": [
         {
-          "name_ru": "Аллея в центральном парке",
-          "name_en": "Alley in Central Park",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x70"
+            "id": "alley",
+            "dir": "/img/sale/alley/",
+            "name_ru": "Аллея в центральном парке",
+            "name_en": "Alley in Central Park",
+            "width": 50,
+            "height": 70,
+            "base": "холст",
+            "material": "масло",
+            "size": "50x70",
+            "year": 2019,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Аллея в центральном парке",
+                    "name_en": "Alley in Central Park",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x70"
+                },
+                {
+                    "name_ru": "Аллея в центральном парке",
+                    "name_en": "Alley in Central Park",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x70"
+                }
+            ]
         },
         {
-          "name_ru": "Аллея в центральном парке",
-          "name_en": "Alley in Central Park",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x70"
-        }
-      ]
-    },
-    {
-      "id": "birches",
-      "dir": "/img/sale/birches/",
-      "name_ru": "Берёзы",
-      "name_en": "Birches",
-      "width": 50,
-      "height": 40,
-      "base": "холст",
-      "material": "масло",
-      "size": "50x40",
-      "year": 2019,
-      "price": 15000,
-      "parts": [
-        {
-          "name_ru": "Берёзы",
-          "name_en": "Birches",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x40"
+            "id": "birches",
+            "dir": "/img/sale/birches/",
+            "name_ru": "Берёзы",
+            "name_en": "Birches",
+            "width": 50,
+            "height": 40,
+            "base": "холст",
+            "material": "масло",
+            "size": "50x40",
+            "year": 2019,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Берёзы",
+                    "name_en": "Birches",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x40"
+                },
+                {
+                    "name_ru": "Берёзы",
+                    "name_en": "Birches",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x40"
+                }
+            ]
         },
         {
-          "name_ru": "Берёзы",
-          "name_en": "Birches",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x40"
-        }
-      ]
-    },
-    {
-      "id": "botanical_garden",
-      "dir": "/img/sale/botanical_garden/",
-      "name_ru": "В ботаническом саду",
-      "name_en": "In the botanical garden",
-      "width": 25,
-      "height": 35,
-      "base": "холст",
-      "material": "акварель",
-      "size": "25x35",
-      "year": 2021,
-      "price": 4000,
-      "parts": [
-        {
-          "name_ru": "В ботаническом саду",
-          "name_en": "In the botanical garden",
-          "base": "холст",
-          "material": "акварель",
-          "size": "25x35"
+            "id": "botanical_garden",
+            "dir": "/img/sale/botanical_garden/",
+            "name_ru": "В ботаническом саду",
+            "name_en": "In the botanical garden",
+            "width": 25,
+            "height": 35,
+            "base": "холст",
+            "material": "акварель",
+            "size": "25x35",
+            "year": 2021,
+            "price": 4000,
+            "parts": [
+                {
+                    "name_ru": "В ботаническом саду",
+                    "name_en": "In the botanical garden",
+                    "base": "холст",
+                    "material": "акварель",
+                    "size": "25x35"
+                },
+                {
+                    "name_ru": "В ботаническом саду",
+                    "name_en": "In the botanical garden",
+                    "base": "холст",
+                    "material": "акварель",
+                    "size": "25x35"
+                }
+            ]
         },
         {
-          "name_ru": "В ботаническом саду",
-          "name_en": "In the botanical garden",
-          "base": "холст",
-          "material": "акварель",
-          "size": "25x35"
-        }
-      ]
-    },
-    {
-      "id": "distant_landscapes",
-      "dir": "/img/sale/distant_landscapes/",
-      "name_ru": "Далёкие пейзажи",
-      "name_en": "Distant landscapes",
-      "width": 95,
-      "height": 55,
-      "base": "холст",
-      "material": "масло, текстурная паста",
-      "size": "95x55",
-      "year": 2018,
-      "price": 25000,
-      "parts": [
-        {
-          "name_ru": "Далёкие пейзажи",
-          "name_en": "Distant landscapes",
-          "base": "холст",
-          "material": "масло",
-          "size": "95x55"
-        }
-      ]
-    },
-    {
-      "id": "hidden_place",
-      "dir": "/img/sale/hidden_place/",
-      "name_ru": "Потаённое место",
-      "name_en": "A hidden place",
-      "width": 60,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "60x50",
-      "year": 2021,
-      "price": 20000,
-      "parts": [
-        {
-          "name_ru": "Потаённое место",
-          "name_en": "A hidden place",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
+            "id": "distant_landscapes",
+            "dir": "/img/sale/distant_landscapes/",
+            "name_ru": "Далёкие пейзажи",
+            "name_en": "Distant landscapes",
+            "width": 95,
+            "height": 55,
+            "base": "холст",
+            "material": "масло, текстурная паста",
+            "size": "95x55",
+            "year": 2018,
+            "price": 25000,
+            "parts": [
+                {
+                    "name_ru": "Далёкие пейзажи",
+                    "name_en": "Distant landscapes",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "95x55"
+                }
+            ]
         },
         {
-          "name_ru": "Потаённое место",
-          "name_en": "A hidden place",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
-        }
-      ]
-    },
-    {
-      "id": "horse",
-      "dir": "/img/sale/horse/",
-      "name_ru": "Конь",
-      "name_en": "Horse",
-      "width": 70,
-      "height": 50,
-      "base": "бумага",
-      "material": "уголь",
-      "size": "70x50",
-      "year": 2019,
-      "price": 25000,
-      "parts": [
-        {
-          "name_ru": "Конь",
-          "name_en": "Horse",
-          "base": "бумага",
-          "material": "уголь",
-          "size": "70x50"
-        }
-      ]
-    },
-    {
-      "id": "pond_swifts",
-      "dir": "/img/sale/pond_swifts/",
-      "name_ru": "Пруд и стрижи",
-      "name_en": "Pond and swifts",
-      "width": 50,
-      "height": 40,
-      "base": "холст",
-      "material": "масло",
-      "size": "50x40",
-      "year": 2021,
-      "price": 15000,
-      "parts": [
-        {
-          "name_ru": "Пруд и стрижи",
-          "name_en": "Pond and swifts",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x40"
+            "id": "hidden_place",
+            "dir": "/img/sale/hidden_place/",
+            "name_ru": "Потаённое место",
+            "name_en": "A hidden place",
+            "width": 60,
+            "height": 50,
+            "base": "холст",
+            "material": "масло",
+            "size": "60x50",
+            "year": 2021,
+            "price": 20000,
+            "parts": [
+                {
+                    "name_ru": "Потаённое место",
+                    "name_en": "A hidden place",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                },
+                {
+                    "name_ru": "Потаённое место",
+                    "name_en": "A hidden place",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                }
+            ]
         },
         {
-          "name_ru": "Пруд и стрижи",
-          "name_en": "Pond and swifts",
-          "base": "холст",
-          "material": "масло",
-          "size": "50x40"
-        }
-      ]
-    },
-    {
-      "id": "stilllife-peony",
-      "dir": "/img/sale/stilllife-peony/",
-      "name_ru": "Натюрморт с пионами",
-      "name_en": "Still-life with peonies",
-      "width": 40,
-      "height": 30,
-      "base": "холст",
-      "material": "масло",
-      "size": "40x30",
-      "year": 2020,
-      "price": 15000,
-      "parts": [
-        {
-          "name_ru": "Натюрморт",
-          "name_en": "Still-life with peonies",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
+            "id": "horse",
+            "dir": "/img/sale/horse/",
+            "name_ru": "Конь",
+            "name_en": "Horse",
+            "width": 70,
+            "height": 50,
+            "base": "бумага",
+            "material": "уголь",
+            "size": "70x50",
+            "year": 2019,
+            "price": 25000,
+            "parts": [
+                {
+                    "name_ru": "Конь",
+                    "name_en": "Horse",
+                    "base": "бумага",
+                    "material": "уголь",
+                    "size": "70x50"
+                }
+            ]
         },
         {
-          "name_ru": "Натюрморт",
-          "name_en": "Still-life with peonies",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "still-life_wine",
-      "dir": "/img/sale/still-life_wine/",
-      "name_ru": "Натюрморт",
-      "name_en": "Still life",
-      "width": 60,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "60x50",
-      "year": 2019,
-      "price": 15000,
-      "parts": [
-        {
-          "name_ru": "Натюрморт с пионами",
-          "name_en": "Still life with peonies",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
+            "id": "pond_swifts",
+            "dir": "/img/sale/pond_swifts/",
+            "name_ru": "Пруд и стрижи",
+            "name_en": "Pond and swifts",
+            "width": 50,
+            "height": 40,
+            "base": "холст",
+            "material": "масло",
+            "size": "50x40",
+            "year": 2021,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Пруд и стрижи",
+                    "name_en": "Pond and swifts",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x40"
+                },
+                {
+                    "name_ru": "Пруд и стрижи",
+                    "name_en": "Pond and swifts",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "50x40"
+                }
+            ]
         },
         {
-          "name_ru": "Натюрморт с пионами",
-          "name_en": "Still life with peonies",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
-        }
-      ]
-    },
-    {
-      "id": "still-life-peonypie",
-      "dir": "/img/sale/still-life-peonypie/",
-      "name_ru": "Натюрморт с пионами и пирогом",
-      "name_en": "Still life with peonies and pie",
-      "width": 29,
-      "height": 42,
-      "base": "бумага",
-      "material": "акварель",
-      "size": "29x42",
-      "year": 2018,
-      "price": 10000,
-      "parts": [
-        {
-          "name_ru": "Натюрморт с пионами и пирогом",
-          "name_en": "Still life with peonies and pie",
-          "base": "бумага",
-          "material": "акварель",
-          "size": "29x42"
-        }
-      ]
-    },
-    {
-      "id": "sunflowers",
-      "dir": "/img/sale/sunflowers/",
-      "name_ru": "Подсолнухи",
-      "name_en": "Sunflowers",
-      "width": 30,
-      "height": 41,
-      "base": "бумага",
-      "material": "акварель",
-      "size": "30x41",
-      "year": 2022,
-      "price": 10000,
-      "parts": [
-        {
-          "name_ru": "Подсолнухи",
-          "name_en": "Sunflowers",
-          "base": "бумага",
-          "material": "акварель",
-          "size": "30x41"
-        }
-      ]
-    },
-    {
-      "id": "sunset_sengeley",
-      "dir": "/img/sale/sunset_sengeley/",
-      "name_ru": "На закате, Сенгилеевское водохранилище",
-      "name_en": "At sunset, the Sengileevsky reservoir",
-      "width": 60,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "60x50",
-      "year": 2021,
-      "price": 10000,
-      "parts": [
-        {
-          "name_ru": "На закате, Сенгилеевское водохранилище",
-          "name_en": "At sunset, the Sengileevsky reservoir",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
+            "id": "stilllife-peony",
+            "dir": "/img/sale/stilllife-peony/",
+            "name_ru": "Натюрморт с пионами",
+            "name_en": "Still-life with peonies",
+            "width": 40,
+            "height": 30,
+            "base": "холст",
+            "material": "масло",
+            "size": "40x30",
+            "year": 2020,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Натюрморт",
+                    "name_en": "Still-life with peonies",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                },
+                {
+                    "name_ru": "Натюрморт",
+                    "name_en": "Still-life with peonies",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                }
+            ]
         },
         {
-          "name_ru": "На закате, Сенгилеевское водохранилище",
-          "name_en": "At sunset, the Sengileevsky reservoir",
-          "base": "холст",
-          "material": "oiмаслоl",
-          "size": "60x50"
-        }
-      ]
-    },
-    {
-      "id": "swan",
-      "dir": "/img/sale/swan/",
-      "name_ru": "Иллюстрация. Лебедь и лебёдушка",
-      "name_en": "Illustration. The swan and the swanny",
-      "width": 42,
-      "height": 30,
-      "base": "бумага",
-      "material": "акварель",
-      "size": "42x30",
-      "year": 2020,
-      "price": 15000,
-      "parts": [
-        {
-          "name_ru": "Иллюстрация. Лебедь и лебёдушка",
-          "name_en": "Illustration. The swan and the swanny",
-          "base": "canбумагаvas",
-          "material": "акварель",
-          "size": "42x30"
-        }
-      ]
-    },
-    {
-      "id": "thumbnail_1",
-      "dir": "/img/sale/thumbnail_1/",
-      "name_ru": "Миниатюра",
-      "name_en": "Thumbnail",
-      "width": 24,
-      "height": 18,
-      "base": "холст на картоне",
-      "material": "масло",
-      "size": "24x18",
-      "year": 2021,
-      "price": 1500,
-      "parts": [
-        {
-          "name_ru": "Миниатюра",
-          "name_en": "Thumbnail",
-          "base": "холст на картоне",
-          "material": "масло",
-          "size": "24x18"
-        }
-      ]
-    },
-    {
-      "id": "thumbnail_2",
-      "dir": "/img/sale/thumbnail_2/",
-      "name_ru": "Миниатюра",
-      "name_en": "Thumbnail",
-      "width": 18,
-      "height": 24,
-      "base": "холст на картоне",
-      "material": "масло",
-      "size": "18x24",
-      "year": 2021,
-      "price": 1500,
-      "parts": [
-        {
-          "name_ru": "Миниатюра",
-          "name_en": "Thumbnail",
-          "base": "холст на картоне",
-          "material": "масло",
-          "size": "18x24"
-        }
-      ]
-    },
-    {
-      "id": "thumbnail_3",
-      "dir": "/img/sale/thumbnail_3/",
-      "name_ru": "Миниатюра",
-      "name_en": "Thumbnail",
-      "width": 18,
-      "height": 24,
-      "base": "холст на картоне",
-      "material": "масло",
-      "size": "18x24",
-      "year": 2021,
-      "price": 1500,
-      "parts": [
-        {
-          "name_ru": "Миниатюра",
-          "name_en": "Thumbnail",
-          "base": "холст на картоне",
-          "material": "масло",
-          "size": "18x24"
-        }
-      ]
-    },
-    {
-      "id": "thumbnail_4",
-      "dir": "/img/sale/thumbnail_4/",
-      "name_ru": "Миниатюра",
-      "name_en": "Thumbnail",
-      "width": 18,
-      "height": 24,
-      "base": "холст на картоне",
-      "material": "масло",
-      "size": "18x24",
-      "year": 2021,
-      "price": 1500,
-      "parts": [
-        {
-          "name_ru": "Миниатюра",
-          "name_en": "Thumbnail",
-          "base": "холст на картоне",
-          "material": "масло",
-          "size": "18x24"
-        }
-      ]
-    },
-    {
-      "id": "triptych",
-      "dir": "/img/sale/triptych/",
-      "name_ru": "Триптих",
-      "name_en": "Triptych",
-      "width": 0,
-      "height": 0,
-      "base": "холст",
-      "material": "масло",
-      "size": "",
-      "year": 2020,
-      "price": 30000,
-      "parts": [
-        {
-          "name_ru": "Пленер за городом, часть 1",
-          "name_en": "Plein air outside the city, part 1",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
+            "id": "still-life_wine",
+            "dir": "/img/sale/still-life_wine/",
+            "name_ru": "Натюрморт",
+            "name_en": "Still life",
+            "width": 60,
+            "height": 50,
+            "base": "холст",
+            "material": "масло",
+            "size": "60x50",
+            "year": 2019,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Натюрморт с пионами",
+                    "name_en": "Still life with peonies",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                },
+                {
+                    "name_ru": "Натюрморт с пионами",
+                    "name_en": "Still life with peonies",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                }
+            ]
         },
         {
-          "name_ru": "Пленер за городом, часть 1",
-          "name_en": "Plein air outside the city, part 1",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
+            "id": "still-life-peonypie",
+            "dir": "/img/sale/still-life-peonypie/",
+            "name_ru": "Натюрморт с пионами и пирогом",
+            "name_en": "Still life with peonies and pie",
+            "width": 29,
+            "height": 42,
+            "base": "бумага",
+            "material": "акварель",
+            "size": "29x42",
+            "year": 2018,
+            "price": 10000,
+            "parts": [
+                {
+                    "name_ru": "Натюрморт с пионами и пирогом",
+                    "name_en": "Still life with peonies and pie",
+                    "base": "бумага",
+                    "material": "акварель",
+                    "size": "29x42"
+                }
+            ]
         },
         {
-          "name_ru": "Пленер за городом, часть 2",
-          "name_en": "Plein air outside the city, part 2",
-          "base": "холст",
-          "material": "масло",
-          "size": "25x35"
+            "id": "sunflowers",
+            "dir": "/img/sale/sunflowers/",
+            "name_ru": "Подсолнухи",
+            "name_en": "Sunflowers",
+            "width": 30,
+            "height": 41,
+            "base": "бумага",
+            "material": "акварель",
+            "size": "30x41",
+            "year": 2022,
+            "price": 10000,
+            "parts": [
+                {
+                    "name_ru": "Подсолнухи",
+                    "name_en": "Sunflowers",
+                    "base": "бумага",
+                    "material": "акварель",
+                    "size": "30x41"
+                }
+            ]
         },
         {
-          "name_ru": "Пленер за городом, часть 2",
-          "name_en": "Plein air outside the city, part 2",
-          "base": "холст",
-          "material": "масло",
-          "size": "25x35"
+            "id": "sunset_sengeley",
+            "dir": "/img/sale/sunset_sengeley/",
+            "name_ru": "На закате, Сенгилеевское водохранилище",
+            "name_en": "At sunset, the Sengileevsky reservoir",
+            "width": 60,
+            "height": 50,
+            "base": "холст",
+            "material": "масло",
+            "size": "60x50",
+            "year": 2021,
+            "price": 10000,
+            "parts": [
+                {
+                    "name_ru": "На закате, Сенгилеевское водохранилище",
+                    "name_en": "At sunset, the Sengileevsky reservoir",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                },
+                {
+                    "name_ru": "На закате, Сенгилеевское водохранилище",
+                    "name_en": "At sunset, the Sengileevsky reservoir",
+                    "base": "холст",
+                    "material": "oiмаслоl",
+                    "size": "60x50"
+                }
+            ]
         },
         {
-          "name_ru": "Пленер за городом, часть 3",
-          "name_en": "Plein air outside the city, part 3",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
+            "id": "swan",
+            "dir": "/img/sale/swan/",
+            "name_ru": "Иллюстрация. Лебедь и лебёдушка",
+            "name_en": "Illustration. The swan and the swanny",
+            "width": 42,
+            "height": 30,
+            "base": "бумага",
+            "material": "акварель",
+            "size": "42x30",
+            "year": 2020,
+            "price": 15000,
+            "parts": [
+                {
+                    "name_ru": "Иллюстрация. Лебедь и лебёдушка",
+                    "name_en": "Illustration. The swan and the swanny",
+                    "base": "canбумагаvas",
+                    "material": "акварель",
+                    "size": "42x30"
+                }
+            ]
         },
         {
-          "name_ru": "Пленер за городом, часть 3",
-          "name_en": "Plein air outside the city, part 3",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "two_flowers_secret",
-      "dir": "/img/sale/two_flowers_secret/",
-      "name_ru": "Тайна двух цветков",
-      "name_en": "The secret of two flowers",
-      "width": 50,
-      "height": 50,
-      "base": "холст",
-      "material": "акрил",
-      "size": "50x50",
-      "year": 2020,
-      "price": 10000,
-      "parts": [
-        {
-          "name_ru": "Тайна двух цветков, часть 1",
-          "name_en": "The secret of two flowers, part 1",
-          "base": "холст",
-          "material": "акрил",
-          "size": "50x50",
-          "year": 2020
+            "id": "thumbnail_1",
+            "dir": "/img/sale/thumbnail_1/",
+            "name_ru": "Миниатюра",
+            "name_en": "Thumbnail",
+            "width": 24,
+            "height": 18,
+            "base": "холст на картоне",
+            "material": "масло",
+            "size": "24x18",
+            "year": 2021,
+            "price": 1500,
+            "parts": [
+                {
+                    "name_ru": "Миниатюра",
+                    "name_en": "Thumbnail",
+                    "base": "холст на картоне",
+                    "material": "масло",
+                    "size": "24x18"
+                }
+            ]
         },
         {
-          "name_ru": "Тайна двух цветков, часть 1",
-          "name_en": "The secret of two flowers, part 1",
-          "base": "холст",
-          "material": "акрил",
-          "size": "50x50"
+            "id": "thumbnail_2",
+            "dir": "/img/sale/thumbnail_2/",
+            "name_ru": "Миниатюра",
+            "name_en": "Thumbnail",
+            "width": 18,
+            "height": 24,
+            "base": "холст на картоне",
+            "material": "масло",
+            "size": "18x24",
+            "year": 2021,
+            "price": 1500,
+            "parts": [
+                {
+                    "name_ru": "Миниатюра",
+                    "name_en": "Thumbnail",
+                    "base": "холст на картоне",
+                    "material": "масло",
+                    "size": "18x24"
+                }
+            ]
         },
         {
-          "name_ru": "Тайна двух цветков, часть 2",
-          "name_en": "The secret of two flowers, part two",
-          "base": "холст",
-          "material": "акрил",
-          "size": "50x50",
-          "year": 2020
+            "id": "thumbnail_3",
+            "dir": "/img/sale/thumbnail_3/",
+            "name_ru": "Миниатюра",
+            "name_en": "Thumbnail",
+            "width": 18,
+            "height": 24,
+            "base": "холст на картоне",
+            "material": "масло",
+            "size": "18x24",
+            "year": 2021,
+            "price": 1500,
+            "parts": [
+                {
+                    "name_ru": "Миниатюра",
+                    "name_en": "Thumbnail",
+                    "base": "холст на картоне",
+                    "material": "масло",
+                    "size": "18x24"
+                }
+            ]
         },
         {
-          "name_ru": "Тайна двух цветков, часть 2",
-          "name_en": "The secret of two flowers, part 2",
-          "base": "холст",
-          "material": "акрил",
-          "size": "50x50"
-        }
-      ]
-    },
-    {
-      "id": "wolf_gate",
-      "dir": "/img/sale/wolf_gate/",
-      "name_ru": "Сенгилеевский закат",
-      "name_en": "Sengileyevsky sunset",
-      "width": 60,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "60x50",
-      "year": 2019,
-      "price": "5000",
-      "parts": [
-        {
-          "name_ru": "Сенгилеевский закат",
-          "name_en": "Sengileyevsky sunset",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
+            "id": "thumbnail_4",
+            "dir": "/img/sale/thumbnail_4/",
+            "name_ru": "Миниатюра",
+            "name_en": "Thumbnail",
+            "width": 18,
+            "height": 24,
+            "base": "холст на картоне",
+            "material": "масло",
+            "size": "18x24",
+            "year": 2021,
+            "price": 1500,
+            "parts": [
+                {
+                    "name_ru": "Миниатюра",
+                    "name_en": "Thumbnail",
+                    "base": "холст на картоне",
+                    "material": "масло",
+                    "size": "18x24"
+                }
+            ]
         },
         {
-          "name_ru": "Сенгилеевский закат",
-          "name_en": "CloSengileyevsky sunsetud",
-          "base": "холст",
-          "material": "масло",
-          "size": "60x50"
-        }
-      ]
-    }
-  ],
-  "painting": [
-    {
-      "id": "flora_fauna",
-      "dir": "/img/allworks/painting/flora_fauna/",
-      "name_ru": "Флора и Фауна",
-      "name_en": "Flora and Fauna",
-      "width": 40,
-      "height": 30,
-      "base": "холст",
-      "material": "масло",
-      "size": "30x40",
-      "year": 2020,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Флора и Фауна",
-          "name_en": "Flora and Fauna",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
+            "id": "triptych",
+            "dir": "/img/sale/triptych/",
+            "name_ru": "Триптих",
+            "name_en": "Triptych",
+            "width": 0,
+            "height": 0,
+            "base": "холст",
+            "material": "масло",
+            "size": "",
+            "year": 2020,
+            "price": 30000,
+            "parts": [
+                {
+                    "name_ru": "Пленер за городом, часть 1",
+                    "name_en": "Plein air outside the city, part 1",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                },
+                {
+                    "name_ru": "Пленер за городом, часть 1",
+                    "name_en": "Plein air outside the city, part 1",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                },
+                {
+                    "name_ru": "Пленер за городом, часть 2",
+                    "name_en": "Plein air outside the city, part 2",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "25x35"
+                },
+                {
+                    "name_ru": "Пленер за городом, часть 2",
+                    "name_en": "Plein air outside the city, part 2",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "25x35"
+                },
+                {
+                    "name_ru": "Пленер за городом, часть 3",
+                    "name_en": "Plein air outside the city, part 3",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                },
+                {
+                    "name_ru": "Пленер за городом, часть 3",
+                    "name_en": "Plein air outside the city, part 3",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                }
+            ]
         },
         {
-          "name_ru": "Флора и Фауна",
-          "name_en": "Flora and Fauna",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "iris",
-      "dir": "/img/allworks/painting/iris/",
-      "name_ru": "Ирисы",
-      "name_en": "Irises",
-      "width": 50,
-      "height": 70,
-      "base": "холст на картоне",
-      "material": "масло",
-      "size": "50x70",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Ирисы",
-          "name_en": "Irises",
-          "base": "холст на картоне",
-          "material": "масло",
-          "size": "50x70"
-        }
-      ]
-    },
-    {
-      "id": "multipano_sunflower",
-      "dir": "/img/allworks/painting/multipano_sunflower/",
-      "name_ru": "Мультипанно. Подсолнухи",
-      "name_en": "Multiparty. Sunflowers",
-      "width": 0,
-      "height": 0,
-      "base": "холст",
-      "material": "масло",
-      "size": "",
-      "year": 2021,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Мультипанно. Подсолнухи, 1",
-          "name_en": "Multiparty. Sunflowers, 1",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
+            "id": "two_flowers_secret",
+            "dir": "/img/sale/two_flowers_secret/",
+            "name_ru": "Тайна двух цветков",
+            "name_en": "The secret of two flowers",
+            "width": 50,
+            "height": 50,
+            "base": "холст",
+            "material": "акрил",
+            "size": "50x50",
+            "year": 2020,
+            "price": 10000,
+            "parts": [
+                {
+                    "name_ru": "Тайна двух цветков, часть 1",
+                    "name_en": "The secret of two flowers, part 1",
+                    "base": "холст",
+                    "material": "акрил",
+                    "size": "50x50",
+                    "year": 2020
+                },
+                {
+                    "name_ru": "Тайна двух цветков, часть 1",
+                    "name_en": "The secret of two flowers, part 1",
+                    "base": "холст",
+                    "material": "акрил",
+                    "size": "50x50"
+                },
+                {
+                    "name_ru": "Тайна двух цветков, часть 2",
+                    "name_en": "The secret of two flowers, part two",
+                    "base": "холст",
+                    "material": "акрил",
+                    "size": "50x50",
+                    "year": 2020
+                },
+                {
+                    "name_ru": "Тайна двух цветков, часть 2",
+                    "name_en": "The secret of two flowers, part 2",
+                    "base": "холст",
+                    "material": "акрил",
+                    "size": "50x50"
+                }
+            ]
         },
         {
-          "name_ru": "Мультипанно. Подсолнухи, 2",
-          "name_en": "Multiparty. Sunflowers, 2",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
+            "id": "wolf_gate",
+            "dir": "/img/sale/wolf_gate/",
+            "name_ru": "Сенгилеевский закат",
+            "name_en": "Sengileyevsky sunset",
+            "width": 60,
+            "height": 50,
+            "base": "холст",
+            "material": "масло",
+            "size": "60x50",
+            "year": 2019,
+            "price": "5000",
+            "parts": [
+                {
+                    "name_ru": "Сенгилеевский закат",
+                    "name_en": "Sengileyevsky sunset",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                },
+                {
+                    "name_ru": "Сенгилеевский закат",
+                    "name_en": "CloSengileyevsky sunsetud",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "60x50"
+                }
+            ]
+        }
+    ],
+    "painting": [
+        {
+            "id": "flora_fauna",
+            "dir": "/img/allworks/painting/flora_fauna/",
+            "name_ru": "Флора и Фауна",
+            "name_en": "Flora and Fauna",
+            "width": 40,
+            "height": 30,
+            "base": "холст",
+            "material": "масло",
+            "size": "30x40",
+            "year": 2020,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Флора и Фауна",
+                    "name_en": "Flora and Fauna",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                },
+                {
+                    "name_ru": "Флора и Фауна",
+                    "name_en": "Flora and Fauna",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                }
+            ]
         },
         {
-          "name_ru": "Мультипанно. Подсолнухи, 3",
-          "name_en": "Multiparty. Sunflowers, 3",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
+            "id": "iris",
+            "dir": "/img/allworks/painting/iris/",
+            "name_ru": "Ирисы",
+            "name_en": "Irises",
+            "width": 50,
+            "height": 70,
+            "base": "холст на картоне",
+            "material": "масло",
+            "size": "50x70",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Ирисы",
+                    "name_en": "Irises",
+                    "base": "холст на картоне",
+                    "material": "масло",
+                    "size": "50x70"
+                }
+            ]
         },
         {
-          "name_ru": "Мультипанно. Подсолнухи, 4",
-          "name_en": "Multiparty. Sunflowers, 4",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
+            "id": "multipano_sunflower",
+            "dir": "/img/allworks/painting/multipano_sunflower/",
+            "name_ru": "Мультипанно. Подсолнухи",
+            "name_en": "Multiparty. Sunflowers",
+            "width": 0,
+            "height": 0,
+            "base": "холст",
+            "material": "масло",
+            "size": "",
+            "year": 2021,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, 1",
+                    "name_en": "Multiparty. Sunflowers, 1",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, 2",
+                    "name_en": "Multiparty. Sunflowers, 2",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, 3",
+                    "name_en": "Multiparty. Sunflowers, 3",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, 4",
+                    "name_en": "Multiparty. Sunflowers, 4",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, 5",
+                    "name_en": "Multiparty. Sunflowers, 5",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Мультипанно. Подсолнухи, общее",
+                    "name_en": "Multiparty. Sunflowers, common",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": ""
+                }
+            ]
         },
         {
-          "name_ru": "Мультипанно. Подсолнухи, 5",
-          "name_en": "Multiparty. Sunflowers, 5",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
+            "id": "lilac",
+            "dir": "/img/allworks/painting/lilac/",
+            "name_ru": "Сирень",
+            "name_en": "Lilac",
+            "width": 40,
+            "height": 30,
+            "base": "холст на картоне",
+            "material": "акрил",
+            "size": "40x30",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Сирень",
+                    "name_en": "Lilac",
+                    "base": "холст на картоне",
+                    "material": "акрил",
+                    "size": "40x30"
+                }
+            ]
         },
         {
-          "name_ru": "Мультипанно. Подсолнухи, общее",
-          "name_en": "Multiparty. Sunflowers, common",
-          "base": "холст",
-          "material": "масло",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "lilac",
-      "dir": "/img/allworks/painting/lilac/",
-      "name_ru": "Сирень",
-      "name_en": "Lilac",
-      "width": 40,
-      "height": 30,
-      "base": "холст на картоне",
-      "material": "акрил",
-      "size": "40x30",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Сирень",
-          "name_en": "Lilac",
-          "base": "холст на картоне",
-          "material": "акрил",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "river_birches",
-      "dir": "/img/allworks/painting/river_birches/",
-      "name_ru": "Река с берёзами",
-      "name_en": "River with birches",
-      "width": 90,
-      "height": 60,
-      "base": "холст",
-      "material": "масло",
-      "size": "90x60",
-      "year": 2020,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Река с берёзами",
-          "name_en": "River with birches",
-          "base": "холст",
-          "material": "масло",
-          "size": "90x60"
+            "id": "river_birches",
+            "dir": "/img/allworks/painting/river_birches/",
+            "name_ru": "Река с берёзами",
+            "name_en": "River with birches",
+            "width": 90,
+            "height": 60,
+            "base": "холст",
+            "material": "масло",
+            "size": "90x60",
+            "year": 2020,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Река с берёзами",
+                    "name_en": "River with birches",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "90x60"
+                },
+                {
+                    "name_ru": "Река с берёзами",
+                    "name_en": "River with birches",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "90x60"
+                }
+            ]
         },
         {
-          "name_ru": "Река с берёзами",
-          "name_en": "River with birches",
-          "base": "холст",
-          "material": "масло",
-          "size": "90x60"
-        }
-      ]
-    },
-    {
-      "id": "cloud",
-      "dir": "/img/allworks/painting/cloud/",
-      "name_ru": "Облако",
-      "name_en": "Cloud",
-      "width": 100,
-      "height": 120,
-      "base": "холст",
-      "material": "масло",
-      "size": "120x100",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Облако",
-          "name_en": "Cloud",
-          "base": "холст",
-          "material": "масло",
-          "size": "100x120"
+            "id": "cloud",
+            "dir": "/img/allworks/painting/cloud/",
+            "name_ru": "Облако",
+            "name_en": "Cloud",
+            "width": 100,
+            "height": 120,
+            "base": "холст",
+            "material": "масло",
+            "size": "120x100",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Облако",
+                    "name_en": "Cloud",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "100x120"
+                },
+                {
+                    "name_ru": "Облако",
+                    "name_en": "Cloud",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "100x120"
+                }
+            ]
         },
         {
-          "name_ru": "Облако",
-          "name_en": "Cloud",
-          "base": "холст",
-          "material": "масло",
-          "size": "100x120"
-        }
-      ]
-    },
-    {
-      "id": "borsch",
-      "dir": "/img/allworks/painting/borsch/",
-      "name_ru": "Борщ",
-      "name_en": "Borsch",
-      "width": 40,
-      "height": 50,
-      "base": "холст",
-      "material": "масло",
-      "size": "50x40",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Борщ",
-          "name_en": "Borsch",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x50"
+            "id": "borsch",
+            "dir": "/img/allworks/painting/borsch/",
+            "name_ru": "Борщ",
+            "name_en": "Borsch",
+            "width": 40,
+            "height": 50,
+            "base": "холст",
+            "material": "масло",
+            "size": "50x40",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Борщ",
+                    "name_en": "Borsch",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x50"
+                },
+                {
+                    "name_ru": "Борщ",
+                    "name_en": "Borsch",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x50"
+                }
+            ]
         },
         {
-          "name_ru": "Борщ",
-          "name_en": "Borsch",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x50"
-        }
-      ]
-    },
-    {
-      "id": "herring",
-      "dir": "/img/allworks/painting/herring/",
-      "name_ru": "Сельдь на газете",
-      "name_en": "Herring on the newspaper",
-      "width": 42,
-      "height": 29,
-      "base": "бумага",
-      "material": "акварель",
-      "size": "42x29",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Сельдь на газете",
-          "name_en": "Herring on the newspaper",
-          "base": "бумага",
-          "material": "акварель",
-          "size": "42x29"
-        }
-      ]
-    },
-    {
-      "id": "herring_potato",
-      "dir": "/img/allworks/painting/herring_potato/",
-      "name_ru": "Селёдка",
-      "name_en": "Herring",
-      "width": 40,
-      "height": 30,
-      "base": "холст",
-      "material": "масло",
-      "size": "40x30",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Селёдка",
-          "name_en": "Herring",
-          "base": "холст",
-          "material": "масло",
-          "size": "40x30"
-        }
-      ]
-    },
-    {
-      "id": "fluff",
-      "dir": "/img/allworks/painting/fluff/",
-      "name_ru": "Пушок",
-      "name_en": "Fluff",
-      "width": 18,
-      "height": 24,
-      "base": "картон",
-      "material": "масло",
-      "size": "18x24",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Пушок",
-          "name_en": "Fluff",
-          "base": "картон",
-          "material": "масло",
-          "size": "18x24"
-        }
-      ]
-    },
-    {
-      "id": "homeland",
-      "dir": "/img/allworks/painting/homeland/",
-      "name_ru": "Моя Родина",
-      "name_en": "My Homeland",
-      "width": 21,
-      "height": 15,
-      "base": "бумага",
-      "material": "гуашь",
-      "size": "21x15",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Моя Родина",
-          "name_en": "My Homeland",
-          "base": "бумага",
-          "material": "гуашь",
-          "size": "21x15"
-        }
-      ]
-    },
-    {
-      "id": "wolf",
-      "dir": "/img/allworks/painting/wolf/",
-      "name_ru": "Волчёк",
-      "name_en": "Wolf",
-      "width": 70,
-      "height": 50,
-      "base": "бумага",
-      "material": "уголь, карандаш",
-      "size": "70x50",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Волчёк",
-          "name_en": "Wolf",
-          "base": "бумага",
-          "material": "уголь, карандаш",
-          "size": "70x50"
+            "id": "herring",
+            "dir": "/img/allworks/painting/herring/",
+            "name_ru": "Сельдь на газете",
+            "name_en": "Herring on the newspaper",
+            "width": 42,
+            "height": 29,
+            "base": "бумага",
+            "material": "акварель",
+            "size": "42x29",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Сельдь на газете",
+                    "name_en": "Herring on the newspaper",
+                    "base": "бумага",
+                    "material": "акварель",
+                    "size": "42x29"
+                }
+            ]
         },
         {
-          "name_ru": "Волчёк",
-          "name_en": "Wolf",
-          "base": "бумага",
-          "material": "уголь, карандаш",
-          "size": "70x50"
-        }
-      ]
-    },
-    {
-      "id": "birds",
-      "dir": "/img/allworks/painting/birds/",
-      "name_ru": "Птицы",
-      "name_en": "Birds",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Птицы",
-          "name_en": "Birds",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
+            "id": "herring_potato",
+            "dir": "/img/allworks/painting/herring_potato/",
+            "name_ru": "Селёдка",
+            "name_en": "Herring",
+            "width": 40,
+            "height": 30,
+            "base": "холст",
+            "material": "масло",
+            "size": "40x30",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Селёдка",
+                    "name_en": "Herring",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "40x30"
+                }
+            ]
         },
         {
-          "name_ru": "Птицы",
-          "name_en": "Birds",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "kitens",
-      "dir": "/img/allworks/painting/kitens/",
-      "name_ru": "Котята",
-      "name_en": "Kitens",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "акварель",
-      "size": "",
-      "year": 2018,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
+            "id": "fluff",
+            "dir": "/img/allworks/painting/fluff/",
+            "name_ru": "Пушок",
+            "name_en": "Fluff",
+            "width": 18,
+            "height": 24,
+            "base": "картон",
+            "material": "масло",
+            "size": "18x24",
+            "year": 2022,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Пушок",
+                    "name_en": "Fluff",
+                    "base": "картон",
+                    "material": "масло",
+                    "size": "18x24"
+                }
+            ]
         },
         {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
+            "id": "homeland",
+            "dir": "/img/allworks/painting/homeland/",
+            "name_ru": "Моя Родина",
+            "name_en": "My Homeland",
+            "width": 21,
+            "height": 15,
+            "base": "бумага",
+            "material": "гуашь",
+            "size": "21x15",
+            "year": 2022,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Моя Родина",
+                    "name_en": "My Homeland",
+                    "base": "бумага",
+                    "material": "гуашь",
+                    "size": "21x15"
+                }
+            ]
         },
         {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
+            "id": "wolf",
+            "dir": "/img/allworks/painting/wolf/",
+            "name_ru": "Волчёк",
+            "name_en": "Wolf",
+            "width": 70,
+            "height": 50,
+            "base": "бумага",
+            "material": "уголь, карандаш",
+            "size": "70x50",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Волчёк",
+                    "name_en": "Wolf",
+                    "base": "бумага",
+                    "material": "уголь, карандаш",
+                    "size": "70x50"
+                },
+                {
+                    "name_ru": "Волчёк",
+                    "name_en": "Wolf",
+                    "base": "бумага",
+                    "material": "уголь, карандаш",
+                    "size": "70x50"
+                }
+            ]
         },
         {
-          "name_ru": "Котята",
-          "name_en": "Kitens",
-          "base": "картон",
-          "material": "акварель",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "Podaliri",
-      "dir": "/img/allworks/painting/podaliri/",
-      "name_ru": "Подалирий",
-      "name_en": "Podaliri",
-      "width": 18,
-      "height": 21,
-      "base": "картон",
-      "material": "акрил",
-      "size": "18x21",
-      "year": 2022,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Подалирий",
-          "name_en": "Podaliri",
-          "base": "картон",
-          "material": "акрил",
-          "size": "18x21"
-        }
-      ]
-    },
-    {
-      "id": "equestrienne",
-      "dir": "/img/allworks/painting/equestrienne/",
-      "name_ru": "Наездница",
-      "name_en": "Equestrienne",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "фломастер",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Наездница",
-          "name_en": "Equestrienne",
-          "base": "картон",
-          "material": "фломастер",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "cat",
-      "dir": "/img/allworks/painting/cat/",
-      "name_ru": "Кот",
-      "name_en": "Cat",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Кот",
-          "name_en": "Cat",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "planet",
-      "dir": "/img/allworks/painting/planet/",
-      "name_ru": "Планета",
-      "name_en": "Planet",
-      "width": 0,
-      "height": 0,
-      "base": "холст",
-      "material": "акрил",
-      "size": "",
-      "year": 2019,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Планета",
-          "name_en": "Planet",
-          "base": "холст",
-          "material": "акрил",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "eye",
-      "dir": "/img/allworks/painting/eye/",
-      "name_ru": "Глаз",
-      "name_en": "Eye",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "пастель, уголь",
-      "size": "",
-      "year": 2018,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Глаз",
-          "name_en": "Eye",
-          "base": "картон",
-          "material": "пастель, уголь",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "king",
-      "dir": "/img/allworks/painting/king/",
-      "name_ru": "Король",
-      "name_en": "King",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "чернила",
-      "size": "",
-      "year": 2007,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Король",
-          "name_en": "King",
-          "base": "картон",
-          "material": "чернила",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "branch",
-      "dir": "/img/allworks/painting/branch/",
-      "name_ru": "Ветка вербы",
-      "name_en": "Willow branch",
-      "width": 0,
-      "height": 0,
-      "base": "картон",
-      "material": "карандаш",
-      "size": "",
-      "year": 2012,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Ветка вербы",
-          "name_en": "Willow branch",
-          "base": "картон",
-          "material": "карандаш",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "cold_springs",
-      "dir": "/img/allworks/painting/cold_springs/",
-      "name_ru": "Холодные родники города Ставрополя",
-      "name_en": "Cold springs of the city of Stavropol",
-      "width": 35,
-      "height": 25,
-      "base": "холст",
-      "material": "масло",
-      "size": "35x25",
-      "year": 2021,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Холодные родники города Ставрополя",
-          "name_en": "Cold springs of the city of Stavropol",
-          "base": "холст",
-          "material": "масло",
-          "size": "35x25"
-        }
-      ]
-    }
-  ],
-  "illustration": [
-    {
-      "id": "Dragon",
-      "dir": "/img/allworks/illustration/dragon/",
-      "name_ru": "Дракон",
-      "name_en": "Dragon",
-      "base": "Adobe Photoshop",
-      "material": "",
-      "size": "",
-      "year": 2017,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Дракон",
-          "name_en": "Dragon",
-          "base": "Adobe Photoshop",
-          "material": "",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "Dragons",
-      "dir": "/img/allworks/illustration/dragons/",
-      "name_ru": "Драконы",
-      "name_en": "Dragons",
-      "base": "Adobe Photoshop",
-      "material": "",
-      "size": "",
-      "year": 2017,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Драконы",
-          "name_en": "Dragons",
-          "base": "Adobe Photoshop",
-          "material": "",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "Goldfinch",
-      "dir": "/img/allworks/illustration/goldfinch/",
-      "name_ru": "Щегол",
-      "name_en": "Goldfinch",
-      "base": "Adobe Photoshop",
-      "material": "",
-      "size": "",
-      "year": 2017,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Щегол",
-          "name_en": "Gonldfinch",
-          "base": "Adobe Photoshop",
-          "material": "",
-          "size": ""
-        }
-      ]
-    },
-    {
-      "id": "Horse",
-      "dir": "/img/allworks/illustration/horse/",
-      "name_ru": "Лошадь",
-      "name_en": "Horse",
-      "base": "Adobe Photoshop",
-      "material": "",
-      "size": "",
-      "year": 2017,
-      "price": "",
-      "parts": [
-        {
-          "name_ru": "Лошадь",
-          "name_en": "Horse",
-          "base": "Adobe Photoshop",
-          "material": "",
-          "size": ""
-        }
-      ]
-    }
-  ],
-  "3d": [
-    {
-      "id": "ajax",
-      "dir": "/img/allworks/graphics3d/ajax/",
-      "name_ru": "Головная боль Аякса",
-      "base": "Autodesk 3ds Max, V-Ray",
-      "material": "",
-      "size": "",
-      "year": 2020,
-      "parts": [
-        {
-          "name_ru": "Головная боль Аякса",
-          "base": "Autodesk 3ds Max, V-Ray"
-        }
-      ]
-    },
-    {
-      "id": "gingerbreads",
-      "dir": "/img/allworks/graphics3d/gingerbreads/",
-      "name_ru": "Пряники",
-      "base": "Autodesk 3ds Max, V-Ray",
-      "year": 2020,
-      "parts": [
-        {
-          "name_ru": "Пряники",
-          "base": "Autodesk 3ds Max, V-Ray"
-        }
-      ]
-    },
-    {
-      "id": "gnome",
-      "dir": "/img/allworks/graphics3d/gnome/",
-      "name_ru": "Домик гнома",
-      "base": "Autodesk 3ds Max, V-Ray",
-      "year": 2020,
-      "parts": [
-        {
-          "name_ru": "Домик гнома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "birds",
+            "dir": "/img/allworks/painting/birds/",
+            "name_ru": "Птицы",
+            "name_en": "Birds",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "карандаш",
+            "size": "",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Птицы",
+                    "name_en": "Birds",
+                    "base": "картон",
+                    "material": "карандаш",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Птицы",
+                    "name_en": "Birds",
+                    "base": "картон",
+                    "material": "карандаш",
+                    "size": ""
+                }
+            ]
         },
         {
-          "name_ru": "Домик гнома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "kitens",
+            "dir": "/img/allworks/painting/kitens/",
+            "name_ru": "Котята",
+            "name_en": "Kitens",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "акварель",
+            "size": "",
+            "year": 2018,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Котята",
+                    "name_en": "Kitens",
+                    "base": "картон",
+                    "material": "акварель",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Котята",
+                    "name_en": "Kitens",
+                    "base": "картон",
+                    "material": "акварель",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Котята",
+                    "name_en": "Kitens",
+                    "base": "картон",
+                    "material": "акварель",
+                    "size": ""
+                },
+                {
+                    "name_ru": "Котята",
+                    "name_en": "Kitens",
+                    "base": "картон",
+                    "material": "акварель",
+                    "size": ""
+                }
+            ]
         },
         {
-          "name_ru": "Домик гнома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "Podaliri",
+            "dir": "/img/allworks/painting/podaliri/",
+            "name_ru": "Подалирий",
+            "name_en": "Podaliri",
+            "width": 18,
+            "height": 21,
+            "base": "картон",
+            "material": "акрил",
+            "size": "18x21",
+            "year": 2022,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Подалирий",
+                    "name_en": "Podaliri",
+                    "base": "картон",
+                    "material": "акрил",
+                    "size": "18x21"
+                }
+            ]
+        },
+        {
+            "id": "equestrienne",
+            "dir": "/img/allworks/painting/equestrienne/",
+            "name_ru": "Наездница",
+            "name_en": "Equestrienne",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "фломастер",
+            "size": "",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Наездница",
+                    "name_en": "Equestrienne",
+                    "base": "картон",
+                    "material": "фломастер",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "cat",
+            "dir": "/img/allworks/painting/cat/",
+            "name_ru": "Кот",
+            "name_en": "Cat",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "карандаш",
+            "size": "",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Кот",
+                    "name_en": "Cat",
+                    "base": "картон",
+                    "material": "карандаш",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "planet",
+            "dir": "/img/allworks/painting/planet/",
+            "name_ru": "Планета",
+            "name_en": "Planet",
+            "width": 0,
+            "height": 0,
+            "base": "холст",
+            "material": "акрил",
+            "size": "",
+            "year": 2019,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Планета",
+                    "name_en": "Planet",
+                    "base": "холст",
+                    "material": "акрил",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "eye",
+            "dir": "/img/allworks/painting/eye/",
+            "name_ru": "Глаз",
+            "name_en": "Eye",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "пастель, уголь",
+            "size": "",
+            "year": 2018,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Глаз",
+                    "name_en": "Eye",
+                    "base": "картон",
+                    "material": "пастель, уголь",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "king",
+            "dir": "/img/allworks/painting/king/",
+            "name_ru": "Король",
+            "name_en": "King",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "чернила",
+            "size": "",
+            "year": 2007,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Король",
+                    "name_en": "King",
+                    "base": "картон",
+                    "material": "чернила",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "branch",
+            "dir": "/img/allworks/painting/branch/",
+            "name_ru": "Ветка вербы",
+            "name_en": "Willow branch",
+            "width": 0,
+            "height": 0,
+            "base": "картон",
+            "material": "карандаш",
+            "size": "",
+            "year": 2012,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Ветка вербы",
+                    "name_en": "Willow branch",
+                    "base": "картон",
+                    "material": "карандаш",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "cold_springs",
+            "dir": "/img/allworks/painting/cold_springs/",
+            "name_ru": "Холодные родники города Ставрополя",
+            "name_en": "Cold springs of the city of Stavropol",
+            "width": 35,
+            "height": 25,
+            "base": "холст",
+            "material": "масло",
+            "size": "35x25",
+            "year": 2021,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Холодные родники города Ставрополя",
+                    "name_en": "Cold springs of the city of Stavropol",
+                    "base": "холст",
+                    "material": "масло",
+                    "size": "35x25"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "id": "groot",
-      "dir": "/img/allworks/graphics3d/groot/",
-      "name_ru": "Грут",
-      "base": "Autodesk 3ds Max, V-Ray",
-      "year": 2020,
-      "parts": [
+    ],
+    "illustration": [
         {
-          "name_ru": "Грут",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "Dragon",
+            "dir": "/img/allworks/illustration/dragon/",
+            "name_ru": "Дракон",
+            "name_en": "Dragon",
+            "base": "Adobe Photoshop",
+            "material": "",
+            "size": "",
+            "year": 2017,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Дракон",
+                    "name_en": "Dragon",
+                    "base": "Adobe Photoshop",
+                    "material": "",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "Dragons",
+            "dir": "/img/allworks/illustration/dragons/",
+            "name_ru": "Драконы",
+            "name_en": "Dragons",
+            "base": "Adobe Photoshop",
+            "material": "",
+            "size": "",
+            "year": 2017,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Драконы",
+                    "name_en": "Dragons",
+                    "base": "Adobe Photoshop",
+                    "material": "",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "Goldfinch",
+            "dir": "/img/allworks/illustration/goldfinch/",
+            "name_ru": "Щегол",
+            "name_en": "Goldfinch",
+            "base": "Adobe Photoshop",
+            "material": "",
+            "size": "",
+            "year": 2017,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Щегол",
+                    "name_en": "Gonldfinch",
+                    "base": "Adobe Photoshop",
+                    "material": "",
+                    "size": ""
+                }
+            ]
+        },
+        {
+            "id": "Horse",
+            "dir": "/img/allworks/illustration/horse/",
+            "name_ru": "Лошадь",
+            "name_en": "Horse",
+            "base": "Adobe Photoshop",
+            "material": "",
+            "size": "",
+            "year": 2017,
+            "price": "",
+            "parts": [
+                {
+                    "name_ru": "Лошадь",
+                    "name_en": "Horse",
+                    "base": "Adobe Photoshop",
+                    "material": "",
+                    "size": ""
+                }
+            ]
         }
-      ]
-    },
-    {
-      "id": "house",
-      "dir": "/img/allworks/graphics3d/house/",
-      "name_ru": "Проект дома",
-      "base": "Autodesk 3ds Max, V-Ray",
-      "year": 2020,
-      "parts": [
+    ],
+    "3d": [
         {
-          "name_ru": "Проект дома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "ajax",
+            "dir": "/img/allworks/graphics3d/ajax/",
+            "name_ru": "Головная боль Аякса",
+            "base": "Autodesk 3ds Max, V-Ray",
+            "material": "",
+            "size": "",
+            "year": 2020,
+            "parts": [
+                {
+                    "name_ru": "Головная боль Аякса",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                }
+            ]
         },
         {
-          "name_ru": "Проект дома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "gingerbreads",
+            "dir": "/img/allworks/graphics3d/gingerbreads/",
+            "name_ru": "Пряники",
+            "base": "Autodesk 3ds Max, V-Ray",
+            "year": 2020,
+            "parts": [
+                {
+                    "name_ru": "Пряники",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                }
+            ]
         },
         {
-          "name_ru": "Проект дома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "gnome",
+            "dir": "/img/allworks/graphics3d/gnome/",
+            "name_ru": "Домик гнома",
+            "base": "Autodesk 3ds Max, V-Ray",
+            "year": 2020,
+            "parts": [
+                {
+                    "name_ru": "Домик гнома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                },
+                {
+                    "name_ru": "Домик гнома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                },
+                {
+                    "name_ru": "Домик гнома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                }
+            ]
         },
         {
-          "name_ru": "Проект дома",
-          "base": "Autodesk 3ds Max, V-Ray"
+            "id": "groot",
+            "dir": "/img/allworks/graphics3d/groot/",
+            "name_ru": "Грут",
+            "base": "Autodesk 3ds Max, V-Ray",
+            "year": 2020,
+            "parts": [
+                {
+                    "name_ru": "Грут",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                }
+            ]
+        },
+        {
+            "id": "house",
+            "dir": "/img/allworks/graphics3d/house/",
+            "name_ru": "Проект дома",
+            "base": "Autodesk 3ds Max, V-Ray",
+            "year": 2020,
+            "parts": [
+                {
+                    "name_ru": "Проект дома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                },
+                {
+                    "name_ru": "Проект дома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                },
+                {
+                    "name_ru": "Проект дома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                },
+                {
+                    "name_ru": "Проект дома",
+                    "base": "Autodesk 3ds Max, V-Ray"
+                }
+            ]
         }
-      ]
-    }
-  ],
-  "news": [
-    {
-      "id": "20221029",
-      "datetime": "2022-10-29T00:00:01.001Z",
-      "datetimehuman": "29 октября, 2022",
-      "title": "Ну-ка, дети, встаньте в ряд!",
-      "subTitle": "Начинаем просмотр!",
-      "dir": "/img/news/2022/10/29/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 6,
-      "videoscount": 0,
-      "text": "Моргнуть не успели, а уже целая четверть пролетела, и пора делать осмотр работ у ребят 2 и 4 классов! Буду честна с вами - это самая лучшая работа в мире! Ведь, что может быть приятнее, чем ставить отличные оценки за отличные работы?"
-    },
-    {
-      "id": "20221028",
-      "datetime": "2022-10-28T00:00:01.001Z",
-      "datetimehuman": "28 октября, 2022",
-      "title": "Я попала в сказку!",
-      "subTitle": "В проект!",
-      "dir": "/img/news/2022/10/28/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 6,
-      "videoscount": 0,
-      "text": "Проект 'Карусель сказок', в котором я работаю педагогом-художником сам как сказка. Детки на лету схватывают основы иллюстрации и законов композиции. Я хочу, чтобы сказка не кончалась!"
-    },
-    {
-      "id": "20221026",
-      "datetime": "2022-10-26T00:00:01.001Z",
-      "datetimehuman": "26 октября, 2022",
-      "title": "А кто слушал - молодец!!!",
-      "subTitle": "И сказку тоже!",
-      "dir": "/img/news/2022/10/26/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 12,
-      "videoscount": 2,
-      "text": "Мир ускоряется. И мы не отстаём, стараемся вкладывать деткам знания максимально эффективно. Сегодня совместно с автором сказок Демановой Анной провели очень интересное занятие. Сначала детки слушали сказку, которую читала сам автор. Потом она же им играла пьессу, которую также сочинила сама!!! И сразу после этого я рассказывала, как рисовать иллюстрации и персонажей сказки. Знания лились рекой."
-    },
-    {
-      "id": "20220930",
-      "datetime": "2022-09-30T13:37:27.141Z",
-      "datetimehuman": "30 сентября, 2022",
-      "title": "Этот день буднем зовётся!",
-      "subTitle": "Бывает и так!",
-      "dir": "/img/news/2022/09/30/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 39,
-      "videoscount": 0,
-      "text": "Бывает и так, что новостей нет. От слова совсем. Зато есть кропотливая, усердная работа за кадром, которая практически не видна, но очень важна. Приоткрываю занавес рабочего процесса."
-    },
-    {
-      "id": "20220928",
-      "datetime": "2022-09-28T13:37:27.141Z",
-      "datetimehuman": "28 сентября, 2022",
-      "title": "Еще один шаг!",
-      "subTitle": "Идём дальше!",
-      "dir": "/img/news/2022/09/28/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 0,
-      "videoscount": 0,
-      "text": "Свершилось! Наконец-то я стала членом международного союза педагогов-художников. Много было потрачено сил для этого, но оно того стоило. Всем причастным спасибо!"
-    },
-    {
-      "id": "20220909",
-      "datetime": "2022-09-09T13:37:27.141Z",
-      "datetimehuman": "09 сентября, 2022",
-      "title": "Розетки больше не нужны!",
-      "subTitle": "Заряжаемся здесь!",
-      "dir": "/img/news/2022/09/09/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 0,
-      "videoscount": 0,
-      "text": "Это просто праздник какой-то, когда можешь что-то создать своими руками. Или нарисовать. Тем более, когда от твоего творения идёт такая энергия. Да. Здесь ученик срисовал певца со знаменитой фотографии, но это тот редкий случай, когда от копии идёт энергии больше, чем от оригинала."
-    },
-    {
-      "id": "20220907",
-      "datetime": "2022-09-07T13:37:27.141Z",
-      "datetimehuman": "07 сентября, 2022",
-      "title": "Моему наставнику 75!",
-      "subTitle": "С днём рождения!",
-      "dir": "/img/news/2022/09/07/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 2,
-      "videoscount": 0,
-      "text": "Сегодня моему любимому учителю Алмосову Льву Ивановичу исполнилось 75! Человеку, который сформировал меня как профессионала, привил чувство вкуса, научил владению цветом и композицией, я безгранично благодарна. От всей души желаю Вам здоровья, счастья и хорошего настроения! Прошу и дальше нести знания в мир!"
-    },
-    {
-      "id": "20220828",
-      "datetime": "2022-08-28T00:00:01.000Z",
-      "datetimehuman": "28 августа, 2022",
-      "title": "Учебный год отправляется!",
-      "subTitle": "Запрыгиваем!",
-      "dir": "/img/news/2022/08/28/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 0,
-      "videoscount": 0,
-      "text": "Не знаю как вы, а я с нетерпением жду встречи с вами, мои дорогие ученики. Летом я переработала целую гору учебных материалов, литературы, изучила множество новеньких художественных приёмчиков и техник. Всё это вылилось у меня в наработках по новой учебной программе. Буду применять её на вас. Держитесь!!!"
-    },
-    {
-      "id": "20220730",
-      "datetime": "2022-07-30T00:00:01.000Z",
-      "datetimehuman": "30 июля, 2022",
-      "title": "Николас Сафронов!",
-      "subTitle": "В городе!",
-      "dir": "/img/news/2022/07/30/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 26,
-      "videoscount": 0,
-      "text": "Сегодня вырвалась из суеты мирской и отправилась с детьми на выставку работ известного российского художника Николаса Сафронова. Есть над чем подумать..."
-    },
-    {
-      "id": "20220617",
-      "datetime": "2022-06-17T00:00:01.000Z",
-      "datetimehuman": "17 июня, 2022",
-      "title": "Посторонним вход разрешён!",
-      "subTitle": "Даже рекоммендован!",
-      "dir": "/img/news/2022/06/17/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 19,
-      "videoscount": 6,
-      "text": "Сегодня был один из дней летнего лагеря, когда мне посчастливилось быть сопровождающей. Было море смеха, улыбок и хорошего настроения. А наполняли его уважаемые казаки и артисты ставропольской филармонии. Спасибо вам огромное за хорошее настроение!"
-    },
-    {
-      "id": "20220604",
-      "datetime": "2022-06-04T00:00:01.000Z",
-      "datetimehuman": "4 июня, 2022",
-      "title": "Художественное ассорти!",
-      "subTitle": "Со вкусом изыска!",
-      "dir": "/img/news/2022/06/04/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 21,
-      "videoscount": 0,
-      "text": "Представляю вашему вниманию меню изысканных художественных блюд на любой вкус, приготовленных лучшими шеф-поварами 3 класса бюджета. Приятного эстетического аппетита!"
-    },
-    {
-      "id": "20220603",
-      "datetime": "2022-06-03T00:00:01.000Z",
-      "datetimehuman": "3 июня, 2022",
-      "title": "Художники за любой движ!",
-      "subTitle": "Утка соврать не даст!",
-      "dir": "/img/news/2022/06/03/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 53,
-      "videoscount": 6,
-      "text": "Когда мы зашли в зоопарк, повисла мёртвая тишина. Замолкли обычно шумные курицы, пропали из вида олени, волки, поджав хвост, спрятались в норы, оскалились и еле слышно заскулили львы с тиграми. И только недавно привезённая обезьянка беззаботно продолжала оглядываться по сторонам, непонимая наступивших в зоопарке перемен. Она ещё не знала, что будет дальше...<p>Такую картину рисовало моё живое воображение, когда я привела ватагу девчат в Ставропольский зоопарк. Но всё обошлось. Мы просто стали танцевать с верблюдами, гонятся за утками. Ах-да... И немного рисовать. Ни одна утка в процессе рисования не пострадала.</p>"
-    },
-    {
-      "id": "20220531",
-      "datetime": "2022-05-31T00:00:01.000Z",
-      "datetimehuman": "31 мая, 2022",
-      "title": "Дома и стены помогают!",
-      "subTitle": "Проверено!",
-      "dir": "/img/news/2022/05/31/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 7,
-      "videoscount": 0,
-      "text": "Мы вышли из школы, оглянулись и ахнули. Красота была прямо перед нами и вокруг нас! Мы подумали и решили, что прямо возле школы и проведём пленер. Тем более, что дома и стены помогают. Я оценила работы девочек, и могу смело утверждать, что это правда. Работы получилсь замечательные!"
-    },
-    {
-      "id": "20220528",
-      "datetime": "2022-05-28T00:00:01.000Z",
-      "datetimehuman": "28 мая, 2022",
-      "title": "Стаффаж в пейзаже!",
-      "subTitle": "No comments!",
-      "dir": "/img/news/2022/05/28/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 5,
-      "videoscount": 0,
-      "text": "Не только же математикам, экономистам и программистам умничать умными словами. Мы тоже сами с усами😎 Перед вами изучение стаффажа в пейзаже. Без комментариев!!!"
-    },
-    {
-      "id": "20220526",
-      "datetime": "2022-05-26T00:00:01.000Z",
-      "datetimehuman": "26 мая, 2022",
-      "title": "Что у нас здесь?",
-      "subTitle": "Результат!",
-      "dir": "/img/news/2022/05/26/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 6,
-      "videoscount": 0,
-      "text": "Вот оно! То, ради чего мы столько старались. Результат трудов 3 класса бюджета! И очень даже достойный! Все получили по заслугам, то есть по пятёркам! Ну, почти;)"
-    },
-    {
-      "id": "20220522",
-      "datetime": "2022-05-22T00:00:01.000Z",
-      "datetimehuman": "22 мая, 2022",
-      "title": "Атака отражена!",
-      "subTitle": "Город, спи спокойно!",
-      "dir": "/img/news/2022/05/22/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 4,
-      "videoscount": 3,
-      "text": "Сегодня, когда выглянула в окно, убедилась, что воспитываю своих детей правильно. Они взяли мелки и нарисовали во дворе букву \"Z\" в цветах флага России. Кое-кто попытался начать стирать букву снизу, но совместными усилиями атака с юга была отражена! Победа будет Zа нами!"
-    },
-    {
-      "id": "20220521",
-      "datetime": "2022-05-21T00:00:01.000Z",
-      "datetimehuman": "21 мая, 2022",
-      "title": "К поступлению товсь!",
-      "subTitle": "Пли!",
-      "dir": "/img/news/2022/05/21/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 4,
-      "videoscount": 0,
-      "text": "Поступление это вам не шутка... Нужно подходить отвественно и во всеоружии... Знаниями и умениями:) И стрелять ими точно. С радостью сообщаю, что в этом году все мои ученики меня не подвели и попали точно в десятку! Так держать!"
-    },
-    {
-      "id": "20220427",
-      "datetime": "2022-04-27T00:00:01.000Z",
-      "datetimehuman": "27 апреля, 2022",
-      "title": "Пора! Пора!",
-      "subTitle": "Иду со двора!",
-      "dir": "/img/news/2022/04/27/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 14,
-      "videoscount": 0,
-      "text": "Наконец-то выдались тёплые деньки, и мы мигом побежали на пленер, попутно захлёбываясь свежим воздухом и отличным настрением! Где-то впереди маячило лето:) Сели мы его ждать среди цветущих деревьев, рисуя пастелью по наждачной бумаге. Sic erat scriptum!"
-    },
-    {
-      "id": "20220421",
-      "datetimehuman": "21 апреля, 2022",
-      "title": "Пасха!",
-      "subTitle": "А какой кулич у вас?!",
-      "dir": "/img/news/2022/04/21/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 16,
-      "videoscount": 0,
-      "text": "В продолжении предыдущей заметки.<p>Природа не любит пустоты, и, если родители и учителя не будут серьёзно относится к вопросу наполнения головок наших деток нравственными смыслами, то туда могут быть вложены другие,противоестественные человеческой природе смыслы. Православие является неотемлимой частью нашей культуры, бытия. Наполняет нас жизнеутверждающими смыслами, дающими волю и желание жить и творить. Именно поэтому мы посвятили рисованию пасхальных куличей и обсуждению вопросов религии и культуры отдельный урок, тематический натюрморт с передачей объёма рахличными средствами.</p>"
-    },
-    {
-      "id": "20220418",
-      "datetime": "2022-04-18T00:00:01.000Z",
-      "datetimehuman": "18 апреля, 2022",
-      "title": "Своих не бросаем!",
-      "subTitle": "Никогда!",
-      "dir": "/img/news/2022/04/18/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 4,
-      "videoscount": 0,
-      "text": "\"Узкий специалист подобен флюсу\", - утверждается в известном афоризме. Полная версия афоризма звучит так: \"Специалист подобен флюсу, полнота его одностороння. В здании человеческого счастья дружба возводит стены, а любовь образует купол.\" Я полностью согласна с этим. Поэтому во время уроков мы часто говорим с ребятами о том, что происходит в стране и в мире. В этот непростой для страны период посчитали необходимым поддержать наших бойцов, защищающих нашу страну от вновь пытающегося захватить мир нацизма. Дети сами придумывали дизайн и текст. Письма дошли до адресатов. Надеемся, что они придадут нашим героям сил и помогут им сохранить свои жизни."
-    },
-    {
-      "id": "20220411",
-      "datetime": "2022-04-11T00:00:01.000Z",
-      "datetimehuman": "11 апреля, 2022",
-      "title": "Признание оно такое!",
-      "subTitle": "Важное!",
-      "dir": "/img/news/2022/04/11/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 0,
-      "videoscount": 0,
-      "text": "Я отношусь к тому типу людей, которым важно не работать в стол. Хочется делиться результатом своего труда с другими людьми. И такую возможность дала также мне и моя родная школа искусств, повесив мои работы в актовом зале. Плюс один к вдохновению!"
-    },
-    {
-      "id": "20220407",
-      "datetime": "2022-04-07T00:00:01.000Z",
-      "datetimehuman": "07 апреля, 2022",
-      "title": "Три струны это очень много!",
-      "subTitle": "Слушем!",
-      "dir": "/img/news/2022/04/07/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 3,
-      "videoscount": 0,
-      "text": "Закончили подготовку актового зала и сцены к концерту \"Струны России\". Получилось, на мой взгляд, очень даже хорошо. Добро пожаловать! На концерте у вас будет возможность убедиться, что трёх струн достаточно, чтобы получился шедевр."
-    },
-    {
-      "id": "20220327",
-      "datetime": "2022-03-27T00:00:01.000Z",
-      "datetimehuman": "27 марта, 2022",
-      "title": "Так рождается наставник!",
-      "subTitle": "ОС!",
-      "dir": "/img/news/2022/03/27/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 3,
-      "videoscount": 2,
-      "text": "Не могу не поделится инетересным случаем из моей жизни. На днях сын учавствовал в соревнованиях по кудо. Обратила внимание на то, как переживал за него секундант, хотя они были едва знакомы и только изредка пересекались на тренировках. Точно также он относился и к другим ребятам, которых ему поручили готовить. Именно так и должен вести себя учитель - отдавать себя всего подопечному. Не знаю, как тебя зовут, парень, но спасибо тебе и верю, что из тебя вырастет человек с большой буквы."
-    },
-    {
-      "id": "20220326",
-      "datetime": "2022-03-26T00:00:01.000Z",
-      "datetimehuman": "26 марта, 2022",
-      "title": "Следующая станция - музей!",
-      "subTitle": "Двери открываются!",
-      "dir": "/img/news/2022/03/26/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 43,
-      "videoscount": 2,
-      "text": "Следующей точкой нашего маршрута стал Ставропольский государственный историко-культурный и природно-ландшафтный музей-заповедник им. Г.Н. Прозрителева и Г.К. Праве. ФУХ! Не всё же цветочки рисовать! Полезно и вымерших животных. Для нас точно. При этом тернируется глазомер и ощущение пропорций. Спасибо большое сотруднику музея за интересную экскурсию."
-    },
-    {
-      "id": "20220325",
-      "datetime": "2022-03-25T00:00:01.000Z",
-      "datetimehuman": "25 марта, 2022",
-      "title": "Вместе весело шагать!",
-      "subTitle": "По ботаническому!!!",
-      "dir": "/img/news/2022/03/25/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 58,
-      "videoscount": 6,
-      "text": "25 марта мы дружной компанией отправились в ботанический сад. Сад посмотреть и себя показать. Какие мы хорошие художники. Прогулка удалась на славу, вы только посмотрите на фото!!! Все были в восторге от шоколадного дерева. Кроме самого дерева Потому что, если бы не зоркий глаз экскурсовода, мы бы не приминули согреться парой горячих чашечек какао:)"
-    },
-    {
-      "id": "20220315",
-      "datetime": "2022-03-15T00:00:01.000Z",
-      "datetimehuman": "15 марта, 2022",
-      "title": "Играй, гармонь!",
-      "subTitle": "Бумажная!",
-      "dir": "/img/news/2022/03/15/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 7,
-      "videoscount": 1,
-      "text": "Сегодня с ребятами делали бумажные гармошки. Взглянули по новому на такое понятие, как перспектива. Было очень приятно, что некоторые детки выбрали патриотический мотив."
-    },
-    {
-      "id": "20220312",
-      "datetime": "2022-03-12T00:00:01.000Z",
-      "datetimehuman": "12 марта, 2022",
-      "title": "Урок, который нравится всем!",
-      "subTitle": "Акрил!",
-      "dir": "/img/news/2022/03/12/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 2,
-      "videoscount": 3,
-      "text": "Помните свой первый урок по физике или химии? Там обязательно что-то взрывалось или вспыхивало. Хороший педагогический приём, чтобы заинтересовать детей в предмете. У меня для этих целей припасён урок с акриловой заливкой. Срабатывает всегда! Но, если в случае с химией потом в большинстве случаев всё опять становится скучным, то я стараюсь поддерживать градус интереса до самых каникул... А потом падаю без сил:)"
-    },
-    {
-      "id": "20220303",
-      "datetime": "2022-03-03T00:00:01.000Z",
-      "datetimehuman": "03 марта, 2022",
-      "title": "Чем раньше, тем лучше!",
-      "subTitle": "Портрет!",
-      "dir": "/img/news/2022/03/03/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 8,
-      "videoscount": 0,
-      "text": "Человека рисовать очень сложно. Даже некоторые именитые мастера избегали этой темы в своих произведениях! Но мы побороли страх и нарисовали с детками 7-8 лет отличные портреты. Начало положено!"
-    },
-    {
-      "id": "20220222",
-      "datetime": "2022-02-22T00:00:01.000Z",
-      "datetimehuman": "22 февраля, 2022",
-      "title": "Всё познаётся в сравнении!",
-      "subTitle": "Да будет битва!",
-      "dir": "/img/news/2022/02/22/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 5,
-      "videoscount": 0,
-      "text": "Здоровая конкуренция способствует большему росту, препятстует застою и помогает видеть свои слабые места и дальнейшие пути развития. Поэтому я стараюсь, чтобы мои ученики учавствовали в конкурсах как можно больше. Онлайн и оффлайн. Здесь представлены работы для участия в краевом конкурсе \"Природа Ставропольского края\" учениц 12-13 лет."
-    },
-    {
-      "id": "20220213",
-      "datetime": "2022-02-13T00:00:01.000Z",
-      "datetimehuman": "13 февраля, 2022",
-      "title": "Больше воды богине воды!",
-      "subTitle": "Акварели!",
-      "dir": "/img/news/2022/02/13/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 6,
-      "videoscount": 0,
-      "text": "Многие недооценивают акварель, так как привыкли считать, что это материал для школы. Но вы взгляните на шедевры Майи Вронской, Стива Хэнкса, Лин Чинг Че и ваше представление об акварели перевернётся. Как художник я считаю своей обязанностью владеть техникой рисования акварелью на высоком уровне. Эти две работы написаны в технике по мокрому листу. Важно, чтобы лист всегда был мокрый, поэтому желательно его располагать на стекле."
-    },
-    {
-      "id": "20220202",
-      "datetime": "2022-02-02T00:00:01.000Z",
-      "datetimehuman": "02 февраля, 2022",
-      "title": "Кактусы - это про объем!!!",
-      "subTitle": "И про тень!",
-      "dir": "/img/news/2022/02/02/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 10,
-      "videoscount": 0,
-      "text": "Градиент - это что-то на дизайнерском! А вот и нет! Сегодня как раз его и изучали с помощью растяжки одного цвета к другому гуашью. Заодно изучили тень и объем. Решили, что кактусы подходят для этих целей лучше всего."
-    },
-    {
-      "id": "20220201",
-      "datetime": "2022-02-01T00:00:01.000Z",
-      "datetimehuman": "01 февраля, 2022",
-      "title": "От искусства станет",
-      "subTitle": " день теплей!",
-      "dir": "/img/news/2022/02/01/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 3,
-      "videoscount": 0,
-      "text": "Если вам становится холодно этими февральскими вечерами, то советую взглянуть на работы моих учениц в технике ленивого гобелена, и вы сразу почувствуете на коже тепло бабушкиного свитера!"
-    },
-    {
-      "id": "20220125",
-      "datetime": "2022-01-25T00:00:01.000Z",
-      "datetimehuman": "25 января, 2022",
-      "title": "Больше мелкой моторики!",
-      "subTitle": "",
-      "dir": "/img/news/2022/01/25/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 7,
-      "videoscount": 0,
-      "text": "Говорят, что погнавшись за двумя зайцами, не поймаешь ни одного. Не знаю, не знаю! Мы с ребятами поймали минимум трёх: хорошо провели время, развили мелкую моторику, а в конце еще и отличный результат получили в виде пано из скульптурного пластелина и природных материалов! Цезарь подвинься!"
-    },
-    {
-      "id": "20220122",
-      "datetime": "2022-01-22T00:00:01.000Z",
-      "datetimehuman": "22 января, 2022",
-      "title": "Чай работе не помеха!!!",
-      "subTitle": "Даешь мастер-класс!!!",
-      "dir": "/img/news/2022/01/22/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 3,
-      "videoscount": 1,
-      "text": "Сегодня провела мастер-класс с моей хорошей знакомой Ксенией. Талантливая ученица все схватывала на лету и в конце веселой беседы с чаем и пироженными у нас получилась очень красивая картина!"
-    },
-    {
-      "id": "20220113",
-      "datetime": "2022-01-13T00:00:01.000Z",
-      "datetimehuman": "13 января, 2022",
-      "title": "Праздники позади!",
-      "subTitle": "За работу!",
-      "dir": "/img/news/2022/01/13/",
-      "img_back": "back.jpg",
-      "img_backfull": "back_full.jpg",
-      "imagescount": 4,
-      "videoscount": 0,
-      "text": "Пора прощаться с салатом оливье и селедкой под шубой!!! Пришло время снова браться за работу и грызть гранит художественной науки!<p>Жду вас, ребята, на свои занятия отдохнувшими и посвежевшими!</p>"
-    }
-  ]
+    ],
+    "news": [
+        {
+            "id": "20221228",
+            "datetime": "2022-12-28T00:00:01.001Z",
+            "datetimehuman": "28 декабря, 2022",
+            "title": "Время рисовать картины...",
+            "subTitle": "и время собирать картины!",
+            "dir": "/img/news/2022/12/28/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 12,
+            "videoscount": 0,
+            "text": "Вот и пролетела незаметно вторая четверть. У моих ребят наступила пора просмотров. Завершив работы, ученики оформляли их в рамки, скрепляли в полосу в определенном порядке по списку. Умнички! Все очень старались! По окончании просмотра я осталась очень довольна. Ученики 2 и 4 класса порадовали меня качеством работ и аккуратностью оформления. Я с большой гордостью приглашала на просмотр своих коллег и заведующую нашего отделения!"
+        },
+        {
+            "id": "20221223",
+            "datetime": "2022-12-23T00:00:01.001Z",
+            "datetimehuman": "23 декабря, 2022",
+            "title": "Центр искусства смещается!",
+            "subTitle": "СГПИ открывает выставку!",
+            "dir": "/img/news/2022/12/23/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 4,
+            "videoscount": 0,
+            "text": "23 декабря состоялось открытие выставки в Ставропольском государственном педагогическом институте, в которой принимали участие студенты, преподаватели института и приглашенные художники Ставрополя. Я была приглашена принять участие в этой выставке и с большой радостью пришла на её открытие. Ведущими мероприятия были Дед Мороз, высокий и серьёзный первокурсник, и Снегурочка, красивая и добрая заведующая кафедрой искусств. Было интересно, весело и так по-доброму, что тепло в душе, которое осталось после выставки, ещё очень долго грело душу! Также, побывав на открытии, я смогла встретиться со своими преподавателями, которые учили меня, когда я была ещё студенткой. Очень благодарна им за ту любовь и заботу, которой они окружали нас во время учёбы! "
+        },
+        {
+            "id": "20221123",
+            "datetime": "2022-11-23T00:00:01.001Z",
+            "datetimehuman": "23 ноября, 2022",
+            "title": "Если долго учить детей...",
+            "subTitle": "то дети начинают учить тебя...",
+            "dir": "/img/news/2022/11/23/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 2,
+            "videoscount": 0,
+            "text": "Если переделать фразу великого Ницше, но заменить чудовищ на талантливых детей, а борьбу - на учёбу, то актуальность фразы только усилится. Иногда не могу удержаться и не написать постановку, которую поставила для ребят. Тем более такую постановку, в сборке которой ученики принимали непосредственное участие."
+        },
+        {
+            "id": "20221029",
+            "datetime": "2022-10-29T00:00:01.001Z",
+            "datetimehuman": "29 октября, 2022",
+            "title": "Ну-ка, дети, встаньте в ряд!",
+            "subTitle": "Начинаем просмотр!",
+            "dir": "/img/news/2022/10/29/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 6,
+            "videoscount": 0,
+            "text": "Моргнуть не успели, а уже целая четверть пролетела, и пора делать осмотр работ у ребят 2 и 4 классов! Буду честна с вами - это самая лучшая работа в мире! Ведь, что может быть приятнее, чем ставить отличные оценки за отличные работы?"
+        },
+        {
+            "id": "20221028",
+            "datetime": "2022-10-28T00:00:01.001Z",
+            "datetimehuman": "28 октября, 2022",
+            "title": "Я попала в сказку!",
+            "subTitle": "В проект!",
+            "dir": "/img/news/2022/10/28/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 6,
+            "videoscount": 0,
+            "text": "Проект 'Карусель сказок', в котором я работаю педагогом-художником сам как сказка. Детки на лету схватывают основы иллюстрации и законов композиции. Я хочу, чтобы сказка не кончалась!"
+        },
+        {
+            "id": "20221026",
+            "datetime": "2022-10-26T00:00:01.001Z",
+            "datetimehuman": "26 октября, 2022",
+            "title": "А кто слушал - молодец!!!",
+            "subTitle": "И сказку тоже!",
+            "dir": "/img/news/2022/10/26/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 12,
+            "videoscount": 2,
+            "text": "Мир ускоряется. И мы не отстаём, стараемся вкладывать деткам знания максимально эффективно. Сегодня совместно с автором сказок Демановой Анной провели очень интересное занятие. Сначала детки слушали сказку, которую читала сам автор. Потом она же им играла пьессу, которую также сочинила сама!!! И сразу после этого я рассказывала, как рисовать иллюстрации и персонажей сказки. Знания лились рекой."
+        },
+        {
+            "id": "20220930",
+            "datetime": "2022-09-30T13:37:27.141Z",
+            "datetimehuman": "30 сентября, 2022",
+            "title": "Этот день буднем зовётся!",
+            "subTitle": "Бывает и так!",
+            "dir": "/img/news/2022/09/30/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 39,
+            "videoscount": 0,
+            "text": "Бывает и так, что новостей нет. От слова совсем. Зато есть кропотливая, усердная работа за кадром, которая практически не видна, но очень важна. Приоткрываю занавес рабочего процесса."
+        },
+        {
+            "id": "20220928",
+            "datetime": "2022-09-28T13:37:27.141Z",
+            "datetimehuman": "28 сентября, 2022",
+            "title": "Еще один шаг!",
+            "subTitle": "Идём дальше!",
+            "dir": "/img/news/2022/09/28/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 0,
+            "videoscount": 0,
+            "text": "Свершилось! Наконец-то я стала членом международного союза педагогов-художников. Много было потрачено сил для этого, но оно того стоило. Всем причастным спасибо!"
+        },
+        {
+            "id": "20220909",
+            "datetime": "2022-09-09T13:37:27.141Z",
+            "datetimehuman": "09 сентября, 2022",
+            "title": "Розетки больше не нужны!",
+            "subTitle": "Заряжаемся здесь!",
+            "dir": "/img/news/2022/09/09/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 0,
+            "videoscount": 0,
+            "text": "Это просто праздник какой-то, когда можешь что-то создать своими руками. Или нарисовать. Тем более, когда от твоего творения идёт такая энергия. Да. Здесь ученик срисовал певца со знаменитой фотографии, но это тот редкий случай, когда от копии идёт энергии больше, чем от оригинала."
+        },
+        {
+            "id": "20220907",
+            "datetime": "2022-09-07T13:37:27.141Z",
+            "datetimehuman": "07 сентября, 2022",
+            "title": "Моему наставнику 75!",
+            "subTitle": "С днём рождения!",
+            "dir": "/img/news/2022/09/07/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 2,
+            "videoscount": 0,
+            "text": "Сегодня моему любимому учителю Алмосову Льву Ивановичу исполнилось 75! Человеку, который сформировал меня как профессионала, привил чувство вкуса, научил владению цветом и композицией, я безгранично благодарна. От всей души желаю Вам здоровья, счастья и хорошего настроения! Прошу и дальше нести знания в мир!"
+        },
+        {
+            "id": "20220828",
+            "datetime": "2022-08-28T00:00:01.000Z",
+            "datetimehuman": "28 августа, 2022",
+            "title": "Учебный год отправляется!",
+            "subTitle": "Запрыгиваем!",
+            "dir": "/img/news/2022/08/28/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 0,
+            "videoscount": 0,
+            "text": "Не знаю как вы, а я с нетерпением жду встречи с вами, мои дорогие ученики. Летом я переработала целую гору учебных материалов, литературы, изучила множество новеньких художественных приёмчиков и техник. Всё это вылилось у меня в наработках по новой учебной программе. Буду применять её на вас. Держитесь!!!"
+        },
+        {
+            "id": "20220730",
+            "datetime": "2022-07-30T00:00:01.000Z",
+            "datetimehuman": "30 июля, 2022",
+            "title": "Николас Сафронов!",
+            "subTitle": "В городе!",
+            "dir": "/img/news/2022/07/30/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 26,
+            "videoscount": 0,
+            "text": "Сегодня вырвалась из суеты мирской и отправилась с детьми на выставку работ известного российского художника Николаса Сафронова. Есть над чем подумать..."
+        },
+        {
+            "id": "20220617",
+            "datetime": "2022-06-17T00:00:01.000Z",
+            "datetimehuman": "17 июня, 2022",
+            "title": "Посторонним вход разрешён!",
+            "subTitle": "Даже рекоммендован!",
+            "dir": "/img/news/2022/06/17/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 19,
+            "videoscount": 6,
+            "text": "Сегодня был один из дней летнего лагеря, когда мне посчастливилось быть сопровождающей. Было море смеха, улыбок и хорошего настроения. А наполняли его уважаемые казаки и артисты ставропольской филармонии. Спасибо вам огромное за хорошее настроение!"
+        },
+        {
+            "id": "20220604",
+            "datetime": "2022-06-04T00:00:01.000Z",
+            "datetimehuman": "4 июня, 2022",
+            "title": "Художественное ассорти!",
+            "subTitle": "Со вкусом изыска!",
+            "dir": "/img/news/2022/06/04/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 21,
+            "videoscount": 0,
+            "text": "Представляю вашему вниманию меню изысканных художественных блюд на любой вкус, приготовленных лучшими шеф-поварами 3 класса бюджета. Приятного эстетического аппетита!"
+        },
+        {
+            "id": "20220603",
+            "datetime": "2022-06-03T00:00:01.000Z",
+            "datetimehuman": "3 июня, 2022",
+            "title": "Художники за любой движ!",
+            "subTitle": "Утка соврать не даст!",
+            "dir": "/img/news/2022/06/03/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 53,
+            "videoscount": 6,
+            "text": "Когда мы зашли в зоопарк, повисла мёртвая тишина. Замолкли обычно шумные курицы, пропали из вида олени, волки, поджав хвост, спрятались в норы, оскалились и еле слышно заскулили львы с тиграми. И только недавно привезённая обезьянка беззаботно продолжала оглядываться по сторонам, непонимая наступивших в зоопарке перемен. Она ещё не знала, что будет дальше...<p>Такую картину рисовало моё живое воображение, когда я привела ватагу девчат в Ставропольский зоопарк. Но всё обошлось. Мы просто стали танцевать с верблюдами, гонятся за утками. Ах-да... И немного рисовать. Ни одна утка в процессе рисования не пострадала.</p>"
+        },
+        {
+            "id": "20220531",
+            "datetime": "2022-05-31T00:00:01.000Z",
+            "datetimehuman": "31 мая, 2022",
+            "title": "Дома и стены помогают!",
+            "subTitle": "Проверено!",
+            "dir": "/img/news/2022/05/31/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 7,
+            "videoscount": 0,
+            "text": "Мы вышли из школы, оглянулись и ахнули. Красота была прямо перед нами и вокруг нас! Мы подумали и решили, что прямо возле школы и проведём пленер. Тем более, что дома и стены помогают. Я оценила работы девочек, и могу смело утверждать, что это правда. Работы получилсь замечательные!"
+        },
+        {
+            "id": "20220528",
+            "datetime": "2022-05-28T00:00:01.000Z",
+            "datetimehuman": "28 мая, 2022",
+            "title": "Стаффаж в пейзаже!",
+            "subTitle": "No comments!",
+            "dir": "/img/news/2022/05/28/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 5,
+            "videoscount": 0,
+            "text": "Не только же математикам, экономистам и программистам умничать умными словами. Мы тоже сами с усами😎 Перед вами изучение стаффажа в пейзаже. Без комментариев!!!"
+        },
+        {
+            "id": "20220526",
+            "datetime": "2022-05-26T00:00:01.000Z",
+            "datetimehuman": "26 мая, 2022",
+            "title": "Что у нас здесь?",
+            "subTitle": "Результат!",
+            "dir": "/img/news/2022/05/26/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 6,
+            "videoscount": 0,
+            "text": "Вот оно! То, ради чего мы столько старались. Результат трудов 3 класса бюджета! И очень даже достойный! Все получили по заслугам, то есть по пятёркам! Ну, почти;)"
+        },
+        {
+            "id": "20220522",
+            "datetime": "2022-05-22T00:00:01.000Z",
+            "datetimehuman": "22 мая, 2022",
+            "title": "Атака отражена!",
+            "subTitle": "Город, спи спокойно!",
+            "dir": "/img/news/2022/05/22/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 4,
+            "videoscount": 3,
+            "text": "Сегодня, когда выглянула в окно, убедилась, что воспитываю своих детей правильно. Они взяли мелки и нарисовали во дворе букву \"Z\" в цветах флага России. Кое-кто попытался начать стирать букву снизу, но совместными усилиями атака с юга была отражена! Победа будет Zа нами!"
+        },
+        {
+            "id": "20220521",
+            "datetime": "2022-05-21T00:00:01.000Z",
+            "datetimehuman": "21 мая, 2022",
+            "title": "К поступлению товсь!",
+            "subTitle": "Пли!",
+            "dir": "/img/news/2022/05/21/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 4,
+            "videoscount": 0,
+            "text": "Поступление это вам не шутка... Нужно подходить отвественно и во всеоружии... Знаниями и умениями:) И стрелять ими точно. С радостью сообщаю, что в этом году все мои ученики меня не подвели и попали точно в десятку! Так держать!"
+        },
+        {
+            "id": "20220427",
+            "datetime": "2022-04-27T00:00:01.000Z",
+            "datetimehuman": "27 апреля, 2022",
+            "title": "Пора! Пора!",
+            "subTitle": "Иду со двора!",
+            "dir": "/img/news/2022/04/27/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 14,
+            "videoscount": 0,
+            "text": "Наконец-то выдались тёплые деньки, и мы мигом побежали на пленер, попутно захлёбываясь свежим воздухом и отличным настрением! Где-то впереди маячило лето:) Сели мы его ждать среди цветущих деревьев, рисуя пастелью по наждачной бумаге. Sic erat scriptum!"
+        },
+        {
+            "id": "20220421",
+            "datetimehuman": "21 апреля, 2022",
+            "title": "Пасха!",
+            "subTitle": "А какой кулич у вас?!",
+            "dir": "/img/news/2022/04/21/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 16,
+            "videoscount": 0,
+            "text": "В продолжении предыдущей заметки.<p>Природа не любит пустоты, и, если родители и учителя не будут серьёзно относится к вопросу наполнения головок наших деток нравственными смыслами, то туда могут быть вложены другие,противоестественные человеческой природе смыслы. Православие является неотемлимой частью нашей культуры, бытия. Наполняет нас жизнеутверждающими смыслами, дающими волю и желание жить и творить. Именно поэтому мы посвятили рисованию пасхальных куличей и обсуждению вопросов религии и культуры отдельный урок, тематический натюрморт с передачей объёма рахличными средствами.</p>"
+        },
+        {
+            "id": "20220418",
+            "datetime": "2022-04-18T00:00:01.000Z",
+            "datetimehuman": "18 апреля, 2022",
+            "title": "Своих не бросаем!",
+            "subTitle": "Никогда!",
+            "dir": "/img/news/2022/04/18/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 4,
+            "videoscount": 0,
+            "text": "\"Узкий специалист подобен флюсу\", - утверждается в известном афоризме. Полная версия афоризма звучит так: \"Специалист подобен флюсу, полнота его одностороння. В здании человеческого счастья дружба возводит стены, а любовь образует купол.\" Я полностью согласна с этим. Поэтому во время уроков мы часто говорим с ребятами о том, что происходит в стране и в мире. В этот непростой для страны период посчитали необходимым поддержать наших бойцов, защищающих нашу страну от вновь пытающегося захватить мир нацизма. Дети сами придумывали дизайн и текст. Письма дошли до адресатов. Надеемся, что они придадут нашим героям сил и помогут им сохранить свои жизни."
+        },
+        {
+            "id": "20220411",
+            "datetime": "2022-04-11T00:00:01.000Z",
+            "datetimehuman": "11 апреля, 2022",
+            "title": "Признание оно такое!",
+            "subTitle": "Важное!",
+            "dir": "/img/news/2022/04/11/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 0,
+            "videoscount": 0,
+            "text": "Я отношусь к тому типу людей, которым важно не работать в стол. Хочется делиться результатом своего труда с другими людьми. И такую возможность дала также мне и моя родная школа искусств, повесив мои работы в актовом зале. Плюс один к вдохновению!"
+        },
+        {
+            "id": "20220407",
+            "datetime": "2022-04-07T00:00:01.000Z",
+            "datetimehuman": "07 апреля, 2022",
+            "title": "Три струны это очень много!",
+            "subTitle": "Слушаем!",
+            "dir": "/img/news/2022/04/07/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 3,
+            "videoscount": 0,
+            "text": "Закончили подготовку актового зала и сцены к концерту \"Струны России\". Получилось, на мой взгляд, очень даже хорошо. Добро пожаловать! На концерте у вас будет возможность убедиться, что трёх струн достаточно, чтобы получился шедевр."
+        },
+        {
+            "id": "20220327",
+            "datetime": "2022-03-27T00:00:01.000Z",
+            "datetimehuman": "27 марта, 2022",
+            "title": "Так рождается наставник!",
+            "subTitle": "ОС!",
+            "dir": "/img/news/2022/03/27/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 3,
+            "videoscount": 2,
+            "text": "Не могу не поделится инетересным случаем из моей жизни. На днях сын учавствовал в соревнованиях по кудо. Обратила внимание на то, как переживал за него секундант, хотя они были едва знакомы и только изредка пересекались на тренировках. Точно также он относился и к другим ребятам, которых ему поручили готовить. Именно так и должен вести себя учитель - отдавать себя всего подопечному. Не знаю, как тебя зовут, парень, но спасибо тебе и верю, что из тебя вырастет человек с большой буквы."
+        },
+        {
+            "id": "20220326",
+            "datetime": "2022-03-26T00:00:01.000Z",
+            "datetimehuman": "26 марта, 2022",
+            "title": "Следующая станция - музей!",
+            "subTitle": "Двери открываются!",
+            "dir": "/img/news/2022/03/26/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 43,
+            "videoscount": 2,
+            "text": "Следующей точкой нашего маршрута стал Ставропольский государственный историко-культурный и природно-ландшафтный музей-заповедник им. Г.Н. Прозрителева и Г.К. Праве. ФУХ! Не всё же цветочки рисовать! Полезно и вымерших животных. Для нас точно. При этом тернируется глазомер и ощущение пропорций. Спасибо большое сотруднику музея за интересную экскурсию."
+        },
+        {
+            "id": "20220325",
+            "datetime": "2022-03-25T00:00:01.000Z",
+            "datetimehuman": "25 марта, 2022",
+            "title": "Вместе весело шагать!",
+            "subTitle": "По ботаническому!!!",
+            "dir": "/img/news/2022/03/25/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 58,
+            "videoscount": 6,
+            "text": "25 марта мы дружной компанией отправились в ботанический сад. Сад посмотреть и себя показать. Какие мы хорошие художники. Прогулка удалась на славу, вы только посмотрите на фото!!! Все были в восторге от шоколадного дерева. Кроме самого дерева Потому что, если бы не зоркий глаз экскурсовода, мы бы не приминули согреться парой горячих чашечек какао:)"
+        },
+        {
+            "id": "20220315",
+            "datetime": "2022-03-15T00:00:01.000Z",
+            "datetimehuman": "15 марта, 2022",
+            "title": "Играй, гармонь!",
+            "subTitle": "Бумажная!",
+            "dir": "/img/news/2022/03/15/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 7,
+            "videoscount": 1,
+            "text": "Сегодня с ребятами делали бумажные гармошки. Взглянули по новому на такое понятие, как перспектива. Было очень приятно, что некоторые детки выбрали патриотический мотив."
+        },
+        {
+            "id": "20220312",
+            "datetime": "2022-03-12T00:00:01.000Z",
+            "datetimehuman": "12 марта, 2022",
+            "title": "Урок, который нравится всем!",
+            "subTitle": "Акрил!",
+            "dir": "/img/news/2022/03/12/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 2,
+            "videoscount": 3,
+            "text": "Помните свой первый урок по физике или химии? Там обязательно что-то взрывалось или вспыхивало. Хороший педагогический приём, чтобы заинтересовать детей в предмете. У меня для этих целей припасён урок с акриловой заливкой. Срабатывает всегда! Но, если в случае с химией потом в большинстве случаев всё опять становится скучным, то я стараюсь поддерживать градус интереса до самых каникул... А потом падаю без сил:)"
+        },
+        {
+            "id": "20220303",
+            "datetime": "2022-03-03T00:00:01.000Z",
+            "datetimehuman": "03 марта, 2022",
+            "title": "Чем раньше, тем лучше!",
+            "subTitle": "Портрет!",
+            "dir": "/img/news/2022/03/03/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 8,
+            "videoscount": 0,
+            "text": "Человека рисовать очень сложно. Даже некоторые именитые мастера избегали этой темы в своих произведениях! Но мы побороли страх и нарисовали с детками 7-8 лет отличные портреты. Начало положено!"
+        },
+        {
+            "id": "20220222",
+            "datetime": "2022-02-22T00:00:01.000Z",
+            "datetimehuman": "22 февраля, 2022",
+            "title": "Всё познаётся в сравнении!",
+            "subTitle": "Да будет битва!",
+            "dir": "/img/news/2022/02/22/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 5,
+            "videoscount": 0,
+            "text": "Здоровая конкуренция способствует большему росту, препятстует застою и помогает видеть свои слабые места и дальнейшие пути развития. Поэтому я стараюсь, чтобы мои ученики учавствовали в конкурсах как можно больше. Онлайн и оффлайн. Здесь представлены работы для участия в краевом конкурсе \"Природа Ставропольского края\" учениц 12-13 лет."
+        },
+        {
+            "id": "20220213",
+            "datetime": "2022-02-13T00:00:01.000Z",
+            "datetimehuman": "13 февраля, 2022",
+            "title": "Больше воды богине воды!",
+            "subTitle": "Акварели!",
+            "dir": "/img/news/2022/02/13/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 6,
+            "videoscount": 0,
+            "text": "Многие недооценивают акварель, так как привыкли считать, что это материал для школы. Но вы взгляните на шедевры Майи Вронской, Стива Хэнкса, Лин Чинг Че и ваше представление об акварели перевернётся. Как художник я считаю своей обязанностью владеть техникой рисования акварелью на высоком уровне. Эти две работы написаны в технике по мокрому листу. Важно, чтобы лист всегда был мокрый, поэтому желательно его располагать на стекле."
+        },
+        {
+            "id": "20220202",
+            "datetime": "2022-02-02T00:00:01.000Z",
+            "datetimehuman": "02 февраля, 2022",
+            "title": "Кактусы - это про объем!!!",
+            "subTitle": "И про тень!",
+            "dir": "/img/news/2022/02/02/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 10,
+            "videoscount": 0,
+            "text": "Градиент - это что-то на дизайнерском! А вот и нет! Сегодня как раз его и изучали с помощью растяжки одного цвета к другому гуашью. Заодно изучили тень и объем. Решили, что кактусы подходят для этих целей лучше всего."
+        },
+        {
+            "id": "20220201",
+            "datetime": "2022-02-01T00:00:01.000Z",
+            "datetimehuman": "01 февраля, 2022",
+            "title": "От искусства станет",
+            "subTitle": " день теплей!",
+            "dir": "/img/news/2022/02/01/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 3,
+            "videoscount": 0,
+            "text": "Если вам становится холодно этими февральскими вечерами, то советую взглянуть на работы моих учениц в технике ленивого гобелена, и вы сразу почувствуете на коже тепло бабушкиного свитера!"
+        },
+        {
+            "id": "20220125",
+            "datetime": "2022-01-25T00:00:01.000Z",
+            "datetimehuman": "25 января, 2022",
+            "title": "Больше мелкой моторики!",
+            "subTitle": "",
+            "dir": "/img/news/2022/01/25/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 7,
+            "videoscount": 0,
+            "text": "Говорят, что погнавшись за двумя зайцами, не поймаешь ни одного. Не знаю, не знаю! Мы с ребятами поймали минимум трёх: хорошо провели время, развили мелкую моторику, а в конце еще и отличный результат получили в виде пано из скульптурного пластелина и природных материалов! Цезарь подвинься!"
+        },
+        {
+            "id": "20220122",
+            "datetime": "2022-01-22T00:00:01.000Z",
+            "datetimehuman": "22 января, 2022",
+            "title": "Чай работе не помеха!!!",
+            "subTitle": "Даешь мастер-класс!!!",
+            "dir": "/img/news/2022/01/22/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 3,
+            "videoscount": 1,
+            "text": "Сегодня провела мастер-класс с моей хорошей знакомой Ксенией. Талантливая ученица все схватывала на лету и в конце веселой беседы с чаем и пироженными у нас получилась очень красивая картина!"
+        },
+        {
+            "id": "20220113",
+            "datetime": "2022-01-13T00:00:01.000Z",
+            "datetimehuman": "13 января, 2022",
+            "title": "Праздники позади!",
+            "subTitle": "За работу!",
+            "dir": "/img/news/2022/01/13/",
+            "img_back": "back.jpg",
+            "img_backfull": "back_full.jpg",
+            "imagescount": 4,
+            "videoscount": 0,
+            "text": "Пора прощаться с салатом оливье и селедкой под шубой!!! Пришло время снова браться за работу и грызть гранит художественной науки!<p>Жду вас, ребята, на свои занятия отдохнувшими и посвежевшими!</p>"
+        }
+    ]
 }
