@@ -3,12 +3,12 @@ export default {};
 </script>
 
 <template>
-  <section class="container illustrator"></section>
+    <section class="container illustrator"></section>
 </template>
 
 <style scoped>
 .illustrator {
-  height: 960px;
-  width: 1280px;
+    height: 960px;
+    width: 1280px;
 }
 </style>

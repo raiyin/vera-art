@@ -1,114 +1,114 @@
 <script>
-import Gallery from "@/components/Gallery.vue";
-import axios from "axios";
-import vSelect from "vue-select";
-import "vue-select/dist/vue-select.css";
+import Gallery from '@/components/Gallery.vue';
+import axios from 'axios';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 export default {
-  inject: ["jsonserverhost"],
-  components: {
-    Gallery,
-    vSelect,
-  },
-  data() {
-    return {
-      images: [],
-      page: 1,
-      limit: 9,
-      selectedSort: "",
-      sortOptions: [
-        { value: "name_ru", name: "По названию" },
-        { value: "year", name: "По новизне" },
-        { value: "height", name: "По высоте" },
-        { value: "width", name: "По ширине" },
-      ],
-    };
-  },
-  methods: {
-    async loadWorks() {
-      try {
-        const response = await axios.get(this.jsonserverhost + "sale", {
-          params: {
-            _page: this.page,
-            _limit: this.limit,
-          },
-        });
-        this.images = response.data;
-      } catch (e) {
-        console.log(e);
-      }
+    inject: ['jsonserverhost'],
+    components: {
+        Gallery,
+        vSelect,
     },
-    async loadMoreWorks() {
-      try {
-        this.page += 1;
-        const response = await axios.get(this.jsonserverhost + "sale", {
-          params: {
-            _page: this.page,
-            _limit: this.limit,
-          },
-        });
-        this.images = [...this.images, ...response.data];
-      } catch (e) {
-        console.log(e);
-      }
+    data() {
+        return {
+            images: [],
+            page: 1,
+            limit: 9,
+            selectedSort: '',
+            sortOptions: [
+                { value: 'name_ru', name: 'По названию' },
+                { value: 'year', name: 'По новизне' },
+                { value: 'height', name: 'По высоте' },
+                { value: 'width', name: 'По ширине' },
+            ],
+        };
     },
-  },
-  mounted() {
-    this.loadWorks();
-    const options = {
-      rootMargin: "0px",
-      threshold: 1.0,
-    };
-    const callback = (entries, observer) => {
-      if (entries[0].isIntersecting) {
-        this.loadMoreWorks();
-      }
-    };
-    const observer = new IntersectionObserver(callback, options);
-    observer.observe(this.$refs.observer);
-  },
-  computed: {},
-  watch: {
-    selectedSort(newValue, oldValue) {
-      this.images.sort((image_first, image_second) => {
-        if (typeof image_first[this.selectedSort] === "string")
-          return image_first[this.selectedSort]?.localeCompare(
-            image_second[this.selectedSort]
-          );
-        if (typeof image_first[this.selectedSort] === "number")
-          return (
-            image_first[this.selectedSort] - image_second[this.selectedSort]
-          );
-      });
+    methods: {
+        async loadWorks() {
+            try {
+                const response = await axios.get(this.jsonserverhost + 'sale', {
+                    params: {
+                        _page: this.page,
+                        _limit: this.limit,
+                    },
+                });
+                this.images = response.data;
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async loadMoreWorks() {
+            try {
+                this.page += 1;
+                const response = await axios.get(this.jsonserverhost + 'sale', {
+                    params: {
+                        _page: this.page,
+                        _limit: this.limit,
+                    },
+                });
+                this.images = [...this.images, ...response.data];
+            } catch (e) {
+                console.log(e);
+            }
+        },
     },
-  },
+    mounted() {
+        this.loadWorks();
+        const options = {
+            rootMargin: '0px',
+            threshold: 1.0,
+        };
+        const callback = (entries, observer) => {
+            if (entries[0].isIntersecting) {
+                this.loadMoreWorks();
+            }
+        };
+        const observer = new IntersectionObserver(callback, options);
+        observer.observe(this.$refs.observer);
+    },
+    computed: {},
+    watch: {
+        selectedSort(newValue, oldValue) {
+            this.images.sort((image_first, image_second) => {
+                if (typeof image_first[this.selectedSort] === 'string')
+                    return image_first[this.selectedSort]?.localeCompare(
+                        image_second[this.selectedSort]
+                    );
+                if (typeof image_first[this.selectedSort] === 'number')
+                    return (
+                        image_first[this.selectedSort] - image_second[this.selectedSort]
+                    );
+            });
+        },
+    },
 };
 </script>
 
 <template>
-  <section class="container mt-3 px-0">
-    <v-select
-      :options="sortOptions"
-      :reduce="(item) => item.value"
-      label="name"
-      v-model="selectedSort"
-      inputId="value"
-      placeholder="Выберите из списка"
-    >
-      Выберите из списка
-    </v-select>
-  </section>
-  <Gallery :images="images" />
-  <div ref="observer" class="observer"></div>
+    <section class="container mt-3 px-0">
+        <v-select
+            :options="sortOptions"
+            :reduce="(item) => item.value"
+            label="name"
+            v-model="selectedSort"
+            inputId="value"
+            placeholder="Выберите из списка"
+        >
+            Выберите из списка
+        </v-select>
+    </section>
+    <Gallery :images="images" />
+    <div ref="observer" class="observer"></div>
 </template>
 
 <style scoped>
 .v-select {
-  width: 20rem;
-  box-sizing: border-box;
+    width: 20rem;
+    box-sizing: border-box;
 }
 
 .observer {
-  height: 0px;
+    height: 0px;
 }
 </style>

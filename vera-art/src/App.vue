@@ -1,26 +1,26 @@
 <script>
-import Header from "@/components/Header.vue";
-import Footer from "@/components/Footer.vue";
+import HeaderBlock from '@/components/Header.vue';
+import FooterBlock from '@/components/Footer.vue';
 
 export default {
-  components: {
-    Header,
-    Footer,
-  },
-  props: [],
-  data() {
-    return {};
-  },
-  methods: {},
-  computed: {},
-  watch: {},
+    components: {
+        HeaderBlock,
+        FooterBlock,
+    },
+    props: [],
+    data() {
+        return {};
+    },
+    methods: {},
+    computed: {},
+    watch: {},
 };
 </script>
 
 <template>
-  <Header />
-  <router-view :key="$route.fullPath"></router-view>
-  <Footer />
+    <HeaderBlock />
+    <router-view :key="$route.fullPath"></router-view>
+    <FooterBlock />
 </template>
 
 <style scoped></style>
