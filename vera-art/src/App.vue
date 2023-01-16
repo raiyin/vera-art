@@ -1,11 +1,11 @@
 <script>
-import HeaderBlock from '@/components/Header.vue';
-import FooterBlock from '@/components/Footer.vue';
+import MainHeader from '@/components/MainHeader.vue';
+import MainFooter from '@/components/MainFooter.vue';
 
 export default {
     components: {
-        HeaderBlock,
-        FooterBlock,
+        MainHeader,
+        MainFooter,
     },
     props: [],
     data() {
@@ -18,9 +18,9 @@ export default {
 </script>
 
 <template>
-    <HeaderBlock />
+    <MainHeader />
     <router-view :key="$route.fullPath"></router-view>
-    <FooterBlock />
+    <MainFooter />
 </template>
 
 <style scoped></style>
