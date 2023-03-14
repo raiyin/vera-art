@@ -23,4 +23,5 @@ export default {
     <MainFooter />
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>
