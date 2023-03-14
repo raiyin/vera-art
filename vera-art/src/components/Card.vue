@@ -11,6 +11,19 @@ export default {
             type: Object,
         },
     },
+    data() {
+        return {
+            isLoaded: false,
+            loadingGrey: '#ededed',
+        };
+    },
+    methods: {
+        onImgLoad() {
+            setTimeout(() => {
+                this.isLoaded = true;
+            }, 1000);
+        },
+    },
     computed: {
         imgIdModalToLink() {
             return '#' + this.imageObject.id + 'Modal';
@@ -25,27 +38,42 @@ export default {
 
 <template>
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-        <div class="card shadow-lg p-3 mb-5 bg-body rounded" style="width: 100%">
+        <div
+             class="card shadow-lg p-3 mb-5 bg-body rounded"
+             :class="[!this.isLoaded ? 'loading' : '',]">
+
             <img
-                :src="mainCardImage"
-                class="card-img-top"
-                alt="..."
-                data-bs-toggle="modal"
-                :data-bs-target="imgIdModalToLink"
-            />
+                 v-show="this.isLoaded"
+                 :src="mainCardImage"
+                 @load="onImgLoad"
+                 class="card-img-top"
+                 alt="..."
+                 data-bs-toggle="modal"
+                 :data-bs-target="imgIdModalToLink" />
+            <div v-show="!this.isLoaded" class="image" />
+
             <div class="card-body">
                 <div class="desc">
-                    <h5 class="card-title">{{ imageObject.name_ru }}</h5>
-                    <p class="card-text">
-                        <span v-if="imageObject.base">{{ imageObject.base }}</span>
-                        <span v-if="imageObject.material"
-                            >, {{ imageObject.material }}</span
-                        >
-                        <span v-if="imageObject.size">, {{ imageObject.size }}</span>
-                        <span v-if="imageObject.year">, {{ imageObject.year }}</span>
+                    <h5 class="card-title">
+                        {{ !this.isLoaded ? "" : imageObject.name_ru }}
+                    </h5>
+                    <div class="card-text">
+                        <span v-if="imageObject.base">
+                            {{ !this.isLoaded ? "" : imageObject.base }}
+                        </span>
+                        <span v-if="imageObject.material">
+                            {{ !this.isLoaded ? "" : `, ${imageObject.material}` }}
+                        </span>
+                        <span v-if="imageObject.size">
+                            {{ !this.isLoaded ? "" : `, ${imageObject.size}` }}
+                        </span>
+                        <span v-if="imageObject.year">
+                            {{ !this.isLoaded ? "" : `, ${imageObject.year}` }}
+                        </span>
+                    </div>
+                    <p v-if="imageObject.price">
+                        {{ !this.isLoaded ? "" : `Цена: ${imageObject.price} р.` }}
                     </p>
-                    <p v-if="imageObject.price">Цена: {{ imageObject.price }} р.</p>
-                    <!-- <a v-if="imageObject.price" href="#" class="btn btn-primary">В корзину</a> -->
                 </div>
             </div>
             <Modal :imageObject="imageObject" />
@@ -61,6 +89,52 @@ export default {
 
 .card {
     opacity: 1;
+    width: 100%;
+}
+
+.image {
+    height: 200px;
+}
+
+.loading h5 {
+    width: 80%;
+    display: inline-block;
+    text-align: center;
+}
+
+.loading h5,
+.loading .card-text,
+.loading p {
+    height: 20px;
+    margin-bottom: 5px;
+}
+
+.loading .image,
+.loading h5,
+.loading .card-text,
+.loading p,
+.loading .description {
+    background-color: v-bind(loadingGrey);
+    background: linear-gradient(100deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, .5) 50%,
+            rgba(255, 255, 255, 0) 60%) v-bind(loadingGrey);
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1s loading ease-in-out infinite;
+}
+
+@keyframes loading {
+    to {
+        background-position-x: -20%;
+    }
+}
+
+.image img {
+    display: block;
+    width: 100%;
+    height: inherit;
+    object-fit: cover;
 }
 
 .desc {
@@ -68,7 +142,7 @@ export default {
     width: 100%;
 }
 
-.card > img:hover {
+.card>img:hover {
     cursor: pointer;
 }
 </style>
