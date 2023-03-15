@@ -1,6 +1,7 @@
 <script>
 import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
+import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import axios from 'axios';
 
 export default {
@@ -8,6 +9,7 @@ export default {
     components: {
         SideNewsTrailer,
         NewsItemDescription,
+        NewsPhotoItem
     },
     data() {
         return {
@@ -34,20 +36,11 @@ export default {
                 console.log(e);
             }
         },
-        makeImageName(index) {
-            return this.imagebasedir + this.currentNews.dir + index + '.jpg';
-        },
         makeVideoSlideLabel(index) {
             return 'Видеослайд ' + index;
         },
         makeVideoName(index) {
             return this.imagebasedir + this.currentNews.dir + index + '.mp4';
-        },
-        makeModalId(index) {
-            return 'exampleModal' + index;
-        },
-        makeModalIdLink(index) {
-            return '#exampleModal' + index;
         },
     },
     mounted() {
@@ -68,11 +61,14 @@ export default {
 
 <template>
     <section class="container text-center px-0 main-content">
+
         <article class="container">
             <div class="news-header">
+
                 <div class="news_img">
                     <img :src="background" />
                 </div>
+
                 <div class="other-news">
                     <template v-for="newsItem in news" v-bind:key="newsItem">
                         <div class="other-news-item-wrapper">
@@ -80,159 +76,96 @@ export default {
                         </div>
                     </template>
                 </div>
+
             </div>
+
             <NewsItemDescription :newsObject="currentNews" />
+
             <div class="news-text">
-                <p><span v-html="currentNews.text"></span></p>
+                <p>
+                    <span v-html="currentNews.text"></span>
+                </p>
             </div>
         </article>
 
         <!-- photo section -->
         <div class="row">
+
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
-                    <img
-                        v-if="image_index % 3 == 1"
-                        v-bind:key="image_index"
-                        :src="makeImageName(image_index)"
-                        class="w-100 shadow-1-strong rounded mb-4 img-item"
-                        data-bs-toggle="modal"
-                        :data-bs-target="makeModalIdLink(image_index)"
-                    />
+                    <template v-if="image_index % 3 == 1">
 
-                    <div
-                        v-if="image_index % 3 == 1"
-                        v-bind:key="image_index"
-                        class="modal fade"
-                        :id="makeModalId(image_index)"
-                        tabindex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
-                    >
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    ></button>
-                                    <img :src="makeImageName(image_index)" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <NewsPhotoItem
+                                       :image_index="image_index"
+                                       :currentNews="currentNews" />
+
+                    </template>
                 </template>
             </div>
+
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
-                    <img
-                        v-if="image_index % 3 == 2"
-                        v-bind:key="image_index"
-                        :src="makeImageName(image_index)"
-                        class="w-100 shadow-1-strong rounded mb-4 img-item"
-                        data-bs-toggle="modal"
-                        :data-bs-target="makeModalIdLink(image_index)"
-                    />
+                    <template v-if="image_index % 3 == 2">
 
-                    <div
-                        v-if="image_index % 3 == 2"
-                        v-bind:key="image_index"
-                        class="modal fade"
-                        :id="makeModalId(image_index)"
-                        tabindex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
-                    >
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    ></button>
-                                    <img :src="makeImageName(image_index)" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <NewsPhotoItem
+                                       :image_index="image_index"
+                                       :currentNews="currentNews" />
+
+                    </template>
                 </template>
             </div>
+
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNews.imagescount">
-                    <img
-                        v-if="image_index % 3 == 0"
-                        v-bind:key="image_index"
-                        :src="makeImageName(image_index)"
-                        class="w-100 shadow-1-strong rounded mb-4 img-item"
-                        data-bs-toggle="modal"
-                        :data-bs-target="makeModalIdLink(image_index)"
-                    />
+                    <template v-if="image_index % 3 == 0">
 
-                    <div
-                        v-if="image_index % 3 == 0"
-                        v-bind:key="image_index"
-                        class="modal fade"
-                        :id="makeModalId(image_index)"
-                        tabindex="-1"
-                        aria-labelledby="exampleModalLabel"
-                        aria-hidden="true"
-                    >
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-body">
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    ></button>
-                                    <img :src="makeImageName(image_index)" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <NewsPhotoItem
+                                       :image_index="image_index"
+                                       :currentNews="currentNews" />
+
+                    </template>
                 </template>
             </div>
+
         </div>
 
         <!-- video section -->
         <div
-            id="carouselVideoExample"
-            class="carousel slide carousel-fade"
-            data-mdb-ride="carousel"
-        >
+             id="carouselVideoExample"
+             class="carousel slide carousel-fade"
+             data-mdb-ride="carousel">
+
             <div v-if="currentNews.videoscount > 1" class="carousel-indicators">
                 <template v-for="video_index in currentNews.videoscount">
+
                     <button
-                        v-if="video_index == 1"
-                        v-bind:key="video_index"
-                        type="button"
-                        data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index"
-                        class="active"
-                        aria-current="true"
-                        :aria-label="makeVideoSlideLabel(video_index)"
-                    ></button>
+                            v-if="video_index == 1"
+                            v-bind:key="video_index"
+                            type="button"
+                            data-mdb-target="#carouselVideoExample"
+                            :data-mdb-slide-to="video_index"
+                            class="active"
+                            aria-current="true"
+                            :aria-label="makeVideoSlideLabel(video_index)">
+                    </button>
+
                     <button
-                        v-if="video_index != 1"
-                        v-bind:key="video_index"
-                        type="button"
-                        data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index"
-                        :aria-label="makeVideoSlideLabel(video_index)"
-                    ></button>
+                            v-if="video_index != 1"
+                            v-bind:key="video_index"
+                            type="button"
+                            data-mdb-target="#carouselVideoExample"
+                            :data-mdb-slide-to="video_index"
+                            :aria-label="makeVideoSlideLabel(video_index)">
+                    </button>
+
                 </template>
             </div>
 
             <div class="carousel-inner">
                 <template
-                    v-for="video_index in currentNews.videoscount"
-                    v-bind:key="video_index"
-                >
+                          v-for="video_index in currentNews.videoscount"
+                          v-bind:key="video_index">
+
                     <div v-if="video_index == 1" class="carousel-item active">
                         <video class="img-fluid" autoplay loop muted>
                             <source :src="makeVideoName(video_index)" type="video/mp4" />
@@ -240,38 +173,38 @@ export default {
                     </div>
 
                     <div
-                        v-if="video_index != 1"
-                        v-bind:key="video_index"
-                        class="carousel-item"
-                    >
+                         v-if="video_index != 1"
+                         v-bind:key="video_index"
+                         class="carousel-item">
                         <video class="img-fluid" autoplay loop muted>
                             <source :src="makeVideoName(video_index)" type="video/mp4" />
                         </video>
                     </div>
+
                 </template>
             </div>
 
             <button
-                v-if="currentNews.videoscount > 1"
-                class="carousel-control-prev"
-                type="button"
-                data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="prev"
-            >
+                    v-if="currentNews.videoscount > 1"
+                    class="carousel-control-prev"
+                    type="button"
+                    data-mdb-target="#carouselVideoExample"
+                    data-mdb-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
+
             <button
-                v-if="currentNews.videoscount > 1"
-                class="carousel-control-next"
-                type="button"
-                data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="next"
-            >
+                    v-if="currentNews.videoscount > 1"
+                    class="carousel-control-next"
+                    type="button"
+                    data-mdb-target="#carouselVideoExample"
+                    data-mdb-slide="next">
                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
+
     </section>
 </template>
 
@@ -334,14 +267,16 @@ export default {
 }
 
 @media (orientation: landscape) {
-    .modal-body > img,
+
+    .modal-body>img,
     .img-fluid {
         max-height: 90vh;
     }
 }
 
 @media (orientation: portrait) {
-    .modal-body > img,
+
+    .modal-body>img,
     .img-fluid {
         max-width: 90vw;
     }
@@ -361,7 +296,7 @@ export default {
     }
 
     .news_img,
-    .news_img > img {
+    .news_img>img {
         max-width: 100%;
     }
 }

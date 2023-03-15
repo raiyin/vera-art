@@ -44,7 +44,7 @@ export default {
     vertical-align: bottom;
 }
 
-.title > span {
+.title>span {
     padding-bottom: 0;
     vertical-align: bottom;
 }
