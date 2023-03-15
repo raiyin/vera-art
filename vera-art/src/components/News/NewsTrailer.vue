@@ -12,14 +12,23 @@ export default {
             required: true,
         },
     },
+    data() {
+        return {
+            isLoaded: false,
+            loadingGrey: '#ededed',
+        };
+    },
+    methods: {
+        onImgLoad() {
+            this.isLoaded = true;
+        },
+    },
     computed: {
         newsId() {
             return '/newsitem/' + this.newsObject.id;
         },
         bgImage() {
-            return `url("${
-                this.imagebasedir + this.newsObject.dir + this.newsObject.img_back
-            }")`;
+            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
         },
     },
 };
@@ -28,15 +37,24 @@ export default {
 <template>
     <section class="container text-center px-0">
         <div class="col d-flex justify-content-center">
-            <div class="news-item">
+            <div class="news-item"
+                 :class="[!this.isLoaded ? 'loading' : '',]">
                 <router-link :to="newsId">
-                    <div class="img-holder"></div>
+                    <div class="img-holder">
+
+                        <img
+                             :src="bgImage"
+                             @load="onImgLoad"
+                             v-show="this.isLoaded" />
+                        <div v-show="!this.isLoaded" class="image-stub" />
+
+                    </div>
                     <div class="news-content">
-                        <p>{{ newsObject.title }}</p>
-                        <p>{{ newsObject.subTitle }}</p>
+                        <p>{{ !this.isLoaded ? "" : newsObject.title }}</p>
+                        <p>{{ !this.isLoaded ? "" : newsObject.subTitle }}</p>
                         <p>
-                            <CalendarIcon />
-                            <span>&nbsp;{{ newsObject.datetimehuman }}</span>
+                            <CalendarIcon v-if="this.isLoaded" />
+                            <span>&nbsp;{{ !this.isLoaded ? "" : newsObject.datetimehuman }}</span>
                         </p>
                     </div>
                 </router-link>
@@ -57,20 +75,54 @@ export default {
 .img-holder {
     width: 100%;
     height: 79%;
-    background-image: v-bind(bgImage);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: 100%;
-    transition: background-size 1s ease-out;
     margin-bottom: 1rem;
+    overflow: hidden
 }
 
-.news-item > a {
+.img-holder img {
+    height: 100%;
+    width: 100%;
+    transition: transform .2s;
+}
+
+.img-holder img:hover {
+    transform: scale(1.1);
+}
+
+.image-stub {
+    height: 100%;
+    width: 100%;
+}
+
+.loading .img-holder,
+.loading .news-content {
+    background-color: v-bind(loadingGrey);
+    background: linear-gradient(100deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, .5) 50%,
+            rgba(255, 255, 255, 0) 60%) v-bind(loadingGrey);
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1s loading ease-in-out infinite;
+}
+
+@keyframes loading {
+    to {
+        background-position-x: -20%;
+    }
+}
+
+.loading .news-content {
+    height: 30px;
+    width: 80%;
+    margin: auto;
+}
+
+.news-item>a {
     text-decoration: none;
 }
 
 .img-holder:hover {
-    background-size: 110%;
     cursor: pointer;
 }
 
@@ -86,7 +138,7 @@ export default {
     letter-spacing: 0.05rem;
 }
 
-.news-content > p > span {
+.news-content>p>span {
     font-size: small;
     font-weight: lighter;
 }
