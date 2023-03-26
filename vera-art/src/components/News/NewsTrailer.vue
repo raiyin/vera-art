@@ -1,5 +1,5 @@
 <script>
-import CalendarIcon from '@/components/icons/IconCalendar.vue';
+import CalendarIcon from '@/components/Icons/IconCalendar.vue';
 
 export default {
     inject: ['imagebasedir'],

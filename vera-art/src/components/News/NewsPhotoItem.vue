@@ -1,8 +1,10 @@
 <script>
+import ButtonClose from '@/components/UI/ButtonClose.vue';
 
 export default {
     inject: ['imagebasedir'],
     components: {
+        ButtonClose
     },
     props: {
         image_index: {
@@ -66,12 +68,7 @@ export default {
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <button
-                                type="button"
-                                class="btn-close"
-                                data-bs-dismiss="modal"
-                                aria-label="Close">
-                        </button>
+                        <ButtonClose />
                         <img :src="makeImageName(image_index)" />
                     </div>
                 </div>

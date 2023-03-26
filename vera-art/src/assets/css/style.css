@@ -63,3 +63,12 @@ html {
 	margin-top: 1rem;
 	flex-grow: 1;
 }
+
+.modal-dialog {
+	position: relative;
+	display: table;
+	/* This is important */
+	overflow-y: auto;
+	overflow-x: auto;
+	width: auto;
+}

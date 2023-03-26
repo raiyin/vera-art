@@ -2,7 +2,7 @@
 
 <template>
     <div class="bg-light text-center text-lg-start">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2)">
+        <div class="text-center p-3 footer-content">
             © 2023 Copyright:
             <a class="text-dark" href="https://t.me/my_important_talks">
                 publicmaders.ru
@@ -11,4 +11,8 @@
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.footer-content {
+    background-color: rgba(0, 0, 0, 0.2)
+}
+</style>

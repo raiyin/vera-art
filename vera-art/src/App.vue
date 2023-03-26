@@ -1,11 +1,11 @@
 <script>
-import MainHeader from '@/components/MainHeader.vue';
-import MainFooter from '@/components/MainFooter.vue';
+import Header from '@/components/Header.vue';
+import Footer from '@/components/Footer.vue';
 
 export default {
     components: {
-        MainHeader,
-        MainFooter,
+        Header,
+        Footer,
     },
     props: [],
     data() {
@@ -18,9 +18,9 @@ export default {
 </script>
 
 <template>
-    <MainHeader />
+    <Header />
     <router-view :key="$route.fullPath"></router-view>
-    <MainFooter />
+    <Footer />
 </template>
 
 <style scoped>

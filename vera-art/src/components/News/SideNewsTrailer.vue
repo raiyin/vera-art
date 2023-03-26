@@ -1,5 +1,5 @@
 <script>
-import CalendarIcon from '@/components/icons/IconCalendar.vue';
+import CalendarIcon from '@/components/Icons/IconCalendar.vue';
 
 export default {
     inject: ['imagebasedir'],
@@ -52,7 +52,7 @@ export default {
     margin-right: 1rem;
 }
 
-.other-news-img > img {
+.other-news-img>img {
     max-width: 90px;
 }
 
@@ -63,7 +63,7 @@ export default {
     line-height: 0.1em;
 }
 
-.other-news-desc > h6 {
+.other-news-desc>h6 {
     text-align: left;
 }
 </style>

@@ -7,14 +7,13 @@
                 <img src="../assets/icons/logo-small.png" alt="" width="65" height="62" />
             </router-link>
             <button
-                class="navbar-toggler"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarToggler"
-                aria-controls="navbarToggler"
-                aria-expanded="fasle"
-                aria-label="Toggle navigation"
-            >
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarToggler"
+                    aria-controls="navbarToggler"
+                    aria-expanded="fasle"
+                    aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -22,94 +21,73 @@
                 <ul class="navbar-nav me-auto my-2 my-lg-">
                     <li v-if="false" class="nav-item dropdown">
                         <router-link
-                            class="nav-link dropdown-toggle menu-item"
-                            to="#"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
+                                     class="nav-link dropdown-toggle menu-item"
+                                     to="#"
+                                     role="button"
+                                     data-bs-toggle="dropdown"
+                                     aria-expanded="false">
                             Обо&nbsp;мне
                         </router-link>
                         <ul class="dropdown-menu">
                             <li>
-                                <router-link class="dropdown-item" to="/briefly"
-                                    >Кратко</router-link
-                                >
+                                <router-link class="dropdown-item" to="/briefly">Кратко</router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/artist"
-                                    >Художник</router-link
-                                >
+                                <router-link class="dropdown-item" to="/artist">Художник</router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/illustrator"
-                                    >2D artist/Иллюстратор
+                                <router-link class="dropdown-item" to="/illustrator">2D artist/Иллюстратор
                                 </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/volunteer"
-                                    >Волонтёр/Наставник
+                                <router-link class="dropdown-item" to="/volunteer">Волонтёр/Наставник
                                 </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/teacher"
-                                    >Преподаватель
+                                <router-link class="dropdown-item" to="/teacher">Преподаватель
                                 </router-link>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/allworks"
-                            >Все&nbsp;работы</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/allworks">Все&nbsp;работы</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/news"
-                            >Новости</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/news">Новости</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/shop"
-                            >Магазин</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/shop">Магазин</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/services"
-                            >Услуги</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/services">Услуги</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/paydelivery"
-                            >Оплата/Доставка</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/paydelivery">Оплата/Доставка</router-link>
                     </li>
                 </ul>
 
                 <ul class="nav navbar-nav navbar-right">
                     <li class="me-3">
                         <a
-                            href="https://t.me/MilayaV"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                           href="https://t.me/MilayaV"
+                           target="_blank"
+                           rel="noopener noreferrer">
                             <i class="fa-brands fa-telegram"> </i>
                         </a>
                     </li>
                     <li class="me-3">
                         <a
-                            href="https://vk.com/perczukowa"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                           href="https://vk.com/perczukowa"
+                           target="_blank"
+                           rel="noopener noreferrer">
                             <i class="fa-brands fa-vk"></i>
                         </a>
                     </li>
                     <li>
                         <a
-                            href="mailto:perczukowa@yandex.ru"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
+                           href="mailto:perczukowa@yandex.ru"
+                           target="_blank"
+                           rel="noopener noreferrer">
                             <i class="fa fa-envelope"></i>
                         </a>
                     </li>
@@ -136,8 +114,7 @@
     --h: 1.75em;
 
     line-height: var(--h);
-    background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200%
-        var(--_p, 0.08em);
+    background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200% var(--_p, 0.08em);
     color: #0000;
     overflow: hidden;
     text-shadow: 0 calc(-1 * var(--_t, 0em)) var(--c),
@@ -151,11 +128,11 @@
     --_s: 0.3s;
 }
 
-.dropdown-menu > li.active {
+.dropdown-menu>li.active {
     background-color: #73d1be;
 }
 
-.dropdown-menu > li:hover:active {
+.dropdown-menu>li:hover:active {
     --bs-dropdown-link-active-bg: #4b9e90;
 }
 
@@ -180,7 +157,7 @@
         float: right;
     }
 
-    .custom-navbar .nav.navbar-nav.navbar-right li > a {
+    .custom-navbar .nav.navbar-nav.navbar-right li>a {
         padding: 8px 5px;
     }
 
