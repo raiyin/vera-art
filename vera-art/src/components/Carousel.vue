@@ -54,7 +54,7 @@ export default {
                 <div :class="index === 0 ? 'carousel-item active' : 'carousel-item'">
                     <img
                         :src="makeFileName(imageObject.dir, index + 1)"
-                        class="d-block"
+                        class="d-block modal-image"
                         alt="..."
                     />
                     <div class="carousel-caption d-none d-md-block">
@@ -86,16 +86,4 @@ export default {
     </div>
 </template>
 
-<style scoped>
-@media (orientation: landscape) {
-    img {
-        max-height: 90vh;
-    }
-}
-
-@media (orientation: portrait) {
-    img {
-        max-width: 90vw;
-    }
-}
-</style>
+<style></style>

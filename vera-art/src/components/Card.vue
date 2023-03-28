@@ -39,40 +39,41 @@ export default {
 <template>
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
         <div
-             class="card shadow-lg p-3 mb-5 bg-body rounded"
-             :class="[!this.isLoaded ? 'loading' : '',]">
-
+            class="card shadow-lg p-3 mb-5 bg-body rounded"
+            :class="[!this.isLoaded ? 'loading' : '']"
+        >
             <img
-                 v-show="this.isLoaded"
-                 :src="mainCardImage"
-                 @load="onImgLoad"
-                 class="card-img-top"
-                 alt="..."
-                 data-bs-toggle="modal"
-                 :data-bs-target="imgIdModalToLink" />
+                v-show="this.isLoaded"
+                :src="mainCardImage"
+                @load="onImgLoad"
+                class="card-img-top"
+                alt="..."
+                data-bs-toggle="modal"
+                :data-bs-target="imgIdModalToLink"
+            />
             <div v-show="!this.isLoaded" class="image" />
 
             <div class="card-body">
                 <div class="desc">
                     <h5 class="card-title">
-                        {{ !this.isLoaded ? "" : imageObject.name_ru }}
+                        {{ !this.isLoaded ? '' : imageObject.name_ru }}
                     </h5>
                     <div class="card-text">
                         <span v-if="imageObject.base">
-                            {{ !this.isLoaded ? "" : imageObject.base }}
+                            {{ !this.isLoaded ? '' : imageObject.base }}
                         </span>
                         <span v-if="imageObject.material">
-                            {{ !this.isLoaded ? "" : `, ${imageObject.material}` }}
+                            {{ !this.isLoaded ? '' : `, ${imageObject.material}` }}
                         </span>
                         <span v-if="imageObject.size">
-                            {{ !this.isLoaded ? "" : `, ${imageObject.size}` }}
+                            {{ !this.isLoaded ? '' : `, ${imageObject.size}` }}
                         </span>
                         <span v-if="imageObject.year">
-                            {{ !this.isLoaded ? "" : `, ${imageObject.year}` }}
+                            {{ !this.isLoaded ? '' : `, ${imageObject.year}` }}
                         </span>
                     </div>
                     <p v-if="imageObject.price">
-                        {{ !this.isLoaded ? "" : `Цена: ${imageObject.price} р.` }}
+                        {{ !this.isLoaded ? '' : `Цена: ${imageObject.price} р.` }}
                     </p>
                 </div>
             </div>
@@ -115,10 +116,13 @@ export default {
 .loading p,
 .loading .description {
     background-color: v-bind(loadingGrey);
-    background: linear-gradient(100deg,
+    background: linear-gradient(
+            100deg,
             rgba(255, 255, 255, 0) 40%,
-            rgba(255, 255, 255, .5) 50%,
-            rgba(255, 255, 255, 0) 60%) v-bind(loadingGrey);
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 60%
+        )
+        v-bind(loadingGrey);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
@@ -142,7 +146,7 @@ export default {
     width: 100%;
 }
 
-.card>img:hover {
+.card > img:hover {
     cursor: pointer;
 }
 </style>

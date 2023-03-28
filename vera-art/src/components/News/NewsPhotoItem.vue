@@ -4,7 +4,7 @@ import ButtonClose from '@/components/UI/ButtonClose.vue';
 export default {
     inject: ['imagebasedir'],
     components: {
-        ButtonClose
+        ButtonClose,
     },
     props: {
         image_index: {
@@ -37,39 +37,38 @@ export default {
     mounted() {
         console.log(this.currentNews);
     },
-    computed: {
-    },
+    computed: {},
     watch: {},
 };
 </script>
 
 <template>
-    <div :class="[!this.isLoaded ? 'loading' : '',]">
-
-        <div v-if="!this.isLoaded" class="image-stub"></div>
+    <div :class="[!this.isLoaded ? 'loading' : '']">
+        <div v-if="!this.isLoaded" class="image-stub" />
 
         <img
-             v-show="this.isLoaded"
-             v-bind:key="image_index"
-             :src="makeImageName(image_index)"
-             :data-bs-target="makeModalIdLink(image_index)"
-             @load="onImgLoad"
-             class="w-100 shadow-1-strong rounded mb-4 img-item"
-             data-bs-toggle="modal" />
+            v-show="this.isLoaded"
+            v-bind:key="image_index"
+            :src="makeImageName(image_index)"
+            :data-bs-target="makeModalIdLink(image_index)"
+            @load="onImgLoad"
+            class="w-100 shadow-1-strong rounded mb-4 img-item"
+            data-bs-toggle="modal"
+        />
 
         <div
-             v-bind:key="image_index"
-             class="modal fade"
-             :id="makeModalId(image_index)"
-             tabindex="-1"
-             aria-labelledby="exampleModalLabel"
-             aria-hidden="true">
-
+            v-bind:key="image_index"
+            class="modal fade"
+            :id="makeModalId(image_index)"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+        >
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
                         <ButtonClose />
-                        <img :src="makeImageName(image_index)" />
+                        <img class="modal-image" :src="makeImageName(image_index)" />
                     </div>
                 </div>
             </div>
@@ -87,10 +86,13 @@ export default {
 
 .loading .image-stub {
     background-color: v-bind(loadingGrey);
-    background: linear-gradient(100deg,
+    background: linear-gradient(
+            100deg,
             rgba(255, 255, 255, 0) 40%,
-            rgba(255, 255, 255, .5) 50%,
-            rgba(255, 255, 255, 0) 60%) v-bind(loadingGrey);
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 60%
+        )
+        v-bind(loadingGrey);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;

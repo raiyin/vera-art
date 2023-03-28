@@ -72,3 +72,16 @@ html {
 	overflow-x: auto;
 	width: auto;
 }
+
+
+@media (orientation: landscape) {
+	img.modal-image {
+		max-height: 90vh;
+	}
+}
+
+@media (orientation: portrait) {
+	img.modal-image {
+		max-width: 90vw;
+	}
+}
