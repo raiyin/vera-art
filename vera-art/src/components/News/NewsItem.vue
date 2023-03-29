@@ -141,7 +141,7 @@ export default {
                         class="active"
                         aria-current="true"
                         :aria-label="makeVideoSlideLabel(video_index)"
-                    />
+                    ></button>
 
                     <button
                         v-if="video_index != 1"
@@ -150,7 +150,7 @@ export default {
                         data-mdb-target="#carouselVideoExample"
                         :data-mdb-slide-to="video_index"
                         :aria-label="makeVideoSlideLabel(video_index)"
-                    />
+                    ></button>
                 </template>
             </div>
 
@@ -184,7 +184,7 @@ export default {
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="prev"
             >
-                <span class="carousel-control-prev-icon" aria-hidden="true" />
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Previous</span>
             </button>
 
@@ -195,7 +195,7 @@ export default {
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="next"
             >
-                <span class="carousel-control-next-icon" aria-hidden="true" />
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
@@ -220,7 +220,12 @@ export default {
 
 .news_img {
     justify-content: left;
-    margin-right: 2rem;
+}
+
+@media (min-width: 768px) {
+    .news_img {
+        margin-right: 2rem;
+    }
 }
 
 .news-text {
