@@ -48,11 +48,10 @@ export default {
 }
 
 .other-news-img {
-    width: 90px;
     margin-right: 1rem;
 }
 
-.other-news-img>img {
+.other-news-img > img {
     max-width: 90px;
 }
 
@@ -63,7 +62,12 @@ export default {
     line-height: 0.1em;
 }
 
-.other-news-desc>h6 {
+.other-news-desc > h6 {
     text-align: left;
+}
+
+.other-news-desc .date {
+    text-align: left;
+    min-width: 150px;
 }
 </style>

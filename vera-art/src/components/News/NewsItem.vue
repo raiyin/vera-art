@@ -63,7 +63,7 @@ export default {
     <section class="container text-center px-0 main-content">
         <article class="container">
             <div class="news-header">
-                <div class="news_img">
+                <div class="news-img">
                     <img :src="background" />
                 </div>
 
@@ -207,6 +207,12 @@ export default {
 
 .news-header {
     display: flex;
+    column-gap: 1rem;
+}
+
+img {
+    width: 100%;
+    height: auto;
 }
 
 .other-news {
@@ -218,16 +224,6 @@ export default {
     margin-bottom: 0.8rem;
 }
 
-.news_img {
-    justify-content: left;
-}
-
-@media (min-width: 768px) {
-    .news_img {
-        margin-right: 2rem;
-    }
-}
-
 .news-text {
     text-align: left;
     margin-bottom: 2rem;
@@ -235,11 +231,6 @@ export default {
 
 .img-item {
     cursor: pointer;
-}
-
-.news_img {
-    max-width: 696px;
-    max-height: 468px;
 }
 
 .btn-close {
@@ -292,8 +283,8 @@ export default {
         margin-bottom: 0.8rem;
     }
 
-    .news_img,
-    .news_img > img {
+    .news-img,
+    .news-img > img {
         max-width: 100%;
     }
 }
