@@ -218,6 +218,9 @@ img {
 .other-news {
     display: flex;
     flex-direction: column;
+    background-color: #eee;
+    padding: 15px;
+    border-radius: 15px;
 }
 
 .other-news-item-wrapper {
@@ -283,9 +286,8 @@ img {
         margin-bottom: 0.8rem;
     }
 
-    .news-img,
-    .news-img > img {
-        max-width: 100%;
+    .news-img {
+        margin-bottom: 1rem;
     }
 }
 </style>
