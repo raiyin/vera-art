@@ -141,7 +141,7 @@ export default {
                         class="active"
                         aria-current="true"
                         :aria-label="makeVideoSlideLabel(video_index)"
-                    ></button>
+                    />
 
                     <button
                         v-if="video_index != 1"
@@ -150,7 +150,7 @@ export default {
                         data-mdb-target="#carouselVideoExample"
                         :data-mdb-slide-to="video_index"
                         :aria-label="makeVideoSlideLabel(video_index)"
-                    ></button>
+                    />
                 </template>
             </div>
 
@@ -160,7 +160,7 @@ export default {
                     v-bind:key="video_index"
                 >
                     <div v-if="video_index == 1" class="carousel-item active">
-                        <video class="img-fluid" autoplay loop muted>
+                        <video class="img-fluid" controls>
                             <source :src="makeVideoName(video_index)" type="video/mp4" />
                         </video>
                     </div>
@@ -170,7 +170,7 @@ export default {
                         v-bind:key="video_index"
                         class="carousel-item"
                     >
-                        <video class="img-fluid" autoplay loop muted>
+                        <video class="img-fluid" controls>
                             <source :src="makeVideoName(video_index)" type="video/mp4" />
                         </video>
                     </div>
