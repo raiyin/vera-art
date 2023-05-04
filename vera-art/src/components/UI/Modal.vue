@@ -1,11 +1,11 @@
 <script>
-import Carousel from '@/components/Carousel.vue';
+import Carousel from '@/components/UI/Carousel.vue';
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 
 export default {
     components: {
         Carousel,
-        ButtonClose
+        ButtonClose,
     },
     props: {
         imageObject: {
@@ -28,12 +28,12 @@ export default {
 
 <template>
     <div
-         class="modal fade"
-         :id="imgIdModal"
-         tabindex="-1"
-         aria-labelledby="exampleModalLabel"
-         aria-hidden="true">
-
+        class="modal fade"
+        :id="imgIdModal"
+        tabindex="-1"
+        aria-labelledby="exampleModalLabel"
+        aria-hidden="true"
+    >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
@@ -45,5 +45,4 @@ export default {
     </div>
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

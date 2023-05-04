@@ -1,5 +1,5 @@
 <script>
-import Gallery from '@/components/Gallery.vue';
+import Gallery from '@/components/UI/Gallery.vue';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
