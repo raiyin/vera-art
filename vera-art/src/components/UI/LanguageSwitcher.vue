@@ -1,7 +1,6 @@
 <script>
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
-import Tr from '@/i18n/translation';
 export default {
     setup() {
         const { t, locale } = useI18n();

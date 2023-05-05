@@ -1,4 +1,7 @@
-<script></script>
+<script setup>
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n({ useScope: 'global' });
+</script>
 
 <template>
     <section class="container-fluid my-shadow bg-body rounded">
@@ -33,60 +36,60 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                         >
-                            Обо&nbsp;мне
+                            {{ $t('header.about_me') }}
                         </router-link>
                         <ul class="dropdown-menu">
                             <li>
-                                <router-link class="dropdown-item" to="/briefly"
-                                    >Кратко</router-link
-                                >
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/artist"
-                                    >Художник</router-link
-                                >
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/illustrator"
-                                    >2D artist/Иллюстратор
+                                <router-link class="dropdown-item" to="/briefly">
+                                    {{ $t('header.briefly') }}
                                 </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/volunteer"
-                                    >Волонтёр/Наставник
+                                <router-link class="dropdown-item" to="/artist">
+                                    {{ $t('header.artist') }}
                                 </router-link>
                             </li>
                             <li>
-                                <router-link class="dropdown-item" to="/teacher"
-                                    >Преподаватель
+                                <router-link class="dropdown-item" to="/illustrator">
+                                    {{ $t('header.illustrator') }}
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/volunteer">
+                                    {{ $t('header.volunteer') }}
+                                </router-link>
+                            </li>
+                            <li>
+                                <router-link class="dropdown-item" to="/teacher">
+                                    {{ $t('header.teacher') }}
                                 </router-link>
                             </li>
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/allworks"
-                            >Все&nbsp;работы</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/allworks">
+                            {{ $t('header.all_works') }}
+                        </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/news"
-                            >Новости</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/news">
+                            {{ $t('header.news') }}
+                        </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/shop"
-                            >Магазин</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/shop">
+                            {{ $t('header.shop') }}
+                        </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/services"
-                            >Услуги</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/services">
+                            {{ $t('header.services') }}
+                        </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/paydelivery"
-                            >Оплата/Доставка</router-link
-                        >
+                        <router-link class="nav-link menu-item" to="/paydelivery">
+                            {{ $t('header.payment') }}
+                        </router-link>
                     </li>
                 </ul>
 

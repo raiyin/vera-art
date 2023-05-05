@@ -1,4 +1,18 @@
 {
+    "title": "Вера",
+    "header": {
+        "about_me": "Обо&nbsp;мне",
+        "briefly": "Кратко",
+        "artist": "Художник",
+        "illustrator": "2D-artist/Иллюстратор",
+        "volunteer": "Волантёр/Наставник",
+        "teacher": "Учитель",
+        "all_works": "Все работы",
+        "news": "Новости",
+        "shop": "Магазин",
+        "services": "Услуги",
+        "payment": "Оплата/Доставка"
+    },
     "locale": {
         "en": "Английский",
         "ru": "Русский"

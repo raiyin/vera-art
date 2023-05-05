@@ -1,4 +1,18 @@
 {
+    "title": "Vera",
+    "header": {
+        "about_me": "About&nbsp;me",
+        "briefly": "Short",
+        "artist": "Artist",
+        "illustrator": "2D-artist/Illustrator",
+        "volunteer": "Volunteer/Mentor",
+        "teacher": "Teacher",
+        "all_works": "All works",
+        "news": "News",
+        "shop": "Shop",
+        "services": "Services",
+        "payment": "Payment/Delivery"
+    },
     "locale": {
         "en": "English",
         "ru": "Russian"
