@@ -13,6 +13,20 @@
         "services": "Услуги",
         "payment": "Оплата/Доставка"
     },
+    "allworks": {
+        "painting": "ЖИВОПИСЬ",
+        "illustration": "ИЛЛЮСТРАТОР",
+        "3dgraphics": "3D ГРАФИКА"
+    },
+    "shop": {
+        "byName": "По названию",
+        "byNovelty": "По новизне",
+        "byHeight": "По высоте",
+        "byWidth": "По ширине"
+    },
+    "mySelect": {
+        "placeholder": "Выберите из списка"
+    },
     "locale": {
         "en": "Английский",
         "ru": "Русский"

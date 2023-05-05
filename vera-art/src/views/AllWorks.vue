@@ -1,8 +1,12 @@
 <script>
 import Gallery from '@/components/UI/Gallery.vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t } = useI18n({ useScope: 'global' });
+    },
     inject: ['jsonserverhost'],
     components: {
         Gallery,
@@ -51,7 +55,7 @@ export default {
                     aria-controls="painting"
                     aria-selected="true"
                 >
-                    ЖИВОПИСЬ
+                    {{ $t('allworks.painting') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -65,7 +69,7 @@ export default {
                     aria-controls="Illustration"
                     aria-selected="false"
                 >
-                    ИЛЛЮСТРАЦИЯ
+                    {{ $t('allworks.illustration') }}
                 </button>
             </li>
             <li class="nav-item" role="presentation">
@@ -79,7 +83,7 @@ export default {
                     aria-controls="graphics3d"
                     aria-selected="false"
                 >
-                    3D-ГРАФИКА
+                    {{ $t('allworks.3dgraphics') }}
                 </button>
             </li>
         </ul>

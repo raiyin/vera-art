@@ -3,8 +3,12 @@ import Gallery from '@/components/UI/Gallery.vue';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t } = useI18n({ useScope: 'global' });
+    },
     inject: ['jsonserverhost'],
     components: {
         Gallery,
@@ -17,10 +21,10 @@ export default {
             limit: 9,
             selectedSort: '',
             sortOptions: [
-                { value: 'name_ru', name: 'По названию' },
-                { value: 'year', name: 'По новизне' },
-                { value: 'height', name: 'По высоте' },
-                { value: 'width', name: 'По ширине' },
+                { value: 'name_ru', name: this.$t('shop.byName') },
+                { value: 'year', name: this.$t('shop.byNovelty') },
+                { value: 'height', name: this.$t('shop.byHeight') },
+                { value: 'width', name: this.$t('shop.byWidth') },
             ],
         };
     },
@@ -93,9 +97,9 @@ export default {
             label="name"
             v-model="selectedSort"
             inputId="value"
-            placeholder="Выберите из списка"
+            :placeholder="this.$t('mySelect.placeholder')"
         >
-            Выберите из списка
+            {{ this.$t('mySelect.placeholder') }}
         </v-select>
     </section>
     <Gallery :images="images" />

@@ -13,6 +13,20 @@
         "services": "Services",
         "payment": "Payment/Delivery"
     },
+    "allworks": {
+        "painting": "PAINTING",
+        "illustration": "ILLUSTRATION",
+        "3dgraphics": "3D GRAPHICS"
+    },
+    "shop": {
+        "byName": "By name",
+        "byNovelty": "By novelty",
+        "byHeight": "By height",
+        "byWidth": "By width"
+    },
+    "mySelect": {
+        "placeholder": "Select from the list"
+    },
     "locale": {
         "en": "English",
         "ru": "Russian"
