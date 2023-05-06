@@ -29,6 +29,10 @@
         "p_two": "I approach painting and teaching with great responsibility, everyone once achieving an excellent result. There was not a single case when my client I would be dissatisfied.",
         "p_three": "As materials when painting paintings, materials such as watercolor, oil, charcoal, pencil, pastel, gouache, and as a basis - canvas, canvas on cardboard, cardboard, paper."
     },
+    "payment": {
+        "p_one": "At the moment, my store operates according to a simplified scheme.",
+        "p_two": "You contact me in any way convenient for you, we agree on the picture and the price, and after the preliminary full payment of the picture and shipment, I send you the picture."
+    },
     "mySelect": {
         "placeholder": "Select from the list"
     },
