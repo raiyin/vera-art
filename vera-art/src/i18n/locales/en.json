@@ -24,6 +24,11 @@
         "byHeight": "By height",
         "byWidth": "By width"
     },
+    "services": {
+        "p_one": "As an artist and teacher, I provide painting services in various ways materials and on any surfaces, as well as teaching children fine arts at home and in the classroom.",
+        "p_two": "I approach painting and teaching with great responsibility, everyone once achieving an excellent result. There was not a single case when my client I would be dissatisfied.",
+        "p_three": "As materials when painting paintings, materials such as watercolor, oil, charcoal, pencil, pastel, gouache, and as a basis - canvas, canvas on cardboard, cardboard, paper."
+    },
     "mySelect": {
         "placeholder": "Select from the list"
     },
