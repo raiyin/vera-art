@@ -13,6 +13,17 @@
         "services": "Services",
         "payment": "Payment/Delivery"
     },
+    "home": {
+        "hi": "HELLO!",
+        "familiarity": "Let's get acquainted",
+        "whoami": "My name is Vera Olegovna Pertsukova. I am an artist, teacher, illustrator, 3d designer and just a good person. I am glad to see you on my website. Here you can get acquainted with my creativity, works, achievements, as well as learn about the news from my professional life.",
+        "buy": "I will be glad if you like any of my works, and even more so if you decide to buy it or order a painting. I hope you will enjoy spending time here and want to visit my site again and again. Stay tuned.",
+        "draw": "DRAW FROM THE WORLD",
+        "world": "The world is an amazing place, and it takes my breath away just thinking how much more there is to learn and do.",
+        "givemore": "AND GIVE MORE",
+        "convinced": "I am convinced that a person should not bury his talents, but multiply them. Therefore, I try to constantly develop myself and pass on the accumulated knowledge to my children and students.",
+        "start": "LET'S GET STARTED!"
+    },
     "allworks": {
         "painting": "PAINTING",
         "illustration": "ILLUSTRATION",
@@ -39,18 +50,5 @@
     "locale": {
         "en": "English",
         "ru": "Russian"
-    },
-    "nav": {
-        "home": "Home",
-        "about": "About"
-    },
-    "home": {
-        "header": "Welcome to the Vue 3 I18n tutorial!",
-        "created_by": "This tutorial was brought to you by {company}.",
-        "num_visits": "This page hasn't been visited :( | This page has been visited {n} time | This page has been visited {n} times"
-    },
-    "about": {
-        "header": "About us",
-        "donations": "Donations raised: {donations}"
     }
 }

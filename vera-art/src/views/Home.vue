@@ -1,5 +1,9 @@
 <script>
+import { useI18n } from 'vue-i18n';
 export default {
+    setup() {
+        const { t } = useI18n({ useScope: 'global' });
+    },
     components: {},
     props: [],
     data() {
@@ -14,7 +18,9 @@ export default {
 <template>
     <div class="bgimg-1">
         <div class="caption">
-            <span class="border">ЗДРАВСТВУЙТЕ!</span>
+            <span class="border">
+                {{ $t('home.hi') }}
+            </span>
         </div>
     </div>
 
@@ -29,26 +35,22 @@ export default {
             width: 80vw;
         "
     >
-        <h3 style="text-align: center">Давайте знакомиться</h3>
+        <h3 style="text-align: center">
+            {{ $t('home.familiarity') }}
+        </h3>
         <p>
-            Меня зовут Перцукова Вера Олеговна. Я художник, учитель, иллюстратор,
-            3d-дизайнер и просто хороший человек. Я рада вас видеть на своём сайте. Здесь
-            вы можете познакомиться с моим творчеством, работами, достижениями, а также
-            узнать о новостях из моей профессиональной жизни.
+            {{ $t('home.whoami') }}
         </p>
         <p>
-            Буду рада, если вам понравится какая-либо из моих работ, и тем более, если
-            решите её купить или сделать заказ картины. Надеюсь вы с удовольствием
-            проведёте время здесь и захотите посещать мой сайт снова и снова. Следите за
-            обновлениями.
+            {{ $t('home.buy') }}
         </p>
     </div>
 
     <div class="bgimg-2">
         <div class="caption">
-            <span class="border" style="font-size: 25px; color: #f0f0f0"
-                >ЧЕРПАТЬ У МИРА</span
-            >
+            <span class="border" style="font-size: 25px; color: #f0f0f0">
+                {{ $t('home.draw') }}
+            </span>
         </div>
     </div>
 
@@ -64,8 +66,7 @@ export default {
             "
         >
             <p style="text-align: center">
-                Мир - это потрясающее место, и у меня захватывает дух только от одной
-                мысли, сколько ещё предстоит узнать и сделать.
+                {{ $t('home.world') }}
             </p>
         </div>
     </div>
@@ -75,8 +76,9 @@ export default {
             <span
                 class="border"
                 style="background-color: transparent; font-size: 20px; color: #f7f7f7"
-                >И ОТДАВАТЬ БОЛЬШЕ</span
             >
+                {{ $t('home.givemore') }}
+            </span>
         </div>
     </div>
 
@@ -93,16 +95,16 @@ export default {
             "
         >
             <p>
-                Я убеждена, что человек должен не зарывать свои таланты, а приумножать их.
-                Поэтому стараюсь постоянно развиваться сама и передавать накоплненные
-                знания своим детям и ученикам.
+                {{ $t('home.convinced') }}
             </p>
         </div>
     </div>
 
     <div class="bgimg-1">
         <div class="caption">
-            <span class="border">НАЧНЁМ!</span>
+            <span class="border">
+                {{ $t('home.start') }}
+            </span>
         </div>
     </div>
 </template>
