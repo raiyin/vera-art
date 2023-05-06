@@ -1,7 +1,11 @@
 <script>
 import Modal from './Modal.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t } = useI18n({ useScope: 'global' });
+    },
     inject: ['imagebasedir'],
     components: {
         Modal,
@@ -73,7 +77,13 @@ export default {
                         </span>
                     </div>
                     <p v-if="imageObject.price">
-                        {{ !this.isLoaded ? '' : `Цена: ${imageObject.price} р.` }}
+                        {{
+                            !this.isLoaded
+                                ? ''
+                                : this.$t('card.price') +
+                                  ` ${imageObject.price} ` +
+                                  this.$t('card.rub')
+                        }}
                     </p>
                 </div>
             </div>

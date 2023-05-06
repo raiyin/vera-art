@@ -51,6 +51,10 @@
         "back": "Back",
         "next": "Next"
     },
+    "card": {
+        "price": "Price:",
+        "rub": "rub."
+    },
     "locale": {
         "en": "English",
         "ru": "Russian"
