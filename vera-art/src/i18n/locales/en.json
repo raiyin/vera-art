@@ -47,6 +47,10 @@
     "mySelect": {
         "placeholder": "Select from the list"
     },
+    "carousel": {
+        "back": "Back",
+        "next": "Next"
+    },
     "locale": {
         "en": "English",
         "ru": "Russian"

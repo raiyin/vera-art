@@ -1,5 +1,10 @@
 <script>
+import { useI18n } from 'vue-i18n';
+
 export default {
+    setup() {
+        const { t } = useI18n({ useScope: 'global' });
+    },
     inject: ['imagebasedir'],
     components: {},
     props: {
@@ -71,7 +76,9 @@ export default {
             data-bs-slide="prev"
         >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Назад</span>
+            <span class="visually-hidden">
+                {{ $t('carousel.back') }}
+            </span>
         </button>
         <button
             v-if="imgCountGTOne"
@@ -81,7 +88,9 @@ export default {
             data-bs-slide="next"
         >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Далее</span>
+            <span class="visually-hidden">
+                {{ $t('carousel.next') }}
+            </span>
         </button>
     </div>
 </template>
