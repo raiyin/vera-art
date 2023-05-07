@@ -1,6 +1,34 @@
-<script setup>
+<script>
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
-const { t } = useI18n({ useScope: 'global' });
+
+export default {
+    setup() {
+        const { t, locale } = useI18n({ useScope: 'global' });
+    },
+    components: {
+        vSelect,
+    },
+    data() {
+        return {
+            select: { lang: 'ru', abbr: this.$t('locale.ru') },
+            languages: [
+                { lang: 'ru', abbr: this.$t('locale.ru') },
+                { lang: 'en', abbr: this.$t('locale.en') },
+            ],
+        };
+    },
+    methods: {
+        onChange(event) {
+            console.log(event['lang']);
+            if (event['lang'] !== null) {
+                // $i18n.locale = event['lang'];
+                i18n.global.locale.value = event['lang'];
+            }
+        },
+    },
+};
 </script>
 
 <template>
@@ -93,7 +121,27 @@ const { t } = useI18n({ useScope: 'global' });
                     </li>
                 </ul>
 
-                <ul class="nav navbar-nav navbar-right">
+                <!-- <v-select
+                    v-model="$i18n.locale"
+                    :options="languages"
+                    label="abbr"
+                    style="width: 170px; margin-right: 3em"
+                    @update:modelValue="onChange"
+                >
+                </v-select> -->
+
+                <ul class="nav navbar-nav navbar-right d-flex align-items-center">
+                    <li class="me-3">
+                        <select v-model="$i18n.locale" class="header-locale">
+                            <option
+                                v-for="locale in $i18n.availableLocales"
+                                :key="`locale-${locale}`"
+                                :value="locale"
+                            >
+                                {{ locale }}
+                            </option>
+                        </select>
+                    </li>
                     <li class="me-3">
                         <a
                             href="https://t.me/MilayaV"
@@ -165,6 +213,15 @@ const { t } = useI18n({ useScope: 'global' });
 
 .dropdown-menu > li:hover:active {
     --bs-dropdown-link-active-bg: #4b9e90;
+}
+
+.header-locale {
+    border-width: 1px;
+    border-style: solid;
+    border-radius: 4px;
+    border-color: var(--vs-colors--lightest);
+    background-color: #fff;
+    color: var(--bs-body-color);
 }
 
 .custom-navbar .fa-brands,

@@ -11,6 +11,8 @@
     "ru.json"
   ],
   "files": [],
+  "module": "ESNext",
+  "target": "esnext",
   "references": [
     {
       "path": "./tsconfig.config.json"

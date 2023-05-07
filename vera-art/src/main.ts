@@ -3,6 +3,7 @@ import { createI18n, useI18n } from 'vue-i18n'
 import { languages } from './i18n';
 import { defaultLocale } from './i18n';
 import { createPinia } from 'pinia';
+import vSelect from 'vue-select'
 import App from './App.vue';
 import router from './router';
 
@@ -13,11 +14,12 @@ const i18n = createI18n({
     fallbackFormat: 'en',
     messages
 })
+
 const app = createApp(App, {
     setup() {
         const { t } = useI18n();
         return { t };
-    }
+    },
 });
 
 app.provide('jsonserverhost', 'http://localhost:3001/');
