@@ -1,6 +1,0 @@
-{
-  "devDependencies": {
-    "@types/node": "^18.7.5",
-    "vue-tsc": "^1.0.8"
-  }
-}
