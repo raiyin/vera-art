@@ -1,7 +1,11 @@
 <script>
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t, locale } = useI18n({ useScope: 'global' });
+    },
     inject: ['imagebasedir'],
     components: {
         CalendarIcon,
@@ -10,6 +14,17 @@ export default {
         sideNewsObject: {
             type: Object,
             required: true,
+        },
+    },
+    methods: {
+        getHumanDate(inDate, locale) {
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            };
+            const date = new Date(inDate);
+            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
         },
     },
     computed: {
@@ -30,10 +45,22 @@ export default {
             <img :src="background" />
         </div>
         <div class="other-news-desc">
-            <h6>{{ sideNewsObject.title }}&nbsp;{{ sideNewsObject.subTitle }}</h6>
+            <h6>
+                {{
+                    $i18n.locale === 'ru'
+                        ? sideNewsObject.title_ru
+                        : sideNewsObject.title_en
+                }}&nbsp;{{
+                    $i18n.locale === 'ru'
+                        ? sideNewsObject.subTitle_ru
+                        : sideNewsObject.subTitle_en
+                }}
+            </h6>
             <div class="date">
                 <CalendarIcon />
-                <span>&nbsp;{{ sideNewsObject.datetimehuman }}</span>
+                <span>
+                    &nbsp;{{ getHumanDate(sideNewsObject.datetime, $i18n.locale) }}
+                </span>
             </div>
         </div>
     </router-link>

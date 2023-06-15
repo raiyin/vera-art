@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n';
 
 export default {
     setup() {
-        const { t } = useI18n({ useScope: 'global' });
+        const { t, locale } = useI18n({ useScope: 'global' });
     },
     inject: ['imagebasedir'],
     components: {
@@ -55,19 +55,39 @@ export default {
                 data-bs-toggle="modal"
                 :data-bs-target="imgIdModalToLink"
             />
+
             <div v-show="!this.isLoaded" class="image" />
 
             <div class="card-body">
                 <div class="desc">
                     <h5 class="card-title">
-                        {{ !this.isLoaded ? '' : imageObject.name_ru }}
+                        {{
+                            !this.isLoaded
+                                ? ''
+                                : $i18n.locale === 'ru'
+                                ? imageObject.name_ru
+                                : imageObject.name_en
+                        }}
                     </h5>
+
                     <div class="card-text">
-                        <span v-if="imageObject.base">
-                            {{ !this.isLoaded ? '' : imageObject.base }}
+                        <span v-if="imageObject.base_ru">
+                            {{
+                                !this.isLoaded
+                                    ? ''
+                                    : $i18n.locale === 'ru'
+                                    ? imageObject.base_ru
+                                    : imageObject.base_en
+                            }}
                         </span>
-                        <span v-if="imageObject.material">
-                            {{ !this.isLoaded ? '' : `, ${imageObject.material}` }}
+                        <span v-if="imageObject.material_ru">
+                            {{
+                                !this.isLoaded
+                                    ? ''
+                                    : $i18n.locale === 'ru'
+                                    ? `, ${imageObject.material_ru}`
+                                    : `, ${imageObject.material_en}`
+                            }}
                         </span>
                         <span v-if="imageObject.size">
                             {{ !this.isLoaded ? '' : `, ${imageObject.size}` }}

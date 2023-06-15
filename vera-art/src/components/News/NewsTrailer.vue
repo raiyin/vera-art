@@ -1,7 +1,11 @@
 <script>
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t, locale } = useI18n({ useScope: 'global' });
+    },
     inject: ['imagebasedir'],
     components: {
         CalendarIcon,
@@ -22,6 +26,15 @@ export default {
         onImgLoad() {
             this.isLoaded = true;
         },
+        getHumanDate(inDate, locale) {
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            };
+            const date = new Date(inDate);
+            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
+        },
     },
     computed: {
         newsId() {
@@ -37,23 +50,40 @@ export default {
 <template>
     <section class="container text-center px-0">
         <div class="col d-flex justify-content-center">
-            <div class="news-item" :class="[!this.isLoaded ? 'loading' : '',]">
+            <div class="news-item" :class="[!this.isLoaded ? 'loading' : '']">
                 <router-link :to="newsId">
                     <div class="img-holder">
-
-                        <img
-                             :src="bgImage"
-                             @load="onImgLoad"
-                             v-show="this.isLoaded" />
+                        <img :src="bgImage" @load="onImgLoad" v-show="this.isLoaded" />
                         <div v-show="!this.isLoaded" class="image-stub" />
-
                     </div>
                     <div class="news-content">
-                        <p>{{ !this.isLoaded ? "" : newsObject.title }}</p>
-                        <p>{{ !this.isLoaded ? "" : newsObject.subTitle }}</p>
+                        <p>
+                            {{
+                                !this.isLoaded
+                                    ? ''
+                                    : $i18n.locale === 'ru'
+                                    ? newsObject.title_ru
+                                    : newsObject.title_en
+                            }}
+                        </p>
+                        <p>
+                            {{
+                                !this.isLoaded
+                                    ? ''
+                                    : $i18n.locale === 'ru'
+                                    ? newsObject.subTitle_ru
+                                    : newsObject.subTitle_en
+                            }}
+                        </p>
                         <p>
                             <CalendarIcon v-if="this.isLoaded" />
-                            <span>&nbsp;{{ !this.isLoaded ? "" : newsObject.datetimehuman }}</span>
+                            <span>
+                                &nbsp;{{
+                                    !this.isLoaded
+                                        ? ''
+                                        : getHumanDate(newsObject.datetime, $i18n.locale)
+                                }}
+                            </span>
                         </p>
                     </div>
                 </router-link>
@@ -75,13 +105,13 @@ export default {
     width: 100%;
     height: 79%;
     margin-bottom: 1rem;
-    overflow: hidden
+    overflow: hidden;
 }
 
 .img-holder img {
     height: 100%;
     width: 100%;
-    transition: transform .2s;
+    transition: transform 0.2s;
 }
 
 .img-holder img:hover {
@@ -96,10 +126,13 @@ export default {
 .loading .img-holder,
 .loading .news-content {
     background-color: v-bind(loadingGrey);
-    background: linear-gradient(100deg,
+    background: linear-gradient(
+            100deg,
             rgba(255, 255, 255, 0) 40%,
-            rgba(255, 255, 255, .5) 50%,
-            rgba(255, 255, 255, 0) 60%) v-bind(loadingGrey);
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 60%
+        )
+        v-bind(loadingGrey);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
@@ -117,7 +150,7 @@ export default {
     margin: auto;
 }
 
-.news-item>a {
+.news-item > a {
     text-decoration: none;
 }
 
@@ -137,7 +170,7 @@ export default {
     letter-spacing: 0.05rem;
 }
 
-.news-content>p>span {
+.news-content > p > span {
     font-size: small;
     font-weight: lighter;
 }
