@@ -3,8 +3,12 @@ import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import axios from 'axios';
+import { useI18n } from 'vue-i18n';
 
 export default {
+    setup() {
+        const { t, locale } = useI18n({ useScope: 'global' });
+    },
     inject: ['jsonserverhost', 'imagebasedir'],
     components: {
         SideNewsTrailer,
@@ -80,7 +84,13 @@ export default {
 
             <div class="news-text">
                 <p>
-                    <span v-html="currentNews.text"></span>
+                    <span
+                        v-html="
+                            $i18n.locale === 'ru'
+                                ? currentNews.text_ru
+                                : currentNews.text_en
+                        "
+                    />
                 </p>
             </div>
         </article>

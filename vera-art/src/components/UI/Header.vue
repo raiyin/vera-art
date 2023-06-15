@@ -21,9 +21,7 @@ export default {
     },
     methods: {
         onChange(event) {
-            console.log(event['lang']);
             if (event['lang'] !== null) {
-                // $i18n.locale = event['lang'];
                 i18n.global.locale.value = event['lang'];
             }
         },
