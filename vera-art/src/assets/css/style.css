@@ -40,18 +40,13 @@ body,
 	flex-direction: column;
 }
 
-/* body {
-	overflow: scroll;
-} */
 body::-webkit-scrollbar {
 	display: none;
 }
 
 body {
 	-ms-overflow-style: none;
-	/* IE and Edge */
 	scrollbar-width: none;
-	/* Firefox */
 	height: 100%;
 }
 
@@ -73,7 +68,6 @@ html {
 	width: auto;
 }
 
-
 @media (orientation: landscape) {
 	img.modal-image {
 		max-height: 90vh;
@@ -84,4 +78,31 @@ html {
 	img.modal-image {
 		max-width: 90vw;
 	}
+}
+
+.body {
+	/* Сгаживание шрифтов */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
+	-ms-text-size-adjust: 100%;
+	-moz-text-size-adjust: 100%;
+	text-rendering: optimizeLegibility;
+	/* Цветовая схема */
+	--color-surface: #f8f8f8;
+	--color-on-surface: #12131c;
+	--color-on-surface-inverted: #fff;
+	--color-surface-secondary: rgba(255, 255, 255, 0.4);
+	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
+	--color-primary: #4273b4;
+	--color-on-primary: #fff;
+	--color-secondary: #e94c2e;
+	--color-tertiary: #f39428;
+	--color-on-tertiary: #fff;
+	--color-on-secondary: #fff;
+	--color-disabled: rgba(0, 0, 0, 0.2);
+	/* Параметры отображения */
+	background-color: var(--color-surface);
+	color: var(--color-on-surface);
+	overflow-y: scroll;
 }

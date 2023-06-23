@@ -1,19 +1,18 @@
 import { createApp } from 'vue';
-import { createI18n, useI18n } from 'vue-i18n'
+import { createI18n, useI18n } from 'vue-i18n';
 import { languages } from './i18n';
 import { defaultLocale } from './i18n';
 import { createPinia } from 'pinia';
-import vSelect from 'vue-select'
 import App from './App.vue';
 import router from './router';
 
-const messages = Object.assign(languages)
+const messages = Object.assign(languages);
 const i18n = createI18n({
     legacy: false,
     locale: defaultLocale,
     fallbackFormat: 'en',
     messages
-})
+});
 
 const app = createApp(App, {
     setup() {

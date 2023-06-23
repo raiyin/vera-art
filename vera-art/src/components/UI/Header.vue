@@ -2,13 +2,20 @@
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
+import DayIcon from '@/components/Icons/icon_day.vue';
+import NightIcon from '@/components/Icons/icon_night.vue';
+import { useThemeStore } from '../../stores/ThemeStore';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
+        const themeStore = useThemeStore();
+        return { themeStore };
     },
     components: {
         vSelect,
+        DayIcon,
+        NightIcon,
     },
     data() {
         return {
@@ -25,6 +32,10 @@ export default {
                 i18n.global.locale.value = event['lang'];
             }
         },
+        handleClick() {
+            const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
+            this.themeStore.setTheme(newTheme);
+        },
     },
 };
 </script>
@@ -40,6 +51,7 @@ export default {
                     height="62"
                 />
             </router-link>
+
             <button
                 class="navbar-toggler"
                 type="button"
@@ -119,16 +131,24 @@ export default {
                     </li>
                 </ul>
 
-                <!-- <v-select
-                    v-model="$i18n.locale"
-                    :options="languages"
-                    label="abbr"
-                    style="width: 170px; margin-right: 3em"
-                    @update:modelValue="onChange"
-                >
-                </v-select> -->
-
                 <ul class="nav navbar-nav navbar-right d-flex align-items-center">
+                    <li class="me-3">
+                        <button
+                            type="button"
+                            @click="handleClick"
+                            title="Сменить тему оформления"
+                            class="theme-switcher"
+                            :class="'theme-switcher_theme_' + this.themeStore.theme"
+                        >
+                            <DayIcon
+                                class="theme-switcher__icon theme-switcher__icon_type_light"
+                            />
+                            <NightIcon
+                                class="theme-switcher__icon theme-switcher__icon_type_dark"
+                            />
+                        </button>
+                    </li>
+
                     <li class="me-3">
                         <select v-model="$i18n.locale" class="header-locale">
                             <option
@@ -140,6 +160,7 @@ export default {
                             </option>
                         </select>
                     </li>
+
                     <li class="me-3">
                         <a
                             href="https://t.me/MilayaV"
@@ -149,6 +170,7 @@ export default {
                             <i class="fa-brands fa-telegram"> </i>
                         </a>
                     </li>
+
                     <li class="me-3">
                         <a
                             href="https://vk.com/perczukowa"
@@ -158,6 +180,7 @@ export default {
                             <i class="fa-brands fa-vk"></i>
                         </a>
                     </li>
+
                     <li>
                         <a
                             href="mailto:perczukowa@yandex.ru"
@@ -273,5 +296,59 @@ export default {
 .fa:hover,
 .fa-brands:hover {
     filter: drop-shadow(2px 2px 2px #808080);
+}
+
+.theme-switcher {
+    margin: 0;
+    padding: 0;
+    margin-top: -5px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+    display: block;
+    width: 32px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--color-surface-secondary-solid);
+    color: inherit;
+    position: relative;
+}
+
+.theme-switcher:hover {
+    opacity: 1;
+}
+
+.theme-switcher__icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    transition: transform 0.5s ease-out;
+    transform-origin: 50% 200%;
+}
+
+/* .theme-switcher__icon_type_light {
+    width: 70%;
+    height: 70%;
+} */
+
+.theme-switcher_theme_light .theme-switcher__icon_type_light {
+    transform: translate(-50%, -50%);
+}
+
+.theme-switcher_theme_light .theme-switcher__icon_type_dark {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.theme-switcher_theme_dark .theme-switcher__icon_type_light {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.theme-switcher_theme_dark .theme-switcher__icon_type_dark {
+    transform: translate(-50%, -50%) rotate(360deg);
 }
 </style>
