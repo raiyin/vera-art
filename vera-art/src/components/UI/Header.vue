@@ -24,6 +24,7 @@ export default {
                 { lang: 'ru', abbr: this.$t('locale.ru') },
                 { lang: 'en', abbr: this.$t('locale.en') },
             ],
+            DARK_CLASS_NAME: 'body_theme_dark',
         };
     },
     methods: {
@@ -35,23 +36,21 @@ export default {
         handleClick() {
             const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
             this.themeStore.setTheme(newTheme);
+
+            const body = document.querySelector('body');
+            if (this.themeStore.theme === 'dark') {
+                body?.classList.add(this.DARK_CLASS_NAME);
+            } else {
+                body?.classList.remove(this.DARK_CLASS_NAME);
+            }
         },
     },
 };
 </script>
 
 <template>
-    <section class="container-fluid my-shadow bg-body rounded">
+    <section class="container header">
         <nav class="navbar navbar-expand-md custom-navbar">
-            <router-link class="navbar-brand" to="/">
-                <img
-                    src="../../assets/icons/logo-small.png"
-                    alt=""
-                    width="65"
-                    height="62"
-                />
-            </router-link>
-
             <button
                 class="navbar-toggler"
                 type="button"
@@ -76,33 +75,6 @@ export default {
                         >
                             {{ $t('header.about_me') }}
                         </router-link>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <router-link class="dropdown-item" to="/briefly">
-                                    {{ $t('header.briefly') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/artist">
-                                    {{ $t('header.artist') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/illustrator">
-                                    {{ $t('header.illustrator') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/volunteer">
-                                    {{ $t('header.volunteer') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/teacher">
-                                    {{ $t('header.teacher') }}
-                                </router-link>
-                            </li>
-                        </ul>
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/allworks">
@@ -197,8 +169,8 @@ export default {
 </template>
 
 <style scoped>
-.my-shadow {
-    box-shadow: 0 0 0.5rem 0.5rem rgba(0, 0, 0, 0.15) !important;
+.header {
+    background-color: var(--color-surface);
 }
 
 .nav-item {
@@ -208,8 +180,8 @@ export default {
 }
 
 .menu-item {
-    --c: #000000;
-    --m: #73d1be;
+    --c: var(--color-on-surface);
+    --m: var(--color-header-menu-item);
     --h: 1.75em;
 
     line-height: var(--h);
@@ -229,7 +201,7 @@ export default {
 }
 
 .dropdown-menu > li.active {
-    background-color: #73d1be;
+    background-color: var(--color-header-menu-item);
 }
 
 .dropdown-menu > li:hover:active {
@@ -241,14 +213,14 @@ export default {
     border-style: solid;
     border-radius: 4px;
     border-color: var(--vs-colors--lightest);
-    background-color: #fff;
-    color: var(--bs-body-color);
+    background-color: var(--color-surface-secondary);
+    color: var(--color-on-surface);
 }
 
 .custom-navbar .fa-brands,
 .fa {
     font-size: 30px;
-    color: #73d1be;
+    color: var(--color-header-menu-item);
 }
 
 .navbar-brand :hover {
@@ -331,10 +303,10 @@ export default {
     transform-origin: 50% 200%;
 }
 
-/* .theme-switcher__icon_type_light {
+.theme-switcher__icon_type_light {
     width: 70%;
     height: 70%;
-} */
+}
 
 .theme-switcher_theme_light .theme-switcher__icon_type_light {
     transform: translate(-50%, -50%);

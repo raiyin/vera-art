@@ -101,8 +101,20 @@ html {
 	--color-on-tertiary: #fff;
 	--color-on-secondary: #fff;
 	--color-disabled: rgba(0, 0, 0, 0.2);
+	--color-header-menu-item: #73d1be;
 	/* Параметры отображения */
 	background-color: var(--color-surface);
 	color: var(--color-on-surface);
 	overflow-y: scroll;
+}
+
+/* Цветовая схема для темной темы */
+.body_theme_dark {
+	--color-surface: #231e1f;
+	--color-on-surface: #777;
+	--color-on-surface-inverted: #181818;
+	--color-surface-secondary: rgba(25, 25, 21, 0.4);
+	--color-surface-secondary-solid: rgba(25, 20, 21, 1);
+	--color-disabled: rgba(255, 255, 255, 0.2);
+	--color-header-menu-item: #494849;
 }
