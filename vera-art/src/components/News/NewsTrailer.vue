@@ -97,7 +97,7 @@ export default {
     width: 22rem;
     height: 27rem;
     border-radius: 0.3rem;
-    border: 1px solid wheat;
+    border: 1px solid var(--color-surface-secondary);
     overflow: hidden;
 }
 
@@ -166,7 +166,7 @@ export default {
     text-align: left;
     text-indent: 1rem;
     line-height: 0.4rem;
-    color: black;
+    color: var(--color-on-surface);
     letter-spacing: 0.05rem;
 }
 

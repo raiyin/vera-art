@@ -43,7 +43,7 @@ export default {
 <template>
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
         <div
-            class="card shadow-lg p-3 mb-5 bg-body rounded"
+            class="card shadow-lg p-3 mb-5 rounded"
             :class="[!this.isLoaded ? 'loading' : '']"
         >
             <img
@@ -113,6 +113,14 @@ export default {
 </template>
 
 <style scoped>
+.nav-tabs {
+    --bs-nav-tabs-border-color: #000 !important;
+}
+
+.card {
+    --bs-card-bg: var(--color-surface);
+}
+
 .card-body {
     display: flex;
     align-items: center;
@@ -170,7 +178,6 @@ export default {
     height: inherit;
     object-fit: cover;
 }
-
 .desc {
     align-self: flex-end;
     width: 100%;

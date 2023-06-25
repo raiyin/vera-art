@@ -42,7 +42,7 @@ export default {
 </script>
 
 <template>
-    <section class="container bg-body rounded border-right border-left main-content">
+    <section class="container main-content">
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
                 <button
@@ -87,7 +87,8 @@ export default {
                 </button>
             </li>
         </ul>
-        <div class="tab-content border-right border-left" id="myTabContent">
+
+        <div class="tab-content" id="myTabContent">
             <div
                 class="tab-pane fade show active"
                 id="painting"
@@ -118,21 +119,24 @@ export default {
 
 <style scoped>
 .tab-content {
-    border-left: 1px solid #ddd;
-    border-right: 1px solid #ddd;
+    border-left: 1px solid var(--color-surface-secondary);
+    border-right: 1px solid var(--color-surface-secondary);
     padding: 10px;
 }
 
 .nav-tabs {
     margin-bottom: 0;
+    --bs-nav-tabs-border-color: var(--color-surface-secondary);
 }
 
 .nav-tabs .nav-item .nav-link {
-    color: black;
+    color: var(--color-on-surface);
+    background-color: var(--color-surface);
 }
 
 .nav-tabs .nav-item .nav-link.active {
-    color: black;
+    color: var(--color-on-surface);
+    border-color: var(--color-surface-secondary);
 }
 
 .nav-item {

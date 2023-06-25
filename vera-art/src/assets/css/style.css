@@ -91,6 +91,7 @@ html {
 	/* Цветовая схема */
 	--color-surface: #f8f8f8;
 	--color-on-surface: #12131c;
+	--color-on-surface-hover: #42434c;
 	--color-on-surface-inverted: #fff;
 	--color-surface-secondary: rgba(255, 255, 255, 0.4);
 	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
@@ -102,6 +103,8 @@ html {
 	--color-on-secondary: #fff;
 	--color-disabled: rgba(0, 0, 0, 0.2);
 	--color-header-menu-item: #73d1be;
+	--vs-dropdown-bg: #fff;
+	--vs-dropdown-option--active-bg: #ddd;
 	/* Параметры отображения */
 	background-color: var(--color-surface);
 	color: var(--color-on-surface);
@@ -112,9 +115,12 @@ html {
 .body_theme_dark {
 	--color-surface: #231e1f;
 	--color-on-surface: #777;
+	--color-on-surface-hover: #999;
 	--color-on-surface-inverted: #181818;
 	--color-surface-secondary: rgba(25, 25, 21, 0.4);
 	--color-surface-secondary-solid: rgba(25, 20, 21, 1);
 	--color-disabled: rgba(255, 255, 255, 0.2);
 	--color-header-menu-item: #494849;
+	--vs-dropdown-bg: #333;
+	--vs-dropdown-option--active-bg: #444;
 }

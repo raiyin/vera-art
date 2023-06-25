@@ -1,5 +1,4 @@
 <script>
-import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
 import DayIcon from '@/components/Icons/icon_day.vue';
@@ -13,7 +12,6 @@ export default {
         return { themeStore };
     },
     components: {
-        vSelect,
         DayIcon,
         NightIcon,
     },

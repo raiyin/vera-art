@@ -63,7 +63,7 @@ export default {
 .title {
     margin-top: 2rem;
     text-align: left;
-    color: black;
+    color: var(--color-on-surface);
     vertical-align: bottom;
 }
 

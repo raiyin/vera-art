@@ -71,7 +71,10 @@ export default {
     display: flex;
     flex: 1 0 auto;
     text-decoration: none;
-    color: black;
+    color: var(--color-on-surface);
+}
+.other-news-item:hover {
+    color: var(--color-on-surface-hover);
 }
 
 .other-news-img {
