@@ -86,7 +86,7 @@ export default {
                 <p>
                     <span
                         v-html="
-                            $i18n.locale === 'ru'
+                            $i18n.locale === 'RUS'
                                 ? currentNews.text_ru
                                 : currentNews.text_en
                         "

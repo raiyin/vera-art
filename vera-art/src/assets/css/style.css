@@ -109,6 +109,7 @@ html {
 	background-color: var(--color-surface);
 	color: var(--color-on-surface);
 	overflow-y: scroll;
+	--vs-dropdown-min-width: 60px;
 }
 
 /* Цветовая схема для темной темы */

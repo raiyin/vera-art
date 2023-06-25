@@ -47,11 +47,11 @@ export default {
         <div class="other-news-desc">
             <h6>
                 {{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? sideNewsObject.title_ru
                         : sideNewsObject.title_en
                 }}&nbsp;{{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? sideNewsObject.subTitle_ru
                         : sideNewsObject.subTitle_en
                 }}

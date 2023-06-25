@@ -64,7 +64,7 @@ export default {
                         {{
                             !this.isLoaded
                                 ? ''
-                                : $i18n.locale === 'ru'
+                                : $i18n.locale === 'RUS'
                                 ? imageObject.name_ru
                                 : imageObject.name_en
                         }}
@@ -75,7 +75,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? imageObject.base_ru
                                     : imageObject.base_en
                             }}
@@ -84,7 +84,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? `, ${imageObject.material_ru}`
                                     : `, ${imageObject.material_en}`
                             }}

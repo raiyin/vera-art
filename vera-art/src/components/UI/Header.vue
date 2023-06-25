@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n';
 import DayIcon from '@/components/Icons/icon_day.vue';
 import NightIcon from '@/components/Icons/icon_night.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 export default {
     setup() {
@@ -14,13 +16,14 @@ export default {
     components: {
         DayIcon,
         NightIcon,
+        vSelect,
     },
     data() {
         return {
-            select: { lang: 'ru', abbr: this.$t('locale.ru') },
+            select: { lang: 'RUS', abbr: this.$t('locale.RUS') },
             languages: [
-                { lang: 'ru', abbr: this.$t('locale.ru') },
-                { lang: 'en', abbr: this.$t('locale.en') },
+                { lang: 'RUS', abbr: this.$t('locale.RUS') },
+                { lang: 'ENG', abbr: this.$t('locale.ENG') },
             ],
             DARK_CLASS_NAME: 'body_theme_dark',
         };
@@ -120,15 +123,14 @@ export default {
                     </li>
 
                     <li class="me-3">
-                        <select v-model="$i18n.locale" class="header-locale">
-                            <option
-                                v-for="locale in $i18n.availableLocales"
-                                :key="`locale-${locale}`"
-                                :value="locale"
-                            >
-                                {{ locale }}
-                            </option>
-                        </select>
+                        <v-select
+                            :options="$i18n.availableLocales"
+                            :clearable="false"
+                            v-model="$i18n.locale"
+                            inputId="value"
+                        >
+                            {{ locale }}
+                        </v-select>
                     </li>
 
                     <li class="me-3">
@@ -204,6 +206,15 @@ export default {
 
 .dropdown-menu > li:hover:active {
     --bs-dropdown-link-active-bg: #4b9e90;
+}
+
+.v-select {
+    width: 6rem;
+    font-size: 1rem;
+}
+
+.vs__dropdown-menu {
+    min-width: 0;
 }
 
 .header-locale {

@@ -61,7 +61,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? newsObject.title_ru
                                     : newsObject.title_en
                             }}
@@ -70,7 +70,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? newsObject.subTitle_ru
                                     : newsObject.subTitle_en
                             }}

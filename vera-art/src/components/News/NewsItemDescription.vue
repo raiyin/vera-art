@@ -40,9 +40,9 @@ export default {
         <div class="title">
             <h2>
                 {{
-                    $i18n.locale === 'ru' ? newsObject.title_ru : newsObject.title_en
+                    $i18n.locale === 'RUS' ? newsObject.title_ru : newsObject.title_en
                 }}&nbsp;{{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? newsObject.subTitle_ru
                         : newsObject.subTitle_en
                 }}
