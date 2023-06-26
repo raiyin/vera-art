@@ -66,15 +66,9 @@ export default {
 
             <div class="collapse navbar-collapse" id="navbarToggler">
                 <ul class="navbar-nav me-auto my-2 my-lg-">
-                    <li v-if="false" class="nav-item dropdown">
-                        <router-link
-                            class="nav-link dropdown-toggle menu-item"
-                            to="#"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            {{ $t('header.about_me') }}
+                    <li class="nav-item">
+                        <router-link class="nav-link menu-item" to="/">
+                            {{ $t('header.main') }}
                         </router-link>
                     </li>
                     <li class="nav-item">
