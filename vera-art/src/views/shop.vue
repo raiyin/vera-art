@@ -112,6 +112,10 @@ export default {
     box-sizing: border-box;
 }
 
+.vs__dropdown-option {
+    background-color: black;
+}
+
 .observer {
     height: 0px;
 }

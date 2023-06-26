@@ -86,7 +86,7 @@ export default {
                 <p>
                     <span
                         v-html="
-                            $i18n.locale === 'ru'
+                            $i18n.locale === 'RUS'
                                 ? currentNews.text_ru
                                 : currentNews.text_en
                         "
@@ -228,7 +228,7 @@ img {
 .other-news {
     display: flex;
     flex-direction: column;
-    background-color: #eee;
+    background-color: var(--color-surface);
     padding: 15px;
     border-radius: 15px;
 }
@@ -240,6 +240,7 @@ img {
 .news-text {
     text-align: left;
     margin-bottom: 2rem;
+    color: var(--color-on-surface);
 }
 
 .img-item {

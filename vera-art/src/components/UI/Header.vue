@@ -1,22 +1,31 @@
 <script>
-import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
+import DayIcon from '@/components/Icons/icon_day.vue';
+import NightIcon from '@/components/Icons/icon_night.vue';
+import { useThemeStore } from '../../stores/ThemeStore';
+import vSelect from 'vue-select';
+import 'vue-select/dist/vue-select.css';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
+        const themeStore = useThemeStore();
+        return { themeStore };
     },
     components: {
+        DayIcon,
+        NightIcon,
         vSelect,
     },
     data() {
         return {
-            select: { lang: 'ru', abbr: this.$t('locale.ru') },
+            select: { lang: 'RUS', abbr: this.$t('locale.RUS') },
             languages: [
-                { lang: 'ru', abbr: this.$t('locale.ru') },
-                { lang: 'en', abbr: this.$t('locale.en') },
+                { lang: 'RUS', abbr: this.$t('locale.RUS') },
+                { lang: 'ENG', abbr: this.$t('locale.ENG') },
             ],
+            DARK_CLASS_NAME: 'body_theme_dark',
         };
     },
     methods: {
@@ -25,21 +34,24 @@ export default {
                 i18n.global.locale.value = event['lang'];
             }
         },
+        handleClick() {
+            const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
+            this.themeStore.setTheme(newTheme);
+
+            const body = document.querySelector('body');
+            if (this.themeStore.theme === 'dark') {
+                body?.classList.add(this.DARK_CLASS_NAME);
+            } else {
+                body?.classList.remove(this.DARK_CLASS_NAME);
+            }
+        },
     },
 };
 </script>
 
 <template>
-    <section class="container-fluid my-shadow bg-body rounded">
+    <section class="container header">
         <nav class="navbar navbar-expand-md custom-navbar">
-            <router-link class="navbar-brand" to="/">
-                <img
-                    src="../../assets/icons/logo-small.png"
-                    alt=""
-                    width="65"
-                    height="62"
-                />
-            </router-link>
             <button
                 class="navbar-toggler"
                 type="button"
@@ -54,43 +66,10 @@ export default {
 
             <div class="collapse navbar-collapse" id="navbarToggler">
                 <ul class="navbar-nav me-auto my-2 my-lg-">
-                    <li v-if="false" class="nav-item dropdown">
-                        <router-link
-                            class="nav-link dropdown-toggle menu-item"
-                            to="#"
-                            role="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false"
-                        >
-                            {{ $t('header.about_me') }}
+                    <li class="nav-item">
+                        <router-link class="nav-link menu-item" to="/">
+                            {{ $t('header.main') }}
                         </router-link>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <router-link class="dropdown-item" to="/briefly">
-                                    {{ $t('header.briefly') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/artist">
-                                    {{ $t('header.artist') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/illustrator">
-                                    {{ $t('header.illustrator') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/volunteer">
-                                    {{ $t('header.volunteer') }}
-                                </router-link>
-                            </li>
-                            <li>
-                                <router-link class="dropdown-item" to="/teacher">
-                                    {{ $t('header.teacher') }}
-                                </router-link>
-                            </li>
-                        </ul>
                     </li>
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/allworks">
@@ -119,27 +98,35 @@ export default {
                     </li>
                 </ul>
 
-                <!-- <v-select
-                    v-model="$i18n.locale"
-                    :options="languages"
-                    label="abbr"
-                    style="width: 170px; margin-right: 3em"
-                    @update:modelValue="onChange"
-                >
-                </v-select> -->
-
                 <ul class="nav navbar-nav navbar-right d-flex align-items-center">
                     <li class="me-3">
-                        <select v-model="$i18n.locale" class="header-locale">
-                            <option
-                                v-for="locale in $i18n.availableLocales"
-                                :key="`locale-${locale}`"
-                                :value="locale"
-                            >
-                                {{ locale }}
-                            </option>
-                        </select>
+                        <button
+                            type="button"
+                            @click="handleClick"
+                            title="Сменить тему оформления"
+                            class="theme-switcher"
+                            :class="'theme-switcher_theme_' + this.themeStore.theme"
+                        >
+                            <DayIcon
+                                class="theme-switcher__icon theme-switcher__icon_type_light"
+                            />
+                            <NightIcon
+                                class="theme-switcher__icon theme-switcher__icon_type_dark"
+                            />
+                        </button>
                     </li>
+
+                    <li class="me-3">
+                        <v-select
+                            :options="$i18n.availableLocales"
+                            :clearable="false"
+                            v-model="$i18n.locale"
+                            inputId="value"
+                        >
+                            {{ locale }}
+                        </v-select>
+                    </li>
+
                     <li class="me-3">
                         <a
                             href="https://t.me/MilayaV"
@@ -149,6 +136,7 @@ export default {
                             <i class="fa-brands fa-telegram"> </i>
                         </a>
                     </li>
+
                     <li class="me-3">
                         <a
                             href="https://vk.com/perczukowa"
@@ -158,6 +146,7 @@ export default {
                             <i class="fa-brands fa-vk"></i>
                         </a>
                     </li>
+
                     <li>
                         <a
                             href="mailto:perczukowa@yandex.ru"
@@ -174,8 +163,8 @@ export default {
 </template>
 
 <style scoped>
-.my-shadow {
-    box-shadow: 0 0 0.5rem 0.5rem rgba(0, 0, 0, 0.15) !important;
+.header {
+    background-color: var(--color-surface);
 }
 
 .nav-item {
@@ -185,8 +174,8 @@ export default {
 }
 
 .menu-item {
-    --c: #000000;
-    --m: #73d1be;
+    --c: var(--color-on-surface);
+    --m: var(--color-header-menu-item);
     --h: 1.75em;
 
     line-height: var(--h);
@@ -206,11 +195,20 @@ export default {
 }
 
 .dropdown-menu > li.active {
-    background-color: #73d1be;
+    background-color: var(--color-header-menu-item);
 }
 
 .dropdown-menu > li:hover:active {
     --bs-dropdown-link-active-bg: #4b9e90;
+}
+
+.v-select {
+    width: 6rem;
+    font-size: 1rem;
+}
+
+.vs__dropdown-menu {
+    min-width: 0;
 }
 
 .header-locale {
@@ -218,14 +216,14 @@ export default {
     border-style: solid;
     border-radius: 4px;
     border-color: var(--vs-colors--lightest);
-    background-color: #fff;
-    color: var(--bs-body-color);
+    background-color: var(--color-surface-secondary);
+    color: var(--color-on-surface);
 }
 
 .custom-navbar .fa-brands,
 .fa {
     font-size: 30px;
-    color: #73d1be;
+    color: var(--color-header-menu-item);
 }
 
 .navbar-brand :hover {
@@ -273,5 +271,59 @@ export default {
 .fa:hover,
 .fa-brands:hover {
     filter: drop-shadow(2px 2px 2px #808080);
+}
+
+.theme-switcher {
+    margin: 0;
+    padding: 0;
+    margin-top: -5px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.15s ease-in-out;
+    display: block;
+    width: 32px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 50%;
+    background-color: var(--color-surface-secondary-solid);
+    color: inherit;
+    position: relative;
+}
+
+.theme-switcher:hover {
+    opacity: 1;
+}
+
+.theme-switcher__icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50%;
+    height: 50%;
+    transition: transform 0.5s ease-out;
+    transform-origin: 50% 200%;
+}
+
+.theme-switcher__icon_type_light {
+    width: 70%;
+    height: 70%;
+}
+
+.theme-switcher_theme_light .theme-switcher__icon_type_light {
+    transform: translate(-50%, -50%);
+}
+
+.theme-switcher_theme_light .theme-switcher__icon_type_dark {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.theme-switcher_theme_dark .theme-switcher__icon_type_light {
+    transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.theme-switcher_theme_dark .theme-switcher__icon_type_dark {
+    transform: translate(-50%, -50%) rotate(360deg);
 }
 </style>

@@ -1,1 +1,7 @@
+https://zalinux.ru/?p=3137
+запустить ssh-сессию
+screen
+в ней
 json-server -w /var/www/html/server/db.json -p 3001 -H 0.0.0.0
+потом ctrl+a
+потом d

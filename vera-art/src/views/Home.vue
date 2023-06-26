@@ -24,17 +24,7 @@ export default {
         </div>
     </div>
 
-    <div
-        style="
-            margin: auto;
-            color: #777;
-            background-color: white;
-            text-align: center;
-            padding: 50px 20px;
-            text-align: justify;
-            width: 80vw;
-        "
-    >
+    <div class="bigblock">
         <h3 style="text-align: center">
             {{ $t('home.familiarity') }}
         </h3>
@@ -55,16 +45,7 @@ export default {
     </div>
 
     <div style="position: relative">
-        <div
-            style="
-                text-align: center;
-                color: #ddd;
-                background-color: #282e34;
-                text-align: center;
-                padding: 50px 20px;
-                text-align: justify;
-            "
-        >
+        <div class="bigblock">
             <p style="text-align: center">
                 {{ $t('home.world') }}
             </p>
@@ -82,22 +63,10 @@ export default {
         </div>
     </div>
 
-    <div style="position: relative; background-color: #282e34">
-        <div
-            style="
-                margin: auto;
-                color: #ddd;
-                background-color: #282e34;
-                text-align: center;
-                padding: 50px 20px;
-                text-align: justify;
-                width: 80vw;
-            "
-        >
-            <p>
-                {{ $t('home.convinced') }}
-            </p>
-        </div>
+    <div class="bigblock">
+        <p>
+            {{ $t('home.convinced') }}
+        </p>
     </div>
 
     <div class="bgimg-1">
@@ -110,6 +79,17 @@ export default {
 </template>
 
 <style scoped>
+.bigblock {
+    position: relative;
+    margin: auto;
+    color: var(--color-on-surface);
+    text-align: center;
+    padding: 50px 20px;
+    text-align: justify;
+    width: 80vw;
+    font-size: 1rem;
+}
+
 .bgimg-1,
 .bgimg-2,
 .bgimg-3 {
@@ -147,7 +127,7 @@ export default {
 
 .caption span.border {
     background-color: #111;
-    color: #fff;
+    color: #f7f7f7;
     padding: 18px;
     font-size: 25px;
     letter-spacing: 10px;
@@ -167,7 +147,6 @@ h3 {
     letter-spacing: 5px;
     text-transform: uppercase;
     font: 20px 'Lato', sans-serif;
-    color: #111;
 }
 
 /* Отключение параллаксной прокрутки для планшетов и телефонов */

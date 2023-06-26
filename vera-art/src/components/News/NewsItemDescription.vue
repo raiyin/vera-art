@@ -23,7 +23,8 @@ export default {
                 day: 'numeric',
             };
             const date = new Date(inDate);
-            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
+            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            return date.toLocaleDateString(stdLocale, options);
         },
     },
     data() {
@@ -40,9 +41,9 @@ export default {
         <div class="title">
             <h2>
                 {{
-                    $i18n.locale === 'ru' ? newsObject.title_ru : newsObject.title_en
+                    $i18n.locale === 'RUS' ? newsObject.title_ru : newsObject.title_en
                 }}&nbsp;{{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? newsObject.subTitle_ru
                         : newsObject.subTitle_en
                 }}
@@ -63,7 +64,7 @@ export default {
 .title {
     margin-top: 2rem;
     text-align: left;
-    color: black;
+    color: var(--color-on-surface);
     vertical-align: bottom;
 }
 

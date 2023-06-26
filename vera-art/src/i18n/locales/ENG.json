@@ -1,7 +1,8 @@
 {
-    "lang": "en",
+    "lang": "ENG",
     "title": "Vera",
     "header": {
+        "main": "Main",
         "about_me": "About&nbsp;me",
         "briefly": "Short",
         "artist": "Artist",
@@ -57,7 +58,7 @@
         "rub": "rub."
     },
     "locale": {
-        "en": "English",
-        "ru": "Russian"
+        "ENG": "English",
+        "RUS": "Russian"
     }
 }

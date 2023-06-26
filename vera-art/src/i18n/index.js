@@ -1,10 +1,10 @@
 import { createI18n } from "vue-i18n";
-import ru from "./locales/ru.json";
-import en from "./locales/en.json";
+import RUS from "./locales/RUS.json";
+import ENG from "./locales/ENG.json";
 
-export const defaultLocale = 'ru';
+export const defaultLocale = 'RUS';
 
 export const languages = {
-    ru,
-    en
+    RUS,
+    ENG
 };

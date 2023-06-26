@@ -19,7 +19,7 @@ export default {
     data() {
         return {
             isLoaded: false,
-            loadingGrey: '#ededed',
+            loadingGrey: '#adadad',
         };
     },
     methods: {
@@ -33,7 +33,8 @@ export default {
                 day: 'numeric',
             };
             const date = new Date(inDate);
-            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
+            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            return date.toLocaleDateString(stdLocale, options);
         },
     },
     computed: {
@@ -61,7 +62,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? newsObject.title_ru
                                     : newsObject.title_en
                             }}
@@ -70,7 +71,7 @@ export default {
                             {{
                                 !this.isLoaded
                                     ? ''
-                                    : $i18n.locale === 'ru'
+                                    : $i18n.locale === 'RUS'
                                     ? newsObject.subTitle_ru
                                     : newsObject.subTitle_en
                             }}
@@ -97,7 +98,7 @@ export default {
     width: 22rem;
     height: 27rem;
     border-radius: 0.3rem;
-    border: 1px solid wheat;
+    border: 1px solid var(--color-surface-secondary);
     overflow: hidden;
 }
 
@@ -166,7 +167,7 @@ export default {
     text-align: left;
     text-indent: 1rem;
     line-height: 0.4rem;
-    color: black;
+    color: var(--color-on-surface);
     letter-spacing: 0.05rem;
 }
 

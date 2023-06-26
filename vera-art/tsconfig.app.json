@@ -10,7 +10,7 @@
     "src/**/js/"
   ],
   "compilerOptions": {
-    // "composite": true,
+    "composite": true,
     "baseUrl": ".",
     "paths": {
       "@/*": [

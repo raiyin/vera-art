@@ -24,7 +24,8 @@ export default {
                 day: 'numeric',
             };
             const date = new Date(inDate);
-            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
+            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            return date.toLocaleDateString(stdLocale, options);
         },
     },
     computed: {
@@ -47,11 +48,11 @@ export default {
         <div class="other-news-desc">
             <h6>
                 {{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? sideNewsObject.title_ru
                         : sideNewsObject.title_en
                 }}&nbsp;{{
-                    $i18n.locale === 'ru'
+                    $i18n.locale === 'RUS'
                         ? sideNewsObject.subTitle_ru
                         : sideNewsObject.subTitle_en
                 }}
@@ -71,7 +72,10 @@ export default {
     display: flex;
     flex: 1 0 auto;
     text-decoration: none;
-    color: black;
+    color: var(--color-on-surface);
+}
+.other-news-item:hover {
+    color: var(--color-on-surface-hover);
 }
 
 .other-news-img {
