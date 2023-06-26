@@ -45,4 +45,8 @@ export default {
     </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.modal-content {
+    background-color: var(--color-surface);
+}
+</style>

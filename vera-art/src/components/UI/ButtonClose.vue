@@ -1,14 +1,7 @@
 <script>
-
 export default {
-    components: {
-    },
-    props: {
-        imageObject: {
-            type: Object,
-            required: true,
-        },
-    },
+    components: {},
+    props: {},
     data() {
         return {};
     },
@@ -19,11 +12,7 @@ export default {
 </script>
 
 <template>
-    <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close" />
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
 </template>
 
 <style scoped>

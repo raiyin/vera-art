@@ -23,7 +23,8 @@ export default {
                 day: 'numeric',
             };
             const date = new Date(inDate);
-            return date.toLocaleDateString(locale + '-' + locale.toUpperCase(), options);
+            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            return date.toLocaleDateString(stdLocale, options);
         },
     },
     data() {

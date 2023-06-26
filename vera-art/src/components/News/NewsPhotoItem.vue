@@ -17,7 +17,7 @@ export default {
     data() {
         return {
             isLoaded: false,
-            loadingGrey: '#ededed',
+            loadingGrey: '#adadad',
         };
     },
     methods: {
