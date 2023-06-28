@@ -34,11 +34,6 @@ export default {
             return 'exampleModal' + index;
         },
     },
-    mounted() {
-        console.log(this.currentNews);
-    },
-    computed: {},
-    watch: {},
 };
 </script>
 

@@ -1,13 +1,8 @@
 <script>
 export default {
-    components: {},
-    props: {},
     data() {
         return {};
     },
-    methods: {},
-    computed: {},
-    watch: {},
 };
 </script>
 

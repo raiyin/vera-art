@@ -25,7 +25,6 @@ export default {
                 { lang: 'RUS', abbr: this.$t('locale.RUS') },
                 { lang: 'ENG', abbr: this.$t('locale.ENG') },
             ],
-            DARK_CLASS_NAME: 'body_theme_dark',
         };
     },
     methods: {
@@ -36,16 +35,16 @@ export default {
         },
         handleClick() {
             const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
-            this.themeStore.setTheme(newTheme);
-
-            const body = document.querySelector('body');
-            if (this.themeStore.theme === 'dark') {
-                body?.classList.add(this.DARK_CLASS_NAME);
-            } else {
-                body?.classList.remove(this.DARK_CLASS_NAME);
-            }
+            this.themeStore.theme = newTheme;
         },
     },
+    // mounted() {
+    //     this.$nextTick(function () {
+    //         if (this.themeStore.theme === 'dark') {
+    //             document.body?.classList.add(DARK_CLASS_NAME);
+    //         }
+    //     });
+    // },
 };
 </script>
 
