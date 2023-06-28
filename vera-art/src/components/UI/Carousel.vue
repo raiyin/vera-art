@@ -6,7 +6,6 @@ export default {
         const { t } = useI18n({ useScope: 'global' });
     },
     inject: ['imagebasedir'],
-    components: {},
     props: {
         imageObject: {
             type: Object,
@@ -36,7 +35,6 @@ export default {
         this.parts = this.imageObject.parts;
         this.imgCountGTOne = this.parts.length > 1;
     },
-    watch: {},
 };
 </script>
 

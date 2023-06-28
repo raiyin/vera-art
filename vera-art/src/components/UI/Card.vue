@@ -36,7 +36,6 @@ export default {
             return this.imagebasedir + this.imageObject.dir + '1.jpg';
         },
     },
-    watch: {},
 };
 </script>
 

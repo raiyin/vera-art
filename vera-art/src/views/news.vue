@@ -58,8 +58,6 @@ export default {
         const observer = new IntersectionObserver(callback, options);
         observer.observe(this.$refs.observer);
     },
-    computed: {},
-    watch: {},
 };
 </script>
 

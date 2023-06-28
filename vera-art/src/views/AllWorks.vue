@@ -11,7 +11,6 @@ export default {
     components: {
         Gallery,
     },
-    props: [],
     data() {
         return {
             paintingImages: [],
@@ -36,8 +35,6 @@ export default {
     mounted() {
         this.fetchData();
     },
-    computed: {},
-    watch: {},
 };
 </script>
 

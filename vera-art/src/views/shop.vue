@@ -71,7 +71,6 @@ export default {
         const observer = new IntersectionObserver(callback, options);
         observer.observe(this.$refs.observer);
     },
-    computed: {},
     watch: {
         selectedSort(newValue, oldValue) {
             this.images.sort((image_first, image_second) => {
