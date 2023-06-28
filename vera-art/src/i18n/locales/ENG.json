@@ -9,11 +9,11 @@
         "illustrator": "2D-artist/Illustrator",
         "volunteer": "Volunteer/Mentor",
         "teacher": "Teacher",
-        "all_works": "All works",
+        "all_works": "Works",
         "news": "News",
         "shop": "Shop",
         "services": "Services",
-        "payment": "Payment/Delivery"
+        "payment": "Payment"
     },
     "home": {
         "hi": "HELLO!",

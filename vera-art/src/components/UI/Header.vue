@@ -50,7 +50,7 @@ export default {
 </script>
 
 <template>
-    <section class="container header">
+    <section class="container-xxl header">
         <nav class="navbar navbar-expand-md custom-navbar">
             <button
                 class="navbar-toggler"
@@ -167,16 +167,24 @@ export default {
     background-color: var(--color-surface);
 }
 
+.navbar {
+    --bs-navbar-padding-y: 0;
+}
+
 .nav-item {
     font-family: 'Montserrat', 'Verdana regular', 'Ebrima bold';
     font-size: 14pt;
     font-variant-caps: all-petite-caps;
 }
 
+.nav-link {
+    padding-left: 1rem;
+}
+
 .menu-item {
     --c: var(--color-on-surface);
     --m: var(--color-header-menu-item);
-    --h: 1.75em;
+    --h: 1.85em;
 
     line-height: var(--h);
     background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200%
