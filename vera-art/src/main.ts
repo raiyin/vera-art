@@ -11,7 +11,7 @@ const i18n = createI18n({
     legacy: false,
     locale: defaultLocale,
     fallbackFormat: 'en',
-    messages
+    messages,
 });
 
 const app = createApp(App, {
@@ -21,10 +21,10 @@ const app = createApp(App, {
     },
 });
 
-app.provide('jsonserverhost', 'http://localhost:3001/');
-app.provide('imagebasedir', '/src/assets');
-// app.provide('jsonserverhost', 'https://www.pertsukova.ru/server/');
-// app.provide('imagebasedir', '/assets');
+// app.provide('jsonserverhost', 'http://localhost:3001/');
+// app.provide('imagebasedir', '/src/assets');
+app.provide('jsonserverhost', 'https://www.pertsukova.ru/server/');
+app.provide('imagebasedir', '/assets');
 
 app.use(createPinia());
 app.use(router);
