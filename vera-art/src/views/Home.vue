@@ -26,7 +26,7 @@ export default {
 
     <div class="bgimg-2">
         <div class="caption">
-            <span class="border" style="font-size: 25px; color: #f0f0f0">
+            <span class="border">
                 {{ $t('home.draw') }}
             </span>
         </div>
@@ -42,10 +42,7 @@ export default {
 
     <div class="bgimg-3">
         <div class="caption">
-            <span
-                class="border"
-                style="background-color: transparent; font-size: 20px; color: #f7f7f7"
-            >
+            <span class="border">
                 {{ $t('home.givemore') }}
             </span>
         </div>
