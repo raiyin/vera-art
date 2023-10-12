@@ -112,7 +112,7 @@ export default {
 .bgimg-4 {
     background-image: url('../assets/img/home/img_parallax.jpg');
     display: block;
-    min-height: 50%;
+    min-height: 80vh;
     height: auto;
     max-width: 100%;
 }
