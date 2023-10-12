@@ -1,27 +1,15 @@
-<script>
+<script lang="ts">
 import { useI18n } from 'vue-i18n';
 export default {
     setup() {
         const { t } = useI18n({ useScope: 'global' });
     },
-    components: {},
-    props: [],
-    data() {
-        return {};
-    },
-    methods: {},
-    computed: {},
-    watch: {},
 };
 </script>
 
 <template>
-    <div class="bgimg-1">
-        <div class="caption">
-            <span class="border">
-                {{ $t('home.hi') }}
-            </span>
-        </div>
+    <div class="ava-wrapper">
+        <img src="../assets/img/home/img_parallax.jpg" alt="Pertsukova" class="bgimg-1" />
     </div>
 
     <div class="bigblock">
@@ -38,7 +26,7 @@ export default {
 
     <div class="bgimg-2">
         <div class="caption">
-            <span class="border" style="font-size: 25px; color: #f0f0f0">
+            <span class="border">
                 {{ $t('home.draw') }}
             </span>
         </div>
@@ -54,10 +42,7 @@ export default {
 
     <div class="bgimg-3">
         <div class="caption">
-            <span
-                class="border"
-                style="background-color: transparent; font-size: 20px; color: #f7f7f7"
-            >
+            <span class="border">
                 {{ $t('home.givemore') }}
             </span>
         </div>
@@ -69,7 +54,7 @@ export default {
         </p>
     </div>
 
-    <div class="bgimg-1">
+    <div class="bgimg-4">
         <div class="caption">
             <span class="border">
                 {{ $t('home.start') }}
@@ -92,7 +77,8 @@ export default {
 
 .bgimg-1,
 .bgimg-2,
-.bgimg-3 {
+.bgimg-3,
+.bgimg-4 {
     position: relative;
     opacity: 0.65;
     background-attachment: fixed;
@@ -102,18 +88,30 @@ export default {
 }
 
 .bgimg-1 {
-    background-image: url('../assets/img/home/img_parallax.jpg');
     min-height: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    height: auto;
+    max-width: 100%;
 }
 
 .bgimg-2 {
     background-image: url('../assets/img/home/img_parallax2.jpg');
-    min-height: 400px;
+    min-height: 600px;
 }
 
 .bgimg-3 {
     background-image: url('../assets/img/home/img_parallax3.jpg');
-    min-height: 400px;
+    min-height: 600px;
+}
+
+.bgimg-4 {
+    background-image: url('../assets/img/home/img_parallax.jpg');
+    display: block;
+    min-height: 80vh;
+    height: auto;
+    max-width: 100%;
 }
 
 .caption {
