@@ -145,8 +145,16 @@ export default {
     .bgimg-2 {
         background-position: 80%;
     }
+
     .bgimg-3 {
         background-position: 30%;
+    }
+
+    .bgimg-4 {
+        display: block;
+        min-height: 80vw;
+        width: auto;
+        background-attachment: scroll;
     }
 }
 
