@@ -141,6 +141,23 @@ export default {
     }
 }
 
+@media (max-width: 1200px) {
+    .bgimg-2 {
+        background-position: 80%;
+    }
+
+    .bgimg-3 {
+        background-position: 30%;
+    }
+
+    .bgimg-4 {
+        display: block;
+        min-height: 80vw;
+        width: auto;
+        background-attachment: scroll;
+    }
+}
+
 h3 {
     letter-spacing: 5px;
     text-transform: uppercase;
@@ -151,7 +168,8 @@ h3 {
 @media only screen and (max-device-width: 1024px) {
     .bgimg-1,
     .bgimg-2,
-    .bgimg-3 {
+    .bgimg-3,
+    .bgimg-4 {
         background-attachment: scroll;
     }
 }
