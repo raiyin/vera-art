@@ -27,6 +27,20 @@ export default {
             ],
         };
     },
+    mounted() {
+        const navLinks = document.querySelectorAll('.nav-item');
+        const menuToggle = document.getElementById('navbarToggler');
+        const bsCollapse = new bootstrap.Collapse(menuToggle, {
+            toggle: false,
+        });
+        navLinks.forEach((l) => {
+            l.addEventListener('click', () => {
+                if (window.screen.width < 768) {
+                    bsCollapse.toggle();
+                }
+            });
+        });
+    },
     methods: {
         onChange(event) {
             if (event['lang'] !== null) {
@@ -38,13 +52,6 @@ export default {
             this.themeStore.theme = newTheme;
         },
     },
-    // mounted() {
-    //     this.$nextTick(function () {
-    //         if (this.themeStore.theme === 'dark') {
-    //             document.body?.classList.add(DARK_CLASS_NAME);
-    //         }
-    //     });
-    // },
 };
 </script>
 
