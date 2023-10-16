@@ -35,7 +35,7 @@ export default {
         });
         navLinks.forEach((l) => {
             l.addEventListener('click', () => {
-                if (window.screen.width < 768) {
+                if (window.innerWidth < 768) {
                     bsCollapse.toggle();
                 }
             });
