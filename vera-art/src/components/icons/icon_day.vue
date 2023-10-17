@@ -12,10 +12,8 @@
     </svg>
 </template>
 
-<script>
+<script lang="ts">
 export default {
     name: 'DayIcon',
 };
 </script>
-
-<style scoped></style>

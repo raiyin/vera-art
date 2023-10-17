@@ -18,7 +18,13 @@ export default {
     data() {
         return {
             news: [],
-            currentNews: {},
+            currentNews: {
+                dir: '',
+                img_backfull: '',
+                text_ru: '',
+                text_en: '',
+                imagescount: 0,
+            },
         };
     },
     methods: {

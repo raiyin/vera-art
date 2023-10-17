@@ -138,6 +138,7 @@ export default {
                             href="https://t.me/MilayaV"
                             target="_blank"
                             rel="noopener noreferrer"
+                            alt="telegram account"
                         >
                             <i class="fa-brands fa-telegram"> </i>
                         </a>
@@ -148,6 +149,7 @@ export default {
                             href="https://vk.com/perczukowa"
                             target="_blank"
                             rel="noopener noreferrer"
+                            alt="vk page"
                         >
                             <i class="fa-brands fa-vk"></i>
                         </a>
@@ -158,6 +160,7 @@ export default {
                             href="mailto:perczukowa@yandex.ru"
                             target="_blank"
                             rel="noopener noreferrer"
+                            alt="mail"
                         >
                             <i class="fa fa-envelope"></i>
                         </a>
