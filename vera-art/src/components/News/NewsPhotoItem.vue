@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 
 export default {
@@ -24,13 +24,13 @@ export default {
         onImgLoad() {
             this.isLoaded = true;
         },
-        makeImageName(index) {
+        makeImageName(index: number) {
             return this.imagebasedir + this.currentNews.dir + index + '.jpg';
         },
-        makeModalIdLink(index) {
+        makeModalIdLink(index: number) {
             return '#exampleModal' + index;
         },
-        makeModalId(index) {
+        makeModalId(index: number) {
             return 'exampleModal' + index;
         },
     },

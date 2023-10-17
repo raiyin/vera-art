@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Modal from './Modal.vue';
 import { useI18n } from 'vue-i18n';
 

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Card from './Card.vue';
 
 export default {
@@ -11,8 +11,6 @@ export default {
             required: true,
         },
     },
-    methods: {},
-    computed: {},
 };
 </script>
 
@@ -27,5 +25,3 @@ export default {
         </div>
     </section>
 </template>
-
-<style scoped></style>

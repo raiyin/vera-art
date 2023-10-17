@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
@@ -40,10 +40,10 @@ export default {
                 console.log(e);
             }
         },
-        makeVideoSlideLabel(index) {
+        makeVideoSlideLabel(index: number) {
             return 'Видеослайд ' + index;
         },
-        makeVideoName(index) {
+        makeVideoName(index: number) {
             return this.imagebasedir + this.currentNews.dir + index + '.mp4';
         },
     },

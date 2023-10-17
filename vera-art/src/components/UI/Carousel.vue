@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -22,7 +22,7 @@ export default {
         };
     },
     methods: {
-        makeFileName(dir, index) {
+        makeFileName(dir: string, index: number) {
             return this.imagebasedir + dir + index + this.extension;
         },
     },

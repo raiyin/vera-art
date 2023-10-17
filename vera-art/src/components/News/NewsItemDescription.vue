@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -16,12 +16,12 @@ export default {
         },
     },
     methods: {
-        getHumanDate(inDate, locale) {
+        getHumanDate(inDate: string, locale: string) {
             const options = {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
-            };
+            } as const;
             const date = new Date(inDate);
             let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);

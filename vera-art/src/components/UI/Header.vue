@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
 import DayIcon from '@/components/Icons/icon_day.vue';

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Carousel from '@/components/UI/Carousel.vue';
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 
@@ -13,16 +13,11 @@ export default {
             required: true,
         },
     },
-    data() {
-        return {};
-    },
-    methods: {},
     computed: {
         imgIdModal() {
             return this.imageObject.id + 'Modal';
         },
     },
-    watch: {},
 };
 </script>
 
