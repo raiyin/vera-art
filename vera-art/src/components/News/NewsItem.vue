@@ -4,12 +4,15 @@ import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
+import { inject } from 'vue';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
+        const jsonserverhost = inject('jsonserverhost') as string;
+        const imagebasedir = inject('imagebasedir');
     },
-    inject: ['jsonserverhost', 'imagebasedir'],
+    // inject: ['jsonserverhost', 'imagebasedir'],
     components: {
         SideNewsTrailer,
         NewsItemDescription,
@@ -46,15 +49,39 @@ export default {
                 console.log(e);
             }
         },
+
+        async fetchNewsItem(path: string, server: string) {
+            try {
+                const newsid = path.substring(path.lastIndexOf('/') + 1);
+                let response = await axios.get(server + 'news', {
+                    params: { id: newsid },
+                });
+                const currentNews = response.data[0];
+
+                response = await axios.get(server + 'news', {
+                    params: { id_ne: newsid, _limit: 5 },
+                });
+                const news = response.data;
+                return [currentNews, news];
+            } catch (e) {
+                console.log(e);
+            }
+        },
+
         makeVideoSlideLabel(index: number) {
             return 'Видеослайд ' + index;
         },
+
         makeVideoName(index: number) {
             return this.imagebasedir + this.currentNews.dir + index + '.mp4';
         },
     },
-    mounted() {
+    async mounted() {
         this.fetchData();
+        [this.currentNews, this.news] = await this.fetchNewsItem(
+            this.$route.path,
+            this.jsonserverhost
+        );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -62,7 +89,9 @@ export default {
     computed: {
         background() {
             return (
-                this.imagebasedir + this.currentNews.dir + this.currentNews.img_backfull
+                this.imagebasedir +
+                this.currentNews.dir +
+                this.currentNews.img_backfull
             );
         },
     },
@@ -177,7 +206,10 @@ export default {
                 >
                     <div v-if="video_index == 1" class="carousel-item active">
                         <video class="img-fluid" controls>
-                            <source :src="makeVideoName(video_index)" type="video/mp4" />
+                            <source
+                                :src="makeVideoName(video_index)"
+                                type="video/mp4"
+                            />
                         </video>
                     </div>
 
@@ -187,7 +219,10 @@ export default {
                         class="carousel-item"
                     >
                         <video class="img-fluid" controls>
-                            <source :src="makeVideoName(video_index)" type="video/mp4" />
+                            <source
+                                :src="makeVideoName(video_index)"
+                                type="video/mp4"
+                            />
                         </video>
                     </div>
                 </template>
@@ -200,7 +235,10 @@ export default {
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="prev"
             >
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                ></span>
                 <span class="visually-hidden">Previous</span>
             </button>
 
@@ -211,7 +249,10 @@ export default {
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="next"
             >
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                ></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
