@@ -5,12 +5,17 @@ import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { inject } from 'vue';
+import type NewsItem from '@/types';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
-        const jsonserverhost = inject('jsonserverhost') as string;
-        const imagebasedir = inject('imagebasedir');
+        const jsonserverhost: string = inject('jsonserverhost') as string;
+        const imagebasedir = inject('imagebasedir') as string;
+        return {
+            jsonserverhost,
+            imagebasedir,
+        };
     },
     // inject: ['jsonserverhost', 'imagebasedir'],
     components: {
@@ -50,7 +55,10 @@ export default {
             }
         },
 
-        async fetchNewsItem(path: string, server: string) {
+        async fetchNewsItem(
+            path: string,
+            server: string
+        ): Promise<[string, NewsItem] | undefined> {
             try {
                 const newsid = path.substring(path.lastIndexOf('/') + 1);
                 let response = await axios.get(server + 'news', {
