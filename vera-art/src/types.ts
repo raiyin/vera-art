@@ -1,9 +1,17 @@
-type NewsItem = {
+type NewsItemType = {
+    id: string;
+    datetime: string;
+    title_en: string;
+    title_ru: string;
+    subTitle_en: string;
+    subTitle_ru: string;
     dir: string;
+    img_back: string;
     img_backfull: string;
-    text_ru: string;
-    text_en: string;
     imagescount: number;
+    videoscount: number;
+    text_en: string;
+    text_ru: string;
 };
 
-export default NewsItem;
+export default NewsItemType;
