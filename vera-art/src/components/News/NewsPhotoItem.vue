@@ -1,5 +1,7 @@
 <script lang="ts">
 import ButtonClose from '@/components/UI/ButtonClose.vue';
+import type { PropType } from 'vue';
+import type NewsItemType from '@/types';
 
 export default {
     inject: ['imagebasedir'],
@@ -7,12 +9,8 @@ export default {
         ButtonClose,
     },
     props: {
-        image_index: {
-            type: Number,
-        },
-        currentNews: {
-            type: Object,
-        },
+        image_index: Object as PropType<number>,
+        currentNews: Object as PropType<NewsItemType>,
     },
     data() {
         return {
@@ -63,7 +61,10 @@ export default {
                 <div class="modal-content">
                     <div class="modal-body">
                         <ButtonClose />
-                        <img class="modal-image" :src="makeImageName(image_index)" />
+                        <img
+                            class="modal-image"
+                            :src="makeImageName(image_index)"
+                        />
                     </div>
                 </div>
             </div>

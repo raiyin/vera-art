@@ -23,7 +23,7 @@ export default {
                 day: 'numeric',
             } as const;
             const date = new Date(inDate);
-            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
     },
@@ -41,7 +41,9 @@ export default {
         <div class="title">
             <h2>
                 {{
-                    $i18n.locale === 'RUS' ? newsObject.title_ru : newsObject.title_en
+                    $i18n.locale === 'RUS'
+                        ? newsObject.title_ru
+                        : newsObject.title_en
                 }}&nbsp;{{
                     $i18n.locale === 'RUS'
                         ? newsObject.subTitle_ru
@@ -50,7 +52,11 @@ export default {
             </h2>
             <div class="date">
                 <CalendarIcon />
-                <span>&nbsp;{{ getHumanDate(newsObject.datetime, $i18n.locale) }}</span>
+                <span
+                    >&nbsp;{{
+                        getHumanDate(newsObject.datetime, $i18n.locale)
+                    }}</span
+                >
             </div>
         </div>
     </div>

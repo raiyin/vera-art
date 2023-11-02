@@ -17,7 +17,6 @@ export default {
             imagebasedir,
         };
     },
-    // inject: ['jsonserverhost', 'imagebasedir'],
     components: {
         SideNewsTrailer,
         NewsItemDescription,
@@ -30,6 +29,7 @@ export default {
         };
     },
     methods: {
+        // Разделить метод на 2.
         async fetchNews(
             path: string,
             server: string

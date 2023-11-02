@@ -1,4 +1,4 @@
-type NewsItemType = {
+interface NewsItemType {
     id: string;
     datetime: string;
     title_en: string;
@@ -12,6 +12,6 @@ type NewsItemType = {
     videoscount: number;
     text_en: string;
     text_ru: string;
-};
+}
 
 export default NewsItemType;
