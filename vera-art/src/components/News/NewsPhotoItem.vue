@@ -2,19 +2,30 @@
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 import type { PropType } from 'vue';
 import type NewsItemType from '@/types';
+import { inject } from 'vue';
 
 export default {
-    inject: ['imagebasedir'],
+    setup() {
+        return {
+            imagebasedir: inject('imagebasedir') as string,
+        };
+    },
     components: {
         ButtonClose,
     },
     props: {
-        image_index: Object as PropType<number>,
-        currentNews: Object as PropType<NewsItemType>,
+        image_index: {
+            type: Number,
+            default: 0,
+        },
+        currentNews: {
+            type: Object as PropType<NewsItemType>,
+            default: {} as NewsItemType,
+        },
     },
     data() {
         return {
-            isLoaded: false,
+            isLoaded: false as boolean,
             loadingGrey: '#adadad',
         };
     },
@@ -23,12 +34,21 @@ export default {
             this.isLoaded = true;
         },
         makeImageName(index: number) {
-            return this.imagebasedir + this.currentNews.dir + index + '.jpg';
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
+            return this.imagebasedir + this.currentNews?.dir + index + '.jpg';
         },
         makeModalIdLink(index: number) {
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
             return '#exampleModal' + index;
         },
         makeModalId(index: number) {
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
             return 'exampleModal' + index;
         },
     },
