@@ -56,11 +56,11 @@ export default {
 </script>
 
 <template>
-    <div :class="[!this.isLoaded ? 'loading' : '']">
-        <div v-if="!this.isLoaded" class="image-stub" />
+    <div :class="[!isLoaded ? 'loading' : '']">
+        <div v-if="!isLoaded" class="image-stub" />
 
         <img
-            v-show="this.isLoaded"
+            v-show="isLoaded"
             v-bind:key="image_index"
             :src="makeImageName(image_index)"
             :data-bs-target="makeModalIdLink(image_index)"
