@@ -33,7 +33,7 @@ export default {
                 day: 'numeric',
             } as const;
             const date = new Date(inDate);
-            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
     },
@@ -42,7 +42,11 @@ export default {
             return '/newsitem/' + this.newsObject.id;
         },
         bgImage() {
-            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
+            return (
+                this.imagebasedir +
+                this.newsObject.dir +
+                this.newsObject.img_back
+            );
         },
     },
 };
@@ -51,16 +55,20 @@ export default {
 <template>
     <section class="container text-center px-0">
         <div class="col d-flex justify-content-center">
-            <div class="news-item" :class="[!this.isLoaded ? 'loading' : '']">
+            <div class="news-item" :class="[!isLoaded ? 'loading' : '']">
                 <router-link :to="newsId">
                     <div class="img-holder">
-                        <img :src="bgImage" @load="onImgLoad" v-show="this.isLoaded" />
-                        <div v-show="!this.isLoaded" class="image-stub" />
+                        <img
+                            :src="bgImage"
+                            @load="onImgLoad"
+                            v-show="isLoaded"
+                        />
+                        <div v-show="!isLoaded" class="image-stub" />
                     </div>
                     <div class="news-content">
                         <p>
                             {{
-                                !this.isLoaded
+                                !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
                                     ? newsObject.title_ru
@@ -69,7 +77,7 @@ export default {
                         </p>
                         <p>
                             {{
-                                !this.isLoaded
+                                !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
                                     ? newsObject.subTitle_ru
@@ -77,12 +85,15 @@ export default {
                             }}
                         </p>
                         <p>
-                            <CalendarIcon v-if="this.isLoaded" />
+                            <CalendarIcon v-if="isLoaded" />
                             <span>
                                 &nbsp;{{
-                                    !this.isLoaded
+                                    !isLoaded
                                         ? ''
-                                        : getHumanDate(newsObject.datetime, $i18n.locale)
+                                        : getHumanDate(
+                                              newsObject.datetime,
+                                              $i18n.locale
+                                          )
                                 }}
                             </span>
                         </p>

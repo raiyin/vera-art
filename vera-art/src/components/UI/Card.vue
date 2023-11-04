@@ -43,10 +43,10 @@ export default {
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
         <div
             class="card shadow-lg p-3 mb-5 rounded"
-            :class="[!this.isLoaded ? 'loading' : '']"
+            :class="[!isLoaded ? 'loading' : '']"
         >
             <img
-                v-show="this.isLoaded"
+                v-show="isLoaded"
                 :src="mainCardImage"
                 @load="onImgLoad"
                 class="card-img-top"
@@ -55,13 +55,13 @@ export default {
                 :data-bs-target="imgIdModalToLink"
             />
 
-            <div v-show="!this.isLoaded" class="image" />
+            <div v-show="!isLoaded" class="image" />
 
             <div class="card-body">
                 <div class="desc">
                     <h5 class="card-title">
                         {{
-                            !this.isLoaded
+                            !isLoaded
                                 ? ''
                                 : $i18n.locale === 'RUS'
                                 ? imageObject.name_ru
@@ -72,7 +72,7 @@ export default {
                     <div class="card-text">
                         <span v-if="imageObject.base_ru">
                             {{
-                                !this.isLoaded
+                                !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
                                     ? imageObject.base_ru
@@ -81,7 +81,7 @@ export default {
                         </span>
                         <span v-if="imageObject.material_ru">
                             {{
-                                !this.isLoaded
+                                !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
                                     ? `, ${imageObject.material_ru}`
@@ -89,19 +89,19 @@ export default {
                             }}
                         </span>
                         <span v-if="imageObject.size">
-                            {{ !this.isLoaded ? '' : `, ${imageObject.size}` }}
+                            {{ !isLoaded ? '' : `, ${imageObject.size}` }}
                         </span>
                         <span v-if="imageObject.year">
-                            {{ !this.isLoaded ? '' : `, ${imageObject.year}` }}
+                            {{ !isLoaded ? '' : `, ${imageObject.year}` }}
                         </span>
                     </div>
                     <p v-if="imageObject.price">
                         {{
-                            !this.isLoaded
+                            !isLoaded
                                 ? ''
-                                : this.$t('card.price') +
+                                : $t('card.price') +
                                   ` ${imageObject.price} ` +
-                                  this.$t('card.rub')
+                                  $t('card.rub')
                         }}
                     </p>
                 </div>

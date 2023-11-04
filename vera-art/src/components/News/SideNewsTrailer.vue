@@ -24,7 +24,7 @@ export default {
                 day: 'numeric',
             } as const;
             const date = new Date(inDate);
-            let stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
+            const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
     },
@@ -60,7 +60,9 @@ export default {
             <div class="date">
                 <CalendarIcon />
                 <span>
-                    &nbsp;{{ getHumanDate(sideNewsObject.datetime, $i18n.locale) }}
+                    &nbsp;{{
+                        getHumanDate(sideNewsObject.datetime, $i18n.locale)
+                    }}
                 </span>
             </div>
         </div>

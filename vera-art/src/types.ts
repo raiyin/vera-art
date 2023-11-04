@@ -14,4 +14,19 @@ interface NewsItemType {
     text_ru: string;
 }
 
-export default NewsItemType;
+interface ImageProps {
+    id: string;
+    dir: string;
+    name_ru: string;
+    name_en: string;
+    base_ru: string;
+    base_en: string;
+    material_ru: string;
+    material_en: string;
+    size: string;
+    year: string;
+    price: string;
+}
+
+export type { NewsItemType };
+export type { ImageProps };
