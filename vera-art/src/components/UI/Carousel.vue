@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { ImageParts, ImageProps } from '@/types';
+import type { PropType } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 export default {
@@ -8,7 +10,8 @@ export default {
     inject: ['imagebasedir'],
     props: {
         imageObject: {
-            type: Object,
+            type: Object as PropType<ImageProps>,
+            default: {} as ImageProps,
         },
         imageId: {
             type: String,
@@ -16,7 +19,7 @@ export default {
     },
     data() {
         return {
-            parts: Object,
+            parts: [] as ImageParts[],
             imgCountGTOne: false,
             extension: '.jpg',
         };
@@ -47,14 +50,18 @@ export default {
                     :data-bs-target="imgIdtoLink"
                     :class="index === 0 ? 'active' : null"
                     :data-bs-slide-to="index"
-                    :aria-current="index === 0 ? true : null"
+                    :aria-current="index === 0 ? true : false"
                     :aria-label="value.name_ru"
                 ></button>
             </template>
         </div>
         <div class="carousel-inner">
             <template v-for="(value, index) in parts" v-bind:key="index">
-                <div :class="index === 0 ? 'carousel-item active' : 'carousel-item'">
+                <div
+                    :class="
+                        index === 0 ? 'carousel-item active' : 'carousel-item'
+                    "
+                >
                     <img
                         :src="makeFileName(imageObject.dir, index + 1)"
                         class="d-block modal-image"

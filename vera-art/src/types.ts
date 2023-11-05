@@ -14,6 +14,16 @@ interface NewsItemType {
     text_ru: string;
 }
 
+interface ImageParts {
+    name_ru: string;
+    name_en: string;
+    base_ru: string;
+    base_en: string;
+    material_ru: string;
+    material_en: string;
+    size: string;
+}
+
 interface ImageProps {
     id: string;
     dir: string;
@@ -26,7 +36,9 @@ interface ImageProps {
     size: string;
     year: string;
     price: string;
+    parts: ImageParts[];
 }
 
 export type { NewsItemType };
 export type { ImageProps };
+export type { ImageParts };
