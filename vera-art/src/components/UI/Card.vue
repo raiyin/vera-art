@@ -1,6 +1,8 @@
 <script lang="ts">
+import type { ImageProps } from '@/types';
 import Modal from './Modal.vue';
 import { useI18n } from 'vue-i18n';
+import type { PropType } from 'vue';
 
 export default {
     setup() {
@@ -12,7 +14,9 @@ export default {
     },
     props: {
         imageObject: {
-            type: Object,
+            //type: Object,
+            type: Object as PropType<ImageProps>,
+            default: {} as ImageProps,
         },
     },
     data() {
