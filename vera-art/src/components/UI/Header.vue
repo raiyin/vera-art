@@ -42,13 +42,14 @@ export default {
         });
     },
     methods: {
-        onChange(event) {
+        onChange(event: { [x: string]: unknown }) {
             if (event['lang'] !== null) {
                 i18n.global.locale.value = event['lang'];
             }
         },
         handleClick() {
-            const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
+            const newTheme =
+                this.themeStore.theme === 'light' ? 'dark' : 'light';
             this.themeStore.theme = newTheme;
         },
     },
@@ -64,7 +65,7 @@ export default {
                 data-bs-toggle="collapse"
                 data-bs-target="#navbarToggler"
                 aria-controls="navbarToggler"
-                aria-expanded="fasle"
+                aria-expanded="false"
                 aria-label="Toggle navigation"
             >
                 <span class="navbar-toggler-icon"></span>
@@ -98,20 +99,25 @@ export default {
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link class="nav-link menu-item" to="/paydelivery">
+                        <router-link
+                            class="nav-link menu-item"
+                            to="/paydelivery"
+                        >
                             {{ $t('header.payment') }}
                         </router-link>
                     </li>
                 </ul>
 
-                <ul class="nav navbar-nav navbar-right d-flex align-items-center">
+                <ul
+                    class="nav navbar-nav navbar-right d-flex align-items-center"
+                >
                     <li class="me-3">
                         <button
                             type="button"
                             @click="handleClick"
                             title="Сменить тему оформления"
                             class="theme-switcher"
-                            :class="'theme-switcher_theme_' + this.themeStore.theme"
+                            :class="'theme-switcher_theme_' + themeStore.theme"
                         >
                             <DayIcon
                                 class="theme-switcher__icon theme-switcher__icon_type_light"
@@ -129,7 +135,8 @@ export default {
                             v-model="$i18n.locale"
                             inputId="value"
                         >
-                            {{ locale }}
+                            {{ $i18n.locale }}
+                            <!-- {{ locale }} -->
                         </v-select>
                     </li>
 
@@ -196,13 +203,14 @@ export default {
     --h: 1.85em;
 
     line-height: var(--h);
-    background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200%
-        var(--_p, 0.08em);
+    background: linear-gradient(var(--m) 0 0) no-repeat
+        calc(200% - var(--_p, 0%)) 100%/200% var(--_p, 0.08em);
     color: #0000;
     overflow: hidden;
     text-shadow: 0 calc(-1 * var(--_t, 0em)) var(--c),
         0 calc(var(--h) - var(--_t, 0em)) #fff;
-    transition: 0.3s var(--_s, 0s), background-position 0.3s calc(0.3s - var(--_s, 0s));
+    transition: 0.3s var(--_s, 0s),
+        background-position 0.3s calc(0.3s - var(--_s, 0s));
 }
 
 .menu-item:hover {
