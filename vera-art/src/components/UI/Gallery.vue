@@ -1,4 +1,6 @@
 <script lang="ts">
+import type { ImageProps } from '@/types';
+import type { PropType } from 'vue';
 import Card from './Card.vue';
 
 export default {
@@ -7,7 +9,7 @@ export default {
     },
     props: {
         images: {
-            type: Array,
+            type: [Array] as PropType<ImageProps[]>,
             required: true,
         },
     },
