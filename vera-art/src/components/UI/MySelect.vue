@@ -17,7 +17,7 @@ export default {
         },
     },
     methods: {
-        changeOption(event) {
+        changeOption(event: { target: { value: unknown } }) {
             this.$emit('update:modelValue', event.target.value);
         },
         vselectOption(event) {
