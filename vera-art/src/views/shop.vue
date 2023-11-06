@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Gallery from '@/components/UI/Gallery.vue';
 import axios from 'axios';
 import vSelect from 'vue-select';
@@ -80,7 +80,8 @@ export default {
                     );
                 if (typeof image_first[this.selectedSort] === 'number')
                     return (
-                        image_first[this.selectedSort] - image_second[this.selectedSort]
+                        image_first[this.selectedSort] -
+                        image_second[this.selectedSort]
                     );
             });
         },

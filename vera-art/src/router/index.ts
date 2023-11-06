@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory, RouterView } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 
 import Home from '@/views/Home.vue';
 import Shop from '@/views/Shop.vue';
@@ -45,8 +45,8 @@ const router = createRouter({
             path: '/newsitem/:id',
             name: 'newsitem',
             component: NewsItem,
-        }
-    ]
+        },
+    ],
 });
 
 export default router;

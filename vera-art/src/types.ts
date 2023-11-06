@@ -39,6 +39,23 @@ interface ImageProps {
     parts: ImageParts[];
 }
 
+export interface NewsDesc {
+    id: string;
+    datetime: string;
+    title_en: string;
+    title_ru: string;
+    subTitle_en: string;
+    subTitle_ru: string;
+    dir: string;
+    img_back: string;
+    img_backfull: string;
+    imagescount: number;
+    videoscount: number;
+    text_en: string;
+    text_ru: string;
+}
+
 export type { NewsItemType };
 export type { ImageProps };
 export type { ImageParts };
+export type { NewsDesc };

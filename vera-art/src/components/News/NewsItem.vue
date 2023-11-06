@@ -5,7 +5,7 @@ import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { inject } from 'vue';
-import type NewsItemType from '@/types';
+import type { NewsItemType } from '@/types';
 
 export default {
     setup() {
