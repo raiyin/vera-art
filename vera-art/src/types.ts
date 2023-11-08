@@ -39,7 +39,7 @@ interface ImageProps {
     parts: ImageParts[];
 }
 
-export interface NewsDesc {
+interface NewsDesc {
     id: string;
     datetime: string;
     title_en: string;
@@ -55,7 +55,13 @@ export interface NewsDesc {
     text_ru: string;
 }
 
+interface SortOption {
+    value: string;
+    name: string;
+}
+
 export type { NewsItemType };
 export type { ImageProps };
 export type { ImageParts };
 export type { NewsDesc };
+export type { SortOption };
