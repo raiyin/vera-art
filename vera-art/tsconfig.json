@@ -1,35 +1,37 @@
 {
-  "compilerOptions": {
-    "allowJs": true,
-    "composite": true,
-    "resolveJsonModule": true,
-    "types": [
-      "node"
+    "compilerOptions": {
+        "allowJs": true,
+        "composite": true,
+        "resolveJsonModule": true,
+        "types": [
+            "node"
+        ],
+        "moduleResolution": "bundler",
+        "lib": [
+            "es5",
+            "es6",
+            "dom",
+            "dom.iterable"
+        ]
+    },
+    "include": [
+        "*.ts",
+        "*.json",
+        "src/**/*.json",
+        ".d.ts"
     ],
-    "lib": [
-      "es5",
-      "es6",
-      "dom",
-      "dom.iterable"
+    "files": [],
+    "module": "ESNext",
+    "target": "esnext",
+    "references": [
+        {
+            "path": "./tsconfig.config.json"
+        },
+        {
+            "path": "./tsconfig.app.json"
+        },
+        {
+            "path": "./tsconfig.vitest.json"
+        }
     ]
-  },
-  "include": [
-    "*.ts",
-    "*.json",
-    "src/**/*.json"
-  ],
-  "files": [],
-  "module": "ESNext",
-  "target": "esnext",
-  "references": [
-    {
-      "path": "./tsconfig.config.json"
-    },
-    {
-      "path": "./tsconfig.app.json"
-    },
-    {
-      "path": "./tsconfig.vitest.json"
-    }
-  ]
 }
