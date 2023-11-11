@@ -29,26 +29,38 @@ export default {
         };
     },
     methods: {
-        // Разделить метод на 2.
-        async fetchNews(
+        async fetchCurrentNews(
             path: string,
             server: string
-        ): Promise<[NewsItemType, NewsItemType[]]> {
+        ): Promise<NewsItemType> {
             try {
                 const newsid = path.substring(path.lastIndexOf('/') + 1);
-                let response = await axios.get(server + 'news', {
+                const response = await axios.get(server + 'news', {
                     params: { id: newsid },
                 });
                 const oneCurrentNews = response.data[0];
 
-                response = await axios.get(server + 'news', {
+                return oneCurrentNews;
+            } catch (e) {
+                console.log(e);
+                return {} as NewsItemType;
+            }
+        },
+
+        async fetchOtherNews(
+            path: string,
+            server: string
+        ): Promise<NewsItemType[]> {
+            try {
+                const newsid = path.substring(path.lastIndexOf('/') + 1);
+                const response = await axios.get(server + 'news', {
                     params: { id_ne: newsid, _limit: 5 },
                 });
                 const otherNews = response.data;
-                return [oneCurrentNews, otherNews];
+                return otherNews;
             } catch (e) {
                 console.log(e);
-                return [{} as NewsItemType, []];
+                return [];
             }
         },
 
@@ -64,7 +76,11 @@ export default {
     },
 
     async mounted() {
-        [this.currentNewsItem, this.otherNews] = await this.fetchNews(
+        this.currentNewsItem = await this.fetchCurrentNews(
+            this.$route.path,
+            this.jsonserverhost
+        );
+        this.otherNews = await this.fetchOtherNews(
             this.$route.path,
             this.jsonserverhost
         );
