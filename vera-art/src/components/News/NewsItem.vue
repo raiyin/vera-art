@@ -2,10 +2,10 @@
 import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
-import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
+import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 
 export default {
     setup() {
@@ -29,41 +29,6 @@ export default {
         };
     },
     methods: {
-        async fetchCurrentNews(
-            path: string,
-            server: string
-        ): Promise<NewsItemType> {
-            try {
-                const newsid = path.substring(path.lastIndexOf('/') + 1);
-                const response = await axios.get(server + 'news', {
-                    params: { id: newsid },
-                });
-                const oneCurrentNews = response.data[0];
-
-                return oneCurrentNews;
-            } catch (e) {
-                console.log(e);
-                return {} as NewsItemType;
-            }
-        },
-
-        async fetchOtherNews(
-            path: string,
-            server: string
-        ): Promise<NewsItemType[]> {
-            try {
-                const newsid = path.substring(path.lastIndexOf('/') + 1);
-                const response = await axios.get(server + 'news', {
-                    params: { id_ne: newsid, _limit: 5 },
-                });
-                const otherNews = response.data;
-                return otherNews;
-            } catch (e) {
-                console.log(e);
-                return [];
-            }
-        },
-
         makeVideoSlideLabel(index: number) {
             return 'Видеослайд ' + index;
         },
@@ -76,11 +41,11 @@ export default {
     },
 
     async mounted() {
-        this.currentNewsItem = await this.fetchCurrentNews(
+        this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
             this.jsonserverhost
         );
-        this.otherNews = await this.fetchOtherNews(
+        this.otherNews = await fetchOtherNews(
             this.$route.path,
             this.jsonserverhost
         );
