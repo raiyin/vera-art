@@ -1,15 +1,22 @@
-<script>
+<script lang="ts">
 import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
-import axios from 'axios';
 import { useI18n } from 'vue-i18n';
+import { inject } from 'vue';
+import type { NewsItemType } from '@/types';
+import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
+        const jsonserverhost: string = inject('jsonserverhost') as string;
+        const imagebasedir = inject('imagebasedir') as string;
+        return {
+            jsonserverhost,
+            imagebasedir,
+        };
     },
-    inject: ['jsonserverhost', 'imagebasedir'],
     components: {
         SideNewsTrailer,
         NewsItemDescription,
@@ -17,38 +24,31 @@ export default {
     },
     data() {
         return {
-            news: [],
-            currentNews: {},
+            currentNewsItem: {} as NewsItemType,
+            otherNews: [] as NewsItemType[],
         };
     },
     methods: {
-        async fetchData() {
-            try {
-                const newsid = this.$route.path.substring(
-                    this.$route.path.lastIndexOf('/') + 1
-                );
-                let response = await axios.get(this.jsonserverhost + 'news', {
-                    params: { id: newsid },
-                });
-                this.currentNews = response.data[0];
-
-                response = await axios.get(this.jsonserverhost + 'news', {
-                    params: { id_ne: newsid, _limit: 5 },
-                });
-                this.news = response.data;
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        makeVideoSlideLabel(index) {
+        makeVideoSlideLabel(index: number) {
             return 'Видеослайд ' + index;
         },
-        makeVideoName(index) {
-            return this.imagebasedir + this.currentNews.dir + index + '.mp4';
+
+        makeVideoName(index: number) {
+            return (
+                this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
+            );
         },
     },
-    mounted() {
-        this.fetchData();
+
+    async mounted() {
+        this.currentNewsItem = await fetchCurrentNews(
+            this.$route.path,
+            this.jsonserverhost
+        );
+        this.otherNews = await fetchOtherNews(
+            this.$route.path,
+            this.jsonserverhost
+        );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -56,7 +56,9 @@ export default {
     computed: {
         background() {
             return (
-                this.imagebasedir + this.currentNews.dir + this.currentNews.img_backfull
+                this.imagebasedir +
+                this.currentNewsItem.dir +
+                this.currentNewsItem.img_backfull
             );
         },
     },
@@ -72,7 +74,10 @@ export default {
                 </div>
 
                 <div class="other-news">
-                    <template v-for="newsItem in news" v-bind:key="newsItem">
+                    <template
+                        v-for="newsItem in otherNews"
+                        v-bind:key="newsItem"
+                    >
                         <div class="other-news-item-wrapper">
                             <SideNewsTrailer :sideNewsObject="newsItem" />
                         </div>
@@ -80,15 +85,15 @@ export default {
                 </div>
             </div>
 
-            <NewsItemDescription :newsObject="currentNews" />
+            <NewsItemDescription :newsObject="currentNewsItem" />
 
             <div class="news-text">
                 <p>
                     <span
                         v-html="
                             $i18n.locale === 'RUS'
-                                ? currentNews.text_ru
-                                : currentNews.text_en
+                                ? currentNewsItem.text_ru
+                                : currentNewsItem.text_en
                         "
                     />
                 </p>
@@ -98,11 +103,11 @@ export default {
         <!-- photo section -->
         <div class="row">
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
+                <template v-for="image_index in currentNewsItem.imagescount">
                     <template v-if="image_index % 3 == 1">
                         <NewsPhotoItem
                             :image_index="image_index"
-                            :currentNews="currentNews"
+                            :currentNews="currentNewsItem"
                             :key="image_index"
                         />
                     </template>
@@ -110,11 +115,11 @@ export default {
             </div>
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
+                <template v-for="image_index in currentNewsItem.imagescount">
                     <template v-if="image_index % 3 == 2">
                         <NewsPhotoItem
                             :image_index="image_index"
-                            :currentNews="currentNews"
+                            :currentNews="currentNewsItem"
                             :key="image_index"
                         />
                     </template>
@@ -122,11 +127,11 @@ export default {
             </div>
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNews.imagescount">
+                <template v-for="image_index in currentNewsItem.imagescount">
                     <template v-if="image_index % 3 == 0">
                         <NewsPhotoItem
                             :image_index="image_index"
-                            :currentNews="currentNews"
+                            :currentNews="currentNewsItem"
                             :key="image_index"
                         />
                     </template>
@@ -140,8 +145,11 @@ export default {
             class="carousel slide carousel-fade"
             data-mdb-ride="carousel"
         >
-            <div v-if="currentNews.videoscount > 1" class="carousel-indicators">
-                <template v-for="video_index in currentNews.videoscount">
+            <div
+                v-if="currentNewsItem.videoscount > 1"
+                class="carousel-indicators"
+            >
+                <template v-for="video_index in currentNewsItem.videoscount">
                     <button
                         v-if="video_index == 1"
                         v-bind:key="video_index"
@@ -166,12 +174,15 @@ export default {
 
             <div class="carousel-inner">
                 <template
-                    v-for="video_index in currentNews.videoscount"
+                    v-for="video_index in currentNewsItem.videoscount"
                     v-bind:key="video_index"
                 >
                     <div v-if="video_index == 1" class="carousel-item active">
                         <video class="img-fluid" controls>
-                            <source :src="makeVideoName(video_index)" type="video/mp4" />
+                            <source
+                                :src="makeVideoName(video_index)"
+                                type="video/mp4"
+                            />
                         </video>
                     </div>
 
@@ -181,31 +192,40 @@ export default {
                         class="carousel-item"
                     >
                         <video class="img-fluid" controls>
-                            <source :src="makeVideoName(video_index)" type="video/mp4" />
+                            <source
+                                :src="makeVideoName(video_index)"
+                                type="video/mp4"
+                            />
                         </video>
                     </div>
                 </template>
             </div>
 
             <button
-                v-if="currentNews.videoscount > 1"
+                v-if="currentNewsItem.videoscount > 1"
                 class="carousel-control-prev"
                 type="button"
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="prev"
             >
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span
+                    class="carousel-control-prev-icon"
+                    aria-hidden="true"
+                ></span>
                 <span class="visually-hidden">Previous</span>
             </button>
 
             <button
-                v-if="currentNews.videoscount > 1"
+                v-if="currentNewsItem.videoscount > 1"
                 class="carousel-control-next"
                 type="button"
                 data-mdb-target="#carouselVideoExample"
                 data-mdb-slide="next"
             >
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span
+                    class="carousel-control-next-icon"
+                    aria-hidden="true"
+                ></span>
                 <span class="visually-hidden">Next</span>
             </button>
         </div>

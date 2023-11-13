@@ -1,4 +1,6 @@
-<script></script>
+<script lang="ts">
+export default {};
+</script>
 
 <template>
     <div class="text-center text-lg-start">

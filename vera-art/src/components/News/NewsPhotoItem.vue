@@ -1,22 +1,31 @@
-<script>
+<script lang="ts">
 import ButtonClose from '@/components/UI/ButtonClose.vue';
+import type { PropType } from 'vue';
+import type NewsItemType from '@/types';
+import { inject } from 'vue';
 
 export default {
-    inject: ['imagebasedir'],
+    setup() {
+        return {
+            imagebasedir: inject('imagebasedir') as string,
+        };
+    },
     components: {
         ButtonClose,
     },
     props: {
         image_index: {
             type: Number,
+            default: 0,
         },
         currentNews: {
-            type: Object,
+            type: Object as PropType<NewsItemType>,
+            default: {} as NewsItemType,
         },
     },
     data() {
         return {
-            isLoaded: false,
+            isLoaded: false as boolean,
             loadingGrey: '#adadad',
         };
     },
@@ -24,13 +33,22 @@ export default {
         onImgLoad() {
             this.isLoaded = true;
         },
-        makeImageName(index) {
-            return this.imagebasedir + this.currentNews.dir + index + '.jpg';
+        makeImageName(index: number) {
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
+            return this.imagebasedir + this.currentNews?.dir + index + '.jpg';
         },
-        makeModalIdLink(index) {
+        makeModalIdLink(index: number) {
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
             return '#exampleModal' + index;
         },
-        makeModalId(index) {
+        makeModalId(index: number) {
+            if (index === 0) {
+                console.log('Wrong image_index props');
+            }
             return 'exampleModal' + index;
         },
     },
@@ -38,11 +56,11 @@ export default {
 </script>
 
 <template>
-    <div :class="[!this.isLoaded ? 'loading' : '']">
-        <div v-if="!this.isLoaded" class="image-stub" />
+    <div :class="[!isLoaded ? 'loading' : '']">
+        <div v-if="!isLoaded" class="image-stub" />
 
         <img
-            v-show="this.isLoaded"
+            v-show="isLoaded"
             v-bind:key="image_index"
             :src="makeImageName(image_index)"
             :data-bs-target="makeModalIdLink(image_index)"
@@ -63,7 +81,10 @@ export default {
                 <div class="modal-content">
                     <div class="modal-body">
                         <ButtonClose />
-                        <img class="modal-image" :src="makeImageName(image_index)" />
+                        <img
+                            class="modal-image"
+                            :src="makeImageName(image_index)"
+                        />
                     </div>
                 </div>
             </div>

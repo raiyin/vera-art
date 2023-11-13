@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
 import Carousel from '@/components/UI/Carousel.vue';
 import ButtonClose from '@/components/UI/ButtonClose.vue';
+import type { ImageProps } from '@/types';
+import type { PropType } from 'vue';
 
 export default {
     components: {
@@ -9,20 +11,15 @@ export default {
     },
     props: {
         imageObject: {
-            type: Object,
+            type: Object as PropType<ImageProps>,
             required: true,
         },
     },
-    data() {
-        return {};
-    },
-    methods: {},
     computed: {
         imgIdModal() {
             return this.imageObject.id + 'Modal';
         },
     },
-    watch: {},
 };
 </script>
 
@@ -38,7 +35,10 @@ export default {
             <div class="modal-content">
                 <div class="modal-body">
                     <ButtonClose />
-                    <Carousel :imageObject="imageObject" :imageId="imageObject.id" />
+                    <Carousel
+                        :imageObject="imageObject"
+                        :imageId="imageObject.id"
+                    />
                 </div>
             </div>
         </div>

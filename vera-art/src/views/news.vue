@@ -1,5 +1,6 @@
-<script>
+<script lang="ts">
 import NewsTrailer from '@/components/News/NewsTrailer.vue';
+import type { NewsDesc } from '@/types';
 import axios from 'axios';
 
 export default {
@@ -10,7 +11,7 @@ export default {
     props: [],
     data() {
         return {
-            news: [],
+            news: [] as NewsDesc[],
             page: 1,
             limit: 9,
         };
@@ -50,13 +51,16 @@ export default {
             rootMargin: '0px',
             threshold: 1.0,
         };
-        const callback = (entries, observer) => {
+        const callback = (entries: IntersectionObserverEntry[]) => {
             if (entries[0].isIntersecting) {
                 this.loadMoreNews();
             }
         };
-        const observer = new IntersectionObserver(callback, options);
-        observer.observe(this.$refs.observer);
+        const observer: IntersectionObserver = new IntersectionObserver(
+            callback,
+            options
+        );
+        observer.observe(this.$refs.observer as Element);
     },
 };
 </script>

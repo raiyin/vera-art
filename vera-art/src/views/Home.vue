@@ -9,7 +9,11 @@ export default {
 
 <template>
     <div class="ava-wrapper">
-        <img src="../assets/img/home/img_parallax.jpg" alt="Pertsukova" class="bgimg-1" />
+        <img
+            src="../assets/img/home/img_parallax.jpg"
+            alt="Pertsukova"
+            class="bgimg-1"
+        />
     </div>
 
     <div class="bigblock">

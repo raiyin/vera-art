@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import Gallery from '@/components/UI/Gallery.vue';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
@@ -21,9 +21,13 @@ export default {
     methods: {
         async fetchData() {
             try {
-                let response = await axios.get(this.jsonserverhost + 'painting');
+                let response = await axios.get(
+                    this.jsonserverhost + 'painting'
+                );
                 this.paintingImages = response.data;
-                response = await axios.get(this.jsonserverhost + 'illustration');
+                response = await axios.get(
+                    this.jsonserverhost + 'illustration'
+                );
                 this.illustrationImages = response.data;
                 response = await axios.get(this.jsonserverhost + '3d');
                 this.threeDImages = response.data;

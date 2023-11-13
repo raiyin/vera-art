@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { useI18n } from 'vue-i18n';
 export default {
     setup() {
@@ -10,10 +10,10 @@ export default {
 <template>
     <section class="container paydelivery">
         <p>
-            {{ this.$t('payment.p_one') }}
+            {{ $t('payment.p_one') }}
         </p>
         <p>
-            {{ this.$t('payment.p_two') }}
+            {{ $t('payment.p_two') }}
         </p>
     </section>
 </template>

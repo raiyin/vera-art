@@ -1,13 +1,25 @@
 {
-  "extends": "./tsconfig.app.json",
-  "exclude": [],
-  "compilerOptions": {
-    // "composite": true,
-    "lib": [],
-    "types": [
-      "node",
-      "jsdom"
-    ],
-    "allowJs": true
-  }
+    "extends": "./tsconfig.app.json",
+    "exclude": [],
+    "compilerOptions": {
+        "composite": true,
+        "resolveJsonModule": true,
+        "lib": [],
+        "include": [
+            "*.ts",
+            "*.json",
+            "src/**/*.json"
+        ],
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ]
+        },
+        "types": [
+            "node",
+            "jsdom",
+            "vitest/globals"
+        ],
+        "allowJs": true
+    }
 }
