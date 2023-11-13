@@ -614,10 +614,10 @@
   resolved "https://registry.npmjs.org/@types/tough-cookie/-/tough-cookie-4.0.4.tgz"
   integrity sha512-95Sfz4nvMAb0Nl9DTxN3j64adfwfbBPEYq14VN7zT5J5O2M9V6iZMIIQU1U+pJyl9agHYHNCqhCXgyEtIRRa5A==
 
-"@types/vue-select@^3.16.2":
-  version "3.16.6"
-  resolved "https://registry.npmjs.org/@types/vue-select/-/vue-select-3.16.6.tgz"
-  integrity sha512-QghIaF+495ohEJ+0msg+kIr/OXsJNmxcsJR4aaL//9uhg2JxfHLYNHrOn4l5qLC8gGcrPTy/ROQUWfQEkx0tgg==
+"@types/vue-select@^3.16.7":
+  version "3.16.7"
+  resolved "https://registry.npmjs.org/@types/vue-select/-/vue-select-3.16.7.tgz"
+  integrity sha512-euYyeydtItnSWDT72O8R6AV7UJHb62mBooMaWcX0QjPb/3PPGxRTj6x0rcrNQM1kPKu6YJvULLVYduzgQ8nOpQ==
   dependencies:
     vue "^2.0.0"
 

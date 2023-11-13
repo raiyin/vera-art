@@ -26,7 +26,7 @@ export default {
                 { value: 'year', name: this.$t('shop.byNovelty') },
                 { value: 'height', name: this.$t('shop.byHeight') },
                 { value: 'width', name: this.$t('shop.byWidth') },
-            ],
+            ] as SortOption[],
         };
     },
     methods: {
