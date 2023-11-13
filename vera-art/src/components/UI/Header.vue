@@ -136,7 +136,6 @@ export default {
                             inputId="value"
                         >
                             {{ $i18n.locale }}
-                            <!-- {{ locale }} -->
                         </v-select>
                     </li>
 
