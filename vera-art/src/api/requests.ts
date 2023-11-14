@@ -36,10 +36,4 @@ const fetchOtherNews = async (
     }
 };
 
-// export default {
-//     methods: {
-//         fetchCurrentNews,
-//         fetchOtherNews,
-//     },
-// };
 export { fetchCurrentNews, fetchOtherNews };
