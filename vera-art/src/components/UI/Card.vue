@@ -1,12 +1,15 @@
 <script lang="ts">
 import type { ImageProps } from '@/types';
 import Modal from './Modal.vue';
+import { useThemeStore } from '../../stores/ThemeStore';
 import { useI18n } from 'vue-i18n';
 import type { PropType } from 'vue';
 
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
+        const themeStore = useThemeStore();
+        return { themeStore };
     },
     inject: ['imagebasedir'],
     components: {
@@ -14,7 +17,6 @@ export default {
     },
     props: {
         imageObject: {
-            //type: Object,
             type: Object as PropType<ImageProps>,
             default: {} as ImageProps,
         },
@@ -39,6 +41,11 @@ export default {
         mainCardImage() {
             return this.imagebasedir + this.imageObject.dir + '1.jpg';
         },
+        showCardShadow() {
+            if (this.themeStore.theme === 'light') {
+                return 'shadow-lg';
+            } else return '';
+        },
     },
 };
 </script>
@@ -46,8 +53,8 @@ export default {
 <template>
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
         <div
-            class="card shadow-lg p-3 mb-5 rounded"
-            :class="[!isLoaded ? 'loading' : '']"
+            class="card p-3 mb-5 rounded"
+            :class="[isLoaded ? showCardShadow : 'loading']"
         >
             <img
                 v-show="isLoaded"
@@ -182,6 +189,7 @@ export default {
     height: inherit;
     object-fit: cover;
 }
+
 .desc {
     align-self: flex-end;
     width: 100%;
