@@ -11,6 +11,7 @@ export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
         const themeStore = useThemeStore();
+
         return { themeStore };
     },
     components: {
@@ -33,6 +34,7 @@ export default {
         const bsCollapse = new bootstrap.Collapse(menuToggle, {
             toggle: false,
         });
+
         navLinks.forEach((l) => {
             l.addEventListener('click', () => {
                 if (window.innerWidth < 768) {
@@ -210,6 +212,10 @@ export default {
         0 calc(var(--h) - var(--_t, 0em)) #fff;
     transition: 0.3s var(--_s, 0s),
         background-position 0.3s calc(0.3s - var(--_s, 0s));
+}
+
+.router-link-active {
+    border-bottom: 2px solid teal;
 }
 
 .menu-item:hover {
