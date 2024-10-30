@@ -143,6 +143,7 @@ export default {
 .v-select {
     width: 20rem;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .observer {

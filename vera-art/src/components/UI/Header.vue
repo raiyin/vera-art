@@ -1,11 +1,10 @@
 <script lang="ts">
-import 'vue-select/dist/vue-select.css';
 import { useI18n } from 'vue-i18n';
 import DayIcon from '@/components/Icons/icon_day.vue';
 import NightIcon from '@/components/Icons/icon_night.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import vSelect from 'vue-select';
-import 'vue-select/dist/vue-select.css';
+// import 'vue-select/dist/vue-select.css';
 
 export default {
     setup() {
@@ -113,7 +112,7 @@ export default {
                 <ul
                     class="nav navbar-nav navbar-right d-flex align-items-center"
                 >
-                    <li class="me-3">
+                    <li>
                         <button
                             type="button"
                             @click="handleClick"
@@ -130,7 +129,7 @@ export default {
                         </button>
                     </li>
 
-                    <li class="me-3">
+                    <li class="ms-3">
                         <v-select
                             :options="$i18n.availableLocales"
                             :clearable="false"
@@ -141,7 +140,7 @@ export default {
                         </v-select>
                     </li>
 
-                    <li class="me-3">
+                    <li class="ms-3">
                         <a
                             href="https://t.me/MilayaV"
                             target="_blank"
@@ -152,7 +151,7 @@ export default {
                         </a>
                     </li>
 
-                    <li class="me-3">
+                    <li class="ms-3">
                         <a
                             href="https://vk.com/perczukowa"
                             target="_blank"
@@ -163,7 +162,7 @@ export default {
                         </a>
                     </li>
 
-                    <li>
+                    <li class="ms-3">
                         <a
                             href="mailto:perczukowa@yandex.ru"
                             target="_blank"
@@ -182,6 +181,8 @@ export default {
 <style scoped>
 .header {
     background-color: var(--color-surface);
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .navbar {
