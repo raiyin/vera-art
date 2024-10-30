@@ -67,7 +67,7 @@ export default {
 
 <template>
     <section class="container text-center px-0 main-content">
-        <article class="container">
+        <article class="container px-0">
             <div class="news-header">
                 <div class="news-img">
                     <img :src="background" />
@@ -249,7 +249,7 @@ img {
     display: flex;
     flex-direction: column;
     background-color: var(--color-surface);
-    padding: 15px;
+    padding: 0 15px;
     border-radius: 15px;
 }
 
