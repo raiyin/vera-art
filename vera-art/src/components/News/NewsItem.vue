@@ -290,6 +290,10 @@ img {
     width: auto;
 }
 
+.img-fluid {
+    width: 100%;
+}
+
 @media (orientation: landscape) {
     .modal-body > img,
     .img-fluid {
