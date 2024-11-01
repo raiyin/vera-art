@@ -3,33 +3,22 @@
 	font-family: 'Montserrat';
 	font-style: normal;
 	font-weight: 400;
-	src: url('../fonts/montserrat-v25-latin_cyrillic-regular.eot');
-	/* IE9 Compat Modes */
+	src: url('../fonts/montserrat-v25-latin_cyrillic-regular.woff2');
 	src: local(''),
-		url('../fonts/montserrat-v25-latin_cyrillic-regular.eot?#iefix') format('embedded-opentype'),
-		/* IE6-IE8 */
-		url('../fonts/montserrat-v25-latin_cyrillic-regular.woff2') format('woff2'),
-		/* Super Modern Browsers */
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.woff') format('woff'),
 		/* Modern Browsers */
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.ttf') format('truetype'),
 		/* Safari, Android, iOS */
-		url('../fonts/montserrat-v25-latin_cyrillic-regular.svg#Montserrat') format('svg');
-	/* Legacy iOS */
-}
-
-@font-face {
-	font-family: 'AmaticSC';
-	font-style: normal;
-	font-weight: 400;
-	src: url('../fonts/AmaticSC-Regular.ttf');
 }
 
 @font-face {
 	font-family: 'Ubuntu';
 	font-style: normal;
 	font-weight: 400;
-	src: url('../fonts/Ubuntu-Regular.ttf');
+	font-display: swap;
+	src: url('../fonts/ubuntu-regular-webfont.woff2') format('woff2');
+	src: local(''),
+		url('../fonts/Ubuntu-Regular.ttf') format('truetype'),
 }
 
 html,
@@ -94,16 +83,8 @@ html {
 	--color-surface: #f8f8f8;
 	--color-on-surface: #12131c;
 	--color-on-surface-hover: #42434c;
-	--color-on-surface-inverted: #fff;
 	--color-surface-secondary: rgba(255, 255, 255, 0.4);
 	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
-	--color-primary: #4273b4;
-	--color-on-primary: #fff;
-	--color-secondary: #e94c2e;
-	--color-tertiary: #f39428;
-	--color-on-tertiary: #fff;
-	--color-on-secondary: #fff;
-	--color-disabled: rgba(0, 0, 0, 0.2);
 	--color-header-menu-item: #73d1be;
 	--vs-dropdown-bg: #fff;
 	--vs-dropdown-option--active-bg: #ddd;
@@ -119,10 +100,8 @@ html {
 	--color-surface: #231e1f;
 	--color-on-surface: #777;
 	--color-on-surface-hover: #999;
-	--color-on-surface-inverted: #181818;
 	--color-surface-secondary: rgba(25, 25, 21, 0.4);
 	--color-surface-secondary-solid: rgba(25, 20, 21, 1);
-	--color-disabled: rgba(255, 255, 255, 0.2);
 	--color-header-menu-item: #494849;
 	--vs-dropdown-bg: #333;
 	--vs-dropdown-option--active-bg: #444;

@@ -34,7 +34,9 @@ export default {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-body">
-                    <ButtonClose />
+                    <div class="modal__btn">
+                        <ButtonClose />
+                    </div>
                     <Carousel
                         :imageObject="imageObject"
                         :imageId="imageObject.id"
@@ -48,5 +50,12 @@ export default {
 <style scoped>
 .modal-content {
     background-color: var(--color-surface);
+}
+.modal__btn {
+    position: absolute;
+    right: clamp(5px, 1vw, 15px);
+    top: clamp(5px, 1vw, 15px);
+    padding: 0;
+    z-index: 100;
 }
 </style>

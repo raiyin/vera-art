@@ -242,15 +242,6 @@ export default {
     min-width: 0;
 }
 
-.header-locale {
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 4px;
-    border-color: var(--vs-colors--lightest);
-    background-color: var(--color-surface-secondary);
-    color: var(--color-on-surface);
-}
-
 .custom-navbar .fa-brands,
 .fa {
     font-size: 30px;

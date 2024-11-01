@@ -102,6 +102,10 @@ export default {
     margin-bottom: 10px;
 }
 
+.img-item {
+    cursor: pointer;
+}
+
 .loading .image-stub {
     background-color: v-bind(loadingGrey);
     background: linear-gradient(
