@@ -263,31 +263,8 @@ img {
     color: var(--color-on-surface);
 }
 
-.img-item {
-    cursor: pointer;
-}
-
-.btn-close {
-    position: absolute;
-    right: 16px;
-    background-color: bisque;
-}
-
 .carousel-inner {
     object-fit: cover;
-}
-
-.video-self {
-    object-fit: fill;
-}
-
-.modal-dialog {
-    position: relative;
-    display: table;
-    /* This is important */
-    overflow-y: auto;
-    overflow-x: auto;
-    width: auto;
 }
 
 .img-fluid {
@@ -295,14 +272,12 @@ img {
 }
 
 @media (orientation: landscape) {
-    .modal-body > img,
     .img-fluid {
         max-height: 90vh;
     }
 }
 
 @media (orientation: portrait) {
-    .modal-body > img,
     .img-fluid {
         max-width: 90vw;
     }
