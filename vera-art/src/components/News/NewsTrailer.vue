@@ -173,7 +173,7 @@ export default {
 
 .news-content {
     position: relative;
-    font-family: Ubuntu;
+    font-family: 'Ubuntu';
     font-weight: bold;
     font-size: larger;
     text-align: left;
@@ -181,6 +181,10 @@ export default {
     line-height: 0.4rem;
     color: var(--color-on-surface);
     letter-spacing: 0.05rem;
+}
+
+.news-content p {
+    font-family: Ubuntu;
 }
 
 .news-content > p > span {

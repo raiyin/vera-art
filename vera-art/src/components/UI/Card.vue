@@ -127,16 +127,13 @@ export default {
     --bs-nav-tabs-border-color: #000 !important;
 }
 
-.card {
-    --bs-card-bg: var(--color-surface);
-}
-
 .card-body {
     display: flex;
     align-items: center;
 }
 
 .card {
+    --bs-card-bg: var(--color-surface);
     opacity: 1;
     width: 100%;
 }
