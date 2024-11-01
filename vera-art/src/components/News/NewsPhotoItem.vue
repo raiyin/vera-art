@@ -1,7 +1,7 @@
 <script lang="ts">
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 import type { PropType } from 'vue';
-import type NewsItemType from '@/types';
+import type { NewsItemType } from '@/types';
 import { inject } from 'vue';
 
 export default {
@@ -80,7 +80,9 @@ export default {
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <ButtonClose />
+                        <div class="modal__btn">
+                            <ButtonClose />
+                        </div>
                         <img
                             class="modal-image"
                             :src="makeImageName(image_index)"
@@ -113,6 +115,17 @@ export default {
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
     border-radius: 4px;
+}
+
+.modal__btn {
+    position: absolute;
+    right: clamp(5px, 1vw, 15px);
+    top: clamp(5px, 1vw, 15px);
+    padding: 0;
+}
+
+.modal-body {
+    padding: clamp(5px, 1vw, 15px);
 }
 
 @keyframes loading {

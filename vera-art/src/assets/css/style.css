@@ -71,11 +71,13 @@ html {
 @media (orientation: landscape) {
 	img.modal-image {
 		max-height: 90vh;
+		max-width: 90vw;
 	}
 }
 
 @media (orientation: portrait) {
 	img.modal-image {
+		max-height: 90vh;
 		max-width: 90vw;
 	}
 }

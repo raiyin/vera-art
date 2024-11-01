@@ -17,11 +17,8 @@ export default {
 
 <style scoped>
 .btn-close {
-    position: absolute;
-    right: 16px;
     background-color: bisque;
-    z-index: 100;
-    min-width: 1rem;
-    min-height: 1rem;
+    width: 1.5rem;
+    height: 1.5rem;
 }
 </style>
