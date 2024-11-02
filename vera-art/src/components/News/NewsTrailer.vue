@@ -106,8 +106,8 @@ export default {
 
 <style scoped>
 .news-item {
-    width: 22rem;
-    height: 27rem;
+    width: 25rem;
+    height: 30rem;
     border-radius: 0.3rem;
     border: 1px solid var(--color-surface-secondary);
     overflow: hidden;

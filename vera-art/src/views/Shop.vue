@@ -124,7 +124,7 @@ export default {
 </script>
 
 <template>
-    <section class="container mt-3 px-0">
+    <section class="container mt-3">
         <v-select
             :options="sortOptions"
             :reduce="(item: SortOption) => item.value"

@@ -66,8 +66,8 @@ export default {
 </script>
 
 <template>
-    <section class="container text-center main-content">
-        <div class="row gx-0">
+    <section class="container text-center main-content container__news">
+        <div class="row row__news">
             <template v-for="newsObject in news" v-bind:key="newsObject.id">
                 <div class="col d-flex justify-content-center mb-5">
                     <NewsTrailer :newsObject="newsObject" />
@@ -79,7 +79,14 @@ export default {
 </template>
 
 <style scoped>
+.container__news {
+    padding-right: 0;
+    padding-left: 0;
+}
 .observer {
     height: 0px;
+}
+.row__news {
+    justify-content: space-between;
 }
 </style>

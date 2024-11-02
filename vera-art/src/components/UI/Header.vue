@@ -4,7 +4,6 @@ import DayIcon from '@/components/Icons/icon_day.vue';
 import NightIcon from '@/components/Icons/icon_night.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import vSelect from 'vue-select';
-// import 'vue-select/dist/vue-select.css';
 
 export default {
     setup() {
@@ -58,7 +57,7 @@ export default {
 </script>
 
 <template>
-    <section class="container-xxl header">
+    <section class="container header">
         <nav class="navbar navbar-expand-md custom-navbar">
             <button
                 class="navbar-toggler"
@@ -181,8 +180,6 @@ export default {
 <style scoped>
 .header {
     background-color: var(--color-surface);
-    padding-left: 0;
-    padding-right: 0;
 }
 
 .navbar {
