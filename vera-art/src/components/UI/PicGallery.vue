@@ -1,11 +1,11 @@
 <script lang="ts">
 import type { ImageProps } from '@/types';
 import type { PropType } from 'vue';
-import Card from './Card.vue';
+import PictureCard from './PictureCard.vue';
 
 export default {
     components: {
-        Card,
+        Card: PictureCard,
     },
     props: {
         images: {

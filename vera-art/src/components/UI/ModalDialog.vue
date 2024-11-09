@@ -1,12 +1,12 @@
 <script lang="ts">
-import Carousel from '@/components/UI/Carousel.vue';
+import PicCarousel from '@/components/UI/PicCarousel.vue';
 import ButtonClose from '@/components/UI/ButtonClose.vue';
 import type { ImageProps } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
     components: {
-        Carousel,
+        Carousel: PicCarousel,
         ButtonClose,
     },
     props: {

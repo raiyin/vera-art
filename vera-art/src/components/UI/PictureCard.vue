@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { ImageProps } from '@/types';
-import Modal from './Modal.vue';
+import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import { useI18n } from 'vue-i18n';
 import type { PropType } from 'vue';
@@ -13,7 +13,7 @@ export default {
     },
     inject: ['imagebasedir'],
     components: {
-        Modal,
+        Modal: ModalDialog,
     },
     props: {
         imageObject: {
