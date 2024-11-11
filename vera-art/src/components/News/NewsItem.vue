@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
+import VideoSection from '@/components/News/VideoSection.vue';
 
 export default {
     setup() {
@@ -21,6 +22,7 @@ export default {
         SideNewsTrailer,
         NewsItemDescription,
         NewsPhotoItem,
+        VideoSection,
     },
     data() {
         return {
@@ -139,96 +141,7 @@ export default {
             </div>
         </div>
 
-        <!-- video section -->
-        <div
-            id="carouselVideoExample"
-            class="carousel slide carousel-fade"
-            data-mdb-ride="carousel"
-        >
-            <div
-                v-if="currentNewsItem.videoscount > 1"
-                class="carousel-indicators"
-            >
-                <template v-for="video_index in currentNewsItem.videoscount">
-                    <button
-                        v-if="video_index == 1"
-                        v-bind:key="video_index"
-                        type="button"
-                        data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index"
-                        class="active"
-                        aria-current="true"
-                        :aria-label="makeVideoSlideLabel(video_index)"
-                    />
-
-                    <button
-                        v-if="video_index != 1"
-                        v-bind:key="video_index"
-                        type="button"
-                        data-mdb-target="#carouselVideoExample"
-                        :data-mdb-slide-to="video_index"
-                        :aria-label="makeVideoSlideLabel(video_index)"
-                    />
-                </template>
-            </div>
-
-            <div class="carousel-inner">
-                <template
-                    v-for="video_index in currentNewsItem.videoscount"
-                    v-bind:key="video_index"
-                >
-                    <div v-if="video_index == 1" class="carousel-item active">
-                        <video class="img-fluid" controls>
-                            <source
-                                :src="makeVideoName(video_index)"
-                                type="video/mp4"
-                            />
-                        </video>
-                    </div>
-
-                    <div
-                        v-if="video_index != 1"
-                        v-bind:key="video_index"
-                        class="carousel-item"
-                    >
-                        <video class="img-fluid" controls>
-                            <source
-                                :src="makeVideoName(video_index)"
-                                type="video/mp4"
-                            />
-                        </video>
-                    </div>
-                </template>
-            </div>
-
-            <button
-                v-if="currentNewsItem.videoscount > 1"
-                class="carousel-control-prev"
-                type="button"
-                data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="prev"
-            >
-                <span
-                    class="carousel-control-prev-icon"
-                    aria-hidden="true"
-                ></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-
-            <button
-                v-if="currentNewsItem.videoscount > 1"
-                class="carousel-control-next"
-                type="button"
-                data-mdb-target="#carouselVideoExample"
-                data-mdb-slide="next"
-            >
-                <span
-                    class="carousel-control-next-icon"
-                    aria-hidden="true"
-                ></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
+        <VideoSection :current-news-item="currentNewsItem" />
     </section>
 </template>
 
@@ -261,26 +174,6 @@ img {
     text-align: left;
     margin-bottom: 2rem;
     color: var(--color-on-surface);
-}
-
-.carousel-inner {
-    object-fit: cover;
-}
-
-.img-fluid {
-    width: 100%;
-}
-
-@media (orientation: landscape) {
-    .img-fluid {
-        max-height: 90vh;
-    }
-}
-
-@media (orientation: portrait) {
-    .img-fluid {
-        max-width: 90vw;
-    }
 }
 
 @media screen and (max-width: 1000px) {
