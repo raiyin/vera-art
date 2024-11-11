@@ -1,24 +1,15 @@
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
-import vSelect from 'vue-select';
 import ThemeSwitcher from './ThemeSwitcher.vue';
+import LocaleSwitcher from './LocaleSwitcher.vue';
 
 export default {
-    setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
-    },
+    setup() {},
     components: {
-        vSelect,
         ThemeSwitcher,
+        LocaleSwitcher,
     },
     data() {
-        return {
-            select: { lang: 'RUS', abbr: this.$t('locale.RUS') },
-            languages: [
-                { lang: 'RUS', abbr: this.$t('locale.RUS') },
-                { lang: 'ENG', abbr: this.$t('locale.ENG') },
-            ],
-        };
+        return {};
     },
     mounted() {
         const navLinks = document.querySelectorAll('.nav-item');
@@ -34,13 +25,6 @@ export default {
                 }
             });
         });
-    },
-    methods: {
-        onChange(event: { [x: string]: unknown }) {
-            if (event['lang'] !== null) {
-                i18n.global.locale.value = event['lang'];
-            }
-        },
     },
 };
 </script>
@@ -105,14 +89,7 @@ export default {
                     </li>
 
                     <li class="ms-3">
-                        <v-select
-                            :options="$i18n.availableLocales"
-                            :clearable="false"
-                            v-model="$i18n.locale"
-                            inputId="value"
-                        >
-                            {{ $i18n.locale }}
-                        </v-select>
+                        <LocaleSwitcher />
                     </li>
 
                     <li class="ms-3">
@@ -204,15 +181,6 @@ export default {
 
 .dropdown-menu > li:hover:active {
     --bs-dropdown-link-active-bg: #4b9e90;
-}
-
-.v-select {
-    width: 6rem;
-    font-size: 1rem;
-}
-
-.vs__dropdown-menu {
-    min-width: 0;
 }
 
 .custom-navbar .fa-brands,
