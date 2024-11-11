@@ -7,6 +7,7 @@ import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import VideoSection from '@/components/News/VideoSection.vue';
+import PhotoSection from './PhotoSection.vue';
 
 export default {
     setup() {
@@ -23,6 +24,7 @@ export default {
         NewsItemDescription,
         NewsPhotoItem,
         VideoSection,
+        PhotoSection,
     },
     data() {
         return {
@@ -102,44 +104,7 @@ export default {
             </div>
         </article>
 
-        <!-- photo section -->
-        <div class="row">
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 1">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            :key="image_index"
-                        />
-                    </template>
-                </template>
-            </div>
-
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 2">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            :key="image_index"
-                        />
-                    </template>
-                </template>
-            </div>
-
-            <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 0">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            :key="image_index"
-                        />
-                    </template>
-                </template>
-            </div>
-        </div>
+        <PhotoSection :current-news-item="currentNewsItem" />
 
         <VideoSection :current-news-item="currentNewsItem" />
     </section>

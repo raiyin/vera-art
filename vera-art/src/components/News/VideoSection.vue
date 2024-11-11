@@ -6,14 +6,11 @@ import type { NewsItemType } from '@/types';
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
-        const jsonserverhost: string = inject('jsonserverhost') as string;
         const imagebasedir = inject('imagebasedir') as string;
         return {
-            jsonserverhost,
             imagebasedir,
         };
     },
-    components: {},
     props: {
         currentNewsItem: {
             type: Object as PropType<NewsItemType>,
@@ -29,13 +26,6 @@ export default {
             return imagebasedir + this.currentNewsItem.dir + index + '.mp4';
         },
     },
-
-    async mounted() {
-        const mdbScript = document.createElement('script');
-        mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
-        document.head.appendChild(mdbScript);
-    },
-    computed: {},
 };
 </script>
 
