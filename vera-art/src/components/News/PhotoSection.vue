@@ -1,14 +1,9 @@
 <script lang="ts">
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
-import { useI18n } from 'vue-i18n';
 import { PropType } from 'vue';
 import type { NewsItemType } from '@/types';
 
 export default {
-    setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
-        return {};
-    },
     components: {
         NewsPhotoItem,
     },
@@ -62,5 +57,3 @@ export default {
         </div>
     </section>
 </template>
-
-<style scoped></style>

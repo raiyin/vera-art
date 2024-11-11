@@ -3,7 +3,6 @@ import ThemeSwitcher from './ThemeSwitcher.vue';
 import LocaleSwitcher from './LocaleSwitcher.vue';
 
 export default {
-    setup() {},
     components: {
         ThemeSwitcher,
         LocaleSwitcher,
