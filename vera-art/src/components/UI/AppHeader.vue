@@ -1,30 +1,14 @@
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
-import DayIcon from '@/components/Icons/icon_day.vue';
-import NightIcon from '@/components/Icons/icon_night.vue';
-import { useThemeStore } from '../../stores/ThemeStore';
-import vSelect from 'vue-select';
+import ThemeSwitcher from './ThemeSwitcher.vue';
+import LocaleSwitcher from './LocaleSwitcher.vue';
 
 export default {
-    setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
-        const themeStore = useThemeStore();
-
-        return { themeStore };
-    },
     components: {
-        DayIcon,
-        NightIcon,
-        vSelect,
+        ThemeSwitcher,
+        LocaleSwitcher,
     },
     data() {
-        return {
-            select: { lang: 'RUS', abbr: this.$t('locale.RUS') },
-            languages: [
-                { lang: 'RUS', abbr: this.$t('locale.RUS') },
-                { lang: 'ENG', abbr: this.$t('locale.ENG') },
-            ],
-        };
+        return {};
     },
     mounted() {
         const navLinks = document.querySelectorAll('.nav-item');
@@ -40,18 +24,6 @@ export default {
                 }
             });
         });
-    },
-    methods: {
-        onChange(event: { [x: string]: unknown }) {
-            if (event['lang'] !== null) {
-                i18n.global.locale.value = event['lang'];
-            }
-        },
-        handleClick() {
-            const newTheme =
-                this.themeStore.theme === 'light' ? 'dark' : 'light';
-            this.themeStore.theme = newTheme;
-        },
     },
 };
 </script>
@@ -112,31 +84,11 @@ export default {
                     class="nav navbar-nav navbar-right d-flex align-items-center"
                 >
                     <li>
-                        <button
-                            type="button"
-                            @click="handleClick"
-                            title="Сменить тему оформления"
-                            class="theme-switcher"
-                            :class="'theme-switcher_theme_' + themeStore.theme"
-                        >
-                            <DayIcon
-                                class="theme-switcher__icon theme-switcher__icon_type_light"
-                            />
-                            <NightIcon
-                                class="theme-switcher__icon theme-switcher__icon_type_dark"
-                            />
-                        </button>
+                        <ThemeSwitcher />
                     </li>
 
                     <li class="ms-3">
-                        <v-select
-                            :options="$i18n.availableLocales"
-                            :clearable="false"
-                            v-model="$i18n.locale"
-                            inputId="value"
-                        >
-                            {{ $i18n.locale }}
-                        </v-select>
+                        <LocaleSwitcher />
                     </li>
 
                     <li class="ms-3">
@@ -230,15 +182,6 @@ export default {
     --bs-dropdown-link-active-bg: #4b9e90;
 }
 
-.v-select {
-    width: 6rem;
-    font-size: 1rem;
-}
-
-.vs__dropdown-menu {
-    min-width: 0;
-}
-
 .custom-navbar .fa-brands,
 .fa {
     font-size: 30px;
@@ -290,59 +233,5 @@ export default {
 .fa:hover,
 .fa-brands:hover {
     filter: drop-shadow(2px 2px 2px #808080);
-}
-
-.theme-switcher {
-    margin: 0;
-    padding: 0;
-    margin-top: -5px;
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.15s ease-in-out;
-    display: block;
-    width: 32px;
-    aspect-ratio: 1;
-    overflow: hidden;
-    border-radius: 50%;
-    background-color: var(--color-surface-secondary-solid);
-    color: inherit;
-    position: relative;
-}
-
-.theme-switcher:hover {
-    opacity: 1;
-}
-
-.theme-switcher__icon {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 50%;
-    height: 50%;
-    transition: transform 0.5s ease-out;
-    transform-origin: 50% 200%;
-}
-
-.theme-switcher__icon_type_light {
-    width: 70%;
-    height: 70%;
-}
-
-.theme-switcher_theme_light .theme-switcher__icon_type_light {
-    transform: translate(-50%, -50%);
-}
-
-.theme-switcher_theme_light .theme-switcher__icon_type_dark {
-    transform: translate(-50%, -50%) rotate(180deg);
-}
-
-.theme-switcher_theme_dark .theme-switcher__icon_type_light {
-    transform: translate(-50%, -50%) rotate(180deg);
-}
-
-.theme-switcher_theme_dark .theme-switcher__icon_type_dark {
-    transform: translate(-50%, -50%) rotate(360deg);
 }
 </style>

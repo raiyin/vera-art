@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import Header from '@/components/UI/Header.vue';
-import Footer from '@/components/UI/Footer.vue';
+import AppHeader from '@/components/UI/AppHeader.vue';
+import AppFooter from '@/components/UI/AppFooter.vue';
 </script>
 
 <template>
     <div>
-        <Header />
+        <AppHeader />
         <router-view :key="$route.fullPath" />
-        <Footer />
+        <AppFooter />
     </div>
 </template>
