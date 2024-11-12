@@ -60,5 +60,8 @@
     "locale": {
         "ENG": "English",
         "RUS": "Russian"
+    },
+    "theme": {
+        "title": "Change the color theme"
     }
 }
