@@ -9,6 +9,8 @@ export default {
         const imagebasedir = inject('imagebasedir') as string;
         return {
             imagebasedir,
+            t,
+            locale,
         };
     },
     props: {
@@ -19,7 +21,7 @@ export default {
     },
     methods: {
         makeVideoSlideLabel(index: number) {
-            return 'Видеослайд ' + index;
+            return this.t('news.videoslide') + ' ' + index;
         },
 
         makeVideoName(index: number, imagebasedir: string): string {
