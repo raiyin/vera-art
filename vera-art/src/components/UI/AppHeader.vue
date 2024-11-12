@@ -29,7 +29,7 @@ export default {
 </script>
 
 <template>
-    <section class="container header">
+    <header class="container header">
         <nav class="navbar navbar-expand-md custom-navbar">
             <button
                 class="navbar-toggler"
@@ -126,7 +126,7 @@ export default {
                 </ul>
             </div>
         </nav>
-    </section>
+    </header>
 </template>
 
 <style scoped>

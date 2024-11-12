@@ -1,12 +1,8 @@
 <script lang="ts">
 import Gallery from '@/components/UI/PicGallery.vue';
 import axios from 'axios';
-import { useI18n } from 'vue-i18n';
 
 export default {
-    setup() {
-        const { t } = useI18n({ useScope: 'global' });
-    },
     inject: ['jsonserverhost'],
     components: {
         Gallery,

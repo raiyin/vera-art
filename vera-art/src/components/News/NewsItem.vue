@@ -1,8 +1,6 @@
 <script lang="ts">
 import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
-import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
-import { useI18n } from 'vue-i18n';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
@@ -11,7 +9,6 @@ import PhotoSection from './PhotoSection.vue';
 
 export default {
     setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
         const jsonserverhost: string = inject('jsonserverhost') as string;
         const imagebasedir = inject('imagebasedir') as string;
         return {
@@ -22,7 +19,6 @@ export default {
     components: {
         SideNewsTrailer,
         NewsItemDescription,
-        NewsPhotoItem,
         VideoSection,
         PhotoSection,
     },

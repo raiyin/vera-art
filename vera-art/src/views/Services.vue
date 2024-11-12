@@ -1,10 +1,5 @@
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
-export default {
-    setup() {
-        const { t } = useI18n({ useScope: 'global' });
-    },
-};
+export default {};
 </script>
 
 <template>
@@ -24,6 +19,6 @@ export default {
 <style scoped>
 .services {
     margin-top: 5rem;
-    height: 960px;
+    flex: 1 0 auto;
 }
 </style>
