@@ -1,11 +1,7 @@
 <script lang="ts">
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
-import { useI18n } from 'vue-i18n';
 
 export default {
-    setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
-    },
     inject: ['imagebasedir'],
     components: {
         CalendarIcon,

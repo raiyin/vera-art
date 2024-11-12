@@ -4,12 +4,8 @@ import type { ImageProps, SortOption } from '@/types';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
-import { useI18n } from 'vue-i18n';
 
 export default {
-    setup() {
-        const { t } = useI18n({ useScope: 'global' });
-    },
     inject: ['jsonserverhost'],
     components: {
         Gallery,
@@ -21,12 +17,6 @@ export default {
             page: 1,
             limit: 9,
             selectedSort: '',
-            // sortOptions: [
-            //     { value: 'name_ru', name: 'По названию' },
-            //     { value: 'year', name: 'По новизне' },
-            //     { value: 'height', name: 'По высоте' },
-            //     { value: 'width', name: 'По ширине' },
-            // ],
         };
     },
     methods: {

@@ -2,12 +2,10 @@
 import type { ImageProps } from '@/types';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
-import { useI18n } from 'vue-i18n';
 import type { PropType } from 'vue';
 
 export default {
     setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
         const themeStore = useThemeStore();
         return { themeStore };
     },

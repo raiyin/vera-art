@@ -1,11 +1,7 @@
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
 import vSelect from 'vue-select';
 
 export default {
-    setup() {
-        const { t, locale } = useI18n({ useScope: 'global' });
-    },
     components: {
         vSelect,
     },

@@ -2,12 +2,10 @@
 import DayIcon from '@/components/Icons/icon_day.vue';
 import NightIcon from '@/components/Icons/icon_night.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
-import { useI18n } from 'vue-i18n';
 
 export default {
     setup() {
         const themeStore = useThemeStore();
-        const { t, locale } = useI18n({ useScope: 'global' });
         return { themeStore };
     },
     components: {

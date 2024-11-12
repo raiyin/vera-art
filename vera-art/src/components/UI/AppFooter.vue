@@ -3,15 +3,19 @@ export default {};
 </script>
 
 <template>
-    <div class="text-center text-lg-start">
+    <footer class="text-center text-lg-start">
         <div class="text-center p-3 footer-content">
             © 2024 Copyright:
             <a href="https://t.me/my_important_talks"> publicmaders.ru </a>
         </div>
-    </div>
+    </footer>
 </template>
 
 <style scoped>
+footer {
+    flex: 0 0 auto;
+}
+
 .footer-content,
 .footer-content a {
     background-color: var(--color-surface);
