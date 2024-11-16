@@ -68,11 +68,13 @@ export default {
 <template>
     <section class="container text-center main-content container__news">
         <div class="row row__news">
-            <template v-for="newsObject in news" v-bind:key="newsObject.id">
-                <div class="col d-flex justify-content-center mb-5">
-                    <NewsTrailer :newsObject="newsObject" />
-                </div>
-            </template>
+            <div
+                class="col d-flex justify-content-center mb-5"
+                v-for="newsObject in news"
+                v-bind:key="newsObject.id"
+            >
+                <NewsTrailer :newsObject="newsObject" />
+            </div>
         </div>
         <div ref="observer" class="observer"></div>
     </section>

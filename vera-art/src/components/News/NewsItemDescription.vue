@@ -13,6 +13,10 @@ export default {
     },
     methods: {
         getHumanDate(inDate: string, locale: string) {
+            if (!inDate || !locale) {
+                return '';
+            }
+
             const options = {
                 year: 'numeric',
                 month: 'long',
