@@ -37,60 +37,37 @@ export default {
         class="carousel slide carousel-fade"
         data-mdb-ride="carousel"
     >
-        <div v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
-            <template v-for="video_index in currentNewsItem.videoscount">
-                <button
-                    v-if="video_index == 1"
-                    v-bind:key="video_index"
-                    type="button"
-                    data-mdb-target="#carouselVideoExample"
-                    :data-mdb-slide-to="video_index"
-                    class="active"
-                    aria-current="true"
-                    :aria-label="makeVideoSlideLabel(video_index)"
-                />
-
-                <button
-                    v-if="video_index != 1"
-                    v-bind:key="video_index"
-                    type="button"
-                    data-mdb-target="#carouselVideoExample"
-                    :data-mdb-slide-to="video_index"
-                    :aria-label="makeVideoSlideLabel(video_index)"
-                />
-            </template>
-        </div>
-
-        <div class="carousel-inner">
+        <ol v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
             <template
                 v-for="video_index in currentNewsItem.videoscount"
-                v-bind:key="video_index"
+                :key="video_index"
             >
-                <div v-if="video_index == 1" class="carousel-item active">
-                    <video class="img-fluid" controls>
-                        <source
-                            :src="makeVideoName(video_index, imagebasedir)"
-                            type="video/mp4"
-                        />
-                    </video>
-                </div>
-
-                <div
-                    v-if="video_index != 1"
-                    v-bind:key="video_index"
-                    class="carousel-item"
-                >
-                    <video class="img-fluid" controls>
-                        <source
-                            :src="makeVideoName(video_index, imagebasedir)"
-                            type="video/mp4"
-                        />
-                    </video>
-                </div>
+                <li
+                    data-mdb-target="#carouselVideoExample"
+                    :data-mdb-slide-to="video_index - 1"
+                    :class="video_index === 1 ? 'active' : ''"
+                    :aria-current="video_index === 1"
+                    :aria-label="makeVideoSlideLabel(video_index)"
+                />
             </template>
+        </ol>
+
+        <div class="carousel-inner">
+            <div
+                v-for="video_index in currentNewsItem.videoscount"
+                v-bind:key="video_index"
+                :class="'carousel-item ' + (video_index == 1 ? 'active' : '')"
+            >
+                <video class="img-fluid" controls>
+                    <source
+                        :src="makeVideoName(video_index, imagebasedir)"
+                        type="video/mp4"
+                    />
+                </video>
+            </div>
         </div>
 
-        <button
+        <a
             v-if="currentNewsItem.videoscount > 1"
             class="carousel-control-prev"
             type="button"
@@ -99,9 +76,9 @@ export default {
         >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Previous</span>
-        </button>
+        </a>
 
-        <button
+        <a
             v-if="currentNewsItem.videoscount > 1"
             class="carousel-control-next"
             type="button"
@@ -110,7 +87,7 @@ export default {
         >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
-        </button>
+        </a>
     </div>
 </template>
 
