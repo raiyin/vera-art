@@ -74,14 +74,13 @@ export default {
                 </div>
 
                 <div class="other-news">
-                    <template
+                    <div
+                        class="other-news-item-wrapper"
                         v-for="newsItem in otherNews"
                         v-bind:key="newsItem"
                     >
-                        <div class="other-news-item-wrapper">
-                            <SideNewsTrailer :sideNewsObject="newsItem" />
-                        </div>
-                    </template>
+                        <SideNewsTrailer :sideNewsObject="newsItem" />
+                    </div>
                 </div>
             </div>
 
