@@ -1,21 +1,10 @@
 {
-    "extends": "@vue/tsconfig/tsconfig.web.json",
-    "include": [
-        "env.d.ts",
-        "src/**/*",
-        "src/**/*.vue",
-        "src/**/*.json"
-    ],
-    "exclude": [
-        "src/**/__tests__/*",
-        "src/**/js/"
-    ],
+    "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/**/*.json"],
+    "exclude": ["src/**/__tests__/*", "src/**/js/"],
     "compilerOptions": {
         "baseUrl": ".",
         "paths": {
-            "@/*": [
-                "./src/*"
-            ]
+            "@/*": ["./src/*"]
         }
     }
 }
