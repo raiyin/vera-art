@@ -32,9 +32,7 @@ export default {
             return date.toLocaleDateString(stdLocale, options);
         },
         onLoad() {
-            setTimeout(() => {
-                this.isLoaded = true;
-            }, 1000);
+            this.isLoaded = true;
         },
     },
     mounted() {
@@ -68,8 +66,8 @@ export default {
                 >
             </div>
         </div>
+        <NewsDescriptionSkeleton v-show="!isLoaded" />
     </div>
-    <NewsDescriptionSkeleton v-show="!isLoaded" />
 </template>
 
 <style scoped>

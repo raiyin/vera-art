@@ -1,35 +1,56 @@
 <script lang="ts">
 export default {
+    inject: ['imagebasedir'],
     components: {},
     data() {
         return {
             loadingGrey: '#adadad',
         };
     },
+    methods: {},
 };
 </script>
 
 <template>
-    <div>
-        <div class="title" />
-        <div class="date" />
+    <div class="side-news">
+        <div class="img" />
+        <div class="desc">
+            <div class="title" />
+            <div class="date" />
+        </div>
     </div>
 </template>
 
 <style scoped>
+.side-news {
+    display: flex;
+    height: 60px;
+}
+
+.img {
+    min-width: 90px;
+}
+
+.desc {
+    margin-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .title {
-    background-color: grey;
-    height: 2rem;
-    width: 50%;
+    text-align: left;
+    width: 100%;
+    height: 1.5rem;
 }
 
 .date {
-    margin-top: 0.7rem;
-    background-color: grey;
-    height: 1rem;
-    width: 15%;
+    width: 40%;
+    height: 1.5rem;
 }
 
+.img,
 .title,
 .date {
     background-color: v-bind(loadingGrey);
