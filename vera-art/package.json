@@ -1,6 +1,7 @@
 {
   "name": "vera-art",
   "version": "0.0.0",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "both": "concurrently \"npm run dev -- --host\" \"npm run server\"",
