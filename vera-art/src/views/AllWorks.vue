@@ -10,32 +10,110 @@ export default {
     data() {
         return {
             paintingImages: [],
+            paitingPage: 0,
             illustrationImages: [],
+            illustrationPage: 0,
             threeDImages: [],
+            threeDPage: 0,
+            limit: 9,
         };
     },
     methods: {
-        async fetchData() {
+        async loadPainting() {
             try {
-                let response = await axios.get(
+                this.paitingPage += 1;
+                const response = await axios.get(
                     this.jsonserverhost + 'painting',
+                    {
+                        params: {
+                            _page: this.paitingPage,
+                            _limit: this.limit,
+                        },
+                    },
                 );
-                this.paintingImages = response.data;
-
-                response = await axios.get(
+                this.paintingImages = [
+                    ...this.paintingImages,
+                    ...response.data,
+                ];
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async loadIllustrations() {
+            try {
+                this.illustrationPage += 1;
+                const response = await axios.get(
                     this.jsonserverhost + 'illustration',
+                    {
+                        params: {
+                            _page: this.illustrationPage,
+                            _limit: this.limit,
+                        },
+                    },
                 );
-                this.illustrationImages = response.data;
-
-                response = await axios.get(this.jsonserverhost + '3d');
-                this.threeDImages = response.data;
+                this.illustrationImages = [
+                    ...this.illustrationImages,
+                    ...response.data,
+                ];
+            } catch (e) {
+                console.log(e);
+            }
+        },
+        async load3D() {
+            try {
+                this.threeDPage += 1;
+                const response = await axios.get(this.jsonserverhost + '3d', {
+                    params: {
+                        _page: this.threeDPage,
+                        _limit: this.limit,
+                    },
+                });
+                this.threeDImages = [...this.threeDImages, ...response.data];
             } catch (e) {
                 console.log(e);
             }
         },
     },
     mounted() {
-        this.fetchData();
+        const options = {
+            rootMargin: '0px',
+            threshold: 1.0,
+        };
+        const paintingCallback = (entries: IntersectionObserverEntry[]) => {
+            if (entries[0].isIntersecting) {
+                this.loadPainting();
+            }
+        };
+        const illustrationCallback = (entries: IntersectionObserverEntry[]) => {
+            if (entries[0].isIntersecting) {
+                this.loadIllustrations();
+            }
+        };
+        const threeDCallback = (entries: IntersectionObserverEntry[]) => {
+            if (entries[0].isIntersecting) {
+                this.load3D();
+            }
+        };
+
+        const paintingObserver = new IntersectionObserver(
+            paintingCallback,
+            options,
+        );
+        paintingObserver.observe(this.$refs.paintingObserver as Element);
+
+        const illustrationObserver = new IntersectionObserver(
+            illustrationCallback,
+            options,
+        );
+        illustrationObserver.observe(
+            this.$refs.illustrationObserver as Element,
+        );
+
+        const threeDObserver = new IntersectionObserver(
+            threeDCallback,
+            options,
+        );
+        threeDObserver.observe(this.$refs.graphics3dObserver as Element);
     },
 };
 </script>
@@ -95,7 +173,10 @@ export default {
                 aria-labelledby="painting-tab"
             >
                 <Gallery :images="paintingImages" />
+
+                <div ref="paintingObserver" class="observer" />
             </div>
+
             <div
                 class="tab-pane fade"
                 id="Illustration"
@@ -103,7 +184,9 @@ export default {
                 aria-labelledby="Illustration-tab"
             >
                 <Gallery :images="illustrationImages" />
+                <div ref="illustrationObserver" class="observer" />
             </div>
+
             <div
                 class="tab-pane fade"
                 id="graphics3d"
@@ -111,6 +194,7 @@ export default {
                 aria-labelledby="graphics3d-tab"
             >
                 <Gallery :images="threeDImages" />
+                <div ref="graphics3dObserver" class="observer" />
             </div>
         </div>
     </section>
@@ -140,5 +224,9 @@ export default {
 
 .nav-item {
     color: black;
+}
+
+.observer {
+    height: 0px;
 }
 </style>
