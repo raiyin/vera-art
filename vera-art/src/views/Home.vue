@@ -119,12 +119,12 @@ export default {};
     top: 70%;
     width: 100%;
     text-align: center;
-    color: #000;
+    color: var(--color-dark);
 }
 
 .caption span.border {
-    background-color: #111;
-    color: #f7f7f7;
+    background-color: var(--color-dark);
+    color: var(--color-caption-border);
     padding: 18px;
     font-size: 25px;
     letter-spacing: 10px;
@@ -132,8 +132,8 @@ export default {};
 
 @media (max-width: 641px) {
     .caption span.border {
-        background-color: #111;
-        color: #fff;
+        background-color: var(--color-dark);
+        color: var(--color-light);
         padding: 18px;
         font-size: 15px;
         letter-spacing: 5px;
@@ -160,7 +160,9 @@ export default {};
 h3 {
     letter-spacing: 5px;
     text-transform: uppercase;
-    font: 20px 'Lato', sans-serif;
+    font:
+        20px 'Lato',
+        sans-serif;
 }
 
 /* Отключение параллаксной прокрутки для планшетов и телефонов */

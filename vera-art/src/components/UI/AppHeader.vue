@@ -156,11 +156,13 @@ export default {
     line-height: var(--h);
     background: linear-gradient(var(--m) 0 0) no-repeat
         calc(200% - var(--_p, 0%)) 100%/200% var(--_p, 0.08em);
-    color: #0000;
+    color: var(--color-dark);
     overflow: hidden;
-    text-shadow: 0 calc(-1 * var(--_t, 0em)) var(--c),
-        0 calc(var(--h) - var(--_t, 0em)) #fff;
-    transition: 0.3s var(--_s, 0s),
+    text-shadow:
+        0 calc(-1 * var(--_t, 0em)) var(--c),
+        0 calc(var(--h) - var(--_t, 0em)) var(--color-light);
+    transition:
+        0.3s var(--_s, 0s),
         background-position 0.3s calc(0.3s - var(--_s, 0s));
 }
 
@@ -179,7 +181,7 @@ export default {
 }
 
 .dropdown-menu > li:hover:active {
-    --bs-dropdown-link-active-bg: #4b9e90;
+    --bs-dropdown-link-active-bg: var(--color-active-link-bg);
 }
 
 .custom-navbar .fa-brands,
