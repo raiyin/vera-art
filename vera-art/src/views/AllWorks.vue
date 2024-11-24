@@ -18,13 +18,15 @@ export default {
         async fetchData() {
             try {
                 let response = await axios.get(
-                    this.jsonserverhost + 'painting'
+                    this.jsonserverhost + 'painting',
                 );
                 this.paintingImages = response.data;
+
                 response = await axios.get(
-                    this.jsonserverhost + 'illustration'
+                    this.jsonserverhost + 'illustration',
                 );
                 this.illustrationImages = response.data;
+
                 response = await axios.get(this.jsonserverhost + '3d');
                 this.threeDImages = response.data;
             } catch (e) {

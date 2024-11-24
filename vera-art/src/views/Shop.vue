@@ -14,26 +14,13 @@ export default {
     data() {
         return {
             images: [] as ImageProps[],
-            page: 1,
+            page: 0,
             limit: 9,
             selectedSort: '',
         };
     },
     methods: {
         async loadWorks() {
-            try {
-                const response = await axios.get(this.jsonserverhost + 'sale', {
-                    params: {
-                        _page: this.page,
-                        _limit: this.limit,
-                    },
-                });
-                this.images = response.data;
-            } catch (e) {
-                console.log(e);
-            }
-        },
-        async loadMoreWorks() {
             try {
                 this.page += 1;
                 const response = await axios.get(this.jsonserverhost + 'sale', {
@@ -49,15 +36,14 @@ export default {
         },
     },
     mounted() {
-        this.loadWorks();
+        const callback = (entries: IntersectionObserverEntry[]) => {
+            if (entries[0].isIntersecting) {
+                this.loadWorks();
+            }
+        };
         const options = {
             rootMargin: '0px',
             threshold: 1.0,
-        };
-        const callback = (entries: IntersectionObserverEntry[]) => {
-            if (entries[0].isIntersecting) {
-                this.loadMoreWorks();
-            }
         };
         const observer = new IntersectionObserver(callback, options);
         observer.observe(this.$refs.observer as Element);
@@ -88,7 +74,7 @@ export default {
                         )?.localeCompare(
                             image_second[
                                 this.selectedSort as keyof typeof image_first
-                            ] as string
+                            ] as string,
                         );
 
                     if (
@@ -106,7 +92,7 @@ export default {
                         );
 
                     return 0;
-                }
+                },
             );
         },
     },
@@ -126,7 +112,7 @@ export default {
         </v-select>
     </section>
     <Gallery :images="images" />
-    <div ref="observer" class="observer"></div>
+    <div ref="observer" class="observer" />
 </template>
 
 <style scoped>
