@@ -75,7 +75,7 @@ export default {
 
 <template>
     <section class="container text-center px-0 main-content">
-        <article class="container px-0">
+        <article class="container">
             <div class="news-header">
                 <div class="news-img">
                     <div class="img-mock" v-show="!isImgLoaded" />
