@@ -157,7 +157,7 @@ img {
     color: var(--color-on-surface);
 }
 
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 991px) {
     .news-header {
         flex-direction: column;
     }
