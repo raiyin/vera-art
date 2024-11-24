@@ -15,7 +15,6 @@ export default {
     data() {
         return {
             isLoaded: false,
-            loadingGrey: '#adadad',
         };
     },
     methods: {
@@ -61,14 +60,15 @@ export default {
                         />
                         <div v-show="!isLoaded" class="image-stub" />
                     </div>
+
                     <div class="news-content">
                         <p>
                             {{
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.title_ru
-                                    : newsObject.title_en
+                                      ? newsObject.title_ru
+                                      : newsObject.title_en
                             }}
                         </p>
                         <p>
@@ -76,8 +76,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.subTitle_ru
-                                    : newsObject.subTitle_en
+                                      ? newsObject.subTitle_ru
+                                      : newsObject.subTitle_en
                             }}
                         </p>
                         <p>
@@ -88,7 +88,7 @@ export default {
                                         ? ''
                                         : getHumanDate(
                                               newsObject.datetime,
-                                              $i18n.locale
+                                              $i18n.locale,
                                           )
                                 }}
                             </span>
@@ -133,14 +133,14 @@ export default {
 
 .loading .img-holder,
 .loading .news-content {
-    background-color: v-bind(loadingGrey);
+    background-color: var(--skeleton-gray);
     background: linear-gradient(
             100deg,
             rgba(255, 255, 255, 0) 40%,
             rgba(255, 255, 255, 0.5) 50%,
             rgba(255, 255, 255, 0) 60%
         )
-        v-bind(loadingGrey);
+        var(--skeleton-gray);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
@@ -169,7 +169,6 @@ export default {
 
 .news-content {
     position: relative;
-    font-family: 'Ubuntu';
     font-weight: bold;
     font-size: larger;
     text-align: left;
@@ -177,10 +176,6 @@ export default {
     line-height: 0.4rem;
     color: var(--color-on-surface);
     letter-spacing: 0.05rem;
-}
-
-.news-content p {
-    font-family: Ubuntu;
 }
 
 .news-content > p > span {

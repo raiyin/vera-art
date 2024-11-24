@@ -26,7 +26,6 @@ export default {
     data() {
         return {
             isLoaded: false as boolean,
-            loadingGrey: '#adadad',
         };
     },
     methods: {
@@ -107,14 +106,14 @@ export default {
 }
 
 .loading .image-stub {
-    background-color: v-bind(loadingGrey);
+    background-color: var(--skeleton-gray);
     background: linear-gradient(
             100deg,
             rgba(255, 255, 255, 0) 40%,
             rgba(255, 255, 255, 0.5) 50%,
             rgba(255, 255, 255, 0) 60%
         )
-        v-bind(loadingGrey);
+        var(--skeleton-gray);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
