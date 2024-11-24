@@ -11,16 +11,6 @@
 		/* Safari, Android, iOS */
 }
 
-@font-face {
-	font-family: 'Ubuntu';
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-	src: url('../fonts/ubuntu-regular-webfont.woff2') format('woff2');
-	src: local(''),
-		url('../fonts/Ubuntu-Regular.ttf') format('truetype'),
-}
-
 html,
 body,
 #app {

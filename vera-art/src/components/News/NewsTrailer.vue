@@ -61,14 +61,15 @@ export default {
                         />
                         <div v-show="!isLoaded" class="image-stub" />
                     </div>
+
                     <div class="news-content">
                         <p>
                             {{
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.title_ru
-                                    : newsObject.title_en
+                                      ? newsObject.title_ru
+                                      : newsObject.title_en
                             }}
                         </p>
                         <p>
@@ -76,8 +77,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.subTitle_ru
-                                    : newsObject.subTitle_en
+                                      ? newsObject.subTitle_ru
+                                      : newsObject.subTitle_en
                             }}
                         </p>
                         <p>
@@ -88,7 +89,7 @@ export default {
                                         ? ''
                                         : getHumanDate(
                                               newsObject.datetime,
-                                              $i18n.locale
+                                              $i18n.locale,
                                           )
                                 }}
                             </span>
@@ -169,7 +170,6 @@ export default {
 
 .news-content {
     position: relative;
-    font-family: 'Ubuntu';
     font-weight: bold;
     font-size: larger;
     text-align: left;
@@ -177,10 +177,6 @@ export default {
     line-height: 0.4rem;
     color: var(--color-on-surface);
     letter-spacing: 0.05rem;
-}
-
-.news-content p {
-    font-family: Ubuntu;
 }
 
 .news-content > p > span {
