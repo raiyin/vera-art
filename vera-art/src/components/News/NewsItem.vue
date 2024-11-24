@@ -6,6 +6,8 @@ import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import VideoSection from '@/components/News/VideoSection.vue';
 import PhotoSection from './PhotoSection.vue';
+import NewsDescriptionSkeleton from '@/components/UI/Skeletons/NewsDescriptionSkeleton.vue';
+import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
 
 export default {
     setup() {
@@ -21,12 +23,13 @@ export default {
         NewsItemDescription,
         VideoSection,
         PhotoSection,
+        SideNewsTrailerSkeleton,
     },
     data() {
         return {
             currentNewsItem: {} as NewsItemType,
             otherNews: [] as NewsItemType[],
-            isLoaded: false,
+            isImgLoaded: false,
         };
     },
     methods: {
@@ -39,23 +42,24 @@ export default {
                 this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
             );
         },
+
+        onImgLoaded() {
+            this.isImgLoaded = true;
+        },
     },
 
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
         this.otherNews = await fetchOtherNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
-    },
-    mounted(){
-        this.loaded=true;
     },
     computed: {
         background() {
@@ -71,11 +75,18 @@ export default {
 
 <template>
     <section class="container text-center px-0 main-content">
-        <article class="container px-0">
+        <article class="container">
             <div class="news-header">
-                <div
-                class="news-img">
-                    <img :src="background" />
+                <div class="news-img">
+                    <div class="img-mock" v-show="!isImgLoaded" />
+                    <img
+                        :src="background"
+                        width="670px"
+                        height="450px"
+                        alt="News main image"
+                        @load="onImgLoaded"
+                        v-show="isImgLoaded"
+                    />
                 </div>
 
                 <div class="other-news">
@@ -117,7 +128,10 @@ export default {
     display: flex;
     column-gap: 1rem;
 }
-
+.img-mock {
+    height: 450px;
+    width: 670px;
+}
 img {
     min-width: 100%;
     min-width: auto;
@@ -129,8 +143,8 @@ img {
     display: flex;
     flex-direction: column;
     background-color: var(--color-surface);
-    padding: 0 15px;
     border-radius: 15px;
+    width: 50%;
 }
 
 .other-news-item-wrapper {
@@ -150,6 +164,8 @@ img {
 
     .other-news {
         padding-top: 0.8rem;
+        width: 100%;
+        padding: 0 15px;
     }
 
     .other-news-item-wrapper {

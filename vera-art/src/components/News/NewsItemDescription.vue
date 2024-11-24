@@ -1,15 +1,24 @@
 <script lang="ts">
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
+import NewsDescriptionSkeleton from '../UI/Skeletons/NewsDescriptionSkeleton.vue';
 
 export default {
     components: {
         CalendarIcon,
+        NewsDescriptionSkeleton,
     },
     props: {
         newsObject: {
             type: Object,
             required: true,
         },
+    },
+    data() {
+        return {
+            news: [],
+            currentNews: {},
+            isLoaded: false,
+        };
     },
     methods: {
         getHumanDate(inDate: string, locale: string) {
@@ -22,19 +31,21 @@ export default {
             const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
+        onLoad() {
+            this.isLoaded = true;
+        },
     },
-    data() {
-        return {
-            news: [],
-            currentNews: {},
-        };
+    mounted() {
+        this.$nextTick(() => {
+            this.onLoad();
+        });
     },
 };
 </script>
 
 <template>
     <div class="desc">
-        <div class="title">
+        <div class="title" @load="onLoad" v-show="isLoaded">
             <h2>
                 {{
                     $i18n.locale === 'RUS'
@@ -55,6 +66,7 @@ export default {
                 >
             </div>
         </div>
+        <NewsDescriptionSkeleton v-show="!isLoaded" />
     </div>
 </template>
 

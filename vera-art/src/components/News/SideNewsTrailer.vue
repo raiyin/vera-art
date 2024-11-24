@@ -1,16 +1,25 @@
 <script lang="ts">
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
+import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
+import { NewsItemType } from '@/types';
+import { PropType } from 'vue';
 
 export default {
     inject: ['imagebasedir'],
     components: {
         CalendarIcon,
+        SideNewsTrailerSkeleton,
     },
     props: {
         sideNewsObject: {
-            type: Object,
+            type: Object as PropType<NewsItemType>,
             required: true,
         },
+    },
+    data() {
+        return {
+            isLoaded: false,
+        };
     },
     methods: {
         getHumanDate(inDate: string, locale: string) {
@@ -23,6 +32,11 @@ export default {
             const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
+        onLoad() {
+            setTimeout(() => {
+                this.isLoaded = true;
+            }, 1000);
+        },
     },
     computed: {
         background() {
@@ -33,36 +47,53 @@ export default {
             );
         },
     },
+    mounted() {
+        this.$nextTick(() => {
+            this.onLoad();
+        });
+    },
 };
 </script>
 
 <template>
-    <router-link :to="sideNewsObject.id" class="other-news-item">
-        <div class="other-news-img">
-            <img :src="background" alt="one more news todo" />
-        </div>
-        <div class="other-news-desc">
-            <h6>
-                {{
-                    $i18n.locale === 'RUS'
-                        ? sideNewsObject.title_ru
-                        : sideNewsObject.title_en
-                }}&nbsp;{{
-                    $i18n.locale === 'RUS'
-                        ? sideNewsObject.subTitle_ru
-                        : sideNewsObject.subTitle_en
-                }}
-            </h6>
-            <div class="date">
-                <CalendarIcon />
-                <span>
-                    &nbsp;{{
-                        getHumanDate(sideNewsObject.datetime, $i18n.locale)
-                    }}
-                </span>
+    <div>
+        <router-link
+            :to="sideNewsObject.id"
+            class="other-news-item"
+            v-show="isLoaded"
+        >
+            <div class="other-news-img">
+                <img
+                    :src="background"
+                    :alt="sideNewsObject.title_en"
+                    width="90px"
+                    height="60px"
+                />
             </div>
-        </div>
-    </router-link>
+            <div class="other-news-desc">
+                <h6>
+                    {{
+                        $i18n.locale === 'RUS'
+                            ? sideNewsObject.title_ru
+                            : sideNewsObject.title_en
+                    }}&nbsp;{{
+                        $i18n.locale === 'RUS'
+                            ? sideNewsObject.subTitle_ru
+                            : sideNewsObject.subTitle_en
+                    }}
+                </h6>
+                <div class="date">
+                    <CalendarIcon />
+                    <span>
+                        &nbsp;{{
+                            getHumanDate(sideNewsObject.datetime, $i18n.locale)
+                        }}
+                    </span>
+                </div>
+            </div>
+        </router-link>
+        <SideNewsTrailerSkeleton v-show="!isLoaded" />
+    </div>
 </template>
 
 <style scoped>
