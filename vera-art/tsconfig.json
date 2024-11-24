@@ -3,26 +3,14 @@
         "allowJs": true,
         "composite": true,
         "resolveJsonModule": true,
-        "types": [
-            "node"
-        ],
+        "target": "esnext",
+        "types": ["node"],
         "moduleResolution": "bundler",
-        "lib": [
-            "es5",
-            "es6",
-            "dom",
-            "dom.iterable"
-        ]
+        "lib": ["es5", "es6", "dom", "dom.iterable"]
     },
-    "include": [
-        "*.ts",
-        "*.json",
-        "src/**/*.json",
-        ".d.ts"
-    ],
+    "include": ["*.ts", "*.json", "src/**/*.json", ".d.ts"],
     "files": [],
     "module": "ESNext",
-    "target": "esnext",
     "references": [
         {
             "path": "./tsconfig.config.json"

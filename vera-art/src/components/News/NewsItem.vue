@@ -26,6 +26,7 @@ export default {
         return {
             currentNewsItem: {} as NewsItemType,
             otherNews: [] as NewsItemType[],
+            isLoaded: false,
         };
     },
     methods: {
@@ -40,7 +41,7 @@ export default {
         },
     },
 
-    async mounted() {
+    async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
             this.jsonserverhost
@@ -52,6 +53,9 @@ export default {
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
+    },
+    mounted(){
+        this.loaded=true;
     },
     computed: {
         background() {
@@ -69,19 +73,19 @@ export default {
     <section class="container text-center px-0 main-content">
         <article class="container px-0">
             <div class="news-header">
-                <div class="news-img">
+                <div
+                class="news-img">
                     <img :src="background" />
                 </div>
 
                 <div class="other-news">
-                    <template
+                    <div
+                        class="other-news-item-wrapper"
                         v-for="newsItem in otherNews"
-                        v-bind:key="newsItem"
+                        v-bind:key="newsItem.id"
                     >
-                        <div class="other-news-item-wrapper">
-                            <SideNewsTrailer :sideNewsObject="newsItem" />
-                        </div>
-                    </template>
+                        <SideNewsTrailer :sideNewsObject="newsItem" />
+                    </div>
                 </div>
             </div>
 
@@ -115,6 +119,8 @@ export default {
 }
 
 img {
+    min-width: 100%;
+    min-width: auto;
     width: 100%;
     height: auto;
 }

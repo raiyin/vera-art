@@ -46,10 +46,10 @@ export default {
                         : newsObject.subTitle_en
                 }}
             </h2>
-            <div class="date">
+            <div class="date" v-show="!!newsObject.datetime">
                 <CalendarIcon />
-                <span
-                    >&nbsp;{{
+                <span>
+                    &nbsp;{{
                         getHumanDate(newsObject.datetime, $i18n.locale)
                     }}</span
                 >
