@@ -6,6 +6,7 @@ import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import VideoSection from '@/components/News/VideoSection.vue';
 import PhotoSection from './PhotoSection.vue';
+import NewsDescriptionSkeleton from '@/components/UI/Skeletons/NewsDescriptionSkeleton.vue';
 
 export default {
     setup() {
@@ -21,6 +22,7 @@ export default {
         NewsItemDescription,
         VideoSection,
         PhotoSection,
+        NewsDescriptionSkeleton,
     },
     data() {
         return {
@@ -44,18 +46,18 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
         this.otherNews = await fetchOtherNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
     },
-    mounted(){
-        this.loaded=true;
+    mounted() {
+        this.loaded = true;
     },
     computed: {
         background() {
@@ -73,8 +75,7 @@ export default {
     <section class="container text-center px-0 main-content">
         <article class="container px-0">
             <div class="news-header">
-                <div
-                class="news-img">
+                <div class="news-img">
                     <img :src="background" />
                 </div>
 
