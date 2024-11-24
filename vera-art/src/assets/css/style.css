@@ -1,4 +1,5 @@
-/* montserrat-regular - latin_cyrillic */
+:root {}
+
 @font-face {
 	font-family: 'Montserrat';
 	font-style: normal;
@@ -6,9 +7,7 @@
 	src: url('../fonts/montserrat-v25-latin_cyrillic-regular.woff2');
 	src: local(''),
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.woff') format('woff'),
-		/* Modern Browsers */
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.ttf') format('truetype'),
-		/* Safari, Android, iOS */
 }
 
 html,
@@ -70,14 +69,15 @@ html {
 	-moz-text-size-adjust: 100%;
 	text-rendering: optimizeLegibility;
 	/* Цветовая схема */
-	--color-surface: #f8f8f8;
-	--color-on-surface: #12131c;
-	--color-on-surface-hover: #42434c;
+	--color-surface: #F8F8F8;
+	--color-on-surface: #12131C;
+	--color-on-surface-hover: #42434C;
 	--color-surface-secondary: rgba(255, 255, 255, 0.4);
 	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
-	--color-header-menu-item: #73d1be;
-	--vs-dropdown-bg: #fff;
-	--vs-dropdown-option--active-bg: #ddd;
+	--color-header-menu-item: #73D1BE;
+	--vs-dropdown-bg: #FFFFFF;
+	--vs-dropdown-option--active-bg: #DDDDDD;
+	--skeleton-gray: #ADADAD;
 	/* Параметры отображения */
 	background-color: var(--color-surface);
 	color: var(--color-on-surface);
@@ -87,12 +87,12 @@ html {
 
 /* Цветовая схема для темной темы */
 .body_theme_dark {
-	--color-surface: #231e1f;
+	--color-surface: #231E1F;
 	--color-on-surface: #777;
-	--color-on-surface-hover: #999;
+	--color-on-surface-hover: #999999;
 	--color-surface-secondary: rgba(25, 25, 21, 0.4);
 	--color-surface-secondary-solid: rgba(25, 20, 21, 1);
 	--color-header-menu-item: #494849;
-	--vs-dropdown-bg: #333;
-	--vs-dropdown-option--active-bg: #444;
+	--vs-dropdown-bg: #333333;
+	--vs-dropdown-option--active-bg: #444444;
 }

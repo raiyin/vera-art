@@ -22,7 +22,6 @@ export default {
     data() {
         return {
             isLoaded: false,
-            loadingGrey: '#adadad',
         };
     },
     methods: {
@@ -73,8 +72,8 @@ export default {
                             !isLoaded
                                 ? ''
                                 : $i18n.locale === 'RUS'
-                                ? imageObject.name_ru
-                                : imageObject.name_en
+                                  ? imageObject.name_ru
+                                  : imageObject.name_en
                         }}
                     </h5>
 
@@ -84,8 +83,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? imageObject.base_ru
-                                    : imageObject.base_en
+                                      ? imageObject.base_ru
+                                      : imageObject.base_en
                             }}
                         </span>
                         <span v-if="imageObject.material_ru">
@@ -93,8 +92,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? `, ${imageObject.material_ru}`
-                                    : `, ${imageObject.material_en}`
+                                      ? `, ${imageObject.material_ru}`
+                                      : `, ${imageObject.material_en}`
                             }}
                         </span>
                         <span v-if="imageObject.size">
@@ -158,14 +157,14 @@ export default {
 .loading .card-text,
 .loading p,
 .loading .description {
-    background-color: v-bind(loadingGrey);
+    background-color: var(--skeleton-gray);
     background: linear-gradient(
             100deg,
             rgba(255, 255, 255, 0) 40%,
             rgba(255, 255, 255, 0.5) 50%,
             rgba(255, 255, 255, 0) 60%
         )
-        v-bind(loadingGrey);
+        var(--skeleton-gray);
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
