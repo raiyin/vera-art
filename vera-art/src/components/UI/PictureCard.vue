@@ -3,6 +3,7 @@ import type { ImageProps } from '@/types';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
+import PictureCardSkeleton from '../UI/Skeletons/PictureCardSkeleton.vue';
 
 export default {
     setup() {
@@ -12,6 +13,7 @@ export default {
     inject: ['imagebasedir'],
     components: {
         Modal: ModalDialog,
+        CardSkeleton: PictureCardSkeleton,
     },
     props: {
         imageObject: {
@@ -49,81 +51,68 @@ export default {
 
 <template>
     <div class="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-        <div
-            class="card p-3 mb-5 rounded"
-            :class="[isLoaded ? showCardShadow : 'loading']"
-        >
+        <div class="card p-3 mb-5 rounded showCardShadow" v-show="isLoaded">
             <img
-                v-show="isLoaded"
                 :src="mainCardImage"
                 @load="onImgLoad"
                 class="card-img-top"
-                alt="..."
+                :alt="
+                    $i18n.locale === 'RUS'
+                        ? imageObject.name_ru
+                        : imageObject.name_en
+                "
                 data-bs-toggle="modal"
                 :data-bs-target="imgIdModalToLink"
             />
-
-            <div v-show="!isLoaded" class="image" />
 
             <div class="card-body">
                 <div class="desc">
                     <h5 class="card-title">
                         {{
-                            !isLoaded
-                                ? ''
-                                : $i18n.locale === 'RUS'
-                                  ? imageObject.name_ru
-                                  : imageObject.name_en
+                            $i18n.locale === 'RUS'
+                                ? imageObject.name_ru
+                                : imageObject.name_en
                         }}
                     </h5>
 
                     <div class="card-text">
                         <span v-if="imageObject.base_ru">
                             {{
-                                !isLoaded
-                                    ? ''
-                                    : $i18n.locale === 'RUS'
-                                      ? imageObject.base_ru
-                                      : imageObject.base_en
+                                $i18n.locale === 'RUS'
+                                    ? imageObject.base_ru
+                                    : imageObject.base_en
                             }}
                         </span>
                         <span v-if="imageObject.material_ru">
                             {{
-                                !isLoaded
-                                    ? ''
-                                    : $i18n.locale === 'RUS'
-                                      ? `, ${imageObject.material_ru}`
-                                      : `, ${imageObject.material_en}`
+                                $i18n.locale === 'RUS'
+                                    ? `, ${imageObject.material_ru}`
+                                    : `, ${imageObject.material_en}`
                             }}
                         </span>
                         <span v-if="imageObject.size">
-                            {{ !isLoaded ? '' : `, ${imageObject.size}` }}
+                            {{ `, ${imageObject.size}` }}
                         </span>
                         <span v-if="imageObject.year">
-                            {{ !isLoaded ? '' : `, ${imageObject.year}` }}
+                            {{ `, ${imageObject.year}` }}
                         </span>
                     </div>
                     <p v-if="imageObject.price">
                         {{
-                            !isLoaded
-                                ? ''
-                                : $t('card.price') +
-                                  ` ${imageObject.price} ` +
-                                  $t('card.rub')
+                            $t('card.price') +
+                            ` ${imageObject.price} ` +
+                            $t('card.rub')
                         }}
                     </p>
                 </div>
             </div>
             <Modal :imageObject="imageObject" />
         </div>
+        <CardSkeleton v-if="!isLoaded" />
     </div>
 </template>
 
 <style scoped>
-.nav-tabs {
-    --bs-nav-tabs-border-color: #000 !important;
-}
-
 .card-body {
     display: flex;
     align-items: center;
@@ -135,49 +124,7 @@ export default {
     width: 100%;
 }
 
-.image {
-    height: 200px;
-}
-
-.loading h5 {
-    width: 80%;
-    display: inline-block;
-    text-align: center;
-}
-
-.loading h5,
-.loading .card-text,
-.loading p {
-    height: 20px;
-    margin-bottom: 5px;
-}
-
-.loading .image,
-.loading h5,
-.loading .card-text,
-.loading p,
-.loading .description {
-    background-color: var(--skeleton-gray);
-    background: linear-gradient(
-            100deg,
-            rgba(255, 255, 255, 0) 40%,
-            rgba(255, 255, 255, 0.5) 50%,
-            rgba(255, 255, 255, 0) 60%
-        )
-        var(--skeleton-gray);
-    background-size: 200% 100%;
-    background-position-x: 180%;
-    animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
-}
-
-@keyframes loading {
-    to {
-        background-position-x: -20%;
-    }
-}
-
-.image img {
+img {
     display: block;
     width: 100%;
     height: inherit;
