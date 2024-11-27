@@ -40,17 +40,18 @@ export default {
 <template>
     <div :id="imageId" class="carousel slide" data-bs-ride="false">
         <div v-if="imgCountGTOne" class="carousel-indicators">
-            <template v-for="(value, index) in parts" v-bind:key="index">
-                <button
-                    type="button"
-                    :data-bs-target="imgIdtoLink"
-                    :class="index === 0 ? 'active' : null"
-                    :data-bs-slide-to="index"
-                    :aria-current="index === 0 ? true : false"
-                    :aria-label="value.name_ru"
-                ></button>
-            </template>
+            <button
+                v-for="(value, index) in parts"
+                v-bind:key="index"
+                type="button"
+                :data-bs-target="imgIdtoLink"
+                :class="index === 0 ? 'active' : null"
+                :data-bs-slide-to="index"
+                :aria-current="index === 0 ? true : false"
+                :aria-label="value.name_ru"
+            />
         </div>
+
         <div class="carousel-inner">
             <template v-for="(value, index) in parts" v-bind:key="index">
                 <div
@@ -69,6 +70,7 @@ export default {
                 </div>
             </template>
         </div>
+
         <button
             v-if="imgCountGTOne"
             class="carousel-control-prev"
@@ -81,6 +83,7 @@ export default {
                 {{ $t('carousel.back') }}
             </span>
         </button>
+
         <button
             v-if="imgCountGTOne"
             class="carousel-control-next"

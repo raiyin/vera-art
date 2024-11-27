@@ -2,10 +2,13 @@
 import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
 import { PropType } from 'vue';
 import type { NewsItemType } from '@/types';
+import ModalDialog from '../UI/ModalDialog.vue';
+import NewsCarousel from './NewsCarousel.vue';
 
 export default {
     components: {
         NewsPhotoItem,
+        NewsCarousel: NewsCarousel,
     },
     props: {
         currentNewsItem: {
@@ -56,4 +59,5 @@ export default {
             </div>
         </div>
     </section>
+    <NewsCarousel :imageObject="currentNewsItem" />
 </template>
