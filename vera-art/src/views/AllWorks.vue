@@ -22,41 +22,29 @@ export default {
         async loadPainting() {
             try {
                 this.paitingPage += 1;
-                const response = await axios.get(
-                    this.jsonserverhost + 'painting',
-                    {
-                        params: {
-                            _page: this.paitingPage,
-                            _limit: this.limit,
-                        },
+                const response = await axios.get(this.jsonserverhost + 'painting', {
+                    params: {
+                        _page: this.paitingPage,
+                        _limit: this.limit,
                     },
-                );
-                this.paintingImages = [
-                    ...this.paintingImages,
-                    ...response.data,
-                ];
+                });
+                this.paintingImages = [...this.paintingImages, ...response.data];
             } catch (e) {
-                console.log(e);
+                console.error('Error fetching paintings on allworks page ' + e);
             }
         },
         async loadIllustrations() {
             try {
                 this.illustrationPage += 1;
-                const response = await axios.get(
-                    this.jsonserverhost + 'illustration',
-                    {
-                        params: {
-                            _page: this.illustrationPage,
-                            _limit: this.limit,
-                        },
+                const response = await axios.get(this.jsonserverhost + 'illustration', {
+                    params: {
+                        _page: this.illustrationPage,
+                        _limit: this.limit,
                     },
-                );
-                this.illustrationImages = [
-                    ...this.illustrationImages,
-                    ...response.data,
-                ];
+                });
+                this.illustrationImages = [...this.illustrationImages, ...response.data];
             } catch (e) {
-                console.log(e);
+                console.error('Error fetching imaillustration on all works page ' + e);
             }
         },
         async load3D() {
@@ -70,7 +58,7 @@ export default {
                 });
                 this.threeDImages = [...this.threeDImages, ...response.data];
             } catch (e) {
-                console.log(e);
+                console.error('Error fetching 3d images on all works page ' + e);
             }
         },
     },
@@ -95,24 +83,16 @@ export default {
             }
         };
 
-        const paintingObserver = new IntersectionObserver(
-            paintingCallback,
-            options,
-        );
+        const paintingObserver = new IntersectionObserver(paintingCallback, options);
         paintingObserver.observe(this.$refs.paintingObserver as Element);
 
         const illustrationObserver = new IntersectionObserver(
             illustrationCallback,
-            options,
+            options
         );
-        illustrationObserver.observe(
-            this.$refs.illustrationObserver as Element,
-        );
+        illustrationObserver.observe(this.$refs.illustrationObserver as Element);
 
-        const threeDObserver = new IntersectionObserver(
-            threeDCallback,
-            options,
-        );
+        const threeDObserver = new IntersectionObserver(threeDCallback, options);
         threeDObserver.observe(this.$refs.graphics3dObserver as Element);
     },
 };

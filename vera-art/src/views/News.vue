@@ -27,7 +27,7 @@ export default {
                 });
                 this.news = response.data;
             } catch (e) {
-                console.log('Error');
+                console.error('Error fetching news');
             }
         },
         async loadMoreNews() {
@@ -41,7 +41,7 @@ export default {
                 });
                 this.news = [...this.news, ...response.data];
             } catch (e) {
-                console.log('Error');
+                console.error('Error fetching news');
             }
         },
     },
@@ -58,7 +58,7 @@ export default {
         };
         const observer: IntersectionObserver = new IntersectionObserver(
             callback,
-            options
+            options,
         );
         observer.observe(this.$refs.observer as Element);
     },

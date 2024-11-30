@@ -4,6 +4,7 @@ import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
 import PictureCardSkeleton from '../UI/Skeletons/PictureCardSkeleton.vue';
+import PicCarousel from './PicCarousel.vue';
 
 export default {
     setup() {
@@ -14,6 +15,7 @@ export default {
     components: {
         Modal: ModalDialog,
         CardSkeleton: PictureCardSkeleton,
+        Carousel: PicCarousel,
     },
     props: {
         imageObject: {
@@ -34,8 +36,11 @@ export default {
         },
     },
     computed: {
-        imgIdModalToLink() {
+        imgIdToModalIdSelector() {
             return '#' + this.imageObject.id + 'Modal';
+        },
+        imgIdToModalId() {
+            return this.imageObject.id + 'Modal';
         },
         mainCardImage() {
             return this.imagebasedir + this.imageObject.dir + '1.jpg';
@@ -62,7 +67,7 @@ export default {
                         : imageObject.name_en
                 "
                 data-bs-toggle="modal"
-                :data-bs-target="imgIdModalToLink"
+                :data-bs-target="imgIdToModalIdSelector"
             />
 
             <div class="card-body">
@@ -106,7 +111,13 @@ export default {
                     </p>
                 </div>
             </div>
-            <Modal :imageObject="imageObject" />
+
+            <Modal :modalId="imgIdToModalId">
+                <Carousel
+                    :imageObject="imageObject"
+                    :imageId="imageObject.id"
+                />
+            </Modal>
         </div>
         <CardSkeleton v-if="!isLoaded" />
     </div>

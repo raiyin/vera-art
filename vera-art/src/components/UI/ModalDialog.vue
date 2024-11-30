@@ -10,14 +10,9 @@ export default {
         ButtonClose,
     },
     props: {
-        imageObject: {
-            type: Object as PropType<ImageProps>,
+        modalId: {
+            type: Object as PropType<string>,
             required: true,
-        },
-    },
-    computed: {
-        imgIdModal() {
-            return this.imageObject.id + 'Modal';
         },
     },
 };
@@ -26,7 +21,7 @@ export default {
 <template>
     <div
         class="modal fade"
-        :id="imgIdModal"
+        :id="modalId"
         tabindex="-1"
         aria-labelledby="exampleModalLabel"
         aria-hidden="true"
@@ -37,10 +32,7 @@ export default {
                     <div class="modal__btn">
                         <ButtonClose />
                     </div>
-                    <Carousel
-                        :imageObject="imageObject"
-                        :imageId="imageObject.id"
-                    />
+                    <slot></slot>
                 </div>
             </div>
         </div>
