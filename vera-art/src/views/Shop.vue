@@ -31,7 +31,7 @@ export default {
                 });
                 this.images = [...this.images, ...response.data];
             } catch (e) {
-                console.log(e);
+                console.error('Error fetching images on shop page');
             }
         },
     },
@@ -60,40 +60,30 @@ export default {
     },
     watch: {
         selectedSort() {
-            this.images.sort(
-                (image_first: ImageProps, image_second: ImageProps) => {
-                    if (
-                        typeof image_first[
+            this.images.sort((image_first: ImageProps, image_second: ImageProps) => {
+                if (
+                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
+                    'string'
+                )
+                    return (image_first[
+                        this.selectedSort as keyof typeof image_first
+                    ] as string)?.localeCompare(
+                        image_second[
                             this.selectedSort as keyof typeof image_first
-                        ] === 'string'
-                    )
-                        return (
-                            image_first[
-                                this.selectedSort as keyof typeof image_first
-                            ] as string
-                        )?.localeCompare(
-                            image_second[
-                                this.selectedSort as keyof typeof image_first
-                            ] as string,
-                        );
+                        ] as string
+                    );
 
-                    if (
-                        typeof image_first[
-                            this.selectedSort as keyof typeof image_first
-                        ] === 'number'
-                    )
-                        return (
-                            +image_first[
-                                this.selectedSort as keyof typeof image_first
-                            ] -
-                            +image_second[
-                                this.selectedSort as keyof typeof image_first
-                            ]
-                        );
+                if (
+                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
+                    'number'
+                )
+                    return (
+                        +image_first[this.selectedSort as keyof typeof image_first] -
+                        +image_second[this.selectedSort as keyof typeof image_first]
+                    );
 
-                    return 0;
-                },
-            );
+                return 0;
+            });
         },
     },
 };

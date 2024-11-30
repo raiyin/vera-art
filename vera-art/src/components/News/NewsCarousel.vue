@@ -9,6 +9,13 @@ export default {
             type: Object as PropType<NewsDesc>,
             default: {} as NewsDesc,
         },
+        selectedIndex: {
+            type: Object as PropType<number>,
+            default: 1,
+        },
+        setSelectedIndex: {
+            type: Function,
+        },
     },
     data() {
         return {
@@ -19,20 +26,27 @@ export default {
         makeFileName(dir: string, index: number) {
             return this.imagebasedir + dir + index + this.extension;
         },
+        decreaseSelectedIndex() {
+            if (this.selectedIndex - 1 === 0) {
+                this.setSelectedIndex(this.imageObject.imagescount);
+            } else {
+                this.setSelectedIndex(this.selectedIndex - 1);
+            }
+        },
+        increaseSelectedIndex() {
+            if (this.selectedIndex + 1 > this.imageObject.imagescount) {
+                this.setSelectedIndex(0);
+            } else {
+                this.setSelectedIndex(this.selectedIndex + 1);
+            }
+        },
     },
 };
 </script>
 
 <template>
-    <div
-        id="news_img"
-        class="carousel slide carousel-fade"
-        data-bs-ride="false"
-    >
-        <div
-            v-if="this.imageObject.imagescount > 1"
-            class="carousel-indicators"
-        >
+    <div id="news_img" class="carousel slide carousel-fade" data-bs-ride="false">
+        <div v-if="this.imageObject.imagescount > 1" class="carousel-indicators">
             <button
                 v-for="index in this.imageObject.imagescount"
                 v-bind:key="index"
@@ -48,7 +62,7 @@ export default {
             <div
                 v-for="index in this.imageObject.imagescount"
                 v-bind:key="index"
-                :class="'carousel-item' + (index === 1 ? ' active' : '')"
+                :class="'carousel-item' + (index === selectedIndex ? ' active' : '')"
             >
                 <img
                     :src="makeFileName(imageObject.dir, index)"
@@ -64,6 +78,7 @@ export default {
             type="button"
             data-bs-target="#news_img"
             data-bs-slide="prev"
+            @click="decreaseSelectedIndex"
         >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">
@@ -77,6 +92,7 @@ export default {
             type="button"
             data-bs-target="#news_img"
             data-bs-slide="next"
+            @click="increaseSelectedIndex"
         >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">

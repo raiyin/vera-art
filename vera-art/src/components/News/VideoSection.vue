@@ -102,6 +102,10 @@ export default {
     width: 100%;
 }
 
+video {
+    cursor: pointer;
+}
+
 @media (orientation: landscape) {
     .img-fluid {
         max-height: 90vh;
