@@ -38,9 +38,7 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return (
-                this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
-            );
+            return this.imagebasedir + this.currentNewsItem.dir + index + '.mp4';
         },
 
         onImgLoaded() {
@@ -51,12 +49,9 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost,
+            this.jsonserverhost
         );
-        this.otherNews = await fetchOtherNews(
-            this.$route.path,
-            this.jsonserverhost,
-        );
+        this.otherNews = await fetchOtherNews(this.$route.path, this.jsonserverhost);
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -129,8 +124,8 @@ export default {
     column-gap: 1rem;
 }
 .img-mock {
-    height: 450px;
-    width: 670px;
+    height: 40rem;
+    width: 60rem;
 }
 img {
     min-width: 100%;
@@ -144,7 +139,7 @@ img {
     flex-direction: column;
     background-color: var(--color-surface);
     border-radius: 15px;
-    width: 50%;
+    width: 60%;
 }
 
 .other-news-item-wrapper {

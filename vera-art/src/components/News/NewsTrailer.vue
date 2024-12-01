@@ -37,11 +37,7 @@ export default {
             return '/newsitem/' + this.newsObject.id;
         },
         bgImage() {
-            return (
-                this.imagebasedir +
-                this.newsObject.dir +
-                this.newsObject.img_back
-            );
+            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
         },
     },
 };
@@ -53,46 +49,39 @@ export default {
             <div class="news-item" :class="[!isLoaded ? 'loading' : '']">
                 <router-link :to="newsId">
                     <div class="img-holder">
-                        <img
-                            :src="bgImage"
-                            @load="onImgLoad"
-                            v-show="isLoaded"
-                        />
+                        <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
                         <div v-show="!isLoaded" class="image-stub" />
                     </div>
 
                     <div class="news-content">
-                        <p>
+                        <div>
                             {{
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                      ? newsObject.title_ru
-                                      : newsObject.title_en
+                                    ? newsObject.title_ru
+                                    : newsObject.title_en
                             }}
-                        </p>
-                        <p>
+                        </div>
+                        <div>
                             {{
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                      ? newsObject.subTitle_ru
-                                      : newsObject.subTitle_en
+                                    ? newsObject.subTitle_ru
+                                    : newsObject.subTitle_en
                             }}
-                        </p>
-                        <p>
+                        </div>
+                        <div>
                             <CalendarIcon v-if="isLoaded" />
                             <span>
                                 &nbsp;{{
                                     !isLoaded
                                         ? ''
-                                        : getHumanDate(
-                                              newsObject.datetime,
-                                              $i18n.locale,
-                                          )
+                                        : getHumanDate(newsObject.datetime, $i18n.locale)
                                 }}
                             </span>
-                        </p>
+                        </div>
                     </div>
                 </router-link>
             </div>
@@ -172,10 +161,10 @@ export default {
     font-weight: bold;
     font-size: larger;
     text-align: left;
-    text-indent: 1rem;
-    line-height: 0.4rem;
     color: var(--color-on-surface);
     letter-spacing: 0.05rem;
+    line-height: 1.4;
+    padding-left: 1rem;
 }
 
 .news-content > p > span {
