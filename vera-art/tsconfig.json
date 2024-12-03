@@ -6,11 +6,11 @@
         "target": "esnext",
         "types": ["node"],
         "moduleResolution": "bundler",
-        "lib": ["es5", "es6", "dom", "dom.iterable"]
+        "lib": ["es5", "es6", "dom", "dom.iterable"],
+        "module": "esnext"
     },
     "include": ["*.ts", "*.json", "src/**/*.json", ".d.ts"],
     "files": [],
-    "module": "ESNext",
     "references": [
         {
             "path": "./tsconfig.config.json"
