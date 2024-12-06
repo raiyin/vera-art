@@ -1,7 +1,6 @@
 {
   "name": "vera-art",
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "both": "concurrently \"npm run dev -- --host\" \"npm run server\"",
@@ -38,7 +37,6 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.6.0",
     "concurrently": "^9.1.0",
-    "cypress": "^13.15.2",
     "eslint": "^9.15.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-import-resolver-typescript": "^3.6.3",
