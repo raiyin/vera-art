@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-    <div :class="[!isLoaded ? 'loading' : '']">
+    <div :class="[!isLoaded ? 'loading' : 'col-lg-4 col-md-6']">
         <div v-if="!isLoaded" class="image-stub" />
 
         <img

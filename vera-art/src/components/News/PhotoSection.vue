@@ -33,18 +33,15 @@ export default {
 <template>
     <section class="container text-center px-0 main-content">
         <div class="row">
-            <template v-for="i in 3">
-                <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                    <template v-for="image_index in currentNewsItem.imagescount">
-                        <NewsPhotoItem
-                            v-if="image_index % 3 === i % 3"
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            :key="image_index"
-                            @click="setSelectedIndex(image_index)"
-                        />
-                    </template>
-                </div>
+            <template
+                v-for="image_index in currentNewsItem.imagescount"
+                :key="image_index"
+            >
+                <NewsPhotoItem
+                    :image_index="image_index"
+                    :currentNews="currentNewsItem"
+                    @click="setSelectedIndex(image_index)"
+                />
             </template>
 
             <Modal modalId="imgNewsModal">

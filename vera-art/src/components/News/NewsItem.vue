@@ -38,7 +38,9 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return this.imagebasedir + this.currentNewsItem.dir + index + '.mp4';
+            return (
+                this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
+            );
         },
 
         onImgLoaded() {
@@ -49,9 +51,12 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
-        this.otherNews = await fetchOtherNews(this.$route.path, this.jsonserverhost);
+        this.otherNews = await fetchOtherNews(
+            this.$route.path,
+            this.jsonserverhost,
+        );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -84,7 +89,7 @@ export default {
                     />
                 </div>
 
-                <div class="other-news">
+                <div class="other-news px-sm-0">
                     <div
                         class="other-news-item-wrapper"
                         v-for="newsItem in otherNews"
