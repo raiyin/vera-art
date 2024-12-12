@@ -10,7 +10,7 @@ export default {
             default: {} as NewsDesc,
         },
         selectedIndex: {
-            type: Object as PropType<number>,
+            type: Number,
             default: 1,
         },
         setSelectedIndex: {
@@ -45,8 +45,15 @@ export default {
 </script>
 
 <template>
-    <div id="news_img" class="carousel slide carousel-fade" data-bs-ride="false">
-        <div v-if="this.imageObject.imagescount > 1" class="carousel-indicators">
+    <div
+        id="news_img"
+        class="carousel slide carousel-fade"
+        data-bs-ride="false"
+    >
+        <div
+            v-if="this.imageObject.imagescount > 1"
+            class="carousel-indicators"
+        >
             <button
                 v-for="index in this.imageObject.imagescount"
                 v-bind:key="index"
@@ -62,7 +69,9 @@ export default {
             <div
                 v-for="index in this.imageObject.imagescount"
                 v-bind:key="index"
-                :class="'carousel-item' + (index === selectedIndex ? ' active' : '')"
+                :class="
+                    'carousel-item' + (index === selectedIndex ? ' active' : '')
+                "
             >
                 <img
                     :src="makeFileName(imageObject.dir, index)"

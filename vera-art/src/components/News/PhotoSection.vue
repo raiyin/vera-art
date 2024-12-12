@@ -32,7 +32,7 @@ export default {
 
 <template>
     <section class="container text-center px-0 main-content">
-        <div class="row">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <template
                 v-for="image_index in currentNewsItem.imagescount"
                 :key="image_index"

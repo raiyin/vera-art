@@ -6,7 +6,6 @@ import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import VideoSection from '@/components/News/VideoSection.vue';
 import PhotoSection from './PhotoSection.vue';
-import NewsDescriptionSkeleton from '@/components/UI/Skeletons/NewsDescriptionSkeleton.vue';
 import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
 
 export default {

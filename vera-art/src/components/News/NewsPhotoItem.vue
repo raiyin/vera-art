@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-    <div :class="[!isLoaded ? 'loading' : 'col-lg-4 col-md-6']">
+    <div :class="[!isLoaded ? 'loading col-lg-4 col-md-6' : 'col-lg-4 col-md-6']">
         <div v-if="!isLoaded" class="image-stub" />
 
         <img
@@ -72,7 +72,6 @@ export default {
 
 <style scoped>
 .image-stub {
-    width: 100%;
     height: 200px;
     border-radius: 5px;
     margin-bottom: 10px;
