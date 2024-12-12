@@ -6,7 +6,6 @@ import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import VideoSection from '@/components/News/VideoSection.vue';
 import PhotoSection from './PhotoSection.vue';
-import NewsDescriptionSkeleton from '@/components/UI/Skeletons/NewsDescriptionSkeleton.vue';
 import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
 
 export default {
@@ -38,7 +37,9 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return this.imagebasedir + this.currentNewsItem.dir + index + '.mp4';
+            return (
+                this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
+            );
         },
 
         onImgLoaded() {
@@ -49,9 +50,12 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost
+            this.jsonserverhost,
         );
-        this.otherNews = await fetchOtherNews(this.$route.path, this.jsonserverhost);
+        this.otherNews = await fetchOtherNews(
+            this.$route.path,
+            this.jsonserverhost,
+        );
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -84,7 +88,7 @@ export default {
                     />
                 </div>
 
-                <div class="other-news">
+                <div class="other-news px-sm-0">
                     <div
                         class="other-news-item-wrapper"
                         v-for="newsItem in otherNews"

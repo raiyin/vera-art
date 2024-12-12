@@ -10,7 +10,7 @@ export default {
 </script>
 
 <template>
-    <div class="card p-3 mb-5 rounded">
+    <div class="card p-3 mb-5 rounded col-lg-4 col-md-6">
         <div class="image" />
 
         <div class="card-body">

@@ -61,11 +61,7 @@ export default {
                 :src="mainCardImage"
                 @load="onImgLoad"
                 class="card-img-top"
-                :alt="
-                    $i18n.locale === 'RUS'
-                        ? imageObject.name_ru
-                        : imageObject.name_en
-                "
+                :alt="$i18n.locale === 'RUS' ? imageObject.name_ru : imageObject.name_en"
                 data-bs-toggle="modal"
                 :data-bs-target="imgIdToModalIdSelector"
             />
@@ -103,20 +99,13 @@ export default {
                         </span>
                     </div>
                     <p v-if="imageObject.price">
-                        {{
-                            $t('card.price') +
-                            ` ${imageObject.price} ` +
-                            $t('card.rub')
-                        }}
+                        {{ $t('card.price') + ` ${imageObject.price} ` + $t('card.rub') }}
                     </p>
                 </div>
             </div>
 
             <Modal :modalId="imgIdToModalId">
-                <Carousel
-                    :imageObject="imageObject"
-                    :imageId="imageObject.id"
-                />
+                <Carousel :imageObject="imageObject" :imageId="imageObject.id" />
             </Modal>
         </div>
         <CardSkeleton v-if="!isLoaded" />

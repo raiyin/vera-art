@@ -129,5 +129,6 @@ export default {
 .other-news-desc .date {
     text-align: left;
     min-width: 150px;
+    line-height: 1.3;
 }
 </style>

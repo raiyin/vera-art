@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import Home from '@/views/Home.vue';
+// import Home from '@/views/Home.vue';
 import Shop from '@/views/Shop.vue';
 import AllWorks from '@/views/AllWorks.vue';
 import News from '@/views/News.vue';
@@ -15,42 +15,43 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            component: Home,
+            component: () => import('@/views/Home.vue'),
         },
         {
             path: '/shop',
             name: 'shop',
+            // Без этого не подгружаются стили селекта
             component: Shop,
         },
         {
             path: '/allworks',
             name: 'allworks',
-            component: AllWorks,
+            component: () => import('@/views/AllWorks.vue'),
         },
         {
             path: '/news',
             name: 'news',
-            component: News,
+            component: () => import('@/views/News.vue')
         },
         {
             path: '/paydelivery',
             name: 'paydelivery',
-            component: PayDelivery,
+            component: () => import('@/views/PayDeliver.vue'),
         },
         {
             path: '/services',
             name: 'services',
-            component: Services,
+            component: () => import('@/views/Services.vue'),
         },
         {
             path: '/newsitem/:id',
             name: 'newsitem',
-            component: NewsItem,
+            component: () => import('@/components/News/NewsItem.vue'),
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'notfound',
-            component: NotFound,
+            component: () => import('@/views/NotFound.vue'),
         },
     ],
 });

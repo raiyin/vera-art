@@ -11,7 +11,7 @@ export default {
     },
     props: {
         modalId: {
-            type: Object as PropType<string>,
+            type: String,
             required: true,
         },
     },

@@ -5,12 +5,7 @@ import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
 
-const app = createApp(App, {
-    setup() {
-        const { t } = useI18n();
-        return { t };
-    },
-});
+const app = createApp(App);
 
 app.provide('jsonserverhost', 'http://localhost:3001/');
 app.provide('imagebasedir', '/src/assets');
