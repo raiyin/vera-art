@@ -13,27 +13,7 @@
             "material_en": "oil",
             "size": "50x70",
             "year": 2019,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Аллея в центральном парке",
-                    "name_en": "Alley in Central Park",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x70"
-                },
-                {
-                    "name_ru": "Аллея в центральном парке",
-                    "name_en": "Alley in Central Park",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x70"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "birches",
@@ -48,27 +28,7 @@
             "material_en": "oil",
             "size": "50x40",
             "year": 2019,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Берёзы",
-                    "name_en": "Birches",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x40"
-                },
-                {
-                    "name_ru": "Берёзы",
-                    "name_en": "Birches",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x40"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "botanical_garden",
@@ -83,27 +43,7 @@
             "material_en": "watercolour",
             "size": "25x35",
             "year": 2021,
-            "price": 4000,
-            "parts": [
-                {
-                    "name_ru": "В ботаническом саду",
-                    "name_en": "In the botanical garden",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акварель",
-                    "material_en": "watercolour",
-                    "size": "25x35"
-                },
-                {
-                    "name_ru": "В ботаническом саду",
-                    "name_en": "In the botanical garden",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акварель",
-                    "material_en": "watercolour",
-                    "size": "25x35"
-                }
-            ]
+            "price": 4000
         },
         {
             "id": "distant_landscapes",
@@ -118,18 +58,7 @@
             "material_en": "oil, texture paste",
             "size": "95x55",
             "year": 2018,
-            "price": 25000,
-            "parts": [
-                {
-                    "name_ru": "Далёкие пейзажи",
-                    "name_en": "Distant landscapes",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "95x55"
-                }
-            ]
+            "price": 25000
         },
         {
             "id": "hidden_place",
@@ -144,27 +73,7 @@
             "material_en": "oil",
             "size": "60x50",
             "year": 2021,
-            "price": 20000,
-            "parts": [
-                {
-                    "name_ru": "Потаённое место",
-                    "name_en": "A hidden place",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                },
-                {
-                    "name_ru": "Потаённое место",
-                    "name_en": "A hidden place",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                }
-            ]
+            "price": 20000
         },
         {
             "id": "horse",
@@ -179,18 +88,7 @@
             "material_en": "coal",
             "size": "70x50",
             "year": 2019,
-            "price": 25000,
-            "parts": [
-                {
-                    "name_ru": "Конь",
-                    "name_en": "Horse",
-                    "base_ru": "бумага",
-                    "base_en": "paper",
-                    "material_ru": "уголь",
-                    "material_en": "coal",
-                    "size": "70x50"
-                }
-            ]
+            "price": 25000
         },
         {
             "id": "pond_swifts",
@@ -205,27 +103,7 @@
             "material_en": "oil",
             "size": "50x40",
             "year": 2021,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Пруд и стрижи",
-                    "name_en": "Pond and swifts",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x40"
-                },
-                {
-                    "name_ru": "Пруд и стрижи",
-                    "name_en": "Pond and swifts",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "50x40"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "stilllife-peony",
@@ -240,27 +118,7 @@
             "material_en": "oil",
             "size": "40x30",
             "year": 2020,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Натюрморт",
-                    "name_en": "Still-life with peonies",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                },
-                {
-                    "name_ru": "Натюрморт",
-                    "name_en": "Still-life with peonies",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "still-life_wine",
@@ -275,27 +133,7 @@
             "material_en": "oil",
             "size": "60x50",
             "year": 2019,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Натюрморт с пионами",
-                    "name_en": "Still life with peonies",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                },
-                {
-                    "name_ru": "Натюрморт с пионами",
-                    "name_en": "Still life with peonies",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "still-life-peonypie",
@@ -310,18 +148,7 @@
             "material_en": "watercolour",
             "size": "29x42",
             "year": 2018,
-            "price": 10000,
-            "parts": [
-                {
-                    "name_ru": "Натюрморт с пионами и пирогом",
-                    "name_en": "Still life with peonies and pie",
-                    "base_ru": "бумага",
-                    "base_en": "paper",
-                    "material_ru": "акварель",
-                    "material_en": "watercolour",
-                    "size": "29x42"
-                }
-            ]
+            "price": 10000
         },
         {
             "id": "sunflowers",
@@ -336,18 +163,7 @@
             "material_en": "watercolour",
             "size": "30x41",
             "year": 2022,
-            "price": 10000,
-            "parts": [
-                {
-                    "name_ru": "Подсолнухи",
-                    "name_en": "Sunflowers",
-                    "base_ru": "бумага",
-                    "base_en": "paper",
-                    "material_ru": "акварель",
-                    "material_en": "watercolour",
-                    "size": "30x41"
-                }
-            ]
+            "price": 10000
         },
         {
             "id": "sunset_sengeley",
@@ -362,27 +178,7 @@
             "material_en": "oil",
             "size": "60x50",
             "year": 2021,
-            "price": 10000,
-            "parts": [
-                {
-                    "name_ru": "На закате, Сенгилеевское водохранилище",
-                    "name_en": "At sunset, the Sengileevsky reservoir",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                },
-                {
-                    "name_ru": "На закате, Сенгилеевское водохранилище",
-                    "name_en": "At sunset, the Sengileevsky reservoir",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                }
-            ]
+            "price": 10000
         },
         {
             "id": "swan",
@@ -397,18 +193,7 @@
             "material_en": "watercolour",
             "size": "42x30",
             "year": 2020,
-            "price": 15000,
-            "parts": [
-                {
-                    "name_ru": "Иллюстрация. Лебедь и лебёдушка",
-                    "name_en": "Illustration. The swan and the swanny",
-                    "base_ru": "бумага",
-                    "base_en": "paper",
-                    "material_ru": "акварель",
-                    "material_en": "watercolour",
-                    "size": "42x30"
-                }
-            ]
+            "price": 15000
         },
         {
             "id": "thumbnail_1",
@@ -423,18 +208,7 @@
             "material_en": "oil",
             "size": "24x18",
             "year": 2021,
-            "price": 1500,
-            "parts": [
-                {
-                    "name_ru": "Миниатюра",
-                    "name_en": "Thumbnail",
-                    "base_ru": "холст на картоне",
-                    "base_en": "canvas on cardboard",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "24x18"
-                }
-            ]
+            "price": 1500
         },
         {
             "id": "thumbnail_2",
@@ -449,18 +223,7 @@
             "material_en": "oil",
             "size": "18x24",
             "year": 2021,
-            "price": 1500,
-            "parts": [
-                {
-                    "name_ru": "Миниатюра",
-                    "name_en": "Thumbnail",
-                    "base_ru": "холст на картоне",
-                    "base_en": "canvas on cardboard",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "18x24"
-                }
-            ]
+            "price": 1500
         },
         {
             "id": "thumbnail_3",
@@ -475,18 +238,7 @@
             "material_en": "oil",
             "size": "18x24",
             "year": 2021,
-            "price": 1500,
-            "parts": [
-                {
-                    "name_ru": "Миниатюра",
-                    "name_en": "Thumbnail",
-                    "base_ru": "холст на картоне",
-                    "base_en": "canvas on cardboard",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "18x24"
-                }
-            ]
+            "price": 1500
         },
         {
             "id": "thumbnail_4",
@@ -501,18 +253,7 @@
             "material_en": "oil",
             "size": "18x24",
             "year": 2021,
-            "price": 1500,
-            "parts": [
-                {
-                    "name_ru": "Миниатюра",
-                    "name_en": "Thumbnail",
-                    "base_ru": "холст на картоне",
-                    "base_en": "canvas on cardboard",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "18x24"
-                }
-            ]
+            "price": 1500
         },
         {
             "id": "triptych",
@@ -527,63 +268,7 @@
             "material_en": "oil",
             "size": "",
             "year": 2020,
-            "price": 30000,
-            "parts": [
-                {
-                    "name_ru": "Пленер за городом, часть 1",
-                    "name_en": "Plein air outside the city, part 1",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                },
-                {
-                    "name_ru": "Пленер за городом, часть 1",
-                    "name_en": "Plein air outside the city, part 1",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                },
-                {
-                    "name_ru": "Пленер за городом, часть 2",
-                    "name_en": "Plein air outside the city, part 2",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "25x35"
-                },
-                {
-                    "name_ru": "Пленер за городом, часть 2",
-                    "name_en": "Plein air outside the city, part 2",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "25x35"
-                },
-                {
-                    "name_ru": "Пленер за городом, часть 3",
-                    "name_en": "Plein air outside the city, part 3",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                },
-                {
-                    "name_ru": "Пленер за городом, часть 3",
-                    "name_en": "Plein air outside the city, part 3",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "40x30"
-                }
-            ]
+            "price": 30000
         },
         {
             "id": "two_flowers_secret",
@@ -598,47 +283,7 @@
             "material_en": "acrylic",
             "size": "50x50",
             "year": 2020,
-            "price": 10000,
-            "parts": [
-                {
-                    "name_ru": "Тайна двух цветков, часть 1",
-                    "name_en": "The secret of two flowers, part 1",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акрил",
-                    "material_en": "acrylic",
-                    "size": "50x50",
-                    "year": 2020
-                },
-                {
-                    "name_ru": "Тайна двух цветков, часть 1",
-                    "name_en": "The secret of two flowers, part 1",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акрил",
-                    "material_en": "acrylic",
-                    "size": "50x50"
-                },
-                {
-                    "name_ru": "Тайна двух цветков, часть 2",
-                    "name_en": "The secret of two flowers, part two",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акрил",
-                    "material_en": "acrylic",
-                    "size": "50x50",
-                    "year": 2020
-                },
-                {
-                    "name_ru": "Тайна двух цветков, часть 2",
-                    "name_en": "The secret of two flowers, part 2",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "акрил",
-                    "material_en": "acrylic",
-                    "size": "50x50"
-                }
-            ]
+            "price": 10000
         },
         {
             "id": "wolf_gate",
@@ -653,27 +298,7 @@
             "material_en": "oil",
             "size": "60x50",
             "year": 2019,
-            "price": "5000",
-            "parts": [
-                {
-                    "name_ru": "Сенгилеевский закат",
-                    "name_en": "Sengileyevsky sunset",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                },
-                {
-                    "name_ru": "Сенгилеевский закат",
-                    "name_en": "CloSengileyevsky sunsetud",
-                    "base_ru": "холст",
-                    "base_en": "canvas",
-                    "material_ru": "масло",
-                    "material_en": "oil",
-                    "size": "60x50"
-                }
-            ]
+            "price": "5000"
         }
     ]
 }
