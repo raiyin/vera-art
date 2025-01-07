@@ -1480,8 +1480,8 @@
             "dir": "/img/allworks/graphics3d/ajax/",
             "name_ru": "Головная боль Аякса",
             "name_en": "Ajax Headache",
-            "base_ru": "Autodesk 3ds Max, V-Ray",
-            "base_en": "Autodesk 3ds Max, V-Ray",
+            "base_ru": "Autodesk 3ds Max",
+            "base_en": "Autodesk 3ds Max",
             "material_ru": "",
             "material_en": "",
             "size": "",
@@ -1490,8 +1490,8 @@
                 {
                     "name_ru": "Головная боль Аякса",
                     "name_en": "Ajax Headache",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 }
             ]
         },
@@ -1500,15 +1500,15 @@
             "dir": "/img/allworks/graphics3d/gingerbreads/",
             "name_ru": "Пряники",
             "name_en": "Gingerbreads",
-            "base_ru": "Autodesk 3ds Max, V-Ray",
-            "base_en": "Autodesk 3ds Max, V-Ray",
+            "base_ru": "Autodesk 3ds Max",
+            "base_en": "Autodesk 3ds Max",
             "year": 2020,
             "parts": [
                 {
                     "name_ru": "Пряники",
                     "name_en": "Gingerbreads",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 }
             ]
         },
@@ -1517,27 +1517,27 @@
             "dir": "/img/allworks/graphics3d/gnome/",
             "name_ru": "Домик гнома",
             "name_en": "The Gnome's House",
-            "base_ru": "Autodesk 3ds Max, V-Ray",
-            "base_en": "Autodesk 3ds Max, V-Ray",
+            "base_ru": "Autodesk 3ds Max",
+            "base_en": "Autodesk 3ds Max",
             "year": 2020,
             "parts": [
                 {
                     "name_ru": "Домик гнома",
                     "name_en": "The Gnome's House",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 },
                 {
                     "name_ru": "Домик гнома",
                     "name_en": "The Gnome's House",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 },
                 {
                     "name_ru": "Домик гнома",
                     "name_en": "The Gnome's House",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 }
             ]
         },
@@ -1546,15 +1546,15 @@
             "dir": "/img/allworks/graphics3d/groot/",
             "name_ru": "Грут",
             "name_en": "Groot",
-            "base_ru": "Autodesk 3ds Max, V-Ray",
-            "base_en": "Autodesk 3ds Max, V-Ray",
+            "base_ru": "Autodesk 3ds Max",
+            "base_en": "Autodesk 3ds Max",
             "year": 2020,
             "parts": [
                 {
                     "name_ru": "Грут",
                     "name_en": "Groot",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 }
             ]
         },
@@ -1563,33 +1563,33 @@
             "dir": "/img/allworks/graphics3d/house/",
             "name_ru": "Проект дома",
             "name_en": "House project",
-            "base_ru": "Autodesk 3ds Max, V-Ray",
-            "base_en": "Autodesk 3ds Max, V-Ray",
+            "base_ru": "Autodesk 3ds Max",
+            "base_en": "Autodesk 3ds Max",
             "year": 2020,
             "parts": [
                 {
                     "name_ru": "Проект дома",
                     "name_en": "House project",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 },
                 {
                     "name_ru": "Проект дома",
                     "name_en": "House project",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 },
                 {
                     "name_ru": "Проект дома",
                     "name_en": "House project",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 },
                 {
                     "name_ru": "Проект дома",
                     "name_en": "House project",
-                    "base_ru": "Autodesk 3ds Max, V-Ray",
-                    "base_en": "Autodesk 3ds Max, V-Ray"
+                    "base_ru": "Autodesk 3ds Max",
+                    "base_en": "Autodesk 3ds Max"
                 }
             ]
         }
