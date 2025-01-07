@@ -45,7 +45,6 @@ with open('d:/projects/vera-art/server/db.json', encoding="utf8") as file:
     data = json.load(file)
 
 for i in data['3d']:
-    # insert into sale
     cursor.execute('INSERT INTO threed (str_id, dir, name_ru, name_en, year, base_id) VALUES (?, ?, ?, ?, ?, ?)',
                    (i['id'], i['dir'], i['name_ru'], i['name_en'], i['year'], get_base_id(i['base_ru'])))
 

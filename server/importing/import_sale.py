@@ -44,10 +44,15 @@ cursor = connection.cursor()
 with open('d:/projects/vera-art/server/db.json', encoding="utf8") as file:
     data = json.load(file)
 
-for i in data['illustration']:
-    # insert into sale
-    cursor.execute('INSERT INTO illustration (str_id, dir, year, name_ru, name_en, base_id) VALUES (?, ?, ?, ?, ?, ?)',
-                   (i['id'], i['dir'], i['year'], i['name_ru'], i['name_en'], get_base_id(i['base_ru'])))
+for i in data['sale']:
+    cursor.execute('INSERT INTO sale (str_id, dir, width, height, size, year, price, name_ru, name_en, base_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                   (i['id'], i['dir'], i['width'], i['height'], i['size'], i['year'], i['price'], i['name_ru'], i['name_en'], get_base_id(i['base_ru'])))
+
+    record_id = cursor.lastrowid
+    materials = i['material_ru'].split(", ")
+    for material in materials:
+        material_id = get_material_id(material)
+        cursor.execute("INSERT INTO sale_materials (sale_id, material_id) VALUES (?, ?)", (record_id, material_id))
 
 
 connection.commit()

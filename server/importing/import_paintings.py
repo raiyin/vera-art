@@ -45,11 +45,9 @@ with open('d:/projects/vera-art/server/db.json', encoding="utf8") as file:
     data = json.load(file)
 
 for i in data['painting']:
-    # insert into sale
     cursor.execute('INSERT INTO painting (str_id, dir, width, height, year, name_ru, name_en, base_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                    (i['id'], i['dir'], i['width'], i['height'], i['year'], i['name_ru'], i['name_en'], get_base_id(i['base_ru'])))
 
-    # insert records into sale_materials
     record_id = cursor.lastrowid
     materials = i['material_ru'].split(", ")
     for material in materials:
