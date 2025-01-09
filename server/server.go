@@ -39,6 +39,18 @@ type Sale struct {
 	StrId  string `json:"str_id"`
 }
 
+type Painting struct {
+	Id     int    `json:"id"`
+	Dir    string `json:"dir"`
+	Width  string `json:"width"`
+	Height string `json:"height"`
+	Year   int    `json:"year"`
+	NameRu string `json:"name_ru"`
+	NameEn string `json:"name_en"`
+	BaseId string `json:"base_id"`
+	StrId  string `json:"str_id"`
+}
+
 func sayhello(w http.ResponseWriter, r *http.Request) {
 	type ResponseId struct {
 		Id int `json:"id"`
@@ -75,12 +87,34 @@ func getSales(w http.ResponseWriter, r *http.Request) {
 		}
 		sales = append(sales, p)
 	}
-	for _, p := range sales {
-		fmt.Println(p.Id, p.NameRu, p.BaseId, p.Price)
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(sales)
+}
+
+func getPaintings(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "db.sqlite")
+	if err != nil {
+		panic(err)
+	}
+	rows, err := db.Query("select * from painting")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	paintings := []Painting{}
+	for rows.Next() {
+		p := Painting{}
+		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		paintings = append(paintings, p)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(paintings)
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
@@ -139,9 +173,10 @@ func main() {
 	// books = append(books, Book{ID: "1", Title: "Война и Мир", Author: &Author{Firstname: "Лев", Lastname: "Толстой"}})
 	// books = append(books, Book{ID: "2", Title: "Преступление и наказание", Author: &Author{Firstname: "Фёдор", Lastname: "Достоевский"}})
 	r.HandleFunc("/sales", getSales).Methods("GET")
-	r.HandleFunc("/books/{id}", getBook).Methods("GET")
-	r.HandleFunc("/books", createBook).Methods("POST")
-	r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
-	r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
+	r.HandleFunc("/paintings", getPaintings).Methods("GET")
+	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
+	// r.HandleFunc("/books", createBook).Methods("POST")
+	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
+	// r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", r))
 }
