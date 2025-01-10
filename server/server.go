@@ -142,6 +142,31 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(illustrations)
 }
 
+func getNews(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "db.sqlite")
+	if err != nil {
+		panic(err)
+	}
+	rows, err := db.Query("select * from news")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	news := []News{}
+	for rows.Next() {
+		p := News{}
+		err := rows.Scan(&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.SubtitleRu, &p.SubtitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.ImagesCount, &p.VideosCount, &p.TextRu, &p.TextEn)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		news = append(news, p)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(news)
+}
+
 func getBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -201,6 +226,7 @@ func main() {
 	r.HandleFunc("/paintings", getPaintings).Methods("GET")
 	r.HandleFunc("/threeds", getThreeds).Methods("GET")
 	r.HandleFunc("/illustrations", getIllustrations).Methods("GET")
+	r.HandleFunc("/news", getNews).Methods("GET")
 	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
 	// r.HandleFunc("/books", createBook).Methods("POST")
 	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")

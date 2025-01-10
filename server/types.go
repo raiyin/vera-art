@@ -44,3 +44,19 @@ type Illustration struct {
 	BaseId string `json:"base_id"`
 	Year   int    `json:"year"`
 }
+
+type News struct {
+	Id          int    `json:"id"`
+	Datetime    string `json:"datetime"`
+	TitleRu     string `json:"title_ru"`
+	TitleEn     string `json:"title_en"`
+	SubtitleRu  string `json:"subtitle_ru"`
+	SubtitleEn  string `json:"subtitle_en"`
+	Dir         string `json:"dir"`
+	ImgBack     string `json:"img_back"`
+	ImgBackfull string `json:"img_backfull"`
+	ImagesCount int    `json:"imagescount"`
+	VideosCount int    `json:"videoscount"`
+	TextRu      string `json:"text_ru"`
+	TextEn      string `json:"text_en"`
+}
