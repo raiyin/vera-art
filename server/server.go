@@ -26,41 +26,6 @@ type Author struct {
 
 var books []Book
 
-type Sale struct {
-	Id     int    `json:"id"`
-	Dir    string `json:"dir"`
-	Width  string `json:"width"`
-	Height string `json:"height"`
-	Year   int    `json:"year"`
-	Price  int    `json:"price"`
-	NameRu string `json:"name_ru"`
-	NameEn string `json:"name_en"`
-	BaseId string `json:"base_id"`
-	StrId  string `json:"str_id"`
-}
-
-type Painting struct {
-	Id     int    `json:"id"`
-	Dir    string `json:"dir"`
-	Width  string `json:"width"`
-	Height string `json:"height"`
-	Year   int    `json:"year"`
-	NameRu string `json:"name_ru"`
-	NameEn string `json:"name_en"`
-	BaseId string `json:"base_id"`
-	StrId  string `json:"str_id"`
-}
-
-type Threed struct {
-	Id     int    `json:"id"`
-	StrId  string `json:"str_id"`
-	Dir    string `json:"dir"`
-	NameRu string `json:"name_ru"`
-	NameEn string `json:"name_en"`
-	BaseId string `json:"base_id"`
-	Year   int    `json:"year"`
-}
-
 func sayhello(w http.ResponseWriter, r *http.Request) {
 	type ResponseId struct {
 		Id int `json:"id"`
@@ -82,7 +47,7 @@ func getSales(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("select * from sale")
+	rows, err := db.Query("select * from sales")
 	if err != nil {
 		panic(err)
 	}
@@ -107,7 +72,7 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("select * from painting")
+	rows, err := db.Query("select * from paintings")
 	if err != nil {
 		panic(err)
 	}
@@ -127,12 +92,12 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(paintings)
 }
 
-func getThreed(w http.ResponseWriter, r *http.Request) {
+func getThreeds(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("sqlite3", "db.sqlite")
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("select * from threed")
+	rows, err := db.Query("select * from threeds")
 	if err != nil {
 		panic(err)
 	}
@@ -150,6 +115,31 @@ func getThreed(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(threeds)
+}
+
+func getIllustrations(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "db.sqlite")
+	if err != nil {
+		panic(err)
+	}
+	rows, err := db.Query("select * from illustrations")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	illustrations := []Illustration{}
+	for rows.Next() {
+		p := Illustration{}
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		illustrations = append(illustrations, p)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(illustrations)
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
@@ -209,7 +199,8 @@ func main() {
 	// books = append(books, Book{ID: "2", Title: "Преступление и наказание", Author: &Author{Firstname: "Фёдор", Lastname: "Достоевский"}})
 	r.HandleFunc("/sales", getSales).Methods("GET")
 	r.HandleFunc("/paintings", getPaintings).Methods("GET")
-	r.HandleFunc("/threed", getThreed).Methods("GET")
+	r.HandleFunc("/threeds", getThreeds).Methods("GET")
+	r.HandleFunc("/illustrations", getIllustrations).Methods("GET")
 	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
 	// r.HandleFunc("/books", createBook).Methods("POST")
 	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
