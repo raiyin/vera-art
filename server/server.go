@@ -51,6 +51,16 @@ type Painting struct {
 	StrId  string `json:"str_id"`
 }
 
+type Threed struct {
+	Id     int    `json:"id"`
+	StrId  string `json:"str_id"`
+	Dir    string `json:"dir"`
+	NameRu string `json:"name_ru"`
+	NameEn string `json:"name_en"`
+	BaseId string `json:"base_id"`
+	Year   int    `json:"year"`
+}
+
 func sayhello(w http.ResponseWriter, r *http.Request) {
 	type ResponseId struct {
 		Id int `json:"id"`
@@ -117,6 +127,31 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(paintings)
 }
 
+func getThreed(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("sqlite3", "db.sqlite")
+	if err != nil {
+		panic(err)
+	}
+	rows, err := db.Query("select * from threed")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	threeds := []Threed{}
+	for rows.Next() {
+		p := Threed{}
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		threeds = append(threeds, p)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(threeds)
+}
+
 func getBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
@@ -174,6 +209,7 @@ func main() {
 	// books = append(books, Book{ID: "2", Title: "Преступление и наказание", Author: &Author{Firstname: "Фёдор", Lastname: "Достоевский"}})
 	r.HandleFunc("/sales", getSales).Methods("GET")
 	r.HandleFunc("/paintings", getPaintings).Methods("GET")
+	r.HandleFunc("/threed", getThreed).Methods("GET")
 	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
 	// r.HandleFunc("/books", createBook).Methods("POST")
 	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
