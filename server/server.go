@@ -118,11 +118,25 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func getIllustrations(w http.ResponseWriter, r *http.Request) {
+	start := r.URL.Query()["start"]
+	limit := r.URL.Query()["limit"]
+
 	db, err := sql.Open("sqlite3", "db.sqlite")
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("select * from illustrations")
+
+	query := "select * from illustrations"
+
+	if len(limit) > 0 {
+		query = query + " limit " + limit[0]
+
+		if len(start) > 0 {
+			query = query + " offset " + start[0]
+		}
+	}
+
+	rows, err := db.Query(query)
 	if err != nil {
 		panic(err)
 	}
@@ -147,8 +161,6 @@ func getNews(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query()["start"]
 	limit := r.URL.Query()["limit"]
 
-	// Process the query parameters
-
 	db, err := sql.Open("sqlite3", "db.sqlite")
 	if err != nil {
 		panic(err)
@@ -163,8 +175,6 @@ func getNews(w http.ResponseWriter, r *http.Request) {
 			query = query + " offset " + start[0]
 		}
 	}
-
-	fmt.Println(query)
 
 	rows, err := db.Query(query)
 	if err != nil {
