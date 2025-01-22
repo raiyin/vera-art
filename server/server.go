@@ -25,6 +25,19 @@ type Author struct {
 }
 
 var books []Book
+var db *sql.DB
+
+func init() {
+	var err error
+
+	db, err = sql.Open("sqlite3", "db.sqlite")
+	if err != nil {
+		log.Fatalf("Could not connect to database: %v", err)
+		panic(err)
+	}
+	db.SetMaxOpenConns(100)
+	db.SetMaxIdleConns(25)
+}
 
 func sayhello(w http.ResponseWriter, r *http.Request) {
 	type ResponseId struct {
@@ -43,14 +56,26 @@ func sayhello(w http.ResponseWriter, r *http.Request) {
 }
 
 func getSales(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("sqlite3", "db.sqlite")
+
+	start := r.URL.Query()["start"]
+	limit := r.URL.Query()["limit"]
+
+	query := "select * from sales"
+
+	if len(limit) > 0 {
+		query = query + " limit " + limit[0]
+
+		if len(start) > 0 {
+			query = query + " offset " + start[0]
+		}
+	}
+
+	rows, err := db.Query(query)
+
 	if err != nil {
 		panic(err)
 	}
-	rows, err := db.Query("select * from sales")
-	if err != nil {
-		panic(err)
-	}
+
 	defer rows.Close()
 	sales := []Sale{}
 	for rows.Next() {
@@ -71,11 +96,6 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 
 	start := r.URL.Query()["start"]
 	limit := r.URL.Query()["limit"]
-
-	db, err := sql.Open("sqlite3", "db.sqlite")
-	if err != nil {
-		panic(err)
-	}
 
 	query := "select * from paintings"
 
@@ -110,11 +130,6 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 func getThreeds(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query()["start"]
 	limit := r.URL.Query()["limit"]
-
-	db, err := sql.Open("sqlite3", "db.sqlite")
-	if err != nil {
-		panic(err)
-	}
 
 	query := "select * from threeds"
 
@@ -151,11 +166,6 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	start := r.URL.Query()["start"]
 	limit := r.URL.Query()["limit"]
 
-	db, err := sql.Open("sqlite3", "db.sqlite")
-	if err != nil {
-		panic(err)
-	}
-
 	query := "select * from illustrations"
 
 	if len(limit) > 0 {
@@ -190,11 +200,6 @@ func getNews(w http.ResponseWriter, r *http.Request) {
 
 	start := r.URL.Query()["start"]
 	limit := r.URL.Query()["limit"]
-
-	db, err := sql.Open("sqlite3", "db.sqlite")
-	if err != nil {
-		panic(err)
-	}
 
 	query := "select * from news"
 
@@ -278,6 +283,11 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	defer db.Close()
+	// db, err := sql.Open("sqlite3", "db.sqlite")
+	// if err != nil {
+	// 	panic(err)
+	// }
 	r := mux.NewRouter()
 	// books = append(books, Book{ID: "1", Title: "Война и Мир", Author: &Author{Firstname: "Лев", Lastname: "Толстой"}})
 	// books = append(books, Book{ID: "2", Title: "Преступление и наказание", Author: &Author{Firstname: "Фёдор", Lastname: "Достоевский"}})
@@ -291,4 +301,5 @@ func main() {
 	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
 	// r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":8000", r))
+	// db.Close()
 }
