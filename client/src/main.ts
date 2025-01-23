@@ -7,9 +7,9 @@ import router from './router';
 
 const app = createApp(App);
 
-app.provide('jsonserverhost', 'http://localhost:3001/');
+app.provide('server', 'http://localhost:8000/');
 app.provide('imagebasedir', '/src/assets');
-// app.provide('jsonserverhost', 'https://www.pertsukova.ru/server/');
+// app.provide('server', 'https://www.pertsukova.ru/server/');
 // app.provide('imagebasedir', '/assets');
 
 app.use(createPinia());

@@ -4,7 +4,7 @@ import type { NewsDesc } from '@/types';
 import axios from 'axios';
 
 export default {
-    inject: ['jsonserverhost'],
+    inject: ['server'],
     components: {
         NewsTrailer,
     },
@@ -19,7 +19,7 @@ export default {
     methods: {
         async loadNews() {
             try {
-                const response = await axios.get(this.jsonserverhost + 'news', {
+                const response = await axios.get(this.server + 'news', {
                     params: {
                         _page: this.page,
                         _limit: this.limit,
@@ -33,7 +33,7 @@ export default {
         async loadMoreNews() {
             try {
                 this.page += 1;
-                const response = await axios.get(this.jsonserverhost + 'news', {
+                const response = await axios.get(this.server + 'news', {
                     params: {
                         _page: this.page,
                         _limit: this.limit,

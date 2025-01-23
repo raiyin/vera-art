@@ -10,10 +10,10 @@ import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue
 
 export default {
     setup() {
-        const jsonserverhost: string = inject('jsonserverhost') as string;
+        const jsonserverserverhost: string = inject('server') as string;
         const imagebasedir = inject('imagebasedir') as string;
         return {
-            jsonserverhost,
+            server,
             imagebasedir,
         };
     },
@@ -50,12 +50,9 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(
             this.$route.path,
-            this.jsonserverhost,
+            this.server,
         );
-        this.otherNews = await fetchOtherNews(
-            this.$route.path,
-            this.jsonserverhost,
-        );
+        this.otherNews = await fetchOtherNews(this.$route.path, this.server);
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);

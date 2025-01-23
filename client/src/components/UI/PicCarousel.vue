@@ -53,7 +53,7 @@ export default {
         </div>
 
         <div class="carousel-inner">
-            <template v-for="(value, index) in parts" v-bind:key="index">
+            <template v-for="index in imageObject.img_count" v-bind:key="index">
                 <div
                     :class="
                         index === 0 ? 'carousel-item active' : 'carousel-item'
@@ -65,7 +65,7 @@ export default {
                         alt="..."
                     />
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>{{ value.name_ru }}</h5>
+                        <h5>{{ imageObject.name_ru }}</h5>
                     </div>
                 </div>
             </template>

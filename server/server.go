@@ -80,7 +80,7 @@ func getSales(w http.ResponseWriter, r *http.Request) {
 	sales := []Sale{}
 	for rows.Next() {
 		p := Sale{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.Price, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId)
+		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.Price, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -115,7 +115,7 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 	paintings := []Painting{}
 	for rows.Next() {
 		p := Painting{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId)
+		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -150,7 +150,7 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 	threeds := []Threed{}
 	for rows.Next() {
 		p := Threed{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -184,7 +184,7 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	illustrations := []Illustration{}
 	for rows.Next() {
 		p := Illustration{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount)
 		if err != nil {
 			fmt.Println(err)
 			continue

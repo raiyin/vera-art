@@ -6,7 +6,7 @@ import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 
 export default {
-    inject: ['jsonserverhost'],
+    inject: ['server'],
     components: {
         Gallery,
         vSelect,
@@ -23,7 +23,7 @@ export default {
         async loadWorks() {
             try {
                 this.page += 1;
-                const response = await axios.get(this.jsonserverhost + 'sale', {
+                const response = await axios.get(this.server + 'sale', {
                     params: {
                         _page: this.page,
                         _limit: this.limit,
@@ -60,30 +60,40 @@ export default {
     },
     watch: {
         selectedSort() {
-            this.images.sort((image_first: ImageProps, image_second: ImageProps) => {
-                if (
-                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
-                    'string'
-                )
-                    return (image_first[
-                        this.selectedSort as keyof typeof image_first
-                    ] as string)?.localeCompare(
-                        image_second[
+            this.images.sort(
+                (image_first: ImageProps, image_second: ImageProps) => {
+                    if (
+                        typeof image_first[
                             this.selectedSort as keyof typeof image_first
-                        ] as string
-                    );
+                        ] === 'string'
+                    )
+                        return (
+                            image_first[
+                                this.selectedSort as keyof typeof image_first
+                            ] as string
+                        )?.localeCompare(
+                            image_second[
+                                this.selectedSort as keyof typeof image_first
+                            ] as string,
+                        );
 
-                if (
-                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
-                    'number'
-                )
-                    return (
-                        +image_first[this.selectedSort as keyof typeof image_first] -
-                        +image_second[this.selectedSort as keyof typeof image_first]
-                    );
+                    if (
+                        typeof image_first[
+                            this.selectedSort as keyof typeof image_first
+                        ] === 'number'
+                    )
+                        return (
+                            +image_first[
+                                this.selectedSort as keyof typeof image_first
+                            ] -
+                            +image_second[
+                                this.selectedSort as keyof typeof image_first
+                            ]
+                        );
 
-                return 0;
-            });
+                    return 0;
+                },
+            );
         },
     },
 };
