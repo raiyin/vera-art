@@ -12,6 +12,8 @@ type Sale struct {
 	BaseId   string `json:"base_id"`
 	StrId    string `json:"str_id"`
 	ImgCount int    `json:"img_count"`
+	BaseRu   string `json:"base_ru"`
+	BaseEn   string `json:"base_en"`
 }
 
 type Painting struct {
@@ -25,6 +27,8 @@ type Painting struct {
 	BaseId   string `json:"base_id"`
 	StrId    string `json:"str_id"`
 	ImgCount int    `json:"img_count"`
+	BaseRu   string `json:"base_ru"`
+	BaseEn   string `json:"base_en"`
 }
 
 type Threed struct {

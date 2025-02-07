@@ -11,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/cors"
 )
 
 type Book struct {
@@ -57,16 +58,16 @@ func sayhello(w http.ResponseWriter, r *http.Request) {
 
 func getSales(w http.ResponseWriter, r *http.Request) {
 
-	start := r.URL.Query()["start"]
+	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
-	query := "select * from sales"
+	query := "select s.*, b.base_ru, b.base_en from sales s join bases b on s.base_id = b.id"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
-		if len(start) > 0 {
-			query = query + " offset " + start[0]
+		if len(offset) > 0 {
+			query = query + " offset " + offset[0]
 		}
 	}
 
@@ -80,7 +81,7 @@ func getSales(w http.ResponseWriter, r *http.Request) {
 	sales := []Sale{}
 	for rows.Next() {
 		p := Sale{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.Price, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount)
+		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.Price, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -94,16 +95,16 @@ func getSales(w http.ResponseWriter, r *http.Request) {
 
 func getPaintings(w http.ResponseWriter, r *http.Request) {
 
-	start := r.URL.Query()["start"]
+	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
-	query := "select * from paintings"
+	query := "select s.*, b.base_ru, b.base_en from paintings s join bases b on s.base_id = b.id"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
-		if len(start) > 0 {
-			query = query + " offset " + start[0]
+		if len(offset) > 0 {
+			query = query + " offset " + offset[0]
 		}
 	}
 
@@ -115,7 +116,7 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 	paintings := []Painting{}
 	for rows.Next() {
 		p := Painting{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount)
+		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -128,7 +129,7 @@ func getPaintings(w http.ResponseWriter, r *http.Request) {
 }
 
 func getThreeds(w http.ResponseWriter, r *http.Request) {
-	start := r.URL.Query()["start"]
+	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
 	query := "select * from threeds"
@@ -136,8 +137,8 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
-		if len(start) > 0 {
-			query = query + " offset " + start[0]
+		if len(offset) > 0 {
+			query = query + " offset " + offset[0]
 		}
 	}
 
@@ -163,7 +164,7 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func getIllustrations(w http.ResponseWriter, r *http.Request) {
-	start := r.URL.Query()["start"]
+	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
 	query := "select * from illustrations"
@@ -171,8 +172,8 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
-		if len(start) > 0 {
-			query = query + " offset " + start[0]
+		if len(offset) > 0 {
+			query = query + " offset " + offset[0]
 		}
 	}
 
@@ -198,7 +199,7 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 
 func getNews(w http.ResponseWriter, r *http.Request) {
 
-	start := r.URL.Query()["start"]
+	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
 	query := "select * from news"
@@ -206,8 +207,8 @@ func getNews(w http.ResponseWriter, r *http.Request) {
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
-		if len(start) > 0 {
-			query = query + " offset " + start[0]
+		if len(offset) > 0 {
+			query = query + " offset " + offset[0]
 		}
 	}
 
@@ -284,22 +285,35 @@ func deleteBook(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	defer db.Close()
-	// db, err := sql.Open("sqlite3", "db.sqlite")
-	// if err != nil {
-	// 	panic(err)
-	// }
 	r := mux.NewRouter()
 	// books = append(books, Book{ID: "1", Title: "Война и Мир", Author: &Author{Firstname: "Лев", Lastname: "Толстой"}})
 	// books = append(books, Book{ID: "2", Title: "Преступление и наказание", Author: &Author{Firstname: "Фёдор", Lastname: "Достоевский"}})
+	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
+	// r.HandleFunc("/books", createBook).Methods("POST")
+	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
+	// r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
+
+	corsOpts := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"}, //you service is available and allowed for this base url
+		AllowedMethods: []string{
+			http.MethodGet, //http methods for your app
+			http.MethodPost,
+			http.MethodPut,
+			http.MethodPatch,
+			http.MethodDelete,
+			http.MethodOptions,
+			http.MethodHead,
+		},
+
+		AllowedHeaders: []string{
+			"*", //or you can your header key values which you are using in your application
+		},
+	})
+
 	r.HandleFunc("/sales", getSales).Methods("GET")
 	r.HandleFunc("/paintings", getPaintings).Methods("GET")
 	r.HandleFunc("/threeds", getThreeds).Methods("GET")
 	r.HandleFunc("/illustrations", getIllustrations).Methods("GET")
 	r.HandleFunc("/news", getNews).Methods("GET")
-	// r.HandleFunc("/books/{id}", getBook).Methods("GET")
-	// r.HandleFunc("/books", createBook).Methods("POST")
-	// r.HandleFunc("/books/{id}", updateBook).Methods("PUT")
-	// r.HandleFunc("/books/{id}", deleteBook).Methods("DELETE")
-	log.Fatal(http.ListenAndServe(":8000", r))
-	// db.Close()
+	log.Fatal(http.ListenAndServe(":8000", corsOpts.Handler(r)))
 }

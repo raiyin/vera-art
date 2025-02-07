@@ -10,12 +10,12 @@ export default {
     data() {
         return {
             paintingImages: [],
-            paitingPage: 0,
+            paitingPage: -1,
             illustrationImages: [],
-            illustrationPage: 0,
+            illustrationPage: -1,
             threeDImages: [],
-            threeDPage: 0,
-            limit: 9,
+            threeDPage: -1,
+            limit: import.meta.env.VITE_PAGE_SIZE,
         };
     },
     methods: {
@@ -24,8 +24,8 @@ export default {
                 this.paitingPage += 1;
                 const response = await axios.get(this.server + 'paintings', {
                     params: {
-                        _page: this.paitingPage,
-                        _limit: this.limit,
+                        offset: this.paitingPage * this.limit,
+                        limit: this.limit,
                     },
                 });
                 this.paintingImages = [
@@ -43,8 +43,8 @@ export default {
                     this.server + 'illustrations',
                     {
                         params: {
-                            _page: this.illustrationPage,
-                            _limit: this.limit,
+                            offset: this.illustrationPage * this.limit,
+                            limit: this.limit,
                         },
                     },
                 );
@@ -63,8 +63,8 @@ export default {
                 this.threeDPage += 1;
                 const response = await axios.get(this.server + 'threeds', {
                     params: {
-                        _page: this.threeDPage,
-                        _limit: this.limit,
+                        offset: this.threeDPage * this.limit,
+                        limit: this.limit,
                     },
                 });
                 this.threeDImages = [...this.threeDImages, ...response.data];

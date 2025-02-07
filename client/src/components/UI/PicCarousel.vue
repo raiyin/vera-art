@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ImageParts, ImageProps } from '@/types';
+import type { ImageProps } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
@@ -15,7 +15,6 @@ export default {
     },
     data() {
         return {
-            parts: [] as ImageParts[],
             imgCountGTOne: false,
             extension: '.jpg',
         };
@@ -31,8 +30,7 @@ export default {
         },
     },
     beforeMount() {
-        this.parts = this.imageObject.parts;
-        this.imgCountGTOne = this.parts.length > 1;
+        this.imgCountGTOne = this.imageObject.img_count > 1;
     },
 };
 </script>
@@ -41,14 +39,14 @@ export default {
     <div :id="imageId" class="carousel slide" data-bs-ride="false">
         <div v-if="imgCountGTOne" class="carousel-indicators">
             <button
-                v-for="(value, index) in parts"
+                v-for="index in imageObject.img_count"
                 v-bind:key="index"
                 type="button"
                 :data-bs-target="imgIdtoLink"
                 :class="index === 0 ? 'active' : null"
                 :data-bs-slide-to="index"
                 :aria-current="index === 0 ? true : false"
-                :aria-label="value.name_ru"
+                :aria-label="imageObject.name_ru"
             />
         </div>
 

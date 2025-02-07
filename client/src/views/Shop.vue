@@ -15,7 +15,7 @@ export default {
         return {
             images: [] as ImageProps[],
             page: 0,
-            limit: 9,
+            limit: import.meta.env.VITE_PAGE_SIZE,
             selectedSort: '',
         };
     },
@@ -25,8 +25,8 @@ export default {
                 this.page += 1;
                 const response = await axios.get(this.server + 'sale', {
                     params: {
-                        _page: this.page,
-                        _limit: this.limit,
+                        offset: this.page * this.limit,
+                        limit: this.limit,
                     },
                 });
                 this.images = [...this.images, ...response.data];
