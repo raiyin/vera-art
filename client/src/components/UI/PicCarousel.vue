@@ -44,7 +44,7 @@ export default {
                 type="button"
                 :data-bs-target="imgIdtoLink"
                 :class="index === 1 ? 'active' : null"
-                :data-bs-slide-to="index"
+                :data-bs-slide-to="index - 1"
                 :aria-current="index === 1 ? true : false"
                 :aria-label="imageObject.name_en"
             />
@@ -62,6 +62,7 @@ export default {
                         class="d-block modal-image"
                         alt="..."
                     />
+
                     <div class="carousel-caption d-none d-md-block">
                         <h5>
                             {{
