@@ -3,7 +3,6 @@ import type { NewsDesc } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
-    inject: ['imagebasedir'],
     props: {
         imageObject: {
             type: Object as PropType<NewsDesc>,
@@ -20,6 +19,7 @@ export default {
     data() {
         return {
             extension: '.jpg',
+            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {

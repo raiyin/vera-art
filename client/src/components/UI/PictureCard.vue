@@ -11,7 +11,6 @@ export default {
         const themeStore = useThemeStore();
         return { themeStore };
     },
-    inject: ['imagebasedir'],
     components: {
         Modal: ModalDialog,
         CardSkeleton: PictureCardSkeleton,
@@ -26,6 +25,7 @@ export default {
     data() {
         return {
             isLoaded: false,
+            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
@@ -95,8 +95,12 @@ export default {
                                     : `, ${imageObject.material_en}`
                             }}
                         </span>
-                        <span v-if="imageObject.size">
-                            {{ `, ${imageObject.size}` }}
+                        <span
+                            v-if="imageObject.width && imageObject.width != '0'"
+                        >
+                            {{
+                                `, ${imageObject.width + 'x' + imageObject.height}`
+                            }}
                         </span>
                         <span v-if="imageObject.year">
                             {{ `, ${imageObject.year}` }}

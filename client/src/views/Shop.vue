@@ -6,7 +6,6 @@ import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
 
 export default {
-    inject: ['server'],
     components: {
         Gallery,
         vSelect,
@@ -16,6 +15,7 @@ export default {
             images: [] as ImageProps[],
             page: 0,
             limit: import.meta.env.VITE_PAGE_SIZE,
+            server: import.meta.env.VITE_SERVER_URL,
             selectedSort: '',
         };
     },
@@ -23,7 +23,7 @@ export default {
         async loadWorks() {
             try {
                 this.page += 1;
-                const response = await axios.get(this.server + 'sale', {
+                const response = await axios.get(this.server + 'sales', {
                     params: {
                         offset: this.page * this.limit,
                         limit: this.limit,

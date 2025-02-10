@@ -23,7 +23,8 @@ interface ImageProps {
     base_en: string;
     material_ru: string;
     material_en: string;
-    size: string;
+    width: string;
+    height: string;
     year: string;
     price: string;
     img_count: number;

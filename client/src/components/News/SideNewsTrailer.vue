@@ -5,7 +5,6 @@ import { NewsItemType } from '@/types';
 import { PropType } from 'vue';
 
 export default {
-    inject: ['imagebasedir'],
     components: {
         CalendarIcon,
         SideNewsTrailerSkeleton,
@@ -19,6 +18,7 @@ export default {
     data() {
         return {
             isLoaded: false,
+            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
@@ -58,7 +58,7 @@ export default {
 <template>
     <div>
         <router-link
-            :to="sideNewsObject.id"
+            :to="sideNewsObject.id.toString()"
             class="other-news-item"
             v-show="isLoaded"
         >
@@ -130,5 +130,6 @@ export default {
     text-align: left;
     min-width: 150px;
     line-height: 1.3;
+    text-wrap: nowrap;
 }
 </style>

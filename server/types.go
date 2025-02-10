@@ -40,6 +40,8 @@ type Threed struct {
 	BaseId   string `json:"base_id"`
 	Year     int    `json:"year"`
 	ImgCount int    `json:"img_count"`
+	BaseRu   string `json:"base_ru"`
+	BaseEn   string `json:"base_en"`
 }
 
 type Illustration struct {
@@ -51,6 +53,8 @@ type Illustration struct {
 	BaseId   string `json:"base_id"`
 	Year     int    `json:"year"`
 	ImgCount int    `json:"img_count"`
+	BaseRu   string `json:"base_ru"`
+	BaseEn   string `json:"base_en"`
 }
 
 type News struct {

@@ -3,7 +3,6 @@ import type { ImageProps } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
-    inject: ['imagebasedir'],
     props: {
         imageObject: {
             type: Object as PropType<ImageProps>,
@@ -17,6 +16,7 @@ export default {
         return {
             imgCountGTOne: false,
             extension: '.jpg',
+            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {

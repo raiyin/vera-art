@@ -10,10 +10,8 @@ import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue
 
 export default {
     setup() {
-        const jsonserverserverhost: string = inject('server') as string;
         const imagebasedir = inject('imagebasedir') as string;
         return {
-            server,
             imagebasedir,
         };
     },
@@ -48,11 +46,8 @@ export default {
     },
 
     async created() {
-        this.currentNewsItem = await fetchCurrentNews(
-            this.$route.path,
-            this.server,
-        );
-        this.otherNews = await fetchOtherNews(this.$route.path, this.server);
+        this.currentNewsItem = await fetchCurrentNews(this.$route.path);
+        this.otherNews = await fetchOtherNews(this.$route.path);
         const mdbScript = document.createElement('script');
         mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
         document.head.appendChild(mdbScript);
@@ -88,7 +83,7 @@ export default {
                 <div class="other-news px-sm-0">
                     <div
                         class="other-news-item-wrapper"
-                        v-for="newsItem in otherNews"
+                        v-for="newsItem in this.otherNews"
                         v-bind:key="newsItem.id"
                     >
                         <SideNewsTrailer :sideNewsObject="newsItem" />

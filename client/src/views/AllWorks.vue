@@ -1,9 +1,9 @@
 <script lang="ts">
 import Gallery from '@/components/UI/PicGallery.vue';
 import axios from 'axios';
+import { serialize } from 'v8';
 
 export default {
-    inject: ['server'],
     components: {
         Gallery,
     },
@@ -16,6 +16,7 @@ export default {
             threeDImages: [],
             threeDPage: -1,
             limit: import.meta.env.VITE_PAGE_SIZE,
+            server: import.meta.env.VITE_SERVER_URL,
         };
     },
     methods: {

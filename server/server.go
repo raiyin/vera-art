@@ -132,7 +132,7 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
-	query := "select * from threeds"
+	query := "select t.*, b.base_ru, b.base_en from threeds t join bases b on t.base_id = b.id"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
@@ -151,7 +151,7 @@ func getThreeds(w http.ResponseWriter, r *http.Request) {
 	threeds := []Threed{}
 	for rows.Next() {
 		p := Threed{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -167,7 +167,7 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
 
-	query := "select * from illustrations"
+	query := "select i.*, b.base_ru, b.base_en from illustrations i join bases b on i.base_id = b.id"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit[0]
@@ -185,7 +185,7 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 	illustrations := []Illustration{}
 	for rows.Next() {
 		p := Illustration{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -199,12 +199,18 @@ func getIllustrations(w http.ResponseWriter, r *http.Request) {
 
 func getNews(w http.ResponseWriter, r *http.Request) {
 
+	id := r.URL.Query()["id"]
 	offset := r.URL.Query()["offset"]
 	limit := r.URL.Query()["limit"]
+	id_ne := r.URL.Query()["id_ne"]
 
 	query := "select * from news"
 
-	if len(limit) > 0 {
+	if len(id) > 0 {
+		query = query + " where id = " + id[0]
+	} else if len(id_ne) > 0 && len(limit) > 0 {
+		query = query + " where id != " + id_ne[0] + " limit " + limit[0]
+	} else if len(limit) > 0 {
 		query = query + " limit " + limit[0]
 
 		if len(offset) > 0 {

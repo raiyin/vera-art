@@ -2,7 +2,6 @@
 import CalendarIcon from '@/components/Icons/IconCalendar.vue';
 
 export default {
-    inject: ['imagebasedir'],
     components: {
         CalendarIcon,
     },
@@ -15,6 +14,7 @@ export default {
     data() {
         return {
             isLoaded: false,
+            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
@@ -34,10 +34,14 @@ export default {
     },
     computed: {
         newsId() {
-            return '/newsitem/' + this.newsObject.id;
+            return '/news/' + this.newsObject.id;
         },
         bgImage() {
-            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
+            return (
+                this.imagebasedir +
+                this.newsObject.dir +
+                this.newsObject.img_back
+            );
         },
     },
 };
@@ -49,7 +53,11 @@ export default {
             <div class="news-item" :class="[!isLoaded ? 'loading' : '']">
                 <router-link :to="newsId">
                     <div class="img-holder">
-                        <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
+                        <img
+                            :src="bgImage"
+                            @load="onImgLoad"
+                            v-show="isLoaded"
+                        />
                         <div v-show="!isLoaded" class="image-stub" />
                     </div>
 
@@ -59,8 +67,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.title_ru
-                                    : newsObject.title_en
+                                      ? newsObject.title_ru
+                                      : newsObject.title_en
                             }}
                         </div>
                         <div>
@@ -68,8 +76,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                    ? newsObject.subTitle_ru
-                                    : newsObject.subTitle_en
+                                      ? newsObject.subTitle_ru
+                                      : newsObject.subTitle_en
                             }}
                         </div>
                         <div>
@@ -78,7 +86,10 @@ export default {
                                 &nbsp;{{
                                     !isLoaded
                                         ? ''
-                                        : getHumanDate(newsObject.datetime, $i18n.locale)
+                                        : getHumanDate(
+                                              newsObject.datetime,
+                                              $i18n.locale,
+                                          )
                                 }}
                             </span>
                         </div>

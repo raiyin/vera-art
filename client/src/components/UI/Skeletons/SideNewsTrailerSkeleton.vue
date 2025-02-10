@@ -1,7 +1,5 @@
 <script lang="ts">
-export default {
-    inject: ['imagebasedir'],
-};
+export default {};
 </script>
 
 <template>

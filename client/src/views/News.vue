@@ -4,7 +4,6 @@ import type { NewsDesc } from '@/types';
 import axios from 'axios';
 
 export default {
-    inject: ['server'],
     components: {
         NewsTrailer,
     },
@@ -12,8 +11,9 @@ export default {
     data() {
         return {
             news: [] as NewsDesc[],
-            page: 1,
+            page: 0,
             limit: import.meta.env.VITE_PAGE_SIZE,
+            server: import.meta.env.VITE_SERVER_URL,
         };
     },
     methods: {
