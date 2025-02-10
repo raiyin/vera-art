@@ -28,6 +28,7 @@ interface ImageProps {
     year: string;
     price: string;
     img_count: number;
+    str_id: string;
 }
 
 interface NewsDesc {

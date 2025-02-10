@@ -26,7 +26,7 @@ export default {
     },
     computed: {
         imgIdtoLink() {
-            return '#' + this.imageObject.id;
+            return '#' + this.imageObject.str_id;
         },
     },
     beforeMount() {
@@ -43,10 +43,10 @@ export default {
                 v-bind:key="index"
                 type="button"
                 :data-bs-target="imgIdtoLink"
-                :class="index === 0 ? 'active' : null"
+                :class="index === 1 ? 'active' : null"
                 :data-bs-slide-to="index"
-                :aria-current="index === 0 ? true : false"
-                :aria-label="imageObject.name_ru"
+                :aria-current="index === 1 ? true : false"
+                :aria-label="imageObject.name_en"
             />
         </div>
 
@@ -54,16 +54,22 @@ export default {
             <template v-for="index in imageObject.img_count" v-bind:key="index">
                 <div
                     :class="
-                        index === 0 ? 'carousel-item active' : 'carousel-item'
+                        index === 1 ? 'carousel-item active' : 'carousel-item'
                     "
                 >
                     <img
-                        :src="makeFileName(imageObject.dir, index + 1)"
+                        :src="makeFileName(imageObject.dir, index)"
                         class="d-block modal-image"
                         alt="..."
                     />
                     <div class="carousel-caption d-none d-md-block">
-                        <h5>{{ imageObject.name_ru }}</h5>
+                        <h5>
+                            {{
+                                $i18n.locale === 'RUS'
+                                    ? `${imageObject.name_ru}`
+                                    : `${imageObject.name_en}`
+                            }}
+                        </h5>
                     </div>
                 </div>
             </template>

@@ -37,10 +37,10 @@ export default {
     },
     computed: {
         imgIdToModalIdSelector() {
-            return '#' + this.imageObject.id + 'Modal';
+            return '#' + this.imageObject.str_id + 'Modal';
         },
         imgIdToModalId() {
-            return this.imageObject.id + 'Modal';
+            return this.imageObject.str_id + 'Modal';
         },
         mainCardImage() {
             return this.imagebasedir + this.imageObject.dir + '1.jpg';
@@ -119,7 +119,7 @@ export default {
             <Modal :modalId="imgIdToModalId">
                 <Carousel
                     :imageObject="imageObject"
-                    :imageId="imageObject.id"
+                    :imageId="imageObject.str_id"
                 />
             </Modal>
         </div>
