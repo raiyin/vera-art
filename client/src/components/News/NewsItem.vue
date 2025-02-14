@@ -80,7 +80,7 @@ export default {
                     />
                 </div>
 
-                <div class="other-news px-sm-0">
+                <div class="other-news px-0">
                     <div
                         class="other-news-item-wrapper"
                         v-for="newsItem in this.otherNews"

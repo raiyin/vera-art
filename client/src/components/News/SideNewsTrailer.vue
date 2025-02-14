@@ -113,6 +113,8 @@ export default {
 
 .other-news-img > img {
     max-width: 9rem;
+    width: 9rem;
+    height: 6rem;
 }
 
 .other-news-desc {
