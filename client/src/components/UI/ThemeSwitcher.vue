@@ -47,8 +47,7 @@ export default {
     cursor: pointer;
     opacity: 0.5;
     transition: opacity 0.15s ease-in-out;
-    display: block;
-    width: 3.2rem;
+    width: 2.2rem;
     aspect-ratio: 1;
     overflow: hidden;
     border-radius: 50%;

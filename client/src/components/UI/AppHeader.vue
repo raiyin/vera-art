@@ -44,7 +44,7 @@ export default {
             </button>
 
             <div class="collapse navbar-collapse" id="navbarToggler">
-                <ul class="navbar-nav me-auto my-2 my-lg-">
+                <ul class="navbar-nav me-auto my-2 my-lg-2">
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/">
                             {{ $t('header.main') }}
@@ -81,7 +81,7 @@ export default {
                 </ul>
 
                 <ul
-                    class="nav navbar-nav navbar-right d-flex align-items-center"
+                    class="nav navbar-nav navbar-right d-flex align-items-center my-2 my-lg-2"
                 >
                     <li>
                         <ThemeSwitcher />
@@ -186,7 +186,7 @@ export default {
 
 .custom-navbar .fa-brands,
 .fa {
-    font-size: 3rem;
+    font-size: 2rem;
     color: var(--color-header-menu-item);
 }
 
