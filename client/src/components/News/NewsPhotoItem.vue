@@ -55,7 +55,9 @@ export default {
 </script>
 
 <template>
-    <div :class="[!isLoaded ? 'loading col-lg-4 col-md-6' : 'col-lg-4 col-md-6']">
+    <div
+        :class="[!isLoaded ? 'loading col-lg-4 col-md-6' : 'col-lg-4 col-md-6']"
+    >
         <div v-if="!isLoaded" class="image-stub" />
 
         <img
@@ -72,9 +74,9 @@ export default {
 
 <style scoped>
 .image-stub {
-    height: 200px;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    height: 20rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
 }
 
 .img-item {
@@ -93,18 +95,18 @@ export default {
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 0.4rem;
 }
 
 .modal__btn {
     position: absolute;
-    right: clamp(5px, 1vw, 15px);
-    top: clamp(5px, 1vw, 15px);
+    right: clamp(0.5rem, 1vw, 1.5rem);
+    top: clamp(0.5rem, 1vw, 1.5rem);
     padding: 0;
 }
 
 .modal-body {
-    padding: clamp(5px, 1vw, 15px);
+    padding: clamp(0.5rem, 1vw, 1.5rem);
 }
 
 @keyframes loading {

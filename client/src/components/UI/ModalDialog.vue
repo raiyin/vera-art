@@ -45,8 +45,8 @@ export default {
 }
 .modal__btn {
     position: absolute;
-    right: clamp(5px, 1vw, 15px);
-    top: clamp(5px, 1vw, 15px);
+    right: clamp(0.5rem, 1vw, 1.5rem);
+    top: clamp(0.5rem, 1vw, 1.5rem);
     padding: 0;
     z-index: 100;
 }

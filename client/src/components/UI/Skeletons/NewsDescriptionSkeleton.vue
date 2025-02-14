@@ -36,7 +36,7 @@ export default {};
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 0.4rem;
 }
 
 @keyframes loading {

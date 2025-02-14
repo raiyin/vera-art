@@ -68,7 +68,7 @@ export default {};
     margin: auto;
     color: var(--color-on-surface);
     text-align: center;
-    padding: 50px 20px;
+    padding: 5rem 2rem;
     text-align: justify;
     width: 80vw;
     font-size: 1rem;
@@ -97,12 +97,12 @@ export default {};
 
 .bgimg-2 {
     background-image: url('../assets/img/home/img_parallax2.jpg');
-    min-height: 600px;
+    min-height: 60rem;
 }
 
 .bgimg-3 {
     background-image: url('../assets/img/home/img_parallax3.jpg');
-    min-height: 600px;
+    min-height: 60rem;
 }
 
 .bgimg-4 {
@@ -125,18 +125,18 @@ export default {};
 .caption span.border {
     background-color: var(--color-dark);
     color: var(--color-caption-border);
-    padding: 18px;
-    font-size: 25px;
-    letter-spacing: 10px;
+    padding: 1.8rem;
+    font-size: 2.5rem;
+    letter-spacing: 1rem;
 }
 
 @media (max-width: 641px) {
     .caption span.border {
         background-color: var(--color-dark);
         color: var(--color-light);
-        padding: 18px;
-        font-size: 15px;
-        letter-spacing: 5px;
+        padding: 1.8rem;
+        font-size: 1.5rem;
+        letter-spacing: 0.5rem;
     }
 }
 
@@ -158,10 +158,10 @@ export default {};
 }
 
 h3 {
-    letter-spacing: 5px;
+    letter-spacing: 0.5rem;
     text-transform: uppercase;
     font:
-        20px 'Lato',
+        2rem 'Lato',
         sans-serif;
 }
 
