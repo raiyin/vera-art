@@ -30,7 +30,7 @@ export default {
 }
 
 .image {
-    height: 200px;
+    height: 20rem;
 }
 
 h5 {
@@ -41,8 +41,8 @@ h5 {
 
 h5,
 .card-text {
-    height: 20px;
-    margin-bottom: 5px;
+    height: 2rem;
+    margin-bottom: 0.5rem;
 }
 
 .image,
@@ -59,7 +59,7 @@ h5,
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 0.4rem;
 }
 
 @keyframes loading {

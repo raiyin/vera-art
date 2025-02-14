@@ -44,7 +44,7 @@ export default {
             </button>
 
             <div class="collapse navbar-collapse" id="navbarToggler">
-                <ul class="navbar-nav me-auto my-2 my-lg-">
+                <ul class="navbar-nav me-auto my-2 my-lg-2">
                     <li class="nav-item">
                         <router-link class="nav-link menu-item" to="/">
                             {{ $t('header.main') }}
@@ -81,7 +81,7 @@ export default {
                 </ul>
 
                 <ul
-                    class="nav navbar-nav navbar-right d-flex align-items-center"
+                    class="nav navbar-nav navbar-right d-flex align-items-center my-2 my-lg-2"
                 >
                     <li>
                         <ThemeSwitcher />
@@ -167,7 +167,7 @@ export default {
 }
 
 .router-link-active {
-    border-bottom: 2px solid teal;
+    border-bottom: 0.2rem solid teal;
 }
 
 .menu-item:hover {
@@ -186,7 +186,7 @@ export default {
 
 .custom-navbar .fa-brands,
 .fa {
-    font-size: 30px;
+    font-size: 2rem;
     color: var(--color-header-menu-item);
 }
 
@@ -198,7 +198,7 @@ export default {
 @media (max-width: 768px) {
     .custom-navbar .navbar-right {
         float: right;
-        padding-right: 15px;
+        padding-right: 1.5rem;
     }
 
     .custom-navbar .nav.navbar-nav.navbar-right li {
@@ -206,7 +206,7 @@ export default {
     }
 
     .custom-navbar .nav.navbar-nav.navbar-right li > a {
-        padding: 8px 5px;
+        padding: 0.8rem 0.5rem;
     }
 
     .custom-navbar .navbar-toggle {
@@ -234,6 +234,6 @@ export default {
 
 .fa:hover,
 .fa-brands:hover {
-    filter: drop-shadow(2px 2px 2px #808080);
+    filter: drop-shadow(0.2rem 0.2rem 0.2rem #808080);
 }
 </style>

@@ -41,14 +41,13 @@ export default {
 .theme-switcher {
     margin: 0;
     padding: 0;
-    margin-top: -5px;
+    margin-top: -0.5rem;
     border: none;
     background-color: transparent;
     cursor: pointer;
     opacity: 0.5;
     transition: opacity 0.15s ease-in-out;
-    display: block;
-    width: 32px;
+    width: 2.2rem;
     aspect-ratio: 1;
     overflow: hidden;
     border-radius: 50%;

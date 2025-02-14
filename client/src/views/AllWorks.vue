@@ -206,7 +206,7 @@ export default {
 .tab-content {
     border-left: 1px solid var(--color-surface-secondary);
     border-right: 1px solid var(--color-surface-secondary);
-    padding: 10px;
+    padding: 1rem;
 }
 
 .nav-tabs {

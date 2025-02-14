@@ -66,8 +66,8 @@ export default {
                 <img
                     :src="background"
                     :alt="sideNewsObject.title_en"
-                    width="90px"
-                    height="60px"
+                    width="9rem"
+                    height="6rem"
                 />
             </div>
             <div class="other-news-desc">
@@ -112,7 +112,9 @@ export default {
 }
 
 .other-news-img > img {
-    max-width: 90px;
+    max-width: 9rem;
+    width: 9rem;
+    height: 6rem;
 }
 
 .other-news-desc {
@@ -128,7 +130,7 @@ export default {
 
 .other-news-desc .date {
     text-align: left;
-    min-width: 150px;
+    min-width: 15rem;
     line-height: 1.3;
     text-wrap: nowrap;
 }

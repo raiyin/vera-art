@@ -15,11 +15,11 @@ export default {};
 <style scoped>
 .side-news {
     display: flex;
-    height: 60px;
+    height: 6rem;
 }
 
 .img {
-    min-width: 90px;
+    min-width: 9rem;
 }
 
 .desc {
@@ -55,7 +55,7 @@ export default {};
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 0.4rem;
 }
 
 @keyframes loading {

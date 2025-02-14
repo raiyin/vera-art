@@ -105,7 +105,7 @@ export default {
     width: 25rem;
     height: 30rem;
     border-radius: 0.3rem;
-    border: 1px solid var(--color-surface-secondary);
+    border: 0.1rem solid var(--color-surface-secondary);
     overflow: hidden;
 }
 
@@ -144,7 +144,7 @@ export default {
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
-    border-radius: 4px;
+    border-radius: 0.4rem;
 }
 
 @keyframes loading {
@@ -154,7 +154,7 @@ export default {
 }
 
 .loading .news-content {
-    height: 30px;
+    height: 3rem;
     width: 80%;
     margin: auto;
 }

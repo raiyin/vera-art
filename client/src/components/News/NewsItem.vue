@@ -72,15 +72,15 @@ export default {
                     <div class="img-mock" v-show="!isImgLoaded" />
                     <img
                         :src="background"
-                        width="670px"
-                        height="450px"
+                        width="67rem"
+                        height="45rem"
                         alt="News main image"
                         @load="onImgLoaded"
                         v-show="isImgLoaded"
                     />
                 </div>
 
-                <div class="other-news px-sm-0">
+                <div class="other-news px-0">
                     <div
                         class="other-news-item-wrapper"
                         v-for="newsItem in this.otherNews"
@@ -134,7 +134,7 @@ img {
     display: flex;
     flex-direction: column;
     background-color: var(--color-surface);
-    border-radius: 15px;
+    border-radius: 1.5rem;
     width: 60%;
 }
 
@@ -156,7 +156,7 @@ img {
     .other-news {
         padding-top: 0.8rem;
         width: 100%;
-        padding: 0 15px;
+        padding: 0 1.5rem;
     }
 
     .other-news-item-wrapper {
