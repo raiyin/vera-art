@@ -59,7 +59,7 @@ export default {
                 v-bind:key="index"
                 type="button"
                 data-bs-target="#news_img"
-                :class="index === 1 ? 'active' : ''"
+                :class="{ active: index === 1 }"
                 :data-bs-slide-to="index - 1"
                 :aria-current="index === 1"
             />
@@ -69,9 +69,8 @@ export default {
             <div
                 v-for="index in this.imageObject.imagescount"
                 v-bind:key="index"
-                :class="
-                    'carousel-item' + (index === selectedIndex ? ' active' : '')
-                "
+                class="carousel-item"
+                :class="{ active: selectedIndex === 1 }"
             >
                 <img
                     :src="makeFileName(imageObject.dir, index)"

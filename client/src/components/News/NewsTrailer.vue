@@ -50,7 +50,7 @@ export default {
 <template>
     <section class="container text-center px-0">
         <div class="col d-flex justify-content-center">
-            <div class="news-item" :class="[!isLoaded ? 'loading' : '']">
+            <div class="news-item" :class="{ loading: isLoaded }">
                 <router-link :to="newsId">
                     <div class="img-holder">
                         <img
