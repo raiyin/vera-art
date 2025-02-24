@@ -43,7 +43,7 @@ export default {
                 v-bind:key="index"
                 type="button"
                 :data-bs-target="imgIdtoLink"
-                :class="index === 1 ? 'active' : null"
+                :class="{ active: index === 1 }"
                 :data-bs-slide-to="index - 1"
                 :aria-current="index === 1 ? true : false"
                 :aria-label="imageObject.name_en"
