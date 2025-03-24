@@ -56,7 +56,7 @@ export default {
 
 <template>
     <div
-        :class="[!isLoaded ? 'loading col-lg-4 col-md-6' : 'col-lg-4 col-md-6']"
+        :class="{ loading: !isLoaded }"
     >
         <div v-if="!isLoaded" class="image-stub" />
 
