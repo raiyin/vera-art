@@ -103,6 +103,7 @@ export default {
     text-decoration: none;
     color: var(--color-on-surface);
 }
+
 .other-news-item:hover {
     color: var(--color-on-surface-hover);
 }
@@ -133,5 +134,23 @@ export default {
     min-width: 15rem;
     line-height: 1.3;
     text-wrap: nowrap;
+}
+
+@media screen and (max-width: 400px) {
+    .other-news-item {
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+    }
+
+    .other-news-img > img {
+        max-width: 9rem;
+        width: 9rem;
+        height: 6rem;
+    }
+
+    .other-news-desc {
+        margin-top: .5rem;
+}
 }
 </style>
