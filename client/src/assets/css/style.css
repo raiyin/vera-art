@@ -8,12 +8,17 @@
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.ttf') format('truetype'),
 }
 
+*{
+	margin: 0;
+	padding: 0;
+}
+
 html,
 body,
 #app {
 	min-height: 100vh;
-	display: flex;
-	flex-direction: column;
+	/* display: flex; */
+	/* flex-direction: column; */
 }
 
 body::-webkit-scrollbar {
@@ -23,7 +28,7 @@ body::-webkit-scrollbar {
 body {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
-	height: 100%;
+	/* height: 100%; */
 }
 
 html {
