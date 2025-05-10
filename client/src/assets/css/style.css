@@ -8,6 +8,11 @@
 		url('../fonts/montserrat-v25-latin_cyrillic-regular.ttf') format('truetype'),
 }
 
+*{
+	margin: 0;
+	padding: 0;
+}
+
 html,
 body,
 #app {

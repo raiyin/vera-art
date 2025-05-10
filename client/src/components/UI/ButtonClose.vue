@@ -7,12 +7,7 @@ export default {
 </script>
 
 <template>
-    <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="modal"
-        aria-label="Close"
-    />
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
 </template>
 
 <style scoped>
@@ -20,5 +15,8 @@ export default {
     background-color: bisque;
     width: 1.5rem;
     height: 1.5rem;
+    box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
 }
 </style>

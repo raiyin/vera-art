@@ -24,7 +24,7 @@ export default {
     },
     methods: {
         setSelectedIndex(index: number) {
-            this.selectedIndex = index;
+            this.selectedIndex = index - 1;
         },
     },
 };
@@ -35,11 +35,10 @@ export default {
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 1">
+                    <template v-if="image_index % 3 == 1" :key="image_index">
                         <NewsPhotoItem
                             :image_index="image_index"
                             :currentNews="currentNewsItem"
-                            :key="image_index"
                             @click="setSelectedIndex(image_index)"
                         />
                     </template>
@@ -48,11 +47,11 @@ export default {
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 2">
+                    <template v-if="image_index % 3 == 2" :key="image_index">
                         <NewsPhotoItem
                             :image_index="image_index"
                             :currentNews="currentNewsItem"
-                            :key="image_index"
+                            @click="setSelectedIndex(image_index)"
                         />
                     </template>
                 </template>
@@ -60,11 +59,11 @@ export default {
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
                 <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 0">
+                    <template v-if="image_index % 3 == 0" :key="image_index">
                         <NewsPhotoItem
                             :image_index="image_index"
                             :currentNews="currentNewsItem"
-                            :key="image_index"
+                            @click="setSelectedIndex(image_index)"
                         />
                     </template>
                 </template>

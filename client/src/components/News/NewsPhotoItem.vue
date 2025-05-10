@@ -36,7 +36,7 @@ export default {
             if (index === 0) {
                 console.error('Wrong image_index props');
             }
-            return this.imagebasedir + this.currentNews?.dir + index + '.jpg';
+            return `${this.imagebasedir}${this.currentNews?.dir}${index}.jpg`;
         },
         makeModalIdLink(index: number) {
             if (index === 0) {
@@ -55,9 +55,7 @@ export default {
 </script>
 
 <template>
-    <div
-        :class="{ loading: !isLoaded }"
-    >
+    <div :class="{ loading: !isLoaded }">
         <div v-if="!isLoaded" class="image-stub" />
 
         <img

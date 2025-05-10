@@ -1,5 +1,5 @@
 {
-    "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/**/*.json"],
+    "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "src/**/*.json", "src/types/index.ts"],
     "exclude": ["src/**/__tests__/*", "src/**/js/"],
     "compilerOptions": {
         "baseUrl": ".",
