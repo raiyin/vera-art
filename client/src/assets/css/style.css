@@ -17,8 +17,6 @@ html,
 body,
 #app {
 	min-height: 100vh;
-	/* display: flex; */
-	/* flex-direction: column; */
 }
 
 body::-webkit-scrollbar {
@@ -28,7 +26,6 @@ body::-webkit-scrollbar {
 body {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
-	/* height: 100%; */
 }
 
 html {
@@ -71,6 +68,7 @@ html {
 	-ms-text-size-adjust: 100%;
 	-moz-text-size-adjust: 100%;
 	text-rendering: optimizeLegibility;
+	/* Цвета */
 	--skeleton-gray: #ADADAD;
 	--color-light: #FFFFFF;
 	--color-dark: #11111100;

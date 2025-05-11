@@ -29,6 +29,20 @@ export default {
         makeVideoName(index: number, imagebasedir: string): string {
             return imagebasedir + this.currentNewsItem.dir + index + '.mp4';
         },
+
+        setPause() {
+            this.players.value.forEach((player) => {
+                player.pause();
+            });
+        },
+
+        addPauseListener(item: Element) {
+            item.addEventListener('click', () => this.setPause());
+        },
+
+        removePauseListener(item: Element) {
+            item.removeEventListener('click', () => this.setPause());
+        },
     },
     mounted() {
         this.players.value = Array.from(document.querySelectorAll('video'));
@@ -37,46 +51,40 @@ export default {
             document.querySelectorAll(
                 '.carousel-control-prev, .carousel-control-next, .video-indicator'
             )
-        ).forEach((item) => {
-            item.addEventListener('click', () => {
-                this.players.value.forEach((player) => {
-                    player.pause();
-                });
-            });
-        });
+        ).forEach((item) => this.addPauseListener(item));
+    },
+    beforeUnmount() {
+        Array.from(
+            document.querySelectorAll(
+                '.carousel-control-prev, .carousel-control-next, .video-indicator'
+            )
+        ).forEach((item) => this.removePauseListener(item));
     },
 };
 </script>
 
 <template>
-    <section
-        id="carouselVideoExample"
-        class="carousel slide"
-        data-bs-interval="false"
-        data-bs-ride="carousel"
-    >
-        <ol v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
-            <template
+    <section id="carouselVideoExample" class="carousel slide" data-bs-interval="false">
+        <div v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
+            <button
                 v-for="video_index in currentNewsItem.videoscount"
                 :key="video_index"
-            >
-                <li
-                    data-mdb-target="#carouselVideoExample"
-                    :data-mdb-slide-to="video_index - 1"
-                    class="video-indicator"
-                    :class="{ active: video_index === 1 }"
-                    :aria-current="video_index === 1"
-                    :aria-label="makeVideoSlideLabel(video_index)"
-                />
-            </template>
-        </ol>
+                type="button"
+                data-bs-target="#carouselVideoExample"
+                :data-bs-slide-to="video_index - 1"
+                class="video-indicator"
+                :class="{ active: video_index === 1 }"
+                :aria-current="video_index === 1"
+                :aria-label="makeVideoSlideLabel(video_index)"
+            />
+        </div>
 
         <div class="carousel-inner">
             <div
                 v-for="video_index in currentNewsItem.videoscount"
                 :key="video_index"
                 class="carousel-item"
-                data-bs-interval="4000000000"
+                data-bs-interval="false"
                 :class="{ active: video_index === 1 }"
             >
                 <video class="img-fluid" controls>
@@ -92,33 +100,31 @@ export default {
             </div>
         </div>
 
-        <a
+        <button
             v-if="currentNewsItem.videoscount > 1"
             class="carousel-control-prev"
             type="button"
-            data-mdb-target="#carouselVideoExample"
-            data-mdb-slide="prev"
+            data-bs-target="#carouselVideoExample"
+            data-bs-slide="prev"
         >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </a>
+            <span class="visually-hidden">{{ $t('carousel.back') }}</span>
+        </button>
 
-        <a
+        <button
             v-if="currentNewsItem.videoscount > 1"
             class="carousel-control-next"
             type="button"
-            data-mdb-target="#carouselVideoExample"
-            data-mdb-slide="next"
+            data-bs-target="#carouselVideoExample"
+            data-bs-slide="next"
         >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </a>
+            <span class="visually-hidden"> {{ $t('carousel.next') }}</span>
+        </button>
     </section>
 </template>
 
 <style scoped>
-@import '@/assets/css/mdb.min.css';
-
 .carousel-inner {
     object-fit: cover;
 }

@@ -53,9 +53,6 @@ export default {
     async created() {
         this.currentNewsItem = await fetchCurrentNews(this.$route.path);
         this.otherNews = await fetchOtherNews(this.$route.path);
-        const mdbScript = document.createElement('script');
-        mdbScript.setAttribute('src', '/src/assets/js/mdb.min.js');
-        document.head.appendChild(mdbScript);
     },
     computed: {
         background() {
@@ -131,8 +128,6 @@ export default {
 </template>
 
 <style scoped>
-@import '@/assets/css/mdb.min.css';
-
 .news-header {
     display: flex;
     column-gap: 1rem;
