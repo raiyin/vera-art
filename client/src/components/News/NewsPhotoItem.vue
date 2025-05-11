@@ -79,6 +79,8 @@ export default {
 
 .img-item {
     cursor: pointer;
+    object-fit: cover;
+    max-width: 100%;
 }
 
 .loading .image-stub {

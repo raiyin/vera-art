@@ -48,7 +48,7 @@ export default {
 </script>
 
 <template>
-    <div id="news_img" class="carousel slide carousel-fade" data-bs-ride="carousel">
+    <div id="news_img" class="carousel slide" data-bs-ride="carousel">
         <div v-if="imageObject.imagescount > 1" class="carousel-indicators">
             <button
                 v-for="i in imageObject.imagescount"

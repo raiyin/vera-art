@@ -61,11 +61,7 @@ export default {
                 :src="mainCardImage"
                 @load="onImgLoad"
                 class="card-img-top"
-                :alt="
-                    $i18n.locale === 'RUS'
-                        ? imageObject.name_ru
-                        : imageObject.name_en
-                "
+                :alt="$i18n.locale === 'RUS' ? imageObject.name_ru : imageObject.name_en"
                 data-bs-toggle="modal"
                 :data-bs-target="imgIdToModalIdSelector"
             />
@@ -95,32 +91,21 @@ export default {
                                     : `, ${imageObject.material_en}`
                             }}
                         </span>
-                        <span
-                            v-if="imageObject.width && imageObject.width != '0'"
-                        >
-                            {{
-                                `, ${imageObject.width + 'x' + imageObject.height}`
-                            }}
+                        <span v-if="imageObject.width && imageObject.width != '0'">
+                            {{ `, ${imageObject.width + 'x' + imageObject.height}` }}
                         </span>
                         <span v-if="imageObject.year">
                             {{ `, ${imageObject.year}` }}
                         </span>
                     </div>
                     <p v-if="imageObject.price">
-                        {{
-                            $t('card.price') +
-                            ` ${imageObject.price} ` +
-                            $t('card.rub')
-                        }}
+                        {{ $t('card.price') + ` ${imageObject.price} ` + $t('card.rub') }}
                     </p>
                 </div>
             </div>
 
             <Modal :modalId="imgIdToModalId">
-                <Carousel
-                    :imageObject="imageObject"
-                    :imageId="imageObject.str_id"
-                />
+                <Carousel :imageObject="imageObject" :imageId="imageObject.str_id" />
             </Modal>
         </div>
         <CardSkeleton v-if="!isLoaded" />
@@ -137,6 +122,10 @@ export default {
     --bs-card-bg: var(--color-surface);
     opacity: 1;
     width: 100%;
+}
+
+.desc {
+    color: var(--color-on-surface);
 }
 
 img {
