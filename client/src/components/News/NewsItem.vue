@@ -4,9 +4,15 @@ import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
-import VideoSection from '@/components/News/VideoSection.vue';
-import PhotoSection from './PhotoSection.vue';
+// import VideoSection from '@/components/News/VideoSection.vue';
+import PhotoSection from '@/components/News/PhotoSection.vue';
 import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
+import { defineAsyncComponent } from 'vue';
+
+const AsyncVideoSection = defineAsyncComponent({
+    loader: () => import('@/components/News/VideoSection.vue'),
+    delay: 5000,
+});
 
 export default {
     setup() {
@@ -18,7 +24,8 @@ export default {
     components: {
         SideNewsTrailer,
         NewsItemDescription,
-        VideoSection,
+        // VideoSection,
+        AsyncVideoSection,
         PhotoSection,
         SideNewsTrailerSkeleton,
     },
@@ -35,9 +42,7 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return (
-                this.imagebasedir + this.currentNewsItem.dir + index + '.mp4'
-            );
+            return this.imagebasedir + this.currentNewsItem.dir + index + '.mp4';
         },
 
         onImgLoaded() {
@@ -108,7 +113,20 @@ export default {
 
         <PhotoSection :current-news-item="currentNewsItem" />
 
-        <VideoSection :current-news-item="currentNewsItem" />
+        <!-- <AsyncVideoSection :current-news-item="currentNewsItem" /> -->
+        <Suspense>
+            <template #default>
+                <AsyncVideoSection :current-news-item="currentNewsItem" />
+            </template>
+            <template #fallback>
+                <div
+                    class="video-placeholder"
+                    style="width: 100%; height: 300px; background: #eee"
+                >
+                    Loading video content...
+                </div>
+            </template>
+        </Suspense>
     </section>
 </template>
 

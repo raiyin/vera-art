@@ -1,6 +1,6 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
-import { inject, PropType, ref, onMounted } from 'vue';
+import { inject, PropType, ref } from 'vue';
 import type { NewsItemType } from '@/types';
 
 export default {
@@ -35,8 +35,8 @@ export default {
 
         Array.from(
             document.querySelectorAll(
-                '.carousel-control-prev, .carousel-control-next, .video-indicator',
-            ),
+                '.carousel-control-prev, .carousel-control-next, .video-indicator'
+            )
         ).forEach((item) => {
             item.addEventListener('click', () => {
                 this.players.value.forEach((player) => {
@@ -49,10 +49,11 @@ export default {
 </script>
 
 <template>
-    <div
+    <section
         id="carouselVideoExample"
-        class="carousel slide carousel-fade"
-        data-mdb-ride="carousel"
+        class="carousel slide"
+        data-bs-interval="false"
+        data-bs-ride="carousel"
     >
         <ol v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
             <template
@@ -75,6 +76,7 @@ export default {
                 v-for="video_index in currentNewsItem.videoscount"
                 :key="video_index"
                 class="carousel-item"
+                data-bs-interval="4000000000"
                 :class="{ active: video_index === 1 }"
             >
                 <video class="img-fluid" controls>
@@ -83,8 +85,8 @@ export default {
                         type="video/mp4"
                     />
                     <p>
-                        Sorry, there's a problem playing this video. Please try
-                        using a different browser.
+                        Sorry, there's a problem playing this video. Please try using a
+                        different browser.
                     </p>
                 </video>
             </div>
@@ -111,7 +113,7 @@ export default {
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">Next</span>
         </a>
-    </div>
+    </section>
 </template>
 
 <style scoped>
