@@ -26,6 +26,7 @@ body::-webkit-scrollbar {
 body {
 	-ms-overflow-style: none;
 	scrollbar-width: none;
+	min-width: 320px;
 }
 
 html {

@@ -21,4 +21,8 @@ export default {};
     margin-top: 5rem;
     flex: 1 0 auto;
 }
+
+p {
+    text-align: justify;
+}
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
 import ThemeSwitcher from './ThemeSwitcher.vue';
 import LocaleSwitcher from './LocaleSwitcher.vue';
+import { Collapse } from 'bootstrap';
 
 export default {
     components: {
@@ -8,19 +9,40 @@ export default {
         LocaleSwitcher,
     },
     data() {
-        return {};
+        return {
+            bsCollapse: null as Collapse | null,
+        };
+    },
+    methods: {
+        toggleMenu() {
+            if (this.bsCollapse) {
+                this.bsCollapse.toggle();
+            }
+        },
     },
     mounted() {
-        const navLinks = document.querySelectorAll('.nav-item');
         const menuToggle = document.getElementById('navbarToggler');
-        const bsCollapse = new bootstrap.Collapse(menuToggle, {
-            toggle: false,
-        });
+        if (menuToggle) {
+            this.bsCollapse = new Collapse(menuToggle, {
+                toggle: false,
+            });
+        }
 
+        const navLinks = document.querySelectorAll('.nav-item');
         navLinks.forEach((l) => {
             l.addEventListener('click', () => {
-                if (window.innerWidth < 768) {
-                    bsCollapse.toggle();
+                if (window.innerWidth < 950) {
+                    this.toggleMenu();
+                }
+            });
+        });
+    },
+    beforeUnmount() {
+        const navLinks = document.querySelectorAll('.nav-item');
+        navLinks.forEach((l) => {
+            l.removeEventListener('click', () => {
+                if (window.innerWidth < 950) {
+                    this.toggleMenu();
                 }
             });
         });
@@ -30,12 +52,11 @@ export default {
 
 <template>
     <header class="container header">
-        <nav class="navbar navbar-expand-md custom-navbar">
+        <nav class="navbar navbar-expand-lg custom-navbar">
             <button
                 class="navbar-toggler"
                 type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarToggler"
+                @click="toggleMenu"
                 aria-controls="navbarToggler"
                 aria-expanded="false"
                 aria-label="Toggle navigation"
@@ -71,18 +92,13 @@ export default {
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link
-                            class="nav-link menu-item"
-                            to="/paydelivery"
-                        >
+                        <router-link class="nav-link menu-item" to="/paydelivery">
                             {{ $t('header.payment') }}
                         </router-link>
                     </li>
                 </ul>
 
-                <ul
-                    class="nav navbar-nav navbar-right d-flex align-items-center my-2 my-lg-2"
-                >
+                <ul class="navbar-nav navbar-tools d-flex my-2 my-lg-2">
                     <li>
                         <ThemeSwitcher />
                     </li>
@@ -154,16 +170,13 @@ export default {
     --h: 1.85em;
 
     line-height: var(--h);
-    background: linear-gradient(var(--m) 0 0) no-repeat
-        calc(200% - var(--_p, 0%)) 100%/200% var(--_p, 0.08em);
+    background: linear-gradient(var(--m) 0 0) no-repeat calc(200% - var(--_p, 0%)) 100%/200%
+        var(--_p, 0.08em);
     color: var(--color-dark);
     overflow: hidden;
-    text-shadow:
-        0 calc(-1 * var(--_t, 0em)) var(--c),
+    text-shadow: 0 calc(-1 * var(--_t, 0em)) var(--c),
         0 calc(var(--h) - var(--_t, 0em)) var(--color-light);
-    transition:
-        0.3s var(--_s, 0s),
-        background-position 0.3s calc(0.3s - var(--_s, 0s));
+    transition: 0.3s var(--_s, 0s), background-position 0.3s calc(0.3s - var(--_s, 0s));
 }
 
 .router-link-active {
@@ -195,17 +208,16 @@ export default {
     transition-duration: 0.5s;
 }
 
-@media (max-width: 768px) {
-    .custom-navbar .navbar-right {
-        float: right;
+@media (max-width: 992px) {
+    .custom-navbar .navbar-tools {
         padding-right: 1.5rem;
     }
 
-    .custom-navbar .nav.navbar-nav.navbar-right li {
+    .custom-navbar .nav.navbar-nav.navbar-tools li {
         float: right;
     }
 
-    .custom-navbar .nav.navbar-nav.navbar-right li > a {
+    .custom-navbar .nav.navbar-nav.navbar-tools li > a {
         padding: 0.8rem 0.5rem;
     }
 
@@ -223,12 +235,12 @@ export default {
         float: none;
     }
 
-    .navbar-right {
-        visibility: hidden;
+    .navbar-tools {
+        flex-direction: row;
     }
 }
 
-.navbar-right {
+.navbar-tools {
     flex-wrap: nowrap;
 }
 
