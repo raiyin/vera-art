@@ -2,6 +2,7 @@
 import ThemeSwitcher from './ThemeSwitcher.vue';
 import LocaleSwitcher from './LocaleSwitcher.vue';
 import { Collapse } from 'bootstrap';
+import auth from '../../services/auth';
 
 export default {
     components: {
@@ -13,11 +14,20 @@ export default {
             bsCollapse: null as Collapse | null,
         };
     },
+    computed: {
+        isAuthenticated() {
+            return auth.isAuthenticated();
+        },
+    },
     methods: {
         toggleMenu() {
             if (this.bsCollapse) {
                 this.bsCollapse.toggle();
             }
+        },
+        logout() {
+            auth.logout();
+            this.$router.push('/login');
         },
     },
     mounted() {
@@ -96,6 +106,31 @@ export default {
                             {{ $t('header.payment') }}
                         </router-link>
                     </li>
+
+                    <li class="nav-item" v-if="!isAuthenticated">
+                        <router-link class="nav-link menu-item" to="/login">
+                            {{ $t('auth.login') }}
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-if="!isAuthenticated">
+                        <router-link class="nav-link menu-item" to="/register">
+                            {{ $t('auth.register') }}
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-if="isAuthenticated">
+                        <router-link
+                            @click="logout"
+                            class="nav-link menu-item"
+                            to="/logout"
+                        >
+                            {{ $t('auth.logout') }}
+                        </router-link>
+                    </li>
+                    <li class="nav-item" v-if="isAuthenticated">
+                        <router-link class="nav-link menu-item" to="/admin">
+                            {{ $t('admin.link') }}
+                        </router-link>
+                    </li>
                 </ul>
 
                 <ul class="navbar-nav navbar-tools d-flex my-2 my-lg-2">
@@ -148,6 +183,7 @@ export default {
 <style scoped>
 .header {
     background-color: var(--color-surface);
+    flex: none;
 }
 
 .navbar {

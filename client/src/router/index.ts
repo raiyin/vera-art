@@ -53,6 +53,28 @@ const router = createRouter({
             name: 'notfound',
             component: () => import('@/views/NotFound.vue'),
         },
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('@/views/Login.vue'),
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: () => import('@/views/Register.vue'),
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            component: () => import('@/views/AdminView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-gallery-item',
+            name: 'add_gallery_item',
+            component: () => import('@/views/AddGalleryItemView.vue'),
+            meta: { requiresAuth: true }
+        }
     ],
 });
 

@@ -13,7 +13,9 @@ export default {};
 
 <style scoped>
 footer {
-    flex: 0 0 auto;
+    /* flex: 0 0 auto; */
+
+    flex: none;
 }
 
 .footer-content,

@@ -1,0 +1,13 @@
+# Image Storage Settings
+app:
+  name: "Vera Art"
+  port: 8000
+
+  # Directory where images will be stored
+directories:
+  paintings_dir_save: "d:/projects/vera-art/client/src/assets/images/allworks/paintings/"
+  paintings_dir_prefix: "/images/allworks/paintings/"
+  illustrations: "../client/src/assets/images/illustrations"
+  news: "../client/src/assets/images/news/"
+  sale: "../client/src/assets/images/sale"
+  threeds: "../client/src/assets/images/allworks/graphics3d"
