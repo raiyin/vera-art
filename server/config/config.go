@@ -15,9 +15,10 @@ type AppConfig struct {
 type DirectoriesConfig struct {
 	PaintingsDirSave   string `mapstructure:"paintings_dir_save"`
 	PaintingsDirPrefix string `mapstructure:"paintings_dir_prefix"`
+	SaleDirSave        string `mapstructure:"sale_dir_save"`
+	SaleDirPrefix      string `mapstructure:"sale_dir_prefix"`
 	Illustrations      string `mapstructure:"illustrations"`
 	News               string `mapstructure:"news"`
-	Sale               string `mapstructure:"sale"`
 	Threeds            string `mapstructure:"threeds"`
 }
 

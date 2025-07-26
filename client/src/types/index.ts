@@ -3,5 +3,6 @@ export type { NewsDesc } from './news-desc';
 export type { Material } from './material';
 export type { SortOption } from './sort-option';
 export type { AddPaintingDto } from './painting';
+export type { AddSaleDto, Sale } from './sale';
 export type { Base } from './base';
 export type { RequestResult } from './request-result';

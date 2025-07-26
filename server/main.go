@@ -63,10 +63,16 @@ func getSales(c *gin.Context) {
 	}
 
 	defer rows.Close()
-	sales := []models.Sale{}
+	sales := []models.SaleWithBase{}
 	for rows.Next() {
-		p := models.Sale{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.Price, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount, &p.BaseRu, &p.BaseEn)
+		p := models.SaleWithBase{}
+		err := rows.Scan(
+			&p.Id, &p.Dir, &p.Width,
+			&p.Height, &p.Year, &p.Price,
+			&p.NameRu, &p.NameEn,
+			&p.BaseId, &p.StrId,
+			&p.ImgCount, &p.Descr,
+			&p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -75,6 +81,176 @@ func getSales(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, sales)
+}
+
+func saveSales(c *gin.Context) {
+
+	// 1. Get the JSON metadata from form field
+	dataJson := c.PostForm("data")
+	if dataJson == "" {
+		c.JSON(400, gin.H{"error": "data is required"})
+		return
+	}
+
+	fmt.Printf("json is: %q\n", dataJson)
+
+	// 2. Parse the JSON
+	var sale models.Sale
+	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
+		c.JSON(400, gin.H{"error": "invalid data format"})
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %q\n", err)
+		return
+	}
+
+	// Begin transaction
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var maxID int
+	err = tx.QueryRow("select MAX(id) from sales").Scan(&maxID)
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %q\n", err)
+		return
+	}
+
+	_, err = tx.Exec(
+		"insert into sales (id, dir, width, height, year, price, name_ru, name_en, base_id, str_id, img_count, descr) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		maxID+1,
+		config.AppConfigInstance.Directories.SaleDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
+		sale.Width,
+		sale.Height,
+		sale.Year,
+		sale.Price,
+		sale.NameRu,
+		sale.NameEn,
+		sale.BaseId,
+		strings.Replace(sale.NameEn, " ", "_", -1),
+		sale.ImgCount,
+		sale.Descr)
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error: %q\n", err)
+		return
+	}
+
+	for _, material_id := range sale.MaterialsIds {
+		_, err = tx.Exec(
+			"insert into sale_materials (sale_id, material_id) "+
+				"values (?, ?)",
+			maxID+1,
+			material_id)
+
+		if err != nil {
+			tx.Rollback()
+			log.Fatal(err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			fmt.Printf("Error: %v\n", err)
+			fmt.Printf("Error: %s\n", err)
+			fmt.Printf("Error : %q\n", err)
+			return
+		}
+	}
+
+	// 3. Get the uploaded files and save them
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error : %q\n", err)
+		return
+	}
+
+	// Get all files from the form
+	files := form.File
+
+	// Process each file
+	dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0777)
+		if err != nil {
+			fmt.Printf("Error creating directory: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
+			tx.Rollback()
+			log.Fatal(err)
+			fmt.Printf("Error: %v\n", err)
+			fmt.Printf("Error: %s\n", err)
+			fmt.Printf("Error : %q\n", err)
+			return
+		}
+		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
+	}
+
+	for fieldName, fileHeaders := range files {
+		for index, fileHeader := range fileHeaders {
+			// Open the file
+			file, err := fileHeader.Open()
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				log.Fatal(err)
+				fmt.Printf("Error: %v\n", err)
+				fmt.Printf("Error: %s\n", err)
+				fmt.Printf("Error : %q\n", err)
+				return
+			}
+			defer file.Close()
+
+			// Create a destination file
+			dst, err := os.Create(dirPath + strconv.Itoa(index+1) + filepath.Ext(fileHeader.Filename))
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				log.Fatal(err)
+				fmt.Printf("Error: %v\n", err)
+				fmt.Printf("Error: %s\n", err)
+				fmt.Printf("Error : %q\n", err)
+				return
+			}
+			defer dst.Close()
+
+			// Copy the file data
+			if _, err := io.Copy(dst, file); err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				log.Fatal(err)
+				fmt.Printf("Error: %v\n", err)
+				fmt.Printf("Error: %s\n", err)
+				fmt.Printf("Error : %q\n", err)
+				return
+			}
+
+			err = tx.Commit()
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				log.Fatal(err)
+				fmt.Printf("Error: %v\n", err)
+				fmt.Printf("Error: %s\n", err)
+				fmt.Printf("Error : %q\n", err)
+			}
+			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Sale saved successfully"})
 }
 
 func getPaintings(c *gin.Context) {
@@ -573,6 +749,7 @@ func main() {
 	r_gin.GET("/materials", getMaterials)
 	r_gin.GET("/bases", getBases)
 	r_gin.POST("/paintings", savePainting)
+	r_gin.POST("/sales", saveSales)
 
 	defer db.Close()
 	if err := r_gin.Run(":8000"); err != nil {

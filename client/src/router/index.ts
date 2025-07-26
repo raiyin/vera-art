@@ -74,6 +74,18 @@ const router = createRouter({
             name: 'add_gallery_item',
             component: () => import('@/views/AddGalleryItemView.vue'),
             meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-shop-item',
+            name: 'add_shop_item',
+            component: () => import('@/views/AddShopItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-news',
+            name: 'add_news',
+            component: () => import('@/views/AddNewsView.vue'),
+            meta: { requiresAuth: true }
         }
     ],
 });

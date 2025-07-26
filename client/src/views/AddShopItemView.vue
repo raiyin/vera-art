@@ -1,6 +1,6 @@
 <template>
-    <div class="add-painting-container">
-        <h1 class="page-title">Добавить новую работу в галлерею</h1>
+    <div class="add-sale-container">
+        <h1 class="page-title">Добавить новую работу в магазин</h1>
 
         <!-- Загрузчик -->
         <div v-if="isLoading" class="loading-container">
@@ -8,7 +8,7 @@
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="painting-form">
+        <form v-else @submit.prevent="submitForm" class="sale-form">
             <!-- Поле для загрузки изображений -->
             <div class="form-group">
                 <label class="form-label">Изображения картины</label>
@@ -44,7 +44,7 @@
                 <label class="form-label">Название картины по-русски</label>
                 <input
                     type="text"
-                    v-model="painting.name_ru"
+                    v-model="sale.name_ru"
                     required
                     class="form-control"
                     placeholder="Например: 'Звездная ночь'"
@@ -55,7 +55,7 @@
                 <label class="form-label">Название картины по-английски</label>
                 <input
                     type="text"
-                    v-model="painting.name_en"
+                    v-model="sale.name_en"
                     required
                     class="form-control"
                     placeholder="Например: 'Звездная ночь'"
@@ -68,7 +68,7 @@
                 <div class="size-inputs">
                     <input
                         type="number"
-                        v-model.number="painting.width"
+                        v-model.number="sale.width"
                         required
                         min="1"
                         class="form-control size-input"
@@ -77,7 +77,7 @@
                     <span class="size-separator">×</span>
                     <input
                         type="number"
-                        v-model.number="painting.height"
+                        v-model.number="sale.height"
                         required
                         min="1"
                         class="form-control size-input"
@@ -91,7 +91,7 @@
                 <label class="form-label">Год создания</label>
                 <input
                     type="number"
-                    v-model.number="painting.year"
+                    v-model.number="sale.year"
                     required
                     min="2000"
                     :max="new Date().getFullYear()"
@@ -100,13 +100,24 @@
                 />
             </div>
 
-
+            <!-- Цена -->
+            <div class="form-group">
+                <label class="form-label">Цена</label>
+                <input
+                    type="number"
+                    v-model.number="sale.price"
+                    required
+                    min="1"
+                    class="form-control"
+                    placeholder="Например: 1000"
+                />
+            </div>
 
             <!-- Основа -->
             <div class="form-group">
                 <label class="form-label">Основа</label>
                 <select
-                    v-model="painting.base_id"
+                    v-model="sale.base_id"
                     required
                     class="form-control drop-down-arrow"
                 >
@@ -142,7 +153,7 @@
                                 type="checkbox"
                                 :id="'material-' + material.id"
                                 :value="material.id"
-                                v-model="painting.materials_ids"
+                                v-model="sale.materials_ids"
                             />
                             <label :for="'material-' + material.id">
                                 {{
@@ -160,7 +171,7 @@
             <div class="form-group">
                 <label class="form-label">Описание (необязательно)</label>
                 <textarea
-                    v-model="painting.descr"
+                    v-model="sale.descr"
                     class="form-control textarea"
                     placeholder="Краткое описание картины"
                     rows="4"
@@ -214,22 +225,23 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { AddPaintingDto, Base, Material, RequestResult } from '@/types';
+import { AddSaleDto, Sale, Base, Material, RequestResult } from '@/types';
 export default defineComponent({
-    name: 'AddPainting',
+    name: 'AddSale',
     data() {
         return {
-            painting: {
+            sale: {
                 width: 0,
                 height: 0,
                 year: 2000,
+                price: 0,
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
                 materials_ids: [],
                 img_count: 0,
                 descr: '',
-            } as AddPaintingDto,
+            } as Sale,
             files: [],
             previewImages: [],
             isSubmitting: false,
@@ -315,18 +327,19 @@ export default defineComponent({
                 });
 
                 // Добавляем остальные данные
-                const paintingData = {
-                    ...this.painting,
+                const saleData = {
+                    ...this.sale,
                     img_count: this.previewImages.length,
                 };
 
-                formData.append('data', JSON.stringify(paintingData));
-                const response = await axios.post(this.server + 'paintings', formData, {
+                formData.append('data', JSON.stringify(saleData));
+                const response = await axios.post(this.server + 'sales', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data', // Important for file uploads
                         // Add authorization header if needed
                         // Authorization: `Bearer ${yourAuthToken}`,
                     },
+
                     // Optional: track upload progress
                     onUploadProgress: (progressEvent) => {
                         const percentCompleted = Math.round(
@@ -338,11 +351,11 @@ export default defineComponent({
                 });
 
                 if (response.status === 200) {
-                    console.log('Painting added successfully');
+                    console.log('Sales added successfully');
                     this.resetForm();
                     this.requestResult = 'success';
                 } else {
-                    console.error('Error adding painting');
+                    console.error('Error adding sales');
                     this.requestResult = 'error';
                 }
 
@@ -355,10 +368,11 @@ export default defineComponent({
             }
         },
         resetForm() {
-            this.painting = {
+            this.sale = {
                 width: 0,
                 height: 0,
                 year: 2000,
+                price: 0,
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
@@ -379,9 +393,9 @@ export default defineComponent({
     },
     computed: {
         selectedMaterialsDisplay() {
-            if (this.painting.materials_ids.length === 0) return '';
+            if (this.sale.materials_ids.length === 0) return '';
             const selectedNames = this.materials
-                .filter((material) => this.painting.materials_ids.includes(material.id))
+                .filter((material) => this.sale.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'RUS'
                         ? material.material_ru
@@ -398,10 +412,10 @@ select:has(option.placeholder:checked) {
     color: red;
 }
 
-.add-painting-container {
+.add-sale-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 1rem;
+    padding: 2rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -410,13 +424,13 @@ select:has(option.placeholder:checked) {
 .page-title {
     text-align: center;
     color: #333;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
 }
 
-.painting-form {
+.sale-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .form-group {
@@ -568,7 +582,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .add-painting-container {
+    .add-sale-container {
         padding: 1rem;
     }
 
