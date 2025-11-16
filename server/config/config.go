@@ -17,6 +17,8 @@ type DirectoriesConfig struct {
 	PaintingsDirPrefix string `mapstructure:"paintings_dir_prefix"`
 	SaleDirSave        string `mapstructure:"sale_dir_save"`
 	SaleDirPrefix      string `mapstructure:"sale_dir_prefix"`
+	NewsDirSave        string `mapstructure:"news_dir_save"`
+	NewsDirPrefix      string `mapstructure:"news_dir_prefix"`
 	Illustrations      string `mapstructure:"illustrations"`
 	News               string `mapstructure:"news"`
 	Threeds            string `mapstructure:"threeds"`

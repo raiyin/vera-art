@@ -1,305 +1,233 @@
-<template>
-    <div class="add-painting-container">
-        <h1 class="page-title">Добавить новую работу в галлерею</h1>
-
-        <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
-            <div class="loader"></div>
-            <p>Загрузка данных...</p>
-        </div>
-
-        <form v-else @submit.prevent="submitForm" class="painting-form">
-            <!-- Поле для загрузки изображений -->
-            <div class="form-group">
-                <label class="form-label">Изображения картины</label>
-                <input
-                    type="file"
-                    @change="handleFileUpload"
-                    multiple
-                    accept="image/jpg,image/jpeg"
-                    class="file-input"
-                    ref="fileInput"
-                    required
-                />
-                <div class="preview-container" v-if="previewImages.length > 0">
-                    <div
-                        v-for="(image, index) in previewImages"
-                        :key="index"
-                        class="image-preview"
-                    >
-                        <img :src="image.preview" class="preview-image" />
-                        <button
-                            type="button"
-                            @click="removeImage(index)"
-                            class="remove-btn"
-                        >
-                            &times;
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Название картины -->
-            <div class="form-group">
-                <label class="form-label">Название картины по-русски</label>
-                <input
-                    type="text"
-                    v-model="painting.name_ru"
-                    required
-                    class="form-control"
-                    placeholder="Например: 'Звездная ночь'"
-                />
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Название картины по-английски</label>
-                <input
-                    type="text"
-                    v-model="painting.name_en"
-                    required
-                    class="form-control"
-                    placeholder="Например: 'Звездная ночь'"
-                />
-            </div>
-
-            <!-- Размеры картины -->
-            <div class="form-group">
-                <label class="form-label">Размеры (см)</label>
-                <div class="size-inputs">
-                    <input
-                        type="number"
-                        v-model.number="painting.width"
-                        required
-                        min="1"
-                        class="form-control size-input"
-                        placeholder="Ширина"
-                    />
-                    <span class="size-separator">×</span>
-                    <input
-                        type="number"
-                        v-model.number="painting.height"
-                        required
-                        min="1"
-                        class="form-control size-input"
-                        placeholder="Высота"
-                    />
-                </div>
-            </div>
-
-            <!-- Год создания -->
-            <div class="form-group">
-                <label class="form-label">Год создания</label>
-                <input
-                    type="number"
-                    v-model.number="painting.year"
-                    required
-                    min="2000"
-                    :max="new Date().getFullYear()"
-                    class="form-control"
-                    placeholder="Например: 1889"
-                />
-            </div>
-
-            <!-- Основа -->
-            <div class="form-group">
-                <label class="form-label">Основа</label>
-                <select
-                    v-model="painting.base_id"
-                    required
-                    class="form-control drop-down-arrow"
-                >
-                    <option value="" disabled selected>Выберите основу</option>
-                    <option v-for="base in bases" :key="base.id" :value="base.id">
-                        {{
-                            $i18n.locale === 'RUS' ? `${base.base_ru}` : `${base.base_en}`
-                        }}
-                    </option>
-                </select>
-            </div>
-
-            <!-- Материал -->
-            <div class="form-group">
-                <label class="form-label">Материал</label>
-                <div class="multi-select-wrapper">
-                    <div
-                        class="select-display drop-down-arrow"
-                        @click="materialsToggleDropdown"
-                    >
-                        {{ selectedMaterialsDisplay || 'Выберите материал' }}
-                    </div>
-                    <div
-                        v-if="materialsDropdownOpen"
-                        class="dropdown-options form-control"
-                    >
-                        <div
-                            v-for="material in materials"
-                            :key="material.id"
-                            class="option-item"
-                        >
-                            <input
-                                type="checkbox"
-                                :id="'material-' + material.id"
-                                :value="material.id"
-                                v-model="painting.materials_ids"
-                            />
-                            <label :for="'material-' + material.id">
-                                {{
-                                    $i18n.locale === 'RUS'
-                                        ? material.material_ru
-                                        : material.material_en
-                                }}
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Описание -->
-            <div class="form-group">
-                <label class="form-label">Описание (необязательно)</label>
-                <textarea
-                    v-model="painting.descr"
-                    class="form-control textarea"
-                    placeholder="Краткое описание картины"
-                    rows="4"
-                ></textarea>
-            </div>
-
-            <!-- Кнопки -->
-            <div class="form-actions">
-                <button type="button" @click="resetForm" class="btn btn-secondary">
-                    Очистить форму
-                </button>
-                <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
-                    <span v-if="!isSubmitting">Добавить картину</span>
-                    <span v-else>Отправка...</span>
-                </button>
-            </div>
-        </form>
-
-        <!-- Success Alert -->
-        <div
-            v-if="requestResult == 'success'"
-            class="alert alert-success alert-dismissible fade show"
-            role="alert"
-        >
-            <strong>Успешно!</strong> Работы успешно загружены в базу данных.
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"
-            ></button>
-        </div>
-
-        <!-- Danger Alert -->
-        <div
-            v-if="requestResult == 'error'"
-            class="alert alert-danger alert-dismissible fade show"
-            role="alert"
-        >
-            <strong>Ошибка!</strong> Не удалось загрузить работы в базу данных.
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"
-            ></button>
-        </div>
-    </div>
-</template>
-
 <script lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
-import { AddPaintingDto, Base, Material, RequestResult } from '@/types';
+import { defineComponent, Ref, ref } from 'vue';
+import { NewsDescDto, RequestResult } from '@/types';
+
+interface PreviewItem {
+    file: File;
+    preview: string;
+}
+
 export default defineComponent({
-    name: 'AddPainting',
+    name: 'AddNews',
     data() {
         return {
-            painting: {
-                width: 0,
-                height: 0,
-                year: 2000,
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                img_count: 0,
-                descr: '',
-            } as AddPaintingDto,
-            files: [],
-            previewImages: [],
+            news: {
+                datetime: '',
+                title_en: '',
+                title_ru: '',
+                subTitle_en: '',
+                subTitle_ru: '',
+                dir: '',
+                img_back: '', // имя файла
+                img_backfull: '', // имя файла
+                imagescount: 0,
+                videoscount: 0,
+                text_en: '',
+                text_ru: '',
+            } as NewsDescDto,
+
+            images: [] as File[],
+            previewImages: [] as PreviewItem[],
+
+            videos: ref([]),
+            previewVideos: [] as PreviewItem[],
+
+            videoUrls: [] as string[],
+            video_isLoading: false,
+            video_error: '',
+            previewWidth: 400,
+
+            img_back: null as File | null,
+            img_back_preview: null as PreviewItem | null,
+            img_backfull: null as File | null, //
+            img_backfull_preview: null as PreviewItem | null,
+
             isSubmitting: false,
-            bases: [] as Base[], // Здесь будут храниться основы с сервера
-            materials: [] as Material[], // Здесь будут храниться материалы с сервера
-            // selectedMaterials: [] as Material[],
-            isLoading: true,
-            loadError: null,
+            validated: true,
+            validationErrorMessage: '' as string,
             server: import.meta.env.VITE_SERVER_URL,
             requestResult: 'unknown' as RequestResult,
+            // Добавлены отсутствующие свойства
             materialsDropdownOpen: false,
             basesDropdownOpen: false,
         };
     },
-    async created() {
-        await this.loadBases();
-        await this.loadMaterials();
-    },
     methods: {
-        async loadBases() {
-            try {
-                // Запрос к API для получения списка основ
-                const response = await axios.get(this.server + 'bases');
-                this.bases = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке основ:', error);
-                this.loadError = 'Не удалось загрузить список основ';
-                this.isLoading = false;
-            }
-        },
-        async loadMaterials() {
-            try {
-                // Запрос к API для получения списка материалов
-                const response = await axios.get(this.server + 'materials');
-                this.materials = response.data;
-                this.isLoadingM = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке материалов:', error);
-                this.loadError = 'Не удалось загрузить список материалов';
-                this.isLoading = false;
-            }
-        },
-        handleFileUpload(event) {
-            const selectedFiles = Array.from(event.target.files);
+        handleBackImageUpload(event) {
+            const target = event.target as HTMLInputElement;
+            const selectedImage = target.files?.[0];
 
-            // Проверка на количество файлов
-            if (this.files.length + selectedFiles.length > 10) {
+            if (!selectedImage) return;
+
+            this.img_back = selectedImage;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.img_back_preview = {
+                    selectedImage,
+                    preview: e.target?.result as string,
+                };
+            };
+            reader.readAsDataURL(selectedImage);
+        },
+        removeBackImage() {
+            this.img_back_preview = null;
+            this.img_back = null;
+        },
+
+        handleBackFullImageUpload(event) {
+            const target = event.target as HTMLInputElement;
+            const selectedImage = target.files?.[0];
+
+            if (!selectedImage) return;
+
+            this.img_backfull = selectedImage;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.img_backfull_preview = {
+                    selectedImage,
+                    preview: e.target?.result,
+                };
+            };
+            reader.readAsDataURL(selectedImage);
+        },
+        removeBackFullImage() {
+            this.img_backfull_preview = null;
+            this.img_backfull = null;
+        },
+
+        handleImagesUpload(event) {
+            const target = event.target as HTMLInputElement;
+            const selectedFiles = Array.from(target.files || []);
+
+            if (this.images.length + selectedFiles.length > 10) {
                 alert('Можно загрузить не более 10 изображений');
                 return;
             }
 
-            // Добавляем новые файлы
-            this.files = [...this.files, ...selectedFiles];
+            this.images = [...this.images, ...selectedFiles];
 
-            // Создаем превью для новых изображений
             selectedFiles.forEach((file) => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.previewImages.push({
                         file,
-                        preview: e.target.result,
+                        preview: e.target?.result as string,
                     });
                 };
                 reader.readAsDataURL(file);
             });
         },
-        removeImage(index) {
+        removeImageFromImages(index) {
             this.previewImages.splice(index, 1);
-            this.files.splice(index, 1);
+            this.images.splice(index, 1);
+        },
+        async handleSelectVideos(event) {
+            const files = event.target.files as FileList;
+            this.videoUrls.length = 0;
+
+            if (!files || files.length == 0) return;
+
+            // Reset states
+            this.video_error = '';
+            this.video_isLoading = true;
+
+            // Validate file type
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('video/')) {
+                    this.video_error = 'Пожалуйста, выберите только видеофайлы';
+                    return;
+                }
+            }
+
+            // Validate file size (max 100MB)
+            const maxSize = 100 * 1024 * 1024;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (file.size > maxSize) {
+                    this.video_error = 'Размер файла не должен превышать 100MB';
+                    return;
+                }
+            }
+
+            // if (this.videos.length + selectedFiles.length > 10) {
+            //     alert('Можно загрузить не более 10 видео');
+            //     return;
+            // }
+
+            // this.videos = [...this.videos, ...selectedFiles];
+
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    this.videoUrls.push(URL.createObjectURL(files.item(i)));
+                }
+            } catch (err) {
+                this.error = 'Ошибка при загрузке видеофайлов';
+                console.error(err);
+            } finally {
+                this.isLoading = false;
+            }
+
+            // selectedFiles.forEach((file) => {
+            //     if (file.type.startsWith('video')) {
+            //         // const reader = new FileReader();
+            //         // reader.onload = (e) => {
+            //         //     this.previewVideos.push({
+            //         //         file,
+            //         //         preview: e.target?.result as string,
+            //         //     });
+            //         // };
+            //         // reader.readAsDataURL(file);
+            //         this.videos.value.push({
+            //             file,
+            //             url: URL.createObjectURL(file),
+            //         });
+            //     }
+            // });
+        },
+
+        // onVideoLoaded(event) {
+        //     this.video_isLoading = false;
+        //     const video = event.target;
+        // },
+
+        onVideoError() {
+            this.video_isLoading = false;
+            this.video_error = 'Ошибка при загрузке видеофайла';
+            if (this.videoUrl) {
+                URL.revokeObjectURL(this.videoUrl);
+                this.videoUrl = null;
+            }
+        },
+
+        formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
+
+        formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = Math.floor(seconds % 60);
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        },
+
+        removeVideo(index) {
+            // this.previewVideos.splice(index, 1);
+            // this.videos.splice(index, 1);
+            URL.revokeObjectURL(this.videos.value[index].url);
+            this.videos.value.splice(index, 1);
         },
         async submitForm() {
+            if (!this.validateForm()) {
+                return;
+            }
+
             if (this.isSubmitting) return;
 
             try {
@@ -308,19 +236,35 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
+                if (this.img_back) {
+                    formData.append('img_back', this.img_back);
+                }
+
+                if (this.img_backfull) {
+                    formData.append('img_backfull', this.img_backfull);
+                }
+
                 // Добавляем файлы
-                this.files.forEach((file) => {
-                    formData.append('images', file);
+                this.images.forEach((image) => {
+                    formData.append('images', image);
+                });
+
+                this.videos.forEach((video) => {
+                    formData.append('videos', video);
                 });
 
                 // Добавляем остальные данные
-                const paintingData = {
-                    ...this.painting,
-                    img_count: this.previewImages.length,
+                const newsData = {
+                    ...this.news,
+                    imagescount: this.images.length,
+                    videoscount: this.videos.length,
+                    datetime:
+                        this.news.datetime || new Date().toISOString().split('T')[0],
                 };
 
-                formData.append('data', JSON.stringify(paintingData));
-                const response = await axios.post(this.server + 'paintings', formData, {
+                formData.append('data', JSON.stringify(newsData));
+
+                const response = await axios.post(`${this.server}news`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data', // Important for file uploads
                         // Add authorization header if needed
@@ -336,7 +280,7 @@ export default defineComponent({
                     },
                 });
 
-                if (response.status === 200) {
+                if (response.status === 200 || response.status === 201) {
                     console.log('Painting added successfully');
                     this.resetForm();
                     this.requestResult = 'success';
@@ -344,8 +288,6 @@ export default defineComponent({
                     console.error('Error adding painting');
                     this.requestResult = 'error';
                 }
-
-                this.resetForm();
             } catch (error) {
                 console.error('Error submitting form:', error);
                 this.requestResult = 'error';
@@ -354,43 +296,407 @@ export default defineComponent({
             }
         },
         resetForm() {
-            this.painting = {
-                width: 0,
-                height: 0,
-                year: 2000,
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                img_count: 0,
-                descr: '',
+            this.news = {
+                datetime: '',
+                title_en: '',
+                title_ru: '',
+                subTitle_en: '',
+                subTitle_ru: '',
+                dir: '',
+                img_back: '',
+                img_backfull: '',
+                imagescount: 0,
+                videoscount: 0,
+                text_en: '',
+                text_ru: '',
             };
-            this.files = [];
+            this.images = [];
+            this.videos = [];
             this.previewImages = [];
+            this.previewVideos = [];
+            this.img_back = null;
+            this.img_back_preview = null;
+            this.img_backfull = null;
+            this.img_backfull_preview = null;
             this.$refs.fileInput.value = '';
+
+            // Сброс input файлов
+            const fileInputs = this.$el.querySelectorAll('input[type="file"]');
+            fileInputs.forEach((input: HTMLInputElement) => {
+                input.value = '';
+            });
         },
-        materialsToggleDropdown() {
-            this.materialsDropdownOpen = !this.materialsDropdownOpen;
+        isAlowedEnglish(e: KeyboardEvent) {
+            const char = String.fromCharCode(e.keyCode);
+            if (/^[A-Za-z\s]+$/.test(char)) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
         },
-        basesToggleDropdown() {
-            this.basesDropdownOpen = !this.basesDropdownOpen;
+        isAlowedRussian(e) {
+            let char = String.fromCharCode(e.keyCode);
+            if (/^[А-Яа-я\s]+$/.test(char)) {
+                return true;
+            } else {
+                e.preventDefault();
+            }
+        },
+        validateForm(): boolean {
+            if (
+                !this.news.title_ru.trim() ||
+                this.news.title_ru.trim().length < 3 ||
+                this.news.title_ru.trim().length > 50
+            ) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Заголовок на русском должен быть от 3 до 50 символов';
+                return false;
+            }
+
+            if (
+                !this.news.title_en.trim() ||
+                this.news.title_en.trim().length < 3 ||
+                this.news.title_en.trim().length > 50
+            ) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Заголовок на английском должен быть от 3 до 50 символов';
+                return false;
+            }
+
+            if (
+                !this.news.subTitle_ru.trim() ||
+                this.news.subTitle_ru.trim().length < 3 ||
+                this.news.subTitle_ru.trim().length > 50
+            ) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Подзаголовок на русском должен быть от 3 до 50 символов';
+                return false;
+            }
+            if (
+                !this.news.subTitle_en.trim() ||
+                this.news.subTitle_en.trim().length < 3 ||
+                this.news.subTitle_en.trim().length > 50
+            ) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Подзаголовок на английском должен быть от 3 до 50 символов';
+                return false;
+            }
+
+            if (!this.img_back) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Необходимо добавить предварительное изображение новости';
+                return false;
+            }
+
+            if (!this.img_backfull) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Необходимо добавить главное изображение новости';
+                return false;
+            }
+
+            if (this.previewImages.length === 0) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Необходимо добавить хотя бы одно изображение';
+                return false;
+            }
+
+            if (this.news.text_ru.trim()) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Необходимо добавить текст на русском языке';
+                return false;
+            }
+
+            if (this.news.text_en.trim()) {
+                this.validated = false;
+                this.validationErrorMessage =
+                    'Необходимо добавить текст на английском языке';
+                return false;
+            }
+
+            this.validated = true;
+            this.validationErrorMessage = '';
+            return true;
+        },
+        closeErrorMessage() {
+            this.validated = true;
+            this.validationErrorMessage = '';
         },
     },
-    computed: {
-        selectedMaterialsDisplay() {
-            if (this.painting.materials_ids.length === 0) return '';
-            const selectedNames = this.materials
-                .filter((material) => this.painting.materials_ids.includes(material.id))
-                .map((material) =>
-                    this.$i18n.locale === 'RUS'
-                        ? material.material_ru
-                        : material.material_en
-                );
-            return selectedNames.join(', ');
-        },
-    },
+    computed: {},
 });
 </script>
+
+<template>
+    <div class="add-painting-container">
+        <h1 class="page-title">Добавить новость</h1>
+
+        <div class="error-message" v-if="!validated">
+            <div class="error-message__icon">⚠️</div>
+            <div class="error-message__content">
+                <h3>Некоторые поля заполнены некорректно</h3>
+                <p>
+                    {{ validationErrorMessage }}
+                </p>
+            </div>
+            <button class="error-message__close" onclick="closeErrorMessage">
+                &times;
+            </button>
+        </div>
+
+        <form @submit.prevent="submitForm" class="painting-form">
+            <!-- Заголовок -->
+            <div class="form-group">
+                <label class="form-label">Заголовок по по-русски</label>
+                <input
+                    v-model="news.title_ru"
+                    type="text"
+                    required
+                    v-on:keypress="isAlowedRussian"
+                    class="form-control"
+                    placeholder="Например: 'Звездная ночь'"
+                />
+            </div>
+
+            <!-- Заголовок по английски-->
+            <div class="form-group">
+                <label class="form-label">Заголовок по-английски</label>
+                <input
+                    v-model="news.title_en"
+                    type="text"
+                    v-on:keypress="isAlowedEnglish"
+                    required
+                    class="form-control"
+                    placeholder="For example: 'Starry Night'"
+                />
+            </div>
+
+            <!-- Подзаголовок -->
+            <div class="form-group">
+                <label class="form-label">Подзаголовок по-русски</label>
+                <input
+                    v-model="news.subTitle_ru"
+                    type="text"
+                    v-on:keypress="isAlowedRussian"
+                    required
+                    class="form-control"
+                    placeholder="Например: 'Звездная ночь'"
+                />
+            </div>
+
+            <!-- Подзаголовок по английски-->
+            <div class="form-group">
+                <label class="form-label">Подзаголовок по-английски</label>
+                <input
+                    v-model="news.subTitle_en"
+                    type="text"
+                    v-on:keypress="isAlowedEnglish"
+                    required
+                    class="form-control"
+                    placeholder="For example: 'Starry Night'"
+                />
+            </div>
+
+            <!-- Главное изображение -->
+            <div class="form-group">
+                <label class="form-label">Главное изображение</label>
+                <input
+                    type="file"
+                    @change="handleBackFullImageUpload"
+                    accept="image/jpg,image/jpeg"
+                    class="file-input"
+                    ref="fileInput"
+                    required
+                />
+                <div class="preview-container" v-if="img_backfull_preview">
+                    <div class="image-preview">
+                        <img :src="img_backfull_preview.preview" class="preview-image" />
+                        <button
+                            type="button"
+                            @click="removeBackFullImage"
+                            class="remove-btn"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Превью изображение новости -->
+            <div class="form-group">
+                <label class="form-label">Превью изображение новости</label>
+                <input
+                    type="file"
+                    @change="handleBackImageUpload"
+                    accept="image/jpg,image/jpeg"
+                    class="file-input"
+                    ref="fileInput"
+                    required
+                />
+                <div class="preview-container" v-if="img_back">
+                    <div class="image-preview">
+                        <img :src="img_back_preview.preview" class="preview-image" />
+                        <button type="button" @click="removeBackImage" class="remove-btn">
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Фотогаллерея</label>
+                <input
+                    type="file"
+                    @change="handleImagesUpload"
+                    multiple
+                    accept="image/jpg,image/jpeg"
+                    class="file-input"
+                    ref="fileInput"
+                    required
+                />
+                <div class="preview-container" v-if="previewImages.length > 0">
+                    <div
+                        v-for="(image, index) in previewImages"
+                        :key="index"
+                        class="image-preview"
+                    >
+                        <img :src="image.preview" class="preview-image" />
+                        <button
+                            type="button"
+                            @click="removeImageFromImages(index)"
+                            class="remove-btn"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поле для выбора видео -->
+            <div class="form-group">
+                <label class="form-label">Видеогаллерея</label>
+                <input
+                    type="file"
+                    @change="handleSelectVideos"
+                    multiple
+                    accept="video"
+                    class="file-input"
+                    ref="fileInput"
+                />
+                <!-- <div class="preview-container" v-if="videos.length > 0">
+                    <div
+                        v-for="(video, index) in videos"
+                        :key="index"
+                        class="image-preview"
+                    >
+                        <video :src="video.url" controls class="preview-image" />
+                        <button
+                            type="button"
+                            @click="removeVideo(index)"
+                            class="remove-btn"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div> -->
+                <div v-if="videoUrls" class="video-previews">
+                    <video
+                        class="video-preview"
+                        v-for="videoUrl in videoUrls"
+                        :src="videoUrl"
+                        controls
+                        :width="previewWidth"
+                        @error="onVideoError"
+                    />
+                </div>
+            </div>
+
+            <!-- Дата -->
+            <div class="form-group form-date">
+                <label class="form-label">Дата</label>
+                <input
+                    v-model="news.datetime"
+                    type="date"
+                    required
+                    min="2000"
+                    :max="new Date().getFullYear()"
+                    class="form-control"
+                    placeholder="Например: 1889"
+                />
+            </div>
+
+            <!-- Текст -->
+            <div class="form-group">
+                <label class="form-label">Текст по-русски</label>
+                <textarea
+                    v-model="news.text_ru"
+                    class="form-control textarea"
+                    placeholder="Краткое описание картины"
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Текст по-английски</label>
+                <textarea
+                    v-model="news.text_en"
+                    class="form-control textarea"
+                    placeholder="Краткое описание картины"
+                    rows="4"
+                    required
+                ></textarea>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="form-actions">
+                <button type="button" @click="resetForm" class="btn btn-secondary">
+                    Очистить форму
+                </button>
+                <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+                    {{ isSubmitting ? 'Отправка...' : 'Добавить новость' }}
+                </button>
+            </div>
+        </form>
+
+        <!-- Success Alert -->
+        <div
+            v-if="requestResult == 'success'"
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+        >
+            <strong>Успешно!</strong>Новость успешно добавлена в базу данных.
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+            ></button>
+        </div>
+
+        <!-- Danger Alert -->
+        <div
+            v-if="requestResult == 'error'"
+            class="alert alert-danger alert-dismissible fade show"
+            role="alert"
+        >
+            <strong>Ошибка!</strong> Не удалось добавить новость в базу данных.
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+            ></button>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 select:has(option.placeholder:checked) {
@@ -412,6 +718,64 @@ select:has(option.placeholder:checked) {
     margin-bottom: 2rem;
 }
 
+/* Validation error */
+.error-message {
+    background: #fff;
+    border-left: 4px solid #ff4757;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: flex-start;
+    animation: slideIn 0.3s ease-out;
+    transform-origin: center top;
+}
+
+.error-message__icon {
+    margin-right: 15px;
+    flex-shrink: 0;
+    color: #ff4757;
+    font-size: 24px;
+}
+
+.error-message__content h3 {
+    margin: 0 0 8px 0;
+    color: #2f3542;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.error-message__content p {
+    margin: 0;
+    color: #747d8c;
+    line-height: 1.5;
+}
+
+/* Close button */
+.error-message__close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #a4b0be;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.error-message__close:hover {
+    background: #f1f2f6;
+    color: #747d8c;
+}
+/* End of validation error */
+
 .painting-form {
     display: flex;
     flex-direction: column;
@@ -427,6 +791,10 @@ select:has(option.placeholder:checked) {
 .form-label {
     font-weight: 600;
     color: #444;
+}
+
+.form-date {
+    width: 50%;
 }
 
 .form-control {
@@ -480,6 +848,21 @@ select:has(option.placeholder:checked) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.video-previews {
+    width: 100%;
+    display: flex;
+    gap: 1rem;
+}
+
+.video-preview {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
 .remove-btn {

@@ -9,6 +9,8 @@ directories:
   paintings_dir_prefix: "/images/allworks/paintings/"
   sale_dir_save: "d:/projects/vera-art/client/src/assets/images/sale/"
   sale_dir_prefix: "/images/sale/"
+  news_dir_save: "d:/projects/vera-art/client/src/assets/images/news/"
+  news_dir_prefix: "/images/news/"
   illustrations: "../client/src/assets/images/illustrations"
   news: "../client/src/assets/images/news/"
   threeds: "../client/src/assets/images/allworks/graphics3d"

@@ -563,6 +563,24 @@ func getNews(c *gin.Context) {
 	c.JSON(http.StatusOK, news)
 }
 
+func saveNews(c *gin.Context) {
+	var news models.News
+	if err := c.ShouldBindJSON(&news); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	query := "insert into news (datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, images_count, videos_count, text_ru, text_en) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+	_, err := db.Exec(query, news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn, news.Dir, news.ImgBack, news.ImgBackfull, news.ImagesCount, news.VideosCount, news.TextRu, news.TextEn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "News saved successfully"})
+}
+
 func getMaterials(c *gin.Context) {
 
 	query := "select * from materials"
