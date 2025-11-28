@@ -6,6 +6,8 @@
         "composite": true,
         "paths": {
             "@/*": ["./src/*"]
-        }
+        },
+        "module": "esnext",
+        "moduleResolution": "bundler"
     }
 }

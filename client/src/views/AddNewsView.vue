@@ -13,92 +13,94 @@ export default defineComponent({
     data() {
         return {
             news: {
-                datetime: '',
                 title_en: '',
                 title_ru: '',
                 subTitle_en: '',
                 subTitle_ru: '',
-                dir: '',
                 img_back: '', // имя файла
                 img_backfull: '', // имя файла
                 imagescount: 0,
                 videoscount: 0,
+                datetime: '',
                 text_en: '',
                 text_ru: '',
+                dir: '',
             } as NewsDescDto,
 
+            // Для отправки файлов
             images: [] as File[],
+            videos: [] as File[],
+
+            img_back_preview: null as PreviewItem | null,
+            img_backfull_preview: null as PreviewItem | null,
+
             previewImages: [] as PreviewItem[],
+            previewVideos: [] as string[],
 
-            videos: ref([]),
-            previewVideos: [] as PreviewItem[],
-
-            videoUrls: [] as string[],
-            video_isLoading: false,
             video_error: '',
             previewWidth: 400,
-
-            img_back: null as File | null,
-            img_back_preview: null as PreviewItem | null,
-            img_backfull: null as File | null, //
-            img_backfull_preview: null as PreviewItem | null,
 
             isSubmitting: false,
             validated: true,
             validationErrorMessage: '' as string,
-            server: import.meta.env.VITE_SERVER_URL,
             requestResult: 'unknown' as RequestResult,
-            // Добавлены отсутствующие свойства
-            materialsDropdownOpen: false,
-            basesDropdownOpen: false,
         };
     },
+    computed: {
+        server() {
+            return import.meta.env.VITE_SERVER_URL;
+        },
+    },
     methods: {
-        handleBackImageUpload(event) {
+        handleBackImageSelected(event) {
             const target = event.target as HTMLInputElement;
             const selectedImage = target.files?.[0];
 
             if (!selectedImage) return;
 
-            this.img_back = selectedImage;
+            // Store file object for form submission, but keep string for type compatibility
+            this.news.img_back = selectedImage.name;
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 this.img_back_preview = {
-                    selectedImage,
+                    file: selectedImage,
                     preview: e.target?.result as string,
                 };
             };
             reader.readAsDataURL(selectedImage);
         },
+
         removeBackImage() {
             this.img_back_preview = null;
-            this.img_back = null;
+            this.news.img_back = '';
         },
 
-        handleBackFullImageUpload(event) {
+        handleBackFullImageSelected(event) {
             const target = event.target as HTMLInputElement;
             const selectedImage = target.files?.[0];
 
             if (!selectedImage) return;
 
-            this.img_backfull = selectedImage;
+            // Store file name for type compatibility, but keep file object for submission
+            this.news.img_backfull = selectedImage.name;
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 this.img_backfull_preview = {
-                    selectedImage,
-                    preview: e.target?.result,
+                    file: selectedImage,
+                    preview: e.target?.result as string,
                 };
             };
             reader.readAsDataURL(selectedImage);
         },
+
         removeBackFullImage() {
             this.img_backfull_preview = null;
-            this.img_backfull = null;
+            this.news.img_backfull = '';
         },
 
-        handleImagesUpload(event) {
+        handleImagesSelected(event) {
             const target = event.target as HTMLInputElement;
             const selectedFiles = Array.from(target.files || []);
 
@@ -120,19 +122,13 @@ export default defineComponent({
                 reader.readAsDataURL(file);
             });
         },
-        removeImageFromImages(index) {
-            this.previewImages.splice(index, 1);
-            this.images.splice(index, 1);
-        },
-        async handleSelectVideos(event) {
+
+        async handleVideosSelected(event) {
             const files = event.target.files as FileList;
-            this.videoUrls.length = 0;
+            this.previewVideos.length = 0;
+            this.videos = [];
 
             if (!files || files.length == 0) return;
-
-            // Reset states
-            this.video_error = '';
-            this.video_isLoading = true;
 
             // Validate file type
             for (let i = 0; i < files.length; i++) {
@@ -153,54 +149,26 @@ export default defineComponent({
                 }
             }
 
-            // if (this.videos.length + selectedFiles.length > 10) {
-            //     alert('Можно загрузить не более 10 видео');
-            //     return;
-            // }
-
-            // this.videos = [...this.videos, ...selectedFiles];
-
-            try {
-                for (let i = 0; i < files.length; i++) {
-                    this.videoUrls.push(URL.createObjectURL(files.item(i)));
-                }
-            } catch (err) {
-                this.error = 'Ошибка при загрузке видеофайлов';
-                console.error(err);
-            } finally {
-                this.isLoading = false;
+            // Populate both arrays
+            for (let i = 0; i < files.length; i++) {
+                this.videos.push(files[i]);
+                this.previewVideos.push(URL.createObjectURL(files[i]));
             }
 
-            // selectedFiles.forEach((file) => {
-            //     if (file.type.startsWith('video')) {
-            //         // const reader = new FileReader();
-            //         // reader.onload = (e) => {
-            //         //     this.previewVideos.push({
-            //         //         file,
-            //         //         preview: e.target?.result as string,
-            //         //     });
-            //         // };
-            //         // reader.readAsDataURL(file);
-            //         this.videos.value.push({
-            //             file,
-            //             url: URL.createObjectURL(file),
-            //         });
-            //     }
-            // });
+            this.video_error = '';
         },
 
-        // onVideoLoaded(event) {
-        //     this.video_isLoading = false;
-        //     const video = event.target;
-        // },
+        removeImageFromImages(index) {
+            this.previewImages.splice(index, 1);
+            this.images.splice(index, 1);
+        },
+        removeVideoFromVideos(index) {
+            this.previewVideos.splice(index, 1);
+            this.videos.splice(index, 1);
+        },
 
         onVideoError() {
-            this.video_isLoading = false;
-            this.video_error = 'Ошибка при загрузке видеофайла';
-            if (this.videoUrl) {
-                URL.revokeObjectURL(this.videoUrl);
-                this.videoUrl = null;
-            }
+            // Video error handling
         },
 
         formatFileSize(bytes) {
@@ -217,12 +185,10 @@ export default defineComponent({
             return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
         },
 
-        removeVideo(index) {
-            // this.previewVideos.splice(index, 1);
-            // this.videos.splice(index, 1);
-            URL.revokeObjectURL(this.videos.value[index].url);
-            this.videos.value.splice(index, 1);
-        },
+        /**
+         * Submit the news form data to the server
+         * Sends news information along with images and videos
+         */
         async submitForm() {
             if (!this.validateForm()) {
                 return;
@@ -236,15 +202,15 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
-                if (this.img_back) {
-                    formData.append('img_back', this.img_back);
+                // Append main images
+                if (this.img_back_preview?.file) {
+                    formData.append('img_back', this.img_back_preview.file);
                 }
 
-                if (this.img_backfull) {
-                    formData.append('img_backfull', this.img_backfull);
+                if (this.img_backfull_preview?.file) {
+                    formData.append('img_backfull', this.img_backfull_preview.file);
                 }
-
-                // Добавляем файлы
+                // Add additional images and videos
                 this.images.forEach((image) => {
                     formData.append('images', image);
                 });
@@ -253,7 +219,7 @@ export default defineComponent({
                     formData.append('videos', video);
                 });
 
-                // Добавляем остальные данные
+                // Add news data as JSON
                 const newsData = {
                     ...this.news,
                     imagescount: this.images.length,
@@ -264,6 +230,7 @@ export default defineComponent({
 
                 formData.append('data', JSON.stringify(newsData));
 
+                // Send data to server
                 const response = await axios.post(`${this.server}news`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data', // Important for file uploads
@@ -281,11 +248,11 @@ export default defineComponent({
                 });
 
                 if (response.status === 200 || response.status === 201) {
-                    console.log('Painting added successfully');
+                    console.log('News added successfully');
                     this.resetForm();
                     this.requestResult = 'success';
                 } else {
-                    console.error('Error adding painting');
+                    console.error('Error adding news');
                     this.requestResult = 'error';
                 }
             } catch (error) {
@@ -295,6 +262,7 @@ export default defineComponent({
                 this.isSubmitting = false;
             }
         },
+
         resetForm() {
             this.news = {
                 datetime: '',
@@ -313,35 +281,15 @@ export default defineComponent({
             this.images = [];
             this.videos = [];
             this.previewImages = [];
-            this.previewVideos = [];
-            this.img_back = null;
             this.img_back_preview = null;
-            this.img_backfull = null;
             this.img_backfull_preview = null;
-            this.$refs.fileInput.value = '';
-
             // Сброс input файлов
             const fileInputs = this.$el.querySelectorAll('input[type="file"]');
             fileInputs.forEach((input: HTMLInputElement) => {
                 input.value = '';
             });
         },
-        isAlowedEnglish(e: KeyboardEvent) {
-            const char = String.fromCharCode(e.keyCode);
-            if (/^[A-Za-z\s]+$/.test(char)) {
-                return true;
-            } else {
-                e.preventDefault();
-            }
-        },
-        isAlowedRussian(e) {
-            let char = String.fromCharCode(e.keyCode);
-            if (/^[А-Яа-я\s]+$/.test(char)) {
-                return true;
-            } else {
-                e.preventDefault();
-            }
-        },
+
         validateForm(): boolean {
             if (
                 !this.news.title_ru.trim() ||
@@ -386,14 +334,14 @@ export default defineComponent({
                 return false;
             }
 
-            if (!this.img_back) {
+            if (!this.img_back_preview || !this.news.img_back) {
                 this.validated = false;
                 this.validationErrorMessage =
                     'Необходимо добавить предварительное изображение новости';
                 return false;
             }
 
-            if (!this.img_backfull) {
+            if (!this.img_backfull_preview || !this.news.img_backfull) {
                 this.validated = false;
                 this.validationErrorMessage =
                     'Необходимо добавить главное изображение новости';
@@ -407,14 +355,14 @@ export default defineComponent({
                 return false;
             }
 
-            if (this.news.text_ru.trim()) {
+            if (!this.news.text_ru.trim()) {
                 this.validated = false;
                 this.validationErrorMessage =
                     'Необходимо добавить текст на русском языке';
                 return false;
             }
 
-            if (this.news.text_en.trim()) {
+            if (!this.news.text_en.trim()) {
                 this.validated = false;
                 this.validationErrorMessage =
                     'Необходимо добавить текст на английском языке';
@@ -425,12 +373,12 @@ export default defineComponent({
             this.validationErrorMessage = '';
             return true;
         },
+
         closeErrorMessage() {
             this.validated = true;
             this.validationErrorMessage = '';
         },
     },
-    computed: {},
 });
 </script>
 
@@ -446,7 +394,7 @@ export default defineComponent({
                     {{ validationErrorMessage }}
                 </p>
             </div>
-            <button class="error-message__close" onclick="closeErrorMessage">
+            <button class="error-message__close" @click="closeErrorMessage">
                 &times;
             </button>
         </div>
@@ -459,7 +407,6 @@ export default defineComponent({
                     v-model="news.title_ru"
                     type="text"
                     required
-                    v-on:keypress="isAlowedRussian"
                     class="form-control"
                     placeholder="Например: 'Звездная ночь'"
                 />
@@ -471,7 +418,6 @@ export default defineComponent({
                 <input
                     v-model="news.title_en"
                     type="text"
-                    v-on:keypress="isAlowedEnglish"
                     required
                     class="form-control"
                     placeholder="For example: 'Starry Night'"
@@ -484,7 +430,6 @@ export default defineComponent({
                 <input
                     v-model="news.subTitle_ru"
                     type="text"
-                    v-on:keypress="isAlowedRussian"
                     required
                     class="form-control"
                     placeholder="Например: 'Звездная ночь'"
@@ -497,7 +442,6 @@ export default defineComponent({
                 <input
                     v-model="news.subTitle_en"
                     type="text"
-                    v-on:keypress="isAlowedEnglish"
                     required
                     class="form-control"
                     placeholder="For example: 'Starry Night'"
@@ -509,7 +453,7 @@ export default defineComponent({
                 <label class="form-label">Главное изображение</label>
                 <input
                     type="file"
-                    @change="handleBackFullImageUpload"
+                    @change="handleBackFullImageSelected"
                     accept="image/jpg,image/jpeg"
                     class="file-input"
                     ref="fileInput"
@@ -534,13 +478,13 @@ export default defineComponent({
                 <label class="form-label">Превью изображение новости</label>
                 <input
                     type="file"
-                    @change="handleBackImageUpload"
+                    @change="handleBackImageSelected"
                     accept="image/jpg,image/jpeg"
                     class="file-input"
                     ref="fileInput"
                     required
                 />
-                <div class="preview-container" v-if="img_back">
+                <div class="preview-container" v-if="img_back_preview">
                     <div class="image-preview">
                         <img :src="img_back_preview.preview" class="preview-image" />
                         <button type="button" @click="removeBackImage" class="remove-btn">
@@ -554,7 +498,7 @@ export default defineComponent({
                 <label class="form-label">Фотогаллерея</label>
                 <input
                     type="file"
-                    @change="handleImagesUpload"
+                    @change="handleImagesSelected"
                     multiple
                     accept="image/jpg,image/jpeg"
                     class="file-input"
@@ -584,37 +528,33 @@ export default defineComponent({
                 <label class="form-label">Видеогаллерея</label>
                 <input
                     type="file"
-                    @change="handleSelectVideos"
+                    @change="handleVideosSelected"
                     multiple
                     accept="video"
                     class="file-input"
                     ref="fileInput"
                 />
-                <!-- <div class="preview-container" v-if="videos.length > 0">
+                <div v-if="previewVideos" class="video-previews">
                     <div
-                        v-for="(video, index) in videos"
+                        v-for="(videoUrl, index) in previewVideos"
                         :key="index"
-                        class="image-preview"
+                        class="video-preview"
                     >
-                        <video :src="video.url" controls class="preview-image" />
+                        <video
+                            class="video-preview"
+                            :src="videoUrl"
+                            controls
+                            :width="previewWidth"
+                            @error="onVideoError"
+                        />
                         <button
                             type="button"
-                            @click="removeVideo(index)"
+                            @click="removeVideoFromVideos(index)"
                             class="remove-btn"
                         >
                             &times;
                         </button>
                     </div>
-                </div> -->
-                <div v-if="videoUrls" class="video-previews">
-                    <video
-                        class="video-preview"
-                        v-for="videoUrl in videoUrls"
-                        :src="videoUrl"
-                        controls
-                        :width="previewWidth"
-                        @error="onVideoError"
-                    />
                 </div>
             </div>
 
@@ -665,36 +605,6 @@ export default defineComponent({
                 </button>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <div
-            v-if="requestResult == 'success'"
-            class="alert alert-success alert-dismissible fade show"
-            role="alert"
-        >
-            <strong>Успешно!</strong>Новость успешно добавлена в базу данных.
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"
-            ></button>
-        </div>
-
-        <!-- Danger Alert -->
-        <div
-            v-if="requestResult == 'error'"
-            class="alert alert-danger alert-dismissible fade show"
-            role="alert"
-        >
-            <strong>Ошибка!</strong> Не удалось добавить новость в базу данных.
-            <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="alert"
-                aria-label="Close"
-            ></button>
-        </div>
     </div>
 </template>
 
@@ -844,6 +754,15 @@ select:has(option.placeholder:checked) {
     overflow: hidden;
 }
 
+.video-preview {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    /* border: 1px solid #eee; */
+    border-radius: 4px;
+    overflow: hidden;
+}
+
 .preview-image {
     width: 100%;
     height: 100%;
@@ -863,6 +782,7 @@ select:has(option.placeholder:checked) {
     border: 1px solid #eee;
     border-radius: 4px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .remove-btn {

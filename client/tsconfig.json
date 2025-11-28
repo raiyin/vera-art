@@ -4,7 +4,7 @@
         "composite": true,
         "resolveJsonModule": true,
         "target": "esnext",
-        "types": ["node"],
+        "types": ["node", "vite/client"],
         "moduleResolution": "bundler",
         "lib": ["es5", "es6", "dom", "dom.iterable"],
         "module": "esnext"

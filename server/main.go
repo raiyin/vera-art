@@ -525,7 +525,7 @@ func getIllustrations(c *gin.Context) {
 
 func getNews(c *gin.Context) {
 
-	id := c.Param("id")
+	id := c.Query("id")
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 	id_ne := c.Query("id_ne")
@@ -535,14 +535,20 @@ func getNews(c *gin.Context) {
 	if len(id) > 0 {
 		query = query + " where id = " + id
 	} else if len(id_ne) > 0 && len(limit) > 0 {
-		query = query + " where id != " + id_ne + " limit " + limit
+		query = query +
+			" where id != " +
+			id_ne +
+			" order by datetime desc" +
+			" limit " + limit
 	} else if len(limit) > 0 {
-		query = query + " limit " + limit
+		query = query + " order by datetime desc" + " limit " + limit
 
 		if len(offset) > 0 {
 			query = query + " offset " + offset
 		}
 	}
+	// query = query + " order by datetime desc"
+	fmt.Println(query)
 
 	rows, err := db.Query(query)
 	if err != nil {
@@ -564,18 +570,155 @@ func getNews(c *gin.Context) {
 }
 
 func saveNews(c *gin.Context) {
-	var news models.News
-	if err := c.ShouldBindJSON(&news); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 1. Get the JSON metadata from form field
+	dataJson := c.PostForm("data")
+	if dataJson == "" {
+		c.JSON(400, gin.H{"error": "data is required"})
 		return
 	}
 
-	query := "insert into news (datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, images_count, videos_count, text_ru, text_en) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+	// 2. Parse the JSON
+	var news models.News
+	if err := json.Unmarshal([]byte(dataJson), &news); err != nil {
+		c.JSON(400, gin.H{"error": "invalid data format"})
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 
-	_, err := db.Exec(query, news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn, news.Dir, news.ImgBack, news.ImgBackfull, news.ImagesCount, news.VideosCount, news.TextRu, news.TextEn)
+	// Begin transaction
+	tx, err := db.Begin()
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	var maxID string = strings.ReplaceAll(news.Datetime, "-", "")
+	fmt.Println(news.Datetime)
+	// err = tx.QueryRow("select MAX(id) from news").Scan(&maxID)
+	// if err != nil {
+	// 	tx.Rollback()
+	// 	log.Fatal(err)
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	// 	return
+	// }
+
+	var dirPostfix string = strings.Split(news.Datetime, "-")[0] +
+		"/" +
+		strings.Split(news.Datetime, "-")[1] +
+		"/" +
+		strings.Split(news.Datetime, "-")[2] +
+		"/"
+
+	// Create directory for news item
+	var dirPath = config.AppConfigInstance.Directories.NewsDirSave + dirPostfix
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0777)
+		if err != nil {
+			fmt.Printf("Error creating directory: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory"})
+			tx.Rollback()
+			return
+		}
+		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
+	}
+
+	// Update news.Dir with the actual directory path
+	news.Dir = config.AppConfigInstance.Directories.NewsDirPrefix + dirPostfix
+
+	// Update image file names
+	news.ImgBack = "back.jpg"
+	news.ImgBackfull = "back_full.jpg"
+
+	_, err = tx.Exec(
+		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, imagescount, videoscount, text_ru, text_en) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		maxID,
+		news.Datetime,
+		news.TitleRu,
+		news.TitleEn,
+		news.SubtitleRu,
+		news.SubtitleEn,
+		news.Dir,
+		news.ImgBack,
+		news.ImgBackfull,
+		news.ImagesCount,
+		news.VideosCount,
+		news.TextRu,
+		news.TextEn)
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
+	}
+
+	// 3. Get the uploaded files and save them
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		tx.Rollback()
+		return
+	}
+
+	// Get all files from the form
+	files := form.File
+
+	// Process each file
+	for fieldName, fileHeaders := range files {
+		// Skip the "data" field as it's not a file
+		if fieldName == "data" {
+			continue
+		}
+
+		for index, fileHeader := range fileHeaders {
+			// Open the file
+			file, err := fileHeader.Open()
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				return
+			}
+			defer file.Close()
+
+			// Determine file name based on field type
+			var fileName string
+			if fieldName == "img_back" {
+				fileName = "back.jpg"
+			} else if fieldName == "img_backfull" {
+				fileName = "back_full.jpg"
+			} else if fieldName == "images" {
+				fileName = fmt.Sprintf("%d.jpg", index+1)
+			} else if fieldName == "videos" {
+				fileName = fmt.Sprintf("%d%s", index+1, filepath.Ext(fileHeader.Filename))
+			} else {
+				fileName = fmt.Sprintf("%s_%d%s", fieldName, index+1, filepath.Ext(fileHeader.Filename))
+			}
+
+			// Create a destination file
+			dst, err := os.Create(dirPath + fileName)
+			if err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				return
+			}
+			defer dst.Close()
+
+			// Copy the file data
+			if _, err := io.Copy(dst, file); err != nil {
+				c.JSON(500, gin.H{"error": err.Error()})
+				tx.Rollback()
+				return
+			}
+
+			log.Printf("Saved file %s from field %s", fileName, fieldName)
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "News saved successfully"})
@@ -768,6 +911,7 @@ func main() {
 	r_gin.GET("/bases", getBases)
 	r_gin.POST("/paintings", savePainting)
 	r_gin.POST("/sales", saveSales)
+	r_gin.POST("/news", saveNews)
 
 	defer db.Close()
 	if err := r_gin.Run(":8000"); err != nil {
