@@ -4,7 +4,6 @@ import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
-// import VideoSection from '@/components/News/VideoSection.vue';
 import PhotoSection from '@/components/News/PhotoSection.vue';
 import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
 import { defineAsyncComponent } from 'vue';
@@ -24,7 +23,6 @@ export default {
     components: {
         SideNewsTrailer,
         NewsItemDescription,
-        // VideoSection,
         AsyncVideoSection,
         PhotoSection,
         SideNewsTrailerSkeleton,
@@ -74,8 +72,6 @@ export default {
                     <div class="img-mock" v-show="!isImgLoaded" />
                     <img
                         :src="background"
-                        width="67rem"
-                        height="45rem"
                         alt="News main image"
                         @load="onImgLoaded"
                         v-show="isImgLoaded"
@@ -110,7 +106,6 @@ export default {
 
         <PhotoSection :current-news-item="currentNewsItem" />
 
-        <!-- <AsyncVideoSection :current-news-item="currentNewsItem" /> -->
         <Suspense>
             <template #default>
                 <AsyncVideoSection :current-news-item="currentNewsItem" />
@@ -131,24 +126,39 @@ export default {
 .news-header {
     display: flex;
     column-gap: 1rem;
+
+    .news-img {
+        width: 80%;
+        max-height: 35rem;
+        overflow: hidden;
+    }
+
+    .other-news {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--color-surface);
+        border-radius: 1.5rem;
+        width: fit-content;
+    }
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* сохраняет пропорции */
+        object-position: center; /* центрирует */
+    }
 }
+
 .img-mock {
     height: 40rem;
-    width: 60rem;
+    width: 100%;
 }
+
 img {
     min-width: 100%;
     min-width: auto;
     width: 100%;
     height: auto;
-}
-
-.other-news {
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-surface);
-    border-radius: 1.5rem;
-    width: 60%;
 }
 
 .other-news-item-wrapper {

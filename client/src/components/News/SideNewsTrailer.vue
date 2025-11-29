@@ -85,9 +85,7 @@ export default {
                 <div class="date">
                     <CalendarIcon />
                     <span>
-                        &nbsp;{{
-                            getHumanDate(sideNewsObject.datetime, $i18n.locale)
-                        }}
+                        &nbsp;{{ getHumanDate(sideNewsObject.datetime, $i18n.locale) }}
                     </span>
                 </div>
             </div>
@@ -110,12 +108,19 @@ export default {
 
 .other-news-img {
     margin-right: 1rem;
-}
 
-.other-news-img > img {
-    max-width: 9rem;
-    width: 9rem;
-    height: 6rem;
+    img {
+        max-width: 9rem;
+        width: 9rem;
+        height: 6rem;
+        object-fit: cover; /* сохраняет пропорции */
+        object-position: center; /* центрирует */
+        transition: transform 0.2s;
+    }
+
+    img:hover {
+        transform: scale(1.1);
+    }
 }
 
 .other-news-desc {
@@ -150,7 +155,7 @@ export default {
     }
 
     .other-news-desc {
-        margin-top: .5rem;
-}
+        margin-top: 0.5rem;
+    }
 }
 </style>

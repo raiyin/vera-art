@@ -37,11 +37,7 @@ export default {
             return '/news/' + this.newsObject.id;
         },
         bgImage() {
-            return (
-                this.imagebasedir +
-                this.newsObject.dir +
-                this.newsObject.img_back
-            );
+            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
         },
     },
 };
@@ -53,11 +49,7 @@ export default {
             <div class="news-item" :class="{ loading: !isLoaded }">
                 <router-link :to="newsId">
                     <div class="img-holder">
-                        <img
-                            :src="bgImage"
-                            @load="onImgLoad"
-                            v-show="isLoaded"
-                        />
+                        <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
                         <div v-show="!isLoaded" class="image-stub" />
                     </div>
 
@@ -67,8 +59,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                      ? newsObject.title_ru
-                                      : newsObject.title_en
+                                    ? newsObject.title_ru
+                                    : newsObject.title_en
                             }}
                         </div>
                         <div>
@@ -76,8 +68,8 @@ export default {
                                 !isLoaded
                                     ? ''
                                     : $i18n.locale === 'RUS'
-                                      ? newsObject.subTitle_ru
-                                      : newsObject.subTitle_en
+                                    ? newsObject.subTitle_ru
+                                    : newsObject.subTitle_en
                             }}
                         </div>
                         <div>
@@ -86,10 +78,7 @@ export default {
                                 &nbsp;{{
                                     !isLoaded
                                         ? ''
-                                        : getHumanDate(
-                                              newsObject.datetime,
-                                              $i18n.locale,
-                                          )
+                                        : getHumanDate(newsObject.datetime, $i18n.locale)
                                 }}
                             </span>
                         </div>
@@ -114,16 +103,18 @@ export default {
     height: 79%;
     margin-bottom: 1rem;
     overflow: hidden;
-}
 
-.img-holder img {
-    height: 100%;
-    width: 100%;
-    transition: transform 0.2s;
-}
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* сохраняет пропорции */
+        object-position: center; /* центрирует */
+        transition: transform 0.2s;
+    }
 
-.img-holder img:hover {
-    transform: scale(1.1);
+    img:hover {
+        transform: scale(1.1);
+    }
 }
 
 .image-stub {
