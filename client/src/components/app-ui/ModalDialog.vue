@@ -1,6 +1,6 @@
 <script lang="ts">
-import PicCarousel from '@/components/UI/PicCarousel.vue';
-import ButtonClose from '@/components/UI/ButtonClose.vue';
+import PicCarousel from '@/components/app-ui/PicCarousel.vue';
+import ButtonClose from '@/components/app-ui/ButtonClose.vue';
 import type { ImageProps } from '@/types';
 import type { PropType } from 'vue';
 

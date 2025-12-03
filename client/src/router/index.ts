@@ -6,7 +6,7 @@ import AllWorks from '@/views/AllWorks.vue';
 import News from '@/views/News.vue';
 import PayDelivery from '@/views/PayDeliver.vue';
 import Services from '@/views/Services.vue';
-import NewsItem from '@/components/News/NewsItem.vue';
+import NewsItem from '@/components/app-news/NewsItem.vue';
 import NotFound from '@/views/NotFound.vue';
 import Protected from '@/views/Protected.vue';
 
@@ -47,7 +47,7 @@ const router = createRouter({
         {
             path: '/news/:id',
             name: 'newsitem',
-            component: () => import('@/components/News/NewsItem.vue'),
+            component: () => import('@/components/app-news/NewsItem.vue'),
         },
         {
             path: '/:pathMatch(.*)*',

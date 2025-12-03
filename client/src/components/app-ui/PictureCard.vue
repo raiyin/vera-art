@@ -3,7 +3,7 @@ import type { ImageProps } from '@/types';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
-import PictureCardSkeleton from './Skeletons/PictureCardSkeleton.vue';
+import PictureCardSkeleton from '../app-skeletons/PictureCardSkeleton.vue';
 import PicCarousel from './PicCarousel.vue';
 
 export default {

@@ -1,6 +1,6 @@
 <script lang="ts">
-import CalendarIcon from '@/components/Icons/IconCalendar.vue';
-import NewsDescriptionSkeleton from '../UI/Skeletons/NewsDescriptionSkeleton.vue';
+import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
+import NewsDescriptionSkeleton from '../app-skeletons/NewsDescriptionSkeleton.vue';
 
 export default {
     components: {
@@ -48,9 +48,7 @@ export default {
         <div class="title" @load="onLoad" v-show="isLoaded">
             <h2>
                 {{
-                    $i18n.locale === 'RUS'
-                        ? newsObject.title_ru
-                        : newsObject.title_en
+                    $i18n.locale === 'RUS' ? newsObject.title_ru : newsObject.title_en
                 }}&nbsp;{{
                     $i18n.locale === 'RUS'
                         ? newsObject.subTitle_ru
@@ -59,11 +57,7 @@ export default {
             </h2>
             <div class="date" v-show="!!newsObject.datetime">
                 <CalendarIcon />
-                <span>
-                    &nbsp;{{
-                        getHumanDate(newsObject.datetime, $i18n.locale)
-                    }}</span
-                >
+                <span> &nbsp;{{ getHumanDate(newsObject.datetime, $i18n.locale) }}</span>
             </div>
         </div>
         <NewsDescriptionSkeleton v-show="!isLoaded" />

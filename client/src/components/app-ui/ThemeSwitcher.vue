@@ -1,6 +1,6 @@
 <script lang="ts">
-import DayIcon from '@/components/Icons/icon_day.vue';
-import NightIcon from '@/components/Icons/icon_night.vue';
+import DayIcon from '@/components/app-icons/icon_day.vue';
+import NightIcon from '@/components/app-icons/icon_night.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 
 export default {
@@ -14,8 +14,7 @@ export default {
     },
     methods: {
         handleClick() {
-            const newTheme =
-                this.themeStore.theme === 'light' ? 'dark' : 'light';
+            const newTheme = this.themeStore.theme === 'light' ? 'dark' : 'light';
             this.themeStore.theme = newTheme;
         },
     },
@@ -31,9 +30,7 @@ export default {
         :class="'theme-switcher_theme_' + themeStore.theme"
     >
         <DayIcon class="theme-switcher__icon theme-switcher__icon_type_light" />
-        <NightIcon
-            class="theme-switcher__icon theme-switcher__icon_type_dark"
-        />
+        <NightIcon class="theme-switcher__icon theme-switcher__icon_type_dark" />
     </button>
 </template>
 

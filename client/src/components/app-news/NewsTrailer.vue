@@ -1,5 +1,5 @@
 <script lang="ts">
-import CalendarIcon from '@/components/Icons/IconCalendar.vue';
+import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
 
 export default {
     components: {

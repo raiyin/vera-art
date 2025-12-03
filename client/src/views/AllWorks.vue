@@ -1,5 +1,5 @@
 <script lang="ts">
-import Gallery from '@/components/UI/PicGallery.vue';
+import Gallery from '@/components/app-ui/PicGallery.vue';
 import axios from 'axios';
 import { serialize } from 'v8';
 

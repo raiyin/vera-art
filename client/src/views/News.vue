@@ -1,5 +1,5 @@
 <script lang="ts">
-import NewsTrailer from '@/components/News/NewsTrailer.vue';
+import NewsTrailer from '@/components/app-news/NewsTrailer.vue';
 import type { NewsDesc } from '@/types';
 import axios from 'axios';
 

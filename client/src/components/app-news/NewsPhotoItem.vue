@@ -1,5 +1,5 @@
 <script lang="ts">
-import ButtonClose from '@/components/UI/ButtonClose.vue';
+import ButtonClose from '@/components/app-ui/ButtonClose.vue';
 import type { PropType } from 'vue';
 import type { NewsItemType } from '@/types';
 import { inject } from 'vue';

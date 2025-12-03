@@ -1,8 +1,8 @@
 <script lang="ts">
-import NewsPhotoItem from '@/components/News/NewsPhotoItem.vue';
+import NewsPhotoItem from '@/components/app-news/NewsPhotoItem.vue';
 import { PropType } from 'vue';
 import type { NewsItemType } from '@/types';
-import ModalDialog from '../UI/ModalDialog.vue';
+import ModalDialog from '../app-ui/ModalDialog.vue';
 import NewsCarousel from './NewsCarousel.vue';
 
 export default {

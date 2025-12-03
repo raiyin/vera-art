@@ -1,15 +1,15 @@
 <script lang="ts">
-import SideNewsTrailer from '@/components/News/SideNewsTrailer.vue';
-import NewsItemDescription from '@/components/News/NewsItemDescription.vue';
+import SideNewsTrailer from '@/components/app-news/SideNewsTrailer.vue';
+import NewsItemDescription from '@/components/app-news/NewsItemDescription.vue';
 import { inject } from 'vue';
 import type { NewsItemType } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
-import PhotoSection from '@/components/News/PhotoSection.vue';
-import SideNewsTrailerSkeleton from '../UI/Skeletons/SideNewsTrailerSkeleton.vue';
+import PhotoSection from '@/components/app-news/PhotoSection.vue';
+import SideNewsTrailerSkeleton from '../app-skeletons/SideNewsTrailerSkeleton.vue';
 import { defineAsyncComponent } from 'vue';
 
 const AsyncVideoSection = defineAsyncComponent({
-    loader: () => import('@/components/News/VideoSection.vue'),
+    loader: () => import('@/components/app-news/VideoSection.vue'),
     delay: 5000,
 });
 

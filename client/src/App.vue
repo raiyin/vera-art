@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import AppHeader from '@/components/UI/AppHeader.vue';
-import AppFooter from '@/components/UI/AppFooter.vue';
+import AppHeader from '@/components/app-ui/AppHeader.vue';
+import AppFooter from '@/components/app-ui/AppFooter.vue';
 </script>
 
 <template>
