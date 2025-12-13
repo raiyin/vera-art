@@ -38,7 +38,6 @@ export default {
 .theme-switcher {
     margin: 0;
     padding: 0;
-    margin-top: -0.5rem;
     border: none;
     background-color: transparent;
     cursor: pointer;

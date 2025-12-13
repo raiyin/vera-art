@@ -7,3 +7,4 @@ export type { AddPaintingDto } from './painting';
 export type { AddSaleDto, Sale } from './sale';
 export type { Base } from './base';
 export type { RequestResult } from './request-result';
+export type { UserPassPair } from './userpasspair';

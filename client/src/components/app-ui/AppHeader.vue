@@ -2,22 +2,27 @@
 import ThemeSwitcher from './ThemeSwitcher.vue';
 import LocaleSwitcher from './LocaleSwitcher.vue';
 import { Collapse } from 'bootstrap';
-import auth from '../../services/auth';
+import auth from '../../api/auth';
+import { useAuthStore } from '../../stores/AuthStore';
+import { storeToRefs } from 'pinia';
 
 export default {
     components: {
         ThemeSwitcher,
         LocaleSwitcher,
     },
+    setup() {
+        const authStore = useAuthStore();
+        const { isAuthenticated } = storeToRefs(authStore);
+
+        return {
+            isAuthenticated,
+        };
+    },
     data() {
         return {
             bsCollapse: null as Collapse | null,
         };
-    },
-    computed: {
-        isAuthenticated() {
-            return auth.isAuthenticated();
-        },
     },
     methods: {
         toggleMenu() {
@@ -25,9 +30,14 @@ export default {
                 this.bsCollapse.toggle();
             }
         },
-        logout() {
-            auth.logout();
+        login() {
+            console.log('login');
             this.$router.push('/login');
+        },
+        logout() {
+            console.log('logout');
+            auth.logout();
+            this.$router.push('/');
         },
     },
     mounted() {
@@ -107,25 +117,6 @@ export default {
                         </router-link>
                     </li>
 
-                    <li class="nav-item" v-if="!isAuthenticated">
-                        <router-link class="nav-link menu-item" to="/login">
-                            {{ $t('auth.login') }}
-                        </router-link>
-                    </li>
-                    <li class="nav-item" v-if="!isAuthenticated">
-                        <router-link class="nav-link menu-item" to="/register">
-                            {{ $t('auth.register') }}
-                        </router-link>
-                    </li>
-                    <li class="nav-item" v-if="isAuthenticated">
-                        <router-link
-                            @click="logout"
-                            class="nav-link menu-item"
-                            to="/logout"
-                        >
-                            {{ $t('auth.logout') }}
-                        </router-link>
-                    </li>
                     <li class="nav-item" v-if="isAuthenticated">
                         <router-link class="nav-link menu-item" to="/admin">
                             {{ $t('admin.link') }}
@@ -133,46 +124,59 @@ export default {
                     </li>
                 </ul>
 
-                <ul class="navbar-nav navbar-tools d-flex my-2 my-lg-2">
-                    <li>
+                <ul
+                    class="navbar-nav navbar-tools d-flex my-2 my-lg-2 align-items-center"
+                >
+                    <li class="ms-3 nav-item">
                         <ThemeSwitcher />
                     </li>
 
-                    <li class="ms-3">
+                    <li class="ms-3 nav-item">
                         <LocaleSwitcher />
                     </li>
 
-                    <li class="ms-3">
+                    <li class="ms-3 nav-item">
                         <a
                             href="https://t.me/MilayaV"
                             target="_blank"
                             rel="noopener noreferrer"
                             alt="telegram account"
+                            class="nav-item-link"
                         >
                             <i class="fa-brands fa-telegram"> </i>
                         </a>
                     </li>
 
-                    <li class="ms-3">
+                    <li class="ms-3 nav-item">
                         <a
                             href="https://vk.com/perczukowa"
                             target="_blank"
                             rel="noopener noreferrer"
                             alt="vk page"
+                            class="nav-item-link"
                         >
                             <i class="fa-brands fa-vk"></i>
                         </a>
                     </li>
 
-                    <li class="ms-3">
+                    <li class="ms-3 nav-item">
                         <a
                             href="mailto:perczukowa@yandex.ru"
                             target="_blank"
                             rel="noopener noreferrer"
                             alt="mail"
+                            class="nav-item-link"
                         >
                             <i class="fa fa-envelope"></i>
                         </a>
+                    </li>
+
+                    <li class="ms-3 nav-item">
+                        <i
+                            class="fa fa-user"
+                            @click="isAuthenticated ? logout() : login()"
+                            :title="isAuthenticated ? 'Выйти' : 'Войти'"
+                        />
                     </li>
                 </ul>
             </div>
@@ -194,6 +198,14 @@ export default {
     font-family: 'Montserrat', 'Verdana regular', 'Ebrima bold';
     font-size: 14pt;
     font-variant-caps: all-petite-caps;
+    display: flex;
+    align-items: center;
+}
+
+.nav-item-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
 }
 
 .nav-link {
@@ -237,6 +249,7 @@ export default {
 .fa {
     font-size: 2rem;
     color: var(--color-header-menu-item);
+    cursor: pointer;
 }
 
 .navbar-brand :hover {
@@ -283,5 +296,30 @@ export default {
 .fa:hover,
 .fa-brands:hover {
     filter: drop-shadow(0.2rem 0.2rem 0.2rem #808080);
+}
+
+.auth-button {
+    background-color: var(--color-header-menu-item);
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.3s ease;
+    color: var(--color-on-surface);
+}
+
+.auth-button:hover {
+    background-color: var(--color-active-link-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.auth-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
 }
 </style>

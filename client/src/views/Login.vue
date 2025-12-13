@@ -22,8 +22,10 @@
     </main>
 </template>
 
-<script>
-import auth from '@/services/auth';
+<script lang="ts">
+import auth from '../api/auth';
+import type { UserPassPair } from '../types';
+import { useAuthStore } from '../stores/AuthStore';
 
 export default {
     data() {
@@ -31,7 +33,7 @@ export default {
             user: {
                 username: '',
                 password: '',
-            },
+            } as UserPassPair,
             error: '',
         };
     },
@@ -39,9 +41,13 @@ export default {
         async handleLogin() {
             try {
                 await auth.login(this.user);
-                this.$router.push('/protected');
-            } catch (err) {
-                this.error = 'Login failed. Please check your credentials.';
+                this.$router.push('/admin');
+            } catch (err: any) {
+                this.error =
+                    err.response?.data?.message ||
+                    err.message ||
+                    'Login failed. Please check your credentials.';
+                console.error('Login error:', err);
             }
         },
     },

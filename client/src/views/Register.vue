@@ -22,8 +22,10 @@
     </div>
 </template>
 
-<script>
-import auth from '@/services/auth';
+<script lang="ts">
+import auth from '@/api/auth';
+import type { UserPassPair } from '../types';
+import { useAuthStore } from '../stores/AuthStore';
 
 export default {
     data() {
@@ -31,7 +33,7 @@ export default {
             user: {
                 username: '',
                 password: '',
-            },
+            } as UserPassPair,
             error: '',
         };
     },
@@ -40,8 +42,10 @@ export default {
             try {
                 await auth.register(this.user);
                 this.$router.push('/login');
-            } catch (err) {
-                this.error = 'Registration failed. Username may be taken.';
+            } catch (err: any) {
+                this.error =
+                    err.response?.data?.message ||
+                    'Registration failed. Username may be taken.';
             }
         },
     },

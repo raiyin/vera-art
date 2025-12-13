@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../stores/AuthStore';
 
 // import Home from '@/views/Home.vue';
 import Shop from '@/views/Shop.vue';
@@ -8,7 +9,6 @@ import PayDelivery from '@/views/PayDeliver.vue';
 import Services from '@/views/Services.vue';
 import NewsItem from '@/components/app-news/NewsItem.vue';
 import NotFound from '@/views/NotFound.vue';
-import Protected from '@/views/Protected.vue';
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,11 +65,6 @@ const router = createRouter({
             component: () => import('@/views/Register.vue'),
         },
         {
-            path: '/protected',
-            name: 'protected',
-            component: () => import('@/views/Protected.vue'),
-        },
-        {
             path: '/admin',
             name: 'admin',
             component: () => import('@/views/AdminView.vue'),
@@ -94,6 +89,20 @@ const router = createRouter({
             meta: { requiresAuth: true }
         }
     ],
+});
+
+// Navigation guard for authentication
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+    if (requiresAuth && !authStore.isAuthenticated) {
+        next('/login');
+    } else if (to.name === 'login' && authStore.isAuthenticated) {
+        next('/admin');
+    } else {
+        next();
+    }
 });
 
 export default router;

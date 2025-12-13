@@ -13,7 +13,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/raiyin/artserver/config"
+	"github.com/raiyin/artserver/dtos"
 	"github.com/raiyin/artserver/models"
 
 	"github.com/gin-contrib/cors"
@@ -24,7 +26,7 @@ import (
 )
 
 // var jwtKey = []byte(os.Getenv("JWT_SECRET"))
-var jwtKey = []byte("mydevsecret")
+var jwtKey = "mydevsecret"
 var users = make(map[string]string)
 
 var db *sql.DB
@@ -593,13 +595,6 @@ func saveNews(c *gin.Context) {
 
 	var maxID string = strings.ReplaceAll(news.Datetime, "-", "")
 	fmt.Println(news.Datetime)
-	// err = tx.QueryRow("select MAX(id) from news").Scan(&maxID)
-	// if err != nil {
-	// 	tx.Rollback()
-	// 	log.Fatal(err)
-	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	// 	return
-	// }
 
 	var dirPostfix string = strings.Split(news.Datetime, "-")[0] +
 		"/" +
@@ -771,60 +766,91 @@ func getBases(c *gin.Context) {
 }
 
 func register(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var registerUserRequest dtos.RegisterUserRequest
+	if err := c.ShouldBindJSON(&registerUserRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Check if user exists
-	if _, exists := users[user.Username]; exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "username already exists"})
+	var count int64
+	query := "select count(*) from users where username = ?"
+	err := db.QueryRow(query, registerUserRequest.Username).Scan(&count)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not check if user exists"})
+		return
+	}
+
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user already exists"})
 		return
 	}
 
 	// Hash password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerUserRequest.Password), bcrypt.DefaultCost)
+	var stringHashedPassword = string(hashedPassword)
+
+	// fmt.Println("%X ", hashedPassword)
+	// for _, num := range hashedPassword {
+	// 	fmt.Printf("%X ", num)
+	// }
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
 		return
 	}
 
-	users[user.Username] = string(hashedPassword)
+	query = "insert into users (username, pass_hash) " +
+		"values (?, ?)"
+	_, err = db.Exec(query, registerUserRequest.Username, stringHashedPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"message": "user created successfully"})
 }
 
 func login(c *gin.Context) {
-	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var loginUserRequest dtos.LoginUserRequest
+	if err := c.ShouldBindJSON(&loginUserRequest); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Check if user exists
-	storedPassword, exists := users[user.Username]
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
-		return
+	var id int
+	var username string
+	var passhash string
+
+	query := "select * from users where username = ?"
+	rows := db.QueryRow(query, loginUserRequest.Username)
+	err := rows.Scan(&id, &username, &passhash)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+			return
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "undefinded servererror"})
+			return
+		}
 	}
 
 	// Compare passwords
-	if err := bcrypt.CompareHashAndPassword([]byte(storedPassword), []byte(user.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(passhash), []byte(loginUserRequest.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 		return
 	}
 
 	// Create JWT token
-	expirationTime := time.Now().Add(24 * time.Hour)
+	expirationTime := time.Now().Add(365 * 24 * time.Hour)
 	claims := &models.Claims{
-		Username: user.Username,
+		Username: loginUserRequest.Username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString([]byte(jwtKey))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
 		return
@@ -878,6 +904,13 @@ func protected(c *gin.Context) {
 }
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file, assuming environment variables are set externally")
+	}
+
+	jwtKey = os.Getenv("JWT_SECRET")
 
 	if err := config.LoadConfig("."); err != nil {
 		log.Fatalf("Error loading config: %v", err)
