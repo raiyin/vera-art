@@ -1,15 +1,23 @@
 <script lang="ts">
-import type { ImageProps } from '@/types';
+import type { ImageProps } from '@/props/image-props';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
 import PictureCardSkeleton from '../app-skeletons/PictureCardSkeleton.vue';
 import PicCarousel from './PicCarousel.vue';
+import { useAuthStore } from '../../stores/AuthStore';
+import { storeToRefs } from 'pinia';
 
 export default {
     setup() {
         const themeStore = useThemeStore();
-        return { themeStore };
+        const authStore = useAuthStore();
+        const { isAuthenticated } = storeToRefs(authStore);
+
+        return {
+            themeStore,
+            isAuthenticated,
+        };
     },
     components: {
         Modal: ModalDialog,
@@ -34,13 +42,23 @@ export default {
                 this.isLoaded = true;
             }, 1000);
         },
+        edit() {
+            this.$router.push('/paintings/edit/' + this.imageObject.id + '/');
+        },
+        onImageDelete(str_id: string) {},
     },
     computed: {
         imgIdToModalIdSelector() {
             return '#' + this.imageObject.str_id + 'Modal';
         },
+        imgIdToDeleteIdSelector() {
+            return '#' + this.imageObject.str_id + 'DeleteModal';
+        },
         imgIdToModalId() {
             return this.imageObject.str_id + 'Modal';
+        },
+        imgIdToDeleteId() {
+            return this.imageObject.str_id + 'DeleteModal';
         },
         mainCardImage() {
             return this.imagebasedir + this.imageObject.dir + '1.jpg';
@@ -98,9 +116,28 @@ export default {
                             {{ `, ${imageObject.year}` }}
                         </span>
                     </div>
+
                     <p v-if="imageObject.price">
                         {{ $t('card.price') + ` ${imageObject.price} ` + $t('card.rub') }}
                     </p>
+
+                    <div class="image-control" v-if="isAuthenticated">
+                        <button
+                            class="btn btn-secondary w-100"
+                            type="button"
+                            v-on:click="edit"
+                        >
+                            Редактировать
+                        </button>
+                        <button
+                            class="btn btn-secondary w-100"
+                            type="button"
+                            data-bs-toggle="modal"
+                            :data-bs-target="imgIdToDeleteIdSelector"
+                        >
+                            Удалить
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -109,6 +146,45 @@ export default {
             </Modal>
         </div>
         <CardSkeleton v-if="!isLoaded" />
+
+        <div
+            class="modal fade"
+            :id="imgIdToDeleteId"
+            tabindex="-1"
+            aria-labelledby="imageDeleteModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageDeleteModalLabel">
+                            Подтверждение удаления
+                        </h5>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        Вы действительно хотите удалить работу "{{
+                            imageObject.name_ru
+                        }}"?
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Отменить
+                        </button>
+                        <button type="button" class="btn btn-danger">Удалить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -116,6 +192,7 @@ export default {
 .card-body {
     display: flex;
     align-items: center;
+    padding: 0;
 }
 
 .card {
@@ -126,6 +203,8 @@ export default {
 
 .desc {
     color: var(--color-on-surface);
+    align-self: flex-end;
+    width: 100%;
 }
 
 img {
@@ -135,9 +214,12 @@ img {
     object-fit: cover;
 }
 
-.desc {
-    align-self: flex-end;
-    width: 100%;
+.image-control {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 .card > img:hover {

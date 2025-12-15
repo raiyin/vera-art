@@ -239,17 +239,19 @@ func saveSales(c *gin.Context) {
 				return
 			}
 
-			err = tx.Commit()
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				log.Fatal(err)
-				fmt.Printf("Error: %v\n", err)
-				fmt.Printf("Error: %s\n", err)
-				fmt.Printf("Error : %q\n", err)
-			}
 			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error : %q\n", err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Sale saved successfully"})
@@ -442,17 +444,19 @@ func savePainting(c *gin.Context) {
 				return
 			}
 
-			err = tx.Commit()
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				log.Fatal(err)
-				fmt.Printf("Error: %v\n", err)
-				fmt.Printf("Error: %s\n", err)
-				fmt.Printf("Error : %q\n", err)
-			}
 			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
+		fmt.Printf("Error: %v\n", err)
+		fmt.Printf("Error: %s\n", err)
+		fmt.Printf("Error : %q\n", err)
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Painting saved successfully"})
@@ -481,7 +485,7 @@ func getThreeds(c *gin.Context) {
 	threeds := []models.Threed{}
 	for rows.Next() {
 		p := models.Threed{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.BaseRu, &p.BaseEn)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.Desc, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -514,7 +518,7 @@ func getIllustrations(c *gin.Context) {
 	illustrations := []models.Illustration{}
 	for rows.Next() {
 		p := models.Illustration{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.BaseRu, &p.BaseEn)
+		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.Desc, &p.BaseRu, &p.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
