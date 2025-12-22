@@ -13,4 +13,5 @@ export interface ImageProps {
     price: string;
     img_count: number;
     str_id: string;
+    type?: number;
 }

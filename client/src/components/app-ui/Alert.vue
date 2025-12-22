@@ -147,7 +147,6 @@ export default defineComponent({
     justify-content: center;
     color: inherit;
     opacity: 0.7;
-    background: none;
 }
 
 .btn-close:hover {

@@ -1,5 +1,5 @@
 <template>
-    <div class="add-painting-container">
+    <div class="add-work-container">
         <div class="header-section">
             <h1 class="page-title">Добавить новую работу в галлерею</h1>
             <p class="page-subtitle">
@@ -13,7 +13,7 @@
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="painting-form">
+        <form v-else @submit.prevent="submitForm" class="work-form">
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
                 <h2 class="section-title">Изображения работы</h2>
@@ -65,7 +65,9 @@
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">{{ fileError }}</div>
+                    <div v-if="fileError" class="error-message">
+                        {{ fileError }}
+                    </div>
                     <div class="preview-container" v-if="previewImages.length > 0">
                         <div
                             v-for="(image, index) in previewImages"
@@ -101,7 +103,7 @@
                     >
                     <input
                         type="text"
-                        v-model="painting.name_ru"
+                        v-model="work.name_ru"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_ru }"
@@ -120,7 +122,7 @@
                     >
                     <input
                         type="text"
-                        v-model="painting.name_en"
+                        v-model="work.name_en"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_en }"
@@ -134,14 +136,14 @@
 
                 <!-- Размеры картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Размеры (см) <span class="required">*</span></label
-                    >
+                    <label class="form-label">
+                        Размеры ({{ units }}) <span class="required">*</span>
+                    </label>
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <input
                                 type="number"
-                                v-model.number="painting.width"
+                                v-model.number="work.width"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -157,7 +159,7 @@
                         <div class="size-input-wrapper">
                             <input
                                 type="number"
-                                v-model.number="painting.height"
+                                v-model.number="work.height"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -179,7 +181,7 @@
                     >
                     <input
                         type="number"
-                        v-model.number="painting.year"
+                        v-model.number="work.year"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
@@ -188,7 +190,9 @@
                         placeholder="Например: 2023"
                         @blur="validateField('year')"
                     />
-                    <div v-if="errors.year" class="error-message">{{ errors.year }}</div>
+                    <div v-if="errors.year" class="error-message">
+                        {{ errors.year }}
+                    </div>
                 </div>
             </div>
 
@@ -202,7 +206,7 @@
                         >Основа <span class="required">*</span></label
                     >
                     <select
-                        v-model="painting.base_id"
+                        v-model="work.base_id"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
@@ -225,7 +229,10 @@
                 <!-- Материал -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Материалы <span class="required">*</span></label
+                        >Материалы
+                        <span class="required">{{
+                            isMaterialsRequired ? '*' : ''
+                        }}</span></label
                     >
                     <div class="multi-select-wrapper">
                         <div
@@ -251,7 +258,7 @@
                                     type="checkbox"
                                     :id="'material-' + material.id"
                                     :value="material.id"
-                                    v-model="painting.materials_ids"
+                                    v-model="work.materials_ids"
                                 />
                                 <label :for="'material-' + material.id">
                                     {{
@@ -275,13 +282,37 @@
                 <div class="form-group">
                     <label class="form-label">Описание</label>
                     <textarea
-                        v-model="painting.descr"
+                        v-model="work.descr"
                         class="form-control textarea"
                         placeholder="Краткое описание картины"
                         rows="4"
                         maxlength="500"
                     ></textarea>
-                    <div class="char-count">{{ painting.descr.length }}/500</div>
+                    <div class="char-count">{{ work.descr.length }}/500</div>
+                </div>
+            </div>
+
+            <!-- Тип работы -->
+            <div class="form-section">
+                <h2 class="section-title">Тип работы</h2>
+                <div class="form-group">
+                    <label class="form-label"
+                        >Тип работы <span class="required">*</span></label
+                    >
+                    <select
+                        v-model="work.work_type"
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.work_type }"
+                        @blur="validateField('work_type')"
+                    >
+                        <option value="1" selected>Картина</option>
+                        <option value="2">Иллюстрация</option>
+                        <option value="3">3D</option>
+                    </select>
+                    <div v-if="errors.work_type" class="error-message">
+                        {{ errors.work_type }}
+                    </div>
                 </div>
             </div>
 
@@ -330,16 +361,16 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { AddPaintingDto, Base, Material, RequestResult } from '@/types';
+import { CreateWorkDto, Base, Material, RequestResult } from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
 export default defineComponent({
-    name: 'AddPainting',
+    name: 'AddWork',
     components: {
         Alert,
     },
     data() {
         return {
-            painting: {
+            work: {
                 width: 0,
                 height: 0,
                 year: new Date().getFullYear(),
@@ -349,7 +380,8 @@ export default defineComponent({
                 materials_ids: [] as number[],
                 img_count: 0,
                 descr: '',
-            } as AddPaintingDto,
+                work_type: 0,
+            } as CreateWorkDto,
             files: [] as File[],
             previewImages: [] as { file: File; preview: string }[],
             isSubmitting: false,
@@ -371,6 +403,7 @@ export default defineComponent({
                 year: '',
                 base_id: '',
                 materials_ids: '',
+                work_type: '',
             } as Record<string, string>,
             errorMessage: '',
             showSuccessAlert: false,
@@ -485,14 +518,14 @@ export default defineComponent({
         validateField(fieldName: string) {
             switch (fieldName) {
                 case 'name_ru':
-                    if (!this.painting.name_ru.trim()) {
+                    if (!this.work.name_ru.trim()) {
                         this.errors.name_ru = 'Пожалуйста, введите название на русском';
                     } else {
                         this.errors.name_ru = '';
                     }
                     break;
                 case 'name_en':
-                    if (!this.painting.name_en.trim()) {
+                    if (!this.work.name_en.trim()) {
                         this.errors.name_en =
                             'Пожалуйста, введите название на английском';
                     } else {
@@ -500,14 +533,14 @@ export default defineComponent({
                     }
                     break;
                 case 'width':
-                    if (this.painting.width <= 0) {
+                    if (this.work.width <= 0) {
                         this.errors.width = 'Ширина должна быть больше 0';
                     } else {
                         this.errors.width = '';
                     }
                     break;
                 case 'height':
-                    if (this.painting.height <= 0) {
+                    if (this.work.height <= 0) {
                         this.errors.height = 'Высота должна быть больше 0';
                     } else {
                         this.errors.height = '';
@@ -515,8 +548,8 @@ export default defineComponent({
                     break;
                 case 'year':
                     if (
-                        this.painting.year < 2000 ||
-                        this.painting.year > new Date().getFullYear()
+                        this.work.year < 2000 ||
+                        this.work.year > new Date().getFullYear()
                     ) {
                         this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
                     } else {
@@ -524,18 +557,25 @@ export default defineComponent({
                     }
                     break;
                 case 'base_id':
-                    if (this.painting.base_id <= 0) {
+                    if (this.work.base_id <= 0) {
                         this.errors.base_id = 'Пожалуйста, выберите основу';
                     } else {
                         this.errors.base_id = '';
                     }
                     break;
                 case 'materials_ids':
-                    if (this.painting.materials_ids.length === 0) {
+                    if (this.work.materials_ids.length === 0) {
                         this.errors.materials_ids =
                             'Пожалуйста, выберите хотя бы один материал';
                     } else {
                         this.errors.materials_ids = '';
+                    }
+                    break;
+                case 'work_type':
+                    if (this.work.work_type < 0) {
+                        this.errors.work_type = 'Пожалуйста, выберите тип работы';
+                    } else {
+                        this.errors.work_type = '';
                     }
                     break;
             }
@@ -548,6 +588,7 @@ export default defineComponent({
             this.validateField('year');
             this.validateField('base_id');
             this.validateField('materials_ids');
+            this.validateField('work_type');
 
             // Проверка наличия изображений
             if (this.files.length === 0) {
@@ -578,14 +619,15 @@ export default defineComponent({
                 });
 
                 // Добавляем остальные данные
-                const paintingData = {
-                    ...this.painting,
+                const workData = {
+                    ...this.work,
                     img_count: this.previewImages.length,
                 };
+                workData.work_type = parseInt(workData.work_type);
 
-                formData.append('data', JSON.stringify(paintingData));
+                formData.append('data', JSON.stringify(workData));
 
-                const response = await axios.post(this.server + 'paintings', formData, {
+                const response = await axios.post(this.server + 'works', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
@@ -617,7 +659,7 @@ export default defineComponent({
             }
         },
         resetForm() {
-            this.painting = {
+            this.work = {
                 width: 0,
                 height: 0,
                 year: new Date().getFullYear(),
@@ -627,6 +669,7 @@ export default defineComponent({
                 materials_ids: [],
                 img_count: 0,
                 descr: '',
+                work_type: 0,
             };
             this.files = [];
             this.previewImages = [];
@@ -654,9 +697,9 @@ export default defineComponent({
     },
     computed: {
         selectedMaterialsDisplay() {
-            if (this.painting.materials_ids.length === 0) return '';
+            if (this.work.materials_ids.length === 0) return '';
             const selectedNames = this.materials
-                .filter((material) => this.painting.materials_ids.includes(material.id))
+                .filter((material) => this.work.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'RUS'
                         ? material.material_ru
@@ -666,16 +709,25 @@ export default defineComponent({
         },
         isFormValid() {
             return (
-                this.painting.name_ru.trim() !== '' &&
-                this.painting.name_en.trim() !== '' &&
-                this.painting.width > 0 &&
-                this.painting.height > 0 &&
-                this.painting.year >= 2000 &&
-                this.painting.year <= new Date().getFullYear() &&
-                this.painting.base_id > 0 &&
-                this.painting.materials_ids.length > 0 &&
-                this.files.length > 0
+                this.work.name_ru.trim() !== '' &&
+                this.work.name_en.trim() !== '' &&
+                this.work.width > 0 &&
+                this.work.height > 0 &&
+                this.work.year >= 2000 &&
+                this.work.year <= new Date().getFullYear() &&
+                this.work.base_id > 0 &&
+                (this.work.work_type < 3
+                    ? this.work.materials_ids.length > 0
+                    : this.work.materials_ids.length == 0) &&
+                this.files.length > 0 &&
+                this.work.work_type > 0
             );
+        },
+        units(): 'см' | 'px' {
+            return this.work.work_type <= 1 ? 'см' : 'px';
+        },
+        isMaterialsRequired() {
+            return this.work.work_type === '1' || this.work.work_type === '2';
         },
     },
 });
@@ -686,7 +738,7 @@ select:has(option.placeholder:checked) {
     color: red;
 }
 
-.add-painting-container {
+.add-work-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
@@ -707,12 +759,12 @@ select:has(option.placeholder:checked) {
 }
 
 .page-subtitle {
-    color: #666;
+    color: #333;
     font-size: 1rem;
     margin: 0;
 }
 
-.painting-form {
+.work-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -1065,7 +1117,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .add-painting-container {
+    .add-work-container {
         padding: 1rem;
     }
 

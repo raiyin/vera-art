@@ -85,7 +85,7 @@ func getSales(c *gin.Context) {
 	c.JSON(http.StatusOK, sales)
 }
 
-func saveSales(c *gin.Context) {
+func createSale(c *gin.Context) {
 
 	// 1. Get the JSON metadata from form field
 	dataJson := c.PostForm("data")
@@ -128,7 +128,7 @@ func saveSales(c *gin.Context) {
 		"insert into sales (id, dir, width, height, year, price, name_ru, name_en, base_id, str_id, img_count, descr) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
-		config.AppConfigInstance.Directories.SaleDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
+		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
 		sale.Width,
 		sale.Height,
 		sale.Year,
@@ -257,12 +257,12 @@ func saveSales(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Sale saved successfully"})
 }
 
-func getPaintings(c *gin.Context) {
+func getWorks(c *gin.Context) {
 
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 
-	query := "select p.*, b.base_ru, b.base_en from paintings p join bases b on p.base_id = b.id"
+	query := "select w.*, b.base_ru, b.base_en from works w join bases b on w.base_id = b.id"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit
@@ -277,21 +277,21 @@ func getPaintings(c *gin.Context) {
 		panic(err)
 	}
 	defer rows.Close()
-	paintings := []models.PaintingWithBase{}
+	works := []models.Work{}
 	for rows.Next() {
-		p := models.PaintingWithBase{}
-		err := rows.Scan(&p.Id, &p.Dir, &p.Width, &p.Height, &p.Year, &p.NameRu, &p.NameEn, &p.BaseId, &p.StrId, &p.ImgCount, &p.Descr, &p.BaseRu, &p.BaseEn)
+		w := models.Work{}
+		err := rows.Scan(&w.Id, &w.Dir, &w.Width, &w.Height, &w.Year, &w.NameRu, &w.NameEn, &w.BaseId, &w.StrId, &w.ImgCount, &w.Descr, &w.Type, &w.BaseRu, &w.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		paintings = append(paintings, p)
+		works = append(works, w)
 	}
 
-	c.JSON(http.StatusOK, paintings)
+	c.JSON(http.StatusOK, works)
 }
 
-func savePainting(c *gin.Context) {
+func addWork(c *gin.Context) {
 
 	// 1. Get the JSON metadata from form field
 	dataJson := c.PostForm("data")
@@ -303,8 +303,8 @@ func savePainting(c *gin.Context) {
 	fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
-	var painting models.Painting
-	if err := json.Unmarshal([]byte(dataJson), &painting); err != nil {
+	var work models.Work
+	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
 		fmt.Printf("Error: %s\n", err)
@@ -319,7 +319,7 @@ func savePainting(c *gin.Context) {
 	}
 
 	var maxID int
-	err = tx.QueryRow("select MAX(id) from paintings").Scan(&maxID)
+	err = tx.QueryRow("select MAX(id) from works").Scan(&maxID)
 	if err != nil {
 		tx.Rollback()
 		log.Fatal(err)
@@ -331,19 +331,20 @@ func savePainting(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into paintings (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr, work_type) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
-		config.AppConfigInstance.Directories.PaintingsDirPrefix+strings.Replace(painting.NameEn, " ", "_", -1)+"/",
-		painting.Width,
-		painting.Height,
-		painting.Year,
-		painting.NameRu,
-		painting.NameEn,
-		painting.BaseId,
-		strings.Replace(painting.NameEn, " ", "_", -1),
-		painting.ImgCount,
-		painting.Descr)
+		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
+		work.Width,
+		work.Height,
+		work.Year,
+		work.NameRu,
+		work.NameEn,
+		work.BaseId,
+		strings.Replace(work.NameEn, " ", "_", -1),
+		work.ImgCount,
+		work.Descr,
+		work.WorkType)
 
 	if err != nil {
 		tx.Rollback()
@@ -355,9 +356,9 @@ func savePainting(c *gin.Context) {
 		return
 	}
 
-	for _, material_id := range painting.MaterialsIds {
+	for _, material_id := range work.MaterialsIds {
 		_, err = tx.Exec(
-			"insert into painting_materials (painting_id, material_id) "+
+			"insert into works_materials (work_id, material_id) "+
 				"values (?, ?)",
 			maxID+1,
 			material_id)
@@ -389,7 +390,8 @@ func savePainting(c *gin.Context) {
 	files := form.File
 
 	// Process each file
-	dirPath := config.AppConfigInstance.Directories.PaintingsDirSave + strings.Replace(painting.NameEn, " ", "_", -1) + "/"
+	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work.NameEn, " ", "_", -1) + "/"
+	fmt.Printf("dirPath: %s\n", dirPath)
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
 		if err != nil {
@@ -462,73 +464,6 @@ func savePainting(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Painting saved successfully"})
 }
 
-func getThreeds(c *gin.Context) {
-	offset := c.Query("offset")
-	limit := c.Query("limit")
-
-	query := "select t.*, b.base_ru, b.base_en from threeds t join bases b on t.base_id = b.id"
-
-	if len(limit) > 0 {
-		query = query + " limit " + limit
-
-		if len(offset) > 0 {
-			query = query + " offset " + offset
-		}
-	}
-
-	rows, err := db.Query(query)
-	if err != nil {
-		panic(err)
-	}
-
-	defer rows.Close()
-	threeds := []models.Threed{}
-	for rows.Next() {
-		p := models.Threed{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.Desc, &p.BaseRu, &p.BaseEn)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		threeds = append(threeds, p)
-	}
-
-	c.JSON(http.StatusOK, threeds)
-}
-
-func getIllustrations(c *gin.Context) {
-	offset := c.Query("offset")
-	limit := c.Query("limit")
-
-	query := "select i.*, b.base_ru, b.base_en from illustrations i join bases b on i.base_id = b.id"
-
-	if len(limit) > 0 {
-		query = query + " limit " + limit
-
-		if len(offset) > 0 {
-			query = query + " offset " + offset
-		}
-	}
-
-	rows, err := db.Query(query)
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-	illustrations := []models.Illustration{}
-	for rows.Next() {
-		p := models.Illustration{}
-		err := rows.Scan(&p.Id, &p.StrId, &p.Dir, &p.NameRu, &p.NameEn, &p.BaseId, &p.Year, &p.ImgCount, &p.Desc, &p.BaseRu, &p.BaseEn)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		illustrations = append(illustrations, p)
-	}
-
-	c.JSON(http.StatusOK, illustrations)
-}
-
 func getNews(c *gin.Context) {
 
 	id := c.Query("id")
@@ -575,7 +510,7 @@ func getNews(c *gin.Context) {
 	c.JSON(http.StatusOK, news)
 }
 
-func saveNews(c *gin.Context) {
+func addNews(c *gin.Context) {
 	// 1. Get the JSON metadata from form field
 	dataJson := c.PostForm("data")
 	if dataJson == "" {
@@ -621,7 +556,7 @@ func saveNews(c *gin.Context) {
 	}
 
 	// Update news.Dir with the actual directory path
-	news.Dir = config.AppConfigInstance.Directories.NewsDirPrefix + dirPostfix
+	news.Dir = config.AppConfigInstance.Directories.NewsDbDirPrefix + dirPostfix
 
 	// Update image file names
 	news.ImgBack = "back.jpg"
@@ -923,6 +858,7 @@ func main() {
 	// Access configuration values
 	appConfig := config.AppConfigInstance
 	log.Printf("Starting %s on port %d", appConfig.App.Name, appConfig.App.Port)
+	log.Printf("dir is %s and %s", appConfig.Directories.WorksDbDirPrefix, appConfig.Directories.WorksDirSave)
 
 	r_gin := gin.Default()
 	// r.Run(fmt.Sprintf(":%d", appConfig.App.Port))
@@ -940,18 +876,16 @@ func main() {
 	r_gin.GET("/protected", authMiddleware(), protected)
 
 	r_gin.GET("/sales", getSales)
-	r_gin.GET("/paintings", getPaintings)
-	r_gin.GET("/threeds", getThreeds)
-	r_gin.GET("/illustrations", getIllustrations)
+	r_gin.GET("/works", getWorks)
 	r_gin.GET("/news", getNews)
 	r_gin.GET("/materials", getMaterials)
 	r_gin.GET("/bases", getBases)
-	r_gin.POST("/paintings", savePainting)
-	r_gin.POST("/sales", saveSales)
-	r_gin.POST("/news", saveNews)
+	r_gin.POST("/works", addWork)
+	r_gin.POST("/sales", createSale)
+	r_gin.POST("/news", addNews)
 
 	defer db.Close()
-	if err := r_gin.Run(":8000"); err != nil {
+	if err := r_gin.Run("localhost:8000"); err != nil {
 		log.Fatal(err)
 	}
 
