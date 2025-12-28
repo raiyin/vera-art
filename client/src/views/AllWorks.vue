@@ -6,6 +6,7 @@ export default {
     components: {
         Gallery,
     },
+    emits: ['work-deleted'],
     data() {
         return {
             works: [],
@@ -57,6 +58,10 @@ export default {
                 console.error('Error fetching 3d images on all works page ' + e);
             }
         },
+        handleWorkDeleted(str_id: string) {
+            // Remove the deleted work from the works array
+            this.works = this.works.filter((work: any) => work.str_id !== str_id);
+        },
     },
     mounted() {
         const options = {
@@ -76,7 +81,7 @@ export default {
 
 <template>
     <section class="container main-content">
-        <Gallery :images="works" />
+        <Gallery :images="works" @work-deleted="handleWorkDeleted" />
 
         <div ref="worksObserver" class="observer" />
     </section>

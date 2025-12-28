@@ -25,8 +25,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// var jwtKey = []byte(os.Getenv("JWT_SECRET"))
-var jwtKey = "mydevsecret"
+var jwtKey = []byte(os.Getenv("JWT_SECRET"))
+
+// var jwtKey = "mydevsecret"
 var users = make(map[string]string)
 
 var db *sql.DB
@@ -464,6 +465,83 @@ func addWork(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Painting saved successfully"})
 }
 
+func deleteWork(c *gin.Context) {
+	str_id := c.Param("str_id")
+	if str_id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "str_id is required"})
+		return
+	}
+
+	// Begin transaction
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Get the work directory path before deleting the record
+	var dir string
+	query := "SELECT dir FROM works WHERE str_id = ?"
+	err = tx.QueryRow(query, str_id).Scan(&dir)
+	if err != nil {
+		tx.Rollback()
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Delete from works_materials table
+	_, err = tx.Exec("DELETE FROM works_materials WHERE work_id IN (SELECT id FROM works WHERE str_id = ?)", str_id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete from works table
+	result, err := tx.Exec("DELETE FROM works WHERE str_id = ?", str_id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if any rows were affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
+		return
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete the directory and its contents
+	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.WorksDbDirPrefix, "", -1)
+	if _, err := os.Stat(dirPath); err == nil {
+		err := os.RemoveAll(dirPath)
+		if err != nil {
+			log.Printf("Error deleting directory %s: %v", dirPath, err)
+			// We don't return an error here because the database record was successfully deleted
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Work deleted successfully"})
+}
+
 func getNews(c *gin.Context) {
 
 	id := c.Query("id")
@@ -789,7 +867,8 @@ func login(c *gin.Context) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(jwtKey))
+	tokenString, err := token.SignedString(jwtKey)
+	fmt.Printf("jwt key is %v", jwtKey)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
 		return
@@ -828,19 +907,19 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
-func protected(c *gin.Context) {
-	claims, _ := c.Get("claims")
-	claimsObj, ok := claims.(*models.Claims)
-	if !ok || claimsObj == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
-		return
-	}
+// func protected(c *gin.Context) {
+// 	claims, _ := c.Get("claims")
+// 	claimsObj, ok := claims.(*models.Claims)
+// 	if !ok || claimsObj == nil {
+// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token claims"})
+// 		return
+// 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "protected content",
-		"user":    claims.(*models.Claims).Username,
-	})
-}
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"message": "protected content",
+// 		"user":    claims.(*models.Claims).Username,
+// 	})
+// }
 
 func main() {
 
@@ -849,7 +928,7 @@ func main() {
 		log.Println("Error loading .env file, assuming environment variables are set externally")
 	}
 
-	jwtKey = os.Getenv("JWT_SECRET")
+	// jwtKey = os.Getenv("JWT_SECRET")
 
 	if err := config.LoadConfig("."); err != nil {
 		log.Fatalf("Error loading config: %v", err)
@@ -873,7 +952,7 @@ func main() {
 	// Auth routes
 	r_gin.POST("/register", register)
 	r_gin.POST("/login", login)
-	r_gin.GET("/protected", authMiddleware(), protected)
+	// r_gin.GET("/protected", authMiddleware(), protected)
 
 	r_gin.GET("/sales", getSales)
 	r_gin.GET("/works", getWorks)
@@ -883,6 +962,7 @@ func main() {
 	r_gin.POST("/works", addWork)
 	r_gin.POST("/sales", createSale)
 	r_gin.POST("/news", addNews)
+	r_gin.DELETE("/works/:str_id", authMiddleware(), deleteWork)
 
 	defer db.Close()
 	if err := r_gin.Run("localhost:8000"); err != nil {

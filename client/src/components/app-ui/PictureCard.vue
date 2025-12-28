@@ -30,6 +30,7 @@ export default {
             default: {} as ImageProps,
         },
     },
+    emits: ['work-deleted'],
     data() {
         return {
             isLoaded: false,
@@ -43,9 +44,39 @@ export default {
             }, 1000);
         },
         edit() {
-            this.$router.push('/paintings/edit/' + this.imageObject.id + '/');
+            this.$router.push('/works/edit/' + this.imageObject.id + '/');
         },
-        onImageDelete(str_id: string) {},
+        async onImageDelete(str_id: string) {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(
+                    import.meta.env.VITE_SERVER_URL + 'works/' + str_id,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    // Emit event to parent component to update the list
+                    this.$emit('work-deleted', this.imageObject.str_id);
+                    // Close the modal
+                    const modal = document.getElementById(this.imgIdToDeleteId);
+                    if (modal) {
+                        const bsModal = (window as any).bootstrap.Modal.getInstance(
+                            modal
+                        );
+                        if (bsModal) bsModal.hide();
+                    }
+                } else {
+                    console.error('Failed to delete work');
+                }
+            } catch (error) {
+                console.error('Error deleting work:', error);
+            }
+        },
     },
     computed: {
         imgIdToModalIdSelector() {
@@ -180,7 +211,13 @@ export default {
                         >
                             Отменить
                         </button>
-                        <button type="button" class="btn btn-danger">Удалить</button>
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            @click="onImageDelete(imageObject.str_id)"
+                        >
+                            Удалить
+                        </button>
                     </div>
                 </div>
             </div>

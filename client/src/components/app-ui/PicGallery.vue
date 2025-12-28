@@ -13,6 +13,7 @@ export default {
             required: true,
         },
     },
+    emits: ['work-deleted'],
     data() {
         return {
             selectedWorkType: 'all',
@@ -26,6 +27,12 @@ export default {
             return this.images.filter((image) => {
                 return image.type === parseInt(this.selectedWorkType);
             });
+        },
+    },
+    methods: {
+        handleWorkDeleted(str_id: string) {
+            // Emit event to parent component to update the list
+            this.$emit('work-deleted', str_id);
         },
     },
 };
@@ -55,6 +62,7 @@ export default {
                 v-for="imgObject in filteredImages"
                 :imageObject="imgObject"
                 :key="imgObject.id"
+                @work-deleted="handleWorkDeleted"
             />
         </div>
     </section>

@@ -1,7 +1,17 @@
 <script lang="ts">
 import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
+import { useAuthStore } from '../../stores/AuthStore';
+import { storeToRefs } from 'pinia';
 
 export default {
+    setup() {
+        const authStore = useAuthStore();
+        const { isAuthenticated } = storeToRefs(authStore);
+
+        return {
+            isAuthenticated,
+        };
+    },
     components: {
         CalendarIcon,
     },
@@ -31,6 +41,9 @@ export default {
             const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
             return date.toLocaleDateString(stdLocale, options);
         },
+        editNews() {
+            this.$router.push('/news/edit/' + this.imageObject.id + '/');
+        },
     },
     computed: {
         newsId() {
@@ -44,63 +57,66 @@ export default {
 </script>
 
 <template>
-    <section class="container text-center px-0">
-        <div class="col d-flex justify-content-center">
-            <div class="news-item" :class="{ loading: !isLoaded }">
-                <router-link :to="newsId">
-                    <div class="img-holder">
-                        <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
-                        <div v-show="!isLoaded" class="image-stub" />
-                    </div>
+    <div class="news-item" :class="{ loading: !isLoaded }">
+        <div class="img-holder">
+            <router-link :to="newsId">
+                <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
+                <div v-show="!isLoaded" class="image-stub" />
+            </router-link>
+        </div>
 
-                    <div class="news-content">
-                        <div>
-                            {{
-                                !isLoaded
-                                    ? ''
-                                    : $i18n.locale === 'RUS'
-                                    ? newsObject.title_ru
-                                    : newsObject.title_en
-                            }}
-                        </div>
-                        <div>
-                            {{
-                                !isLoaded
-                                    ? ''
-                                    : $i18n.locale === 'RUS'
-                                    ? newsObject.subTitle_ru
-                                    : newsObject.subTitle_en
-                            }}
-                        </div>
-                        <div>
-                            <CalendarIcon v-if="isLoaded" />
-                            <span>
-                                &nbsp;{{
-                                    !isLoaded
-                                        ? ''
-                                        : getHumanDate(newsObject.datetime, $i18n.locale)
-                                }}
-                            </span>
-                        </div>
-                    </div>
-                </router-link>
+        <div class="news-content">
+            <div>
+                {{
+                    !isLoaded
+                        ? ''
+                        : $i18n.locale === 'RUS'
+                        ? newsObject.title_ru
+                        : newsObject.title_en
+                }}
+            </div>
+            <div>
+                {{
+                    !isLoaded
+                        ? ''
+                        : $i18n.locale === 'RUS'
+                        ? newsObject.subTitle_ru
+                        : newsObject.subTitle_en
+                }}
+            </div>
+            <div>
+                <CalendarIcon v-if="isLoaded" />
+                <span>
+                    &nbsp;{{
+                        !isLoaded ? '' : getHumanDate(newsObject.datetime, $i18n.locale)
+                    }}
+                </span>
             </div>
         </div>
-    </section>
+
+        <div class="image-control" v-if="isAuthenticated">
+            <button class="btn btn-secondary w-100" type="button" v-on:click="editNews">
+                Редактировать
+            </button>
+            <button class="btn btn-secondary w-100" type="button">Удалить</button>
+        </div>
+    </div>
 </template>
 
 <style scoped>
 .news-item {
     width: 25rem;
-    height: 30rem;
     border-radius: 0.3rem;
     border: 0.1rem solid var(--color-surface-secondary);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 2rem;
 }
 
 .img-holder {
     width: 100%;
-    height: 79%;
+    height: 20rem;
     margin-bottom: 1rem;
     overflow: hidden;
 
@@ -172,5 +188,13 @@ export default {
 .news-content > p > span {
     font-size: small;
     font-weight: lighter;
+}
+
+.image-control {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 </style>
