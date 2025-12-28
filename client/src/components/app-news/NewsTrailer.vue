@@ -25,6 +25,7 @@ export default {
         return {
             isLoaded: false,
             imagebasedir: import.meta.env.VITE_IMAGE_DIR,
+            isDeleting: false,
         };
     },
     methods: {
@@ -42,7 +43,46 @@ export default {
             return date.toLocaleDateString(stdLocale, options);
         },
         editNews() {
-            this.$router.push('/news/edit/' + this.imageObject.id + '/');
+            this.$router.push('/news/edit/' + this.newsObject.id + '/');
+        },
+        async deleteNews() {
+            // Better confirmation dialog
+            if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
+                return;
+            }
+
+            // Set loading state
+            this.isDeleting = true;
+
+            try {
+                const response = await fetch(
+                    `${import.meta.env.VITE_SERVER_URL}news/${this.newsObject.id}`,
+                    {
+                        method: 'DELETE',
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    }
+                );
+
+                if (response.ok) {
+                    // Remove the news item from the UI
+                    this.$emit('news-deleted', this.newsObject.id);
+                } else {
+                    const errorData = await response.json();
+                    alert(
+                        `Ошибка при удалении новости: ${
+                            errorData.error || 'Неизвестная ошибка'
+                        }`
+                    );
+                }
+            } catch (error) {
+                console.error('Error deleting news:', error);
+                alert('Ошибка при удалении новости:_network_error');
+            } finally {
+                // Reset loading state
+                this.isDeleting = false;
+            }
         },
     },
     computed: {
@@ -98,7 +138,15 @@ export default {
             <button class="btn btn-secondary w-100" type="button" v-on:click="editNews">
                 Редактировать
             </button>
-            <button class="btn btn-secondary w-100" type="button">Удалить</button>
+            <button
+                class="btn btn-secondary w-100"
+                type="button"
+                v-on:click="deleteNews"
+                :disabled="isDeleting"
+            >
+                <span v-if="isDeleting">Удаление...</span>
+                <span v-else>Удалить</span>
+            </button>
         </div>
     </div>
 </template>

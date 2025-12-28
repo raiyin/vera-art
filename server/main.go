@@ -736,6 +736,75 @@ func addNews(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "News saved successfully"})
 }
 
+func deleteNews(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// Begin transaction
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Get the news directory path before deleting the record
+	var dir string
+	query := "SELECT dir FROM news WHERE id = ?"
+	err = tx.QueryRow(query, id).Scan(&dir)
+	if err != nil {
+		tx.Rollback()
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Delete from news table
+	result, err := tx.Exec("DELETE FROM news WHERE id = ?", id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if any rows were affected
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	if rowsAffected == 0 {
+		tx.Rollback()
+		c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		return
+	}
+
+	// Commit the transaction
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete the directory and its contents
+	dirPath := config.AppConfigInstance.Directories.NewsDirSave + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.NewsDbDirPrefix, "", -1)
+	if _, err := os.Stat(dirPath); err == nil {
+		err := os.RemoveAll(dirPath)
+		if err != nil {
+			log.Printf("Error deleting directory %s: %v", dirPath, err)
+			// We don't return an error here because the database record was successfully deleted
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
+}
+
 func getMaterials(c *gin.Context) {
 
 	query := "select * from materials"
@@ -963,6 +1032,7 @@ func main() {
 	r_gin.POST("/sales", createSale)
 	r_gin.POST("/news", addNews)
 	r_gin.DELETE("/works/:str_id", authMiddleware(), deleteWork)
+	r_gin.DELETE("/news/:id", authMiddleware(), deleteNews)
 
 	defer db.Close()
 	if err := r_gin.Run("localhost:8000"); err != nil {

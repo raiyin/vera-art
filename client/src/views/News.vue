@@ -44,6 +44,9 @@ export default {
                 console.error('Error fetching news');
             }
         },
+        removeNews(id: string) {
+            this.news = this.news.filter((newsItem) => newsItem.id !== id);
+        },
     },
     mounted() {
         this.loadNews();
@@ -72,6 +75,7 @@ export default {
                 v-for="newsObject in news"
                 v-bind:key="newsObject.id"
                 :newsObject="newsObject"
+                @news-deleted="removeNews"
             />
         </div>
         <div ref="observer" class="observer"></div>
