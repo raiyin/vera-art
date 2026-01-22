@@ -40,7 +40,7 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return this.imagebasedir + this.currentNewsItem.dir + index + '.mp4';
+            return /*this.imagebasedir*/ +this.currentNewsItem.dir + index + '.mp4';
         },
 
         onImgLoaded() {
@@ -54,10 +54,14 @@ export default {
     },
     computed: {
         background() {
-            return (
-                this.imagebasedir +
-                this.currentNewsItem.dir +
+            console.log('this.currentNewsItem.dir', this.currentNewsItem.dir);
+            console.log(
+                'this.currentNewsItem.img_backfull',
                 this.currentNewsItem.img_backfull
+            );
+            return (
+                // this.imagebasedir +
+                this.currentNewsItem.dir + this.currentNewsItem.img_backfull
             );
         },
     },
@@ -166,7 +170,7 @@ img {
 }
 
 .news-text {
-    text-align: left;
+    text-align: justify;
     margin-bottom: 2rem;
     color: var(--color-on-surface);
 }

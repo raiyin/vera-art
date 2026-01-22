@@ -6,10 +6,8 @@ import type { NewsItemType } from '@/types';
 export default {
     setup() {
         const { t, locale } = useI18n({ useScope: 'global' });
-        const imagebasedir = inject('imagebasedir') as string;
         const players = ref([]);
         return {
-            imagebasedir,
             t,
             locale,
             players,
@@ -26,8 +24,8 @@ export default {
             return this.t('news.videoslide') + ' ' + index;
         },
 
-        makeVideoName(index: number, imagebasedir: string): string {
-            return imagebasedir + this.currentNewsItem.dir + index + '.mp4';
+        makeVideoName(index: number): string {
+            return this.currentNewsItem.dir + index + '.mp4';
         },
 
         setPause() {
@@ -88,10 +86,7 @@ export default {
                 :class="{ active: video_index === 1 }"
             >
                 <video class="img-fluid" controls>
-                    <source
-                        :src="makeVideoName(video_index, imagebasedir)"
-                        type="video/mp4"
-                    />
+                    <source :src="makeVideoName(video_index)" type="video/mp4" />
                     <p>
                         Sorry, there's a problem playing this video. Please try using a
                         different browser.

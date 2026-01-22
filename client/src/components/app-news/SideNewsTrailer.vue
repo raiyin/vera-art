@@ -18,7 +18,6 @@ export default {
     data() {
         return {
             isLoaded: false,
-            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
@@ -40,11 +39,7 @@ export default {
     },
     computed: {
         background() {
-            return (
-                this.imagebasedir +
-                this.sideNewsObject.dir +
-                this.sideNewsObject.img_backfull
-            );
+            return this.sideNewsObject.dir + this.sideNewsObject.img_backfull;
         },
     },
     mounted() {

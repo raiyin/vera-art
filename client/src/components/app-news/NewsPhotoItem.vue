@@ -2,13 +2,10 @@
 import ButtonClose from '@/components/app-ui/ButtonClose.vue';
 import type { PropType } from 'vue';
 import type { NewsItemType } from '@/types';
-import { inject } from 'vue';
 
 export default {
     setup() {
-        return {
-            imagebasedir: inject('imagebasedir') as string,
-        };
+        return {};
     },
     components: {
         ButtonClose,
@@ -36,7 +33,7 @@ export default {
             if (index === 0) {
                 console.error('Wrong image_index props');
             }
-            return `${this.imagebasedir}${this.currentNews?.dir}${index}.jpg`;
+            return `${this.currentNews?.dir}${index}.jpg`;
         },
         makeModalIdLink(index: number) {
             if (index === 0) {

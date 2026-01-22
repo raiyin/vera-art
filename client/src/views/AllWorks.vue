@@ -58,9 +58,9 @@ export default {
                 console.error('Error fetching 3d images on all works page ' + e);
             }
         },
-        handleWorkDeleted(str_id: string) {
+        handleWorkDeleted(id: string) {
             // Remove the deleted work from the works array
-            this.works = this.works.filter((work: any) => work.str_id !== str_id);
+            this.works = this.works.filter((work: any) => work.id !== id);
         },
     },
     mounted() {

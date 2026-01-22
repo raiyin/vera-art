@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -332,7 +333,7 @@ func addWork(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr, work_type) "+
+		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr, type) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
@@ -345,7 +346,7 @@ func addWork(c *gin.Context) {
 		strings.Replace(work.NameEn, " ", "_", -1),
 		work.ImgCount,
 		work.Descr,
-		work.WorkType)
+		work.Type)
 
 	if err != nil {
 		tx.Rollback()
@@ -466,9 +467,9 @@ func addWork(c *gin.Context) {
 }
 
 func deleteWork(c *gin.Context) {
-	str_id := c.Param("str_id")
-	if str_id == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "str_id is required"})
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
 
@@ -480,8 +481,8 @@ func deleteWork(c *gin.Context) {
 
 	// Get the work directory path before deleting the record
 	var dir string
-	query := "SELECT dir FROM works WHERE str_id = ?"
-	err = tx.QueryRow(query, str_id).Scan(&dir)
+	query := "SELECT dir FROM works WHERE id = ?"
+	err = tx.QueryRow(query, id).Scan(&dir)
 	if err != nil {
 		tx.Rollback()
 		if err == sql.ErrNoRows {
@@ -493,7 +494,7 @@ func deleteWork(c *gin.Context) {
 	}
 
 	// Delete from works_materials table
-	_, err = tx.Exec("DELETE FROM works_materials WHERE work_id IN (SELECT id FROM works WHERE str_id = ?)", str_id)
+	_, err = tx.Exec("DELETE FROM works_materials WHERE work_id IN (SELECT id FROM works WHERE id = ?)", id)
 	if err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -501,7 +502,7 @@ func deleteWork(c *gin.Context) {
 	}
 
 	// Delete from works table
-	result, err := tx.Exec("DELETE FROM works WHERE str_id = ?", str_id)
+	result, err := tx.Exec("DELETE FROM works WHERE id = ?", id)
 	if err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -976,6 +977,690 @@ func authMiddleware() gin.HandlerFunc {
 	}
 }
 
+func getWorkById(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// Get work data
+	query := `
+		SELECT w.*, b.base_ru, b.base_en
+		FROM works w
+		JOIN bases b ON w.base_id = b.id
+		WHERE w.id = ?
+	`
+
+	var work models.Work
+	err := db.QueryRow(query, id).Scan(
+		&work.Id, &work.Dir, &work.Width, &work.Height, &work.Year,
+		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
+		&work.ImgCount, &work.Descr, &work.Type, &work.BaseRu, &work.BaseEn,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Get materials for this work
+	materialsQuery := `
+		SELECT m.id, m.material_ru, m.material_en
+		FROM materials m
+		JOIN works_materials wm ON m.id = wm.material_id
+		WHERE wm.work_id = ?
+	`
+
+	materialRows, err := db.Query(materialsQuery, work.Id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer materialRows.Close()
+
+	var materialsIds []int
+	for materialRows.Next() {
+		var material models.Material
+		err := materialRows.Scan(&material.Id, &material.MaterialRu, &material.MaterialEn)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		materialsIds = append(materialsIds, material.Id)
+	}
+
+	work.MaterialsIds = materialsIds
+
+	c.JSON(http.StatusOK, work)
+}
+
+func getSaleById(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// Get sale data
+	query := `
+		SELECT s.*, b.base_ru, b.base_en
+		FROM sales s
+		JOIN bases b ON s.base_id = b.id
+		WHERE s.id = ?
+	`
+
+	var sale models.SaleWithBase
+	err := db.QueryRow(query, id).Scan(
+		&sale.Id, &sale.Dir, &sale.Width, &sale.Height, &sale.Year,
+		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
+		&sale.ImgCount, &sale.Descr, &sale.BaseRu, &sale.BaseEn,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "sale not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Get materials for this sale
+	materialsQuery := `
+		SELECT m.id, m.material_ru, m.material_en
+		FROM materials m
+		JOIN sale_materials sm ON m.id = sm.material_id
+		WHERE sm.sale_id = ?
+	`
+
+	materialRows, err := db.Query(materialsQuery, sale.Id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer materialRows.Close()
+
+	var materialsIds []int
+	for materialRows.Next() {
+		var material models.Material
+		err := materialRows.Scan(&material.Id, &material.MaterialRu, &material.MaterialEn)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		materialsIds = append(materialsIds, material.Id)
+	}
+
+	// Create a Sale struct with materials_ids
+	saleWithMaterials := struct {
+		models.SaleWithBase
+		MaterialsIds []int `json:"materials_ids"`
+	}{
+		SaleWithBase: sale,
+		MaterialsIds: materialsIds,
+	}
+
+	c.JSON(http.StatusOK, saleWithMaterials)
+}
+
+func getNewsById(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	query := "SELECT * FROM news WHERE id = ?"
+	var news models.News
+	err := db.QueryRow(query, id).Scan(
+		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn,
+		&news.SubtitleRu, &news.SubtitleEn, &news.Dir, &news.ImgBack,
+		&news.ImgBackfull, &news.ImagesCount, &news.VideosCount,
+		&news.TextRu, &news.TextEn)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, news)
+}
+
+// Update work by id
+func updateWork(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// 1. Get the JSON metadata from form field
+	dataJson := c.PostForm("data")
+	if dataJson == "" {
+		c.JSON(400, gin.H{"error": "data is required"})
+		return
+	}
+
+	// 2. Parse the JSON
+	var work models.Work
+	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
+		c.JSON(400, gin.H{"error": "invalid data format"})
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// 3. Either need to delete the old dir
+	// Get work data, if
+	query := `
+		SELECT dir, name_en
+		FROM works
+		WHERE id = ?
+	`
+
+	var work_for_dir models.Work
+	err := db.QueryRow(query, id).Scan(&work_for_dir.Dir, &work_for_dir.NameEn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	var needToDeleteOldDir = work_for_dir.Dir == work.Dir
+
+	// Begin transaction
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Update work record
+	_, err = tx.Exec(`
+		UPDATE works
+		SET dir = ?, width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
+			base_id = ?, str_id = ?, img_count = ?, descr = ?, type = ?
+		WHERE id = ?`,
+		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
+		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
+		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.ImgCount, work.Descr, work.Type, id)
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete existing material associations
+	_, err = tx.Exec("DELETE FROM works_materials WHERE work_id IN (SELECT id FROM works WHERE id = ?)", id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Insert new material associations
+	for _, material_id := range work.MaterialsIds {
+		// Get the work ID first
+		var workId int
+		err = tx.QueryRow("SELECT id FROM works WHERE id = ?", id).Scan(&workId)
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		_, err = tx.Exec(
+			"INSERT INTO works_materials (work_id, material_id) VALUES (?, ?)",
+			workId, material_id)
+
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	// Handle file uploads if any
+	form, err := c.MultipartForm()
+	if err != nil && err != http.ErrNotMultipart {
+		c.JSON(400, gin.H{"error": err.Error()})
+		tx.Rollback()
+		return
+	}
+
+	// Process directory and images
+	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work.NameEn, " ", "_", -1) + "/"
+	fmt.Printf("dirPath: %s\n", dirPath)
+
+	// Create directory if it doesn't exist
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0777)
+		if err != nil {
+			fmt.Printf("Error creating directory: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
+			tx.Rollback()
+			return
+		}
+		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
+	}
+
+	// Handle removed images if any
+	if len(work.RemovedIndices) > 0 {
+		// Remove specified images from directory
+		for _, index := range work.RemovedIndices {
+			imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
+			if _, err := os.Stat(imagePath); err == nil {
+				err := os.Remove(imagePath)
+				if err != nil {
+					fmt.Printf("Error removing file %s: %v\n", imagePath, err)
+				} else {
+					fmt.Printf("Removed file: %s\n", imagePath)
+				}
+			}
+		}
+
+		// Rename remaining files to fill gaps
+		// First, get all existing files and sort them
+		files, err := os.ReadDir(dirPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
+			tx.Rollback()
+			return
+		}
+
+		// Get list of remaining image numbers
+		var remainingNumbers []int
+		for _, file := range files {
+			if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+				if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+					// Check if this number is not in removed indices
+					isRemoved := false
+					for _, removedIndex := range work.RemovedIndices {
+						if num == removedIndex {
+							isRemoved = true
+							break
+						}
+					}
+					if !isRemoved {
+						remainingNumbers = append(remainingNumbers, num)
+					}
+				}
+			}
+		}
+
+		// Sort remaining numbers
+		sort.Ints(remainingNumbers)
+
+		// Rename files to be sequential starting from 1
+		for i, num := range remainingNumbers {
+			oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
+			newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
+			if oldPath != newPath {
+				err := os.Rename(oldPath, newPath)
+				if err != nil {
+					fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
+				} else {
+					fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
+				}
+			}
+		}
+	}
+
+	// Handle file uploads if any
+	if form != nil {
+		// Get all files from the form
+		files := form.File
+
+		// Determine the next available index for new files
+		nextIndex := 1
+		if len(work.RemovedIndices) == 0 {
+			// If no files were removed, next index is img_count + 1
+			// But we need to check existing files
+			if filesInDir, err := os.ReadDir(dirPath); err == nil {
+				for _, file := range filesInDir {
+					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+						if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+							if num >= nextIndex {
+								nextIndex = num + 1
+							}
+						}
+					}
+				}
+			}
+		} else {
+			// If files were removed, next index is the count of remaining files + 1
+			if filesInDir, err := os.ReadDir(dirPath); err == nil {
+				count := 0
+				for _, file := range filesInDir {
+					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+						count++
+					}
+				}
+				nextIndex = count + 1
+			}
+		}
+
+		// Save new images
+		for fieldName, fileHeaders := range files {
+			for index, fileHeader := range fileHeaders {
+				// Open the file
+				file, err := fileHeader.Open()
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer file.Close()
+
+				// Create a destination file
+				dst, err := os.Create(dirPath + strconv.Itoa(nextIndex+index) + filepath.Ext(fileHeader.Filename))
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+			}
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
+	}
+
+	if needToDeleteOldDir {
+		dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work_for_dir.NameEn, " ", "_", -1) + "/"
+		err = os.RemoveAll(dirPath)
+		fmt.Printf("Delete dir is: %v\n", dirPath)
+		if err != nil {
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Work updated successfully"})
+}
+
+// Update sale by id
+func updateSale(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// 1. Get the JSON metadata from form field
+	dataJson := c.PostForm("data")
+	if dataJson == "" {
+		c.JSON(400, gin.H{"error": "data is required"})
+		return
+	}
+
+	// 2. Parse the JSON
+	var sale models.Sale
+	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
+		c.JSON(400, gin.H{"error": "invalid data format"})
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// 3. Either need to delete the old dir
+	// Get sale data, if
+	query := `
+		SELECT dir, name_en
+		FROM sales
+		WHERE id = ?
+	`
+
+	var sale_for_dir models.Sale
+	err := db.QueryRow(query, id).Scan(&sale_for_dir.Dir, &sale_for_dir.NameEn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	var needToDeleteOldDir = sale_for_dir.Dir == sale.Dir
+
+	// Begin transaction
+	tx, err := db.Begin()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Update sale record
+	_, err = tx.Exec(`
+		UPDATE sales
+		SET dir = ?, width = ?, height = ?, year = ?, price = ?, name_ru = ?, name_en = ?,
+			base_id = ?, str_id = ?, img_count = ?, descr = ?
+		WHERE id = ?`,
+		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
+		sale.Width, sale.Height, sale.Year, sale.Price, sale.NameRu, sale.NameEn,
+		sale.BaseId, strings.Replace(sale.NameEn, " ", "_", -1), sale.ImgCount, sale.Descr, id)
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Delete existing material associations
+	_, err = tx.Exec("DELETE FROM sale_materials WHERE sale_id IN (SELECT id FROM sales WHERE id = ?)", id)
+	if err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Insert new material associations
+	for _, material_id := range sale.MaterialsIds {
+		// Get the sale ID first
+		var saleId int
+		err = tx.QueryRow("SELECT id FROM sales WHERE id = ?", id).Scan(&saleId)
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		_, err = tx.Exec(
+			"INSERT INTO sale_materials (sale_id, material_id) VALUES (?, ?)",
+			saleId, material_id)
+
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	// Handle file uploads if any
+	form, err := c.MultipartForm()
+	if err != nil && err != http.ErrNotMultipart {
+		c.JSON(400, gin.H{"error": err.Error()})
+		tx.Rollback()
+		return
+	}
+
+	// Process directory and images
+	dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
+	fmt.Printf("dirPath: %s\n", dirPath)
+
+	// Create directory if it doesn't exist
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		err := os.MkdirAll(dirPath, 0777)
+		if err != nil {
+			fmt.Printf("Error creating directory: %v\n", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
+			tx.Rollback()
+			return
+		}
+		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
+	}
+
+	// Handle removed images if any
+	if len(sale.RemovedIndices) > 0 {
+		// Remove specified images from directory
+		for _, index := range sale.RemovedIndices {
+			imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
+			if _, err := os.Stat(imagePath); err == nil {
+				err := os.Remove(imagePath)
+				if err != nil {
+					fmt.Printf("Error removing file %s: %v\n", imagePath, err)
+				} else {
+					fmt.Printf("Removed file: %s\n", imagePath)
+				}
+			}
+		}
+
+		// Rename remaining files to fill gaps
+		// First, get all existing files and sort them
+		files, err := os.ReadDir(dirPath)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
+			tx.Rollback()
+			return
+		}
+
+		// Get list of remaining image numbers
+		var remainingNumbers []int
+		for _, file := range files {
+			if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+				if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+					// Check if this number is not in removed indices
+					isRemoved := false
+					for _, removedIndex := range sale.RemovedIndices {
+						if num == removedIndex {
+							isRemoved = true
+							break
+						}
+					}
+					if !isRemoved {
+						remainingNumbers = append(remainingNumbers, num)
+					}
+				}
+			}
+		}
+
+		// Sort remaining numbers
+		sort.Ints(remainingNumbers)
+
+		// Rename files to be sequential starting from 1
+		for i, num := range remainingNumbers {
+			oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
+			newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
+			if oldPath != newPath {
+				err := os.Rename(oldPath, newPath)
+				if err != nil {
+					fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
+				} else {
+					fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
+				}
+			}
+		}
+	}
+
+	// Handle file uploads if any
+	if form != nil {
+		// Get all files from the form
+		files := form.File
+
+		// Determine the next available index for new files
+		nextIndex := 1
+		if len(sale.RemovedIndices) == 0 {
+			// If no files were removed, next index is img_count + 1
+			// But we need to check existing files
+			if filesInDir, err := os.ReadDir(dirPath); err == nil {
+				for _, file := range filesInDir {
+					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+						if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+							if num >= nextIndex {
+								nextIndex = num + 1
+							}
+						}
+					}
+				}
+			}
+		} else {
+			// If files were removed, next index is the count of remaining files + 1
+			if filesInDir, err := os.ReadDir(dirPath); err == nil {
+				count := 0
+				for _, file := range filesInDir {
+					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+						count++
+					}
+				}
+				nextIndex = count + 1
+			}
+		}
+
+		// Save new images
+		for fieldName, fileHeaders := range files {
+			for index, fileHeader := range fileHeaders {
+				// Open the file
+				file, err := fileHeader.Open()
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer file.Close()
+
+				// Create a destination file
+				dst, err := os.Create(dirPath + strconv.Itoa(nextIndex+index) + filepath.Ext(fileHeader.Filename))
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+			}
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		tx.Rollback()
+		log.Fatal(err)
+	}
+
+	if needToDeleteOldDir {
+		dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale_for_dir.NameEn, " ", "_", -1) + "/"
+		err = os.RemoveAll(dirPath)
+		fmt.Printf("Delete dir is: %v\n", dirPath)
+		if err != nil {
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Sale updated successfully"})
+}
+
 // func protected(c *gin.Context) {
 // 	claims, _ := c.Get("claims")
 // 	claimsObj, ok := claims.(*models.Claims)
@@ -1025,13 +1710,18 @@ func main() {
 
 	r_gin.GET("/sales", getSales)
 	r_gin.GET("/works", getWorks)
+	r_gin.GET("/works/:id", getWorkById)
 	r_gin.GET("/news", getNews)
+	r_gin.GET("/news/:id", getNewsById)
 	r_gin.GET("/materials", getMaterials)
 	r_gin.GET("/bases", getBases)
+	r_gin.GET("/sales/:id", getSaleById)
 	r_gin.POST("/works", addWork)
+	r_gin.PUT("/works/:id", authMiddleware(), updateWork)
 	r_gin.POST("/sales", createSale)
+	r_gin.PUT("/sales/:id", authMiddleware(), updateSale)
 	r_gin.POST("/news", addNews)
-	r_gin.DELETE("/works/:str_id", authMiddleware(), deleteWork)
+	r_gin.DELETE("/works/:id", authMiddleware(), deleteWork)
 	r_gin.DELETE("/news/:id", authMiddleware(), deleteNews)
 
 	defer db.Close()

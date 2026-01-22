@@ -44,13 +44,23 @@ export default {
             }, 1000);
         },
         edit() {
-            this.$router.push('/works/edit/' + this.imageObject.id + '/');
+            // Check if the item is a shop item (has price) or gallery item (has type)
+            if (this.imageObject.price && this.imageObject.price !== '') {
+                // Shop item - redirect to EditShopItemView
+                this.$router.push('/sales/edit/' + this.imageObject.id);
+            } else if (this.imageObject.type !== undefined) {
+                // Gallery item - redirect to EditGalleryItemView
+                this.$router.push('/works/edit/' + this.imageObject.id);
+            } else {
+                // Default to gallery item if neither condition is met
+                this.$router.push('/works/edit/' + this.imageObject.id);
+            }
         },
-        async onImageDelete(str_id: string) {
+        async onImageDelete(id: string) {
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(
-                    import.meta.env.VITE_SERVER_URL + 'works/' + str_id,
+                    import.meta.env.VITE_SERVER_URL + 'works/' + id,
                     {
                         method: 'DELETE',
                         headers: {
@@ -61,7 +71,7 @@ export default {
 
                 if (response.ok) {
                     // Emit event to parent component to update the list
-                    this.$emit('work-deleted', this.imageObject.str_id);
+                    this.$emit('work-deleted', this.imageObject.id);
                     // Close the modal
                     const modal = document.getElementById(this.imgIdToDeleteId);
                     if (modal) {
@@ -214,7 +224,7 @@ export default {
                         <button
                             type="button"
                             class="btn btn-danger"
-                            @click="onImageDelete(imageObject.str_id)"
+                            @click="onImageDelete(imageObject.id)"
                         >
                             Удалить
                         </button>

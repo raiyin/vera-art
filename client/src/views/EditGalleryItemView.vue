@@ -1,10 +1,8 @@
 <template>
-    <div class="add-work-container">
+    <div class="edit-work-container">
         <div class="header-section">
-            <h1 class="page-title">Добавить новую работу в галлерею</h1>
-            <p class="page-subtitle">
-                Заполните все обязательные поля, чтобы добавить новую работу
-            </p>
+            <h1 class="page-title">Редактировать работу в галерее</h1>
+            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
         </div>
 
         <!-- Загрузчик -->
@@ -19,7 +17,7 @@
                 <h2 class="section-title">Изображения работы</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >Выберите изображения <span class="required">*</span></label
+                        >Выберите новые изображения (опционально)</label
                     >
                     <div
                         class="file-drop-area"
@@ -36,7 +34,6 @@
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
                             ref="fileInput"
-                            required
                         />
                         <div class="file-drop-content">
                             <svg
@@ -303,15 +300,15 @@
                         v-model="work.type"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.work_type }"
-                        @blur="validateField('work_type')"
+                        :class="{ 'is-invalid': errors.type }"
+                        @blur="validateField('type')"
                     >
                         <option value="1" selected>Картина</option>
                         <option value="2">Иллюстрация</option>
                         <option value="3">3D</option>
                     </select>
-                    <div v-if="errors.work_type" class="error-message">
-                        {{ errors.work_type }}
+                    <div v-if="errors.type" class="error-message">
+                        {{ errors.type }}
                     </div>
                 </div>
             </div>
@@ -319,17 +316,17 @@
             <!-- Кнопки -->
             <div class="form-actions">
                 <button type="button" @click="resetForm" class="btn btn-secondary">
-                    Очистить форму
+                    Сбросить изменения
                 </button>
                 <button
                     type="submit"
                     class="btn btn-primary"
                     :disabled="isSubmitting || !isFormValid"
                 >
-                    <span v-if="!isSubmitting">Добавить работу</span>
+                    <span v-if="!isSubmitting">Сохранить изменения</span>
                     <span v-else>
                         <span class="spinner"></span>
-                        Отправка...
+                        Сохранение...
                     </span>
                 </button>
             </div>
@@ -340,7 +337,7 @@
             v-model="showSuccessAlert"
             type="success"
             title="Успешно!"
-            message="Работа успешно добавлена в галерею."
+            message="Работа успешно обновлена в галерее."
             closeButtonText="Закрыть"
         />
 
@@ -351,7 +348,7 @@
             title="Ошибка!"
             :message="
                 errorMessage ||
-                'Не удалось добавить работу в галерею. Пожалуйста, попробуйте снова.'
+                'Не удалось обновить работу в галерее. Пожалуйста, попробуйте снова.'
             "
             closeButtonText="Закрыть"
         />
@@ -363,27 +360,49 @@ import axios from 'axios';
 import { defineComponent } from 'vue';
 import { CreateWorkDto, Base, Material, RequestResult } from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
+
+interface Work extends CreateWorkDto {
+    id: number;
+    str_id: string;
+    dir: string;
+    base_ru: string;
+    base_en: string;
+    type: number;
+    removed_indices?: number[];
+}
+
 export default defineComponent({
-    name: 'AddWork',
+    name: 'EditGalleryItemView',
     components: {
         Alert,
     },
     data() {
         return {
             work: {
+                id: 0,
+                str_id: '',
+                dir: '',
                 width: 0,
                 height: 0,
                 year: new Date().getFullYear(),
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
+                base_ru: '',
+                base_en: '',
                 materials_ids: [] as number[],
                 img_count: 0,
                 descr: '',
                 type: 0,
-            } as CreateWorkDto,
+            } as Work,
             files: [] as File[],
-            previewImages: [] as { file: File; preview: string }[],
+            existingImageIndices: [] as number[], // Track indices of existing images
+            previewImages: [] as {
+                file?: File;
+                preview: string;
+                isExisting: boolean;
+                index?: number;
+            }[],
             isSubmitting: false,
             bases: [] as Base[],
             materials: [] as Material[],
@@ -403,16 +422,18 @@ export default defineComponent({
                 year: '',
                 base_id: '',
                 materials_ids: '',
-                work_type: '',
+                type: '',
             } as Record<string, string>,
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
+            originalWork: {} as Work,
         };
     },
     async created() {
         await this.loadBases();
         await this.loadMaterials();
+        await this.loadWork();
     },
     methods: {
         async loadBases() {
@@ -441,6 +462,39 @@ export default defineComponent({
                 this.showErrorAlert = true;
                 this.errorMessage =
                     'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+            }
+        },
+        async loadWork() {
+            try {
+                const id = this.$route.params.id;
+                const response = await axios.get(this.server + 'works/' + id);
+                this.work = response.data;
+                this.originalWork = { ...response.data };
+
+                // Load existing images as previews
+                this.loadPreviewImages();
+
+                this.isLoading = false;
+            } catch (error) {
+                console.error('Ошибка при загрузке работы:', error);
+                this.loadError = 'Не удалось загрузить работу';
+                this.isLoading = false;
+                this.showErrorAlert = true;
+                this.errorMessage =
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+            }
+        },
+        loadPreviewImages() {
+            this.previewImages = [];
+            this.existingImageIndices = [];
+            for (let i = 1; i <= this.work.img_count; i++) {
+                const imageUrl = `${this.work.dir}${i}.jpg`;
+                this.previewImages.push({
+                    preview: imageUrl,
+                    isExisting: true,
+                    index: i,
+                });
+                this.existingImageIndices.push(i);
             }
         },
         handleDragOver() {
@@ -506,14 +560,31 @@ export default defineComponent({
                     this.previewImages.push({
                         file,
                         preview: e.target?.result as string,
+                        isExisting: false,
                     });
                 };
                 reader.readAsDataURL(file);
             });
         },
         removeImage(index: number) {
+            const image = this.previewImages[index];
+
+            // If it's an existing image, remove it from existingImageIndices
+            if (image.isExisting && image.index !== undefined) {
+                const existingIndex = this.existingImageIndices.indexOf(image.index);
+                if (existingIndex !== -1) {
+                    this.existingImageIndices.splice(existingIndex, 1);
+                }
+            } else {
+                // If it's a new image, remove it from files array
+                const fileIndex = this.previewImages
+                    .slice(0, index)
+                    .filter((img) => !img.isExisting).length;
+                this.files.splice(fileIndex, 1);
+            }
+
+            // Remove from previewImages
             this.previewImages.splice(index, 1);
-            this.files.splice(index, 1);
         },
         validateField(fieldName: string) {
             switch (fieldName) {
@@ -571,11 +642,11 @@ export default defineComponent({
                         this.errors.materials_ids = '';
                     }
                     break;
-                case 'work_type':
-                    if (this.work.work_type < 0) {
-                        this.errors.work_type = 'Пожалуйста, выберите тип работы';
+                case 'type':
+                    if (this.work.type < 0) {
+                        this.errors.type = 'Пожалуйста, выберите тип работы';
                     } else {
-                        this.errors.work_type = '';
+                        this.errors.type = '';
                     }
                     break;
             }
@@ -588,13 +659,7 @@ export default defineComponent({
             this.validateField('year');
             this.validateField('base_id');
             this.validateField('materials_ids');
-            this.validateField('work_type');
-
-            // Проверка наличия изображений
-            if (this.files.length === 0) {
-                this.fileError = 'Пожалуйста, загрузите хотя бы одно изображение';
-                return false;
-            }
+            this.validateField('type');
 
             // Проверка отсутствия ошибок
             return Object.values(this.errors).every((error) => error === '');
@@ -613,33 +678,51 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
-                // Добавляем файлы
-                this.files.forEach((file) => {
-                    formData.append('images', file);
-                });
+                // Добавляем файлы, если есть
+                if (this.files.length > 0) {
+                    this.files.forEach((file) => {
+                        formData.append('images', file);
+                    });
+                }
+
+                // Добавляем информацию об удаленных существующих изображениях
+                const removedIndices = [];
+                for (let i = 1; i <= this.originalWork.img_count; i++) {
+                    if (!this.existingImageIndices.includes(i)) {
+                        removedIndices.push(i);
+                    }
+                }
 
                 // Добавляем остальные данные
                 const workData = {
                     ...this.work,
-                    img_count: this.previewImages.length,
+                    img_count: this.existingImageIndices.length + this.files.length,
+                    removed_indices: removedIndices, // Добавляем информацию об удаленных изображениях
                 };
-                workData.work_type = parseInt(workData.work_type);
+                workData.type = parseInt(workData.type as any);
 
                 formData.append('data', JSON.stringify(workData));
 
-                const response = await axios.post(this.server + 'works', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                const strId = this.$route.params.id;
+                const response = await axios.put(
+                    this.server + 'works/' + strId,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    }
+                );
 
                 if (response.status === 200) {
                     this.showSuccessAlert = true;
-                    this.resetForm();
+                    // Обновляем оригинальную работу
+                    this.originalWork = { ...this.work };
                 } else {
                     this.showErrorAlert = true;
                     this.errorMessage =
-                        'Не удалось добавить работу. Пожалуйста, попробуйте снова.';
+                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
@@ -652,27 +735,18 @@ export default defineComponent({
                         'Некорректные данные. Пожалуйста, проверьте введенные значения.';
                 } else {
                     this.errorMessage =
-                        'Произошла ошибка при добавлении работы. Пожалуйста, попробуйте снова.';
+                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 }
             } finally {
                 this.isSubmitting = false;
             }
         },
         resetForm() {
-            this.work = {
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                img_count: 0,
-                descr: '',
-                work_type: 0,
-            };
+            this.work = { ...this.originalWork };
             this.files = [];
             this.previewImages = [];
+            this.existingImageIndices = [];
+            this.loadPreviewImages();
             if (this.$refs.fileInput) {
                 (this.$refs.fileInput as HTMLInputElement).value = '';
             }
@@ -716,18 +790,17 @@ export default defineComponent({
                 this.work.year >= 2000 &&
                 this.work.year <= new Date().getFullYear() &&
                 this.work.base_id > 0 &&
-                (this.work.work_type < 3
+                (this.work.type < 3
                     ? this.work.materials_ids.length > 0
                     : this.work.materials_ids.length == 0) &&
-                this.files.length > 0 &&
-                this.work.work_type > 0
+                this.work.type > 0
             );
         },
         units(): 'см' | 'px' {
-            return this.work.work_type <= 1 ? 'см' : 'px';
+            return this.work.type <= 1 ? 'см' : 'px';
         },
         isMaterialsRequired() {
-            return this.work.work_type === '1' || this.work.work_type === '2';
+            return this.work.type === '1' || this.work.type === '2';
         },
     },
 });
@@ -738,7 +811,7 @@ select:has(option.placeholder:checked) {
     color: red;
 }
 
-.add-work-container {
+.edit-work-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
@@ -1117,7 +1190,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .add-work-container {
+    .edit-work-container {
         padding: 1rem;
     }
 

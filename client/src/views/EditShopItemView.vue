@@ -1,10 +1,8 @@
 <template>
-    <div class="add-work-container">
+    <div class="edit-sale-container">
         <div class="header-section">
-            <h1 class="page-title">Добавить новую работу в галлерею</h1>
-            <p class="page-subtitle">
-                Заполните все обязательные поля, чтобы добавить новую работу
-            </p>
+            <h1 class="page-title">Редактировать работу в магазине</h1>
+            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
         </div>
 
         <!-- Загрузчик -->
@@ -13,13 +11,13 @@
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="work-form">
+        <form v-else @submit.prevent="submitForm" class="sale-form">
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
                 <h2 class="section-title">Изображения работы</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >Выберите изображения <span class="required">*</span></label
+                        >Выберите новые изображения (опционально)</label
                     >
                     <div
                         class="file-drop-area"
@@ -36,7 +34,6 @@
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
                             ref="fileInput"
-                            required
                         />
                         <div class="file-drop-content">
                             <svg
@@ -103,7 +100,7 @@
                     >
                     <input
                         type="text"
-                        v-model="work.name_ru"
+                        v-model="sale.name_ru"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_ru }"
@@ -122,7 +119,7 @@
                     >
                     <input
                         type="text"
-                        v-model="work.name_en"
+                        v-model="sale.name_en"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_en }"
@@ -137,13 +134,13 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        Размеры ({{ units }}) <span class="required">*</span>
+                        Размеры (см) <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <input
                                 type="number"
-                                v-model.number="work.width"
+                                v-model.number="sale.width"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -159,7 +156,7 @@
                         <div class="size-input-wrapper">
                             <input
                                 type="number"
-                                v-model.number="work.height"
+                                v-model.number="sale.height"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -181,7 +178,7 @@
                     >
                     <input
                         type="number"
-                        v-model.number="work.year"
+                        v-model.number="sale.year"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
@@ -192,6 +189,24 @@
                     />
                     <div v-if="errors.year" class="error-message">
                         {{ errors.year }}
+                    </div>
+                </div>
+
+                <!-- Цена -->
+                <div class="form-group">
+                    <label class="form-label">Цена <span class="required">*</span></label>
+                    <input
+                        type="number"
+                        v-model.number="sale.price"
+                        required
+                        min="1"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.price }"
+                        placeholder="Например: 1000"
+                        @blur="validateField('price')"
+                    />
+                    <div v-if="errors.price" class="error-message">
+                        {{ errors.price }}
                     </div>
                 </div>
             </div>
@@ -206,7 +221,7 @@
                         >Основа <span class="required">*</span></label
                     >
                     <select
-                        v-model="work.base_id"
+                        v-model="sale.base_id"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
@@ -229,10 +244,7 @@
                 <!-- Материал -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Материалы
-                        <span class="required">{{
-                            isMaterialsRequired ? '*' : ''
-                        }}</span></label
+                        >Материалы <span class="required">*</span></label
                     >
                     <div class="multi-select-wrapper">
                         <div
@@ -258,7 +270,7 @@
                                     type="checkbox"
                                     :id="'material-' + material.id"
                                     :value="material.id"
-                                    v-model="work.materials_ids"
+                                    v-model="sale.materials_ids"
                                 />
                                 <label :for="'material-' + material.id">
                                     {{
@@ -282,54 +294,30 @@
                 <div class="form-group">
                     <label class="form-label">Описание</label>
                     <textarea
-                        v-model="work.descr"
+                        v-model="sale.descr"
                         class="form-control textarea"
                         placeholder="Краткое описание картины"
                         rows="4"
                         maxlength="500"
                     ></textarea>
-                    <div class="char-count">{{ work.descr.length }}/500</div>
-                </div>
-            </div>
-
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">Тип работы</h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >Тип работы <span class="required">*</span></label
-                    >
-                    <select
-                        v-model="work.type"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.work_type }"
-                        @blur="validateField('work_type')"
-                    >
-                        <option value="1" selected>Картина</option>
-                        <option value="2">Иллюстрация</option>
-                        <option value="3">3D</option>
-                    </select>
-                    <div v-if="errors.work_type" class="error-message">
-                        {{ errors.work_type }}
-                    </div>
+                    <div class="char-count">{{ sale.descr.length }}/500</div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
                 <button type="button" @click="resetForm" class="btn btn-secondary">
-                    Очистить форму
+                    Сбросить изменения
                 </button>
                 <button
                     type="submit"
                     class="btn btn-primary"
                     :disabled="isSubmitting || !isFormValid"
                 >
-                    <span v-if="!isSubmitting">Добавить работу</span>
+                    <span v-if="!isSubmitting">Сохранить изменения</span>
                     <span v-else>
                         <span class="spinner"></span>
-                        Отправка...
+                        Сохранение...
                     </span>
                 </button>
             </div>
@@ -340,7 +328,7 @@
             v-model="showSuccessAlert"
             type="success"
             title="Успешно!"
-            message="Работа успешно добавлена в галерею."
+            message="Работа успешно обновлена в магазине."
             closeButtonText="Закрыть"
         />
 
@@ -351,7 +339,7 @@
             title="Ошибка!"
             :message="
                 errorMessage ||
-                'Не удалось добавить работу в галерею. Пожалуйста, попробуйте снова.'
+                'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
             "
             closeButtonText="Закрыть"
         />
@@ -361,29 +349,40 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { CreateWorkDto, Base, Material, RequestResult } from '@/types';
+import { AddSaleDto, Sale, Base, Material, RequestResult } from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
+
+interface SaleWithId extends AddSaleDto {
+    id: number;
+    dir: string;
+    str_id: string;
+}
+
 export default defineComponent({
-    name: 'AddWork',
+    name: 'EditSale',
     components: {
         Alert,
     },
     data() {
         return {
-            work: {
+            sale: {
+                id: 0,
+                dir: '',
+                str_id: '',
                 width: 0,
                 height: 0,
                 year: new Date().getFullYear(),
+                price: 0,
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
                 materials_ids: [] as number[],
                 img_count: 0,
                 descr: '',
-                type: 0,
-            } as CreateWorkDto,
+            } as SaleWithId,
             files: [] as File[],
-            previewImages: [] as { file: File; preview: string }[],
+            removedIndices: [] as number[],
+            previewImages: [] as { file?: File; preview: string }[],
             isSubmitting: false,
             bases: [] as Base[],
             materials: [] as Material[],
@@ -401,18 +400,20 @@ export default defineComponent({
                 width: '',
                 height: '',
                 year: '',
+                price: '',
                 base_id: '',
                 materials_ids: '',
-                work_type: '',
             } as Record<string, string>,
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
+            originalSale: {} as SaleWithId,
         };
     },
     async created() {
         await this.loadBases();
         await this.loadMaterials();
+        await this.loadSale();
     },
     methods: {
         async loadBases() {
@@ -443,6 +444,33 @@ export default defineComponent({
                     'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
             }
         },
+        async loadSale() {
+            try {
+                const id = this.$route.params.id;
+                const response = await axios.get(this.server + 'sales/' + id);
+                this.sale = response.data;
+                this.originalSale = { ...response.data };
+
+                // Load existing images as previews
+                this.loadPreviewImages();
+
+                this.isLoading = false;
+            } catch (error) {
+                console.error('Ошибка при загрузке работы:', error);
+                this.loadError = 'Не удалось загрузить работу';
+                this.isLoading = false;
+                this.showErrorAlert = true;
+                this.errorMessage =
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+            }
+        },
+        loadPreviewImages() {
+            this.previewImages = [];
+            for (let i = 1; i <= this.sale.img_count; i++) {
+                const imageUrl = `${this.sale.dir}${i}.jpg`;
+                this.previewImages.push({ preview: imageUrl });
+            }
+        },
         handleDragOver() {
             this.isDragOver = true;
         },
@@ -470,7 +498,7 @@ export default defineComponent({
             this.fileError = null;
 
             // Проверка на количество файлов
-            if (this.files.length + selectedFiles.length > 10) {
+            if (this.previewImages.length + selectedFiles.length > 10) {
                 this.fileError = 'Можно загрузить не более 10 изображений';
                 return;
             }
@@ -512,20 +540,41 @@ export default defineComponent({
             });
         },
         removeImage(index: number) {
+            const image = this.previewImages[index];
+
+            // If this is an existing image (not a new one), add its index to removedIndices
+            if (!image.file) {
+                // This is an existing image, track its index for removal
+                // We need to find the original index in the existing images
+                let existingImageIndex = 0;
+                for (let i = 0; i < index; i++) {
+                    if (!this.previewImages[i].file) {
+                        existingImageIndex++;
+                    }
+                }
+                this.removedIndices.push(existingImageIndex + 1); // 1-based index
+            } else {
+                // This is a new image, remove it from files array
+                const fileIndex = this.files.indexOf(image.file);
+                if (fileIndex > -1) {
+                    this.files.splice(fileIndex, 1);
+                }
+            }
+
+            // Remove from previewImages
             this.previewImages.splice(index, 1);
-            this.files.splice(index, 1);
         },
         validateField(fieldName: string) {
             switch (fieldName) {
                 case 'name_ru':
-                    if (!this.work.name_ru.trim()) {
+                    if (!this.sale.name_ru.trim()) {
                         this.errors.name_ru = 'Пожалуйста, введите название на русском';
                     } else {
                         this.errors.name_ru = '';
                     }
                     break;
                 case 'name_en':
-                    if (!this.work.name_en.trim()) {
+                    if (!this.sale.name_en.trim()) {
                         this.errors.name_en =
                             'Пожалуйста, введите название на английском';
                     } else {
@@ -533,14 +582,14 @@ export default defineComponent({
                     }
                     break;
                 case 'width':
-                    if (this.work.width <= 0) {
+                    if (this.sale.width <= 0) {
                         this.errors.width = 'Ширина должна быть больше 0';
                     } else {
                         this.errors.width = '';
                     }
                     break;
                 case 'height':
-                    if (this.work.height <= 0) {
+                    if (this.sale.height <= 0) {
                         this.errors.height = 'Высота должна быть больше 0';
                     } else {
                         this.errors.height = '';
@@ -548,34 +597,34 @@ export default defineComponent({
                     break;
                 case 'year':
                     if (
-                        this.work.year < 2000 ||
-                        this.work.year > new Date().getFullYear()
+                        this.sale.year < 2000 ||
+                        this.sale.year > new Date().getFullYear()
                     ) {
                         this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
                     } else {
                         this.errors.year = '';
                     }
                     break;
+                case 'price':
+                    if (this.sale.price <= 0) {
+                        this.errors.price = 'Цена должна быть больше 0';
+                    } else {
+                        this.errors.price = '';
+                    }
+                    break;
                 case 'base_id':
-                    if (this.work.base_id <= 0) {
+                    if (this.sale.base_id <= 0) {
                         this.errors.base_id = 'Пожалуйста, выберите основу';
                     } else {
                         this.errors.base_id = '';
                     }
                     break;
                 case 'materials_ids':
-                    if (this.work.materials_ids.length === 0) {
+                    if (this.sale.materials_ids.length === 0) {
                         this.errors.materials_ids =
                             'Пожалуйста, выберите хотя бы один материал';
                     } else {
                         this.errors.materials_ids = '';
-                    }
-                    break;
-                case 'work_type':
-                    if (this.work.work_type < 0) {
-                        this.errors.work_type = 'Пожалуйста, выберите тип работы';
-                    } else {
-                        this.errors.work_type = '';
                     }
                     break;
             }
@@ -586,15 +635,9 @@ export default defineComponent({
             this.validateField('width');
             this.validateField('height');
             this.validateField('year');
+            this.validateField('price');
             this.validateField('base_id');
             this.validateField('materials_ids');
-            this.validateField('work_type');
-
-            // Проверка наличия изображений
-            if (this.files.length === 0) {
-                this.fileError = 'Пожалуйста, загрузите хотя бы одно изображение';
-                return false;
-            }
 
             // Проверка отсутствия ошибок
             return Object.values(this.errors).every((error) => error === '');
@@ -613,33 +656,45 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
-                // Добавляем файлы
-                this.files.forEach((file) => {
-                    formData.append('images', file);
-                });
+                // Добавляем файлы, если есть
+                if (this.files.length > 0) {
+                    this.files.forEach((file) => {
+                        formData.append('images', file);
+                    });
+                }
 
                 // Добавляем остальные данные
-                const workData = {
-                    ...this.work,
-                    img_count: this.previewImages.length,
+                const saleData = {
+                    ...this.sale,
+                    img_count:
+                        this.sale.img_count -
+                        this.removedIndices.length +
+                        this.files.length,
+                    removed_indices: this.removedIndices,
                 };
-                workData.work_type = parseInt(workData.work_type);
 
-                formData.append('data', JSON.stringify(workData));
+                formData.append('data', JSON.stringify(saleData));
 
-                const response = await axios.post(this.server + 'works', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
+                const strId = this.$route.params.id;
+                const response = await axios.put(
+                    this.server + 'sales/' + strId,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        },
+                    }
+                );
 
                 if (response.status === 200) {
                     this.showSuccessAlert = true;
-                    this.resetForm();
+                    // Обновляем оригинальную работу
+                    this.originalSale = { ...this.sale };
                 } else {
                     this.showErrorAlert = true;
                     this.errorMessage =
-                        'Не удалось добавить работу. Пожалуйста, попробуйте снова.';
+                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
@@ -652,27 +707,18 @@ export default defineComponent({
                         'Некорректные данные. Пожалуйста, проверьте введенные значения.';
                 } else {
                     this.errorMessage =
-                        'Произошла ошибка при добавлении работы. Пожалуйста, попробуйте снова.';
+                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 }
             } finally {
                 this.isSubmitting = false;
             }
         },
         resetForm() {
-            this.work = {
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                img_count: 0,
-                descr: '',
-                work_type: 0,
-            };
+            this.sale = { ...this.originalSale };
             this.files = [];
+            this.removedIndices = [];
             this.previewImages = [];
+            this.loadPreviewImages();
             if (this.$refs.fileInput) {
                 (this.$refs.fileInput as HTMLInputElement).value = '';
             }
@@ -697,9 +743,9 @@ export default defineComponent({
     },
     computed: {
         selectedMaterialsDisplay() {
-            if (this.work.materials_ids.length === 0) return '';
+            if (this.sale.materials_ids.length === 0) return '';
             const selectedNames = this.materials
-                .filter((material) => this.work.materials_ids.includes(material.id))
+                .filter((material) => this.sale.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'RUS'
                         ? material.material_ru
@@ -709,25 +755,16 @@ export default defineComponent({
         },
         isFormValid() {
             return (
-                this.work.name_ru.trim() !== '' &&
-                this.work.name_en.trim() !== '' &&
-                this.work.width > 0 &&
-                this.work.height > 0 &&
-                this.work.year >= 2000 &&
-                this.work.year <= new Date().getFullYear() &&
-                this.work.base_id > 0 &&
-                (this.work.work_type < 3
-                    ? this.work.materials_ids.length > 0
-                    : this.work.materials_ids.length == 0) &&
-                this.files.length > 0 &&
-                this.work.work_type > 0
+                this.sale.name_ru.trim() !== '' &&
+                this.sale.name_en.trim() !== '' &&
+                this.sale.width > 0 &&
+                this.sale.height > 0 &&
+                this.sale.year >= 2000 &&
+                this.sale.year <= new Date().getFullYear() &&
+                this.sale.price > 0 &&
+                this.sale.base_id > 0 &&
+                this.sale.materials_ids.length > 0
             );
-        },
-        units(): 'см' | 'px' {
-            return this.work.work_type <= 1 ? 'см' : 'px';
-        },
-        isMaterialsRequired() {
-            return this.work.work_type === '1' || this.work.work_type === '2';
         },
     },
 });
@@ -738,7 +775,7 @@ select:has(option.placeholder:checked) {
     color: red;
 }
 
-.add-work-container {
+.edit-sale-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 1rem;
@@ -759,12 +796,12 @@ select:has(option.placeholder:checked) {
 }
 
 .page-subtitle {
-    color: #333;
+    color: #666;
     font-size: 1rem;
     margin: 0;
 }
 
-.work-form {
+.sale-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -1117,7 +1154,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .add-work-container {
+    .edit-sale-container {
         padding: 1rem;
     }
 

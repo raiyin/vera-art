@@ -40,23 +40,6 @@ export default {
 
 <template>
     <section class="container text-center main-content px-0">
-        <div class="work-types-selector mb-4">
-            <h3 class="selector-title">Выберите тип работы</h3>
-            <div class="selector-container">
-                <select
-                    id="work-type-select"
-                    name="work-type-choice"
-                    class="form-control work-type-dropdown drop-down-arrow"
-                    v-model="selectedWorkType"
-                >
-                    <option value="all">Все работы</option>
-                    <option value="1">Картины</option>
-                    <option value="2">Иллюстрации</option>
-                    <option value="3">3D работы</option>
-                </select>
-            </div>
-        </div>
-
         <div class="row">
             <Card
                 v-for="imgObject in filteredImages"

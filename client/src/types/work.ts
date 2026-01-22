@@ -8,5 +8,6 @@ export interface CreateWorkDto {
     materials_ids: number[];
     img_count: number;
     descr: string;
-    work_type: number;
+    type: number;
+    removed_indices?: number[];
 }

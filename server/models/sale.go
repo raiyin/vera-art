@@ -18,6 +18,7 @@ type Sale struct {
 	ImgCount     int    `json:"img_count"`
 	Descr        string `json:"descr"`
 	MaterialsIds []int  `json:"materials_ids"`
+	RemovedIndices []int `json:"removed_indices,omitempty"`
 }
 
 type SaleWithBase struct {

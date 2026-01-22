@@ -9,8 +9,8 @@ type News struct {
 	Datetime    string `json:"datetime"`
 	TitleRu     string `json:"title_ru"`
 	TitleEn     string `json:"title_en"`
-	SubtitleRu  string `json:"subtitle_ru"`
-	SubtitleEn  string `json:"subtitle_en"`
+	SubtitleRu  string `json:"subTitle_ru"`
+	SubtitleEn  string `json:"subTitle_en"`
 	Dir         string `json:"dir"`
 	ImgBack     string `json:"img_back"`
 	ImgBackfull string `json:"img_backfull"`

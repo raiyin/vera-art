@@ -87,6 +87,24 @@ const router = createRouter({
             name: 'add_news',
             component: () => import('@/views/AddNewsView.vue'),
             meta: { requiresAuth: true }
+        },
+        {
+            path: '/works/edit/:id',
+            name: 'edit-gallery-item',
+            component: () => import('@/views/EditGalleryItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/sales/edit/:id',
+            name: 'edit-shop-item',
+            component: () => import('@/views/EditShopItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/news/edit/:id',
+            name: 'edit-news',
+            component: () => import('@/views/EditNewsView.vue'),
+            meta: { requiresAuth: true }
         }
     ],
 });

@@ -19,6 +19,6 @@ type Work struct {
 	Width        int    `json:"width"`
 	Height       int    `json:"height"`
 	Type         int    `json:"type"`
-	WorkType     int    `json:"work_type"`
 	MaterialsIds []int  `json:"materials_ids"`
+	RemovedIndices []int `json:"removed_indices,omitempty"`
 }
