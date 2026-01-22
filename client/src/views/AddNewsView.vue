@@ -488,6 +488,7 @@ export default defineComponent({
             this.images = [];
             this.videos = [];
             this.previewImages = [];
+            this.previewVideos = [];
             this.img_back_preview = null;
             this.img_backfull_preview = null;
             // Сброс input файлов
