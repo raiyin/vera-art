@@ -1,0 +1,14 @@
+# Image Storage Settings
+app:
+  name: "Vera Art"
+  port: 8000
+
+  # Directory where images will be stored
+directories:
+  works_dir_save: "../client/content/works/"
+  works_db_dir_prefix: "/content/works/"
+  sale_dir_save: "../client/content/sales/"
+  sale_db_dir_prefix: "/content/sale/"
+  news_dir_save: "../client/content/news/"
+  news_db_dir_prefix: "/content/news/"
+  news: "../client/src/assets/images/news/"

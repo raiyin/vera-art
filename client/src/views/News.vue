@@ -1,5 +1,5 @@
 <script lang="ts">
-import NewsTrailer from '@/components/News/NewsTrailer.vue';
+import NewsTrailer from '@/components/app-news/NewsTrailer.vue';
 import type { NewsDesc } from '@/types';
 import axios from 'axios';
 
@@ -44,6 +44,9 @@ export default {
                 console.error('Error fetching news');
             }
         },
+        removeNews(id: string) {
+            this.news = this.news.filter((newsItem) => newsItem.id !== id);
+        },
     },
     mounted() {
         this.loadNews();
@@ -58,7 +61,7 @@ export default {
         };
         const observer: IntersectionObserver = new IntersectionObserver(
             callback,
-            options,
+            options
         );
         observer.observe(this.$refs.observer as Element);
     },
@@ -68,13 +71,12 @@ export default {
 <template>
     <section class="container text-center main-content container__news">
         <div class="row row__news">
-            <div
-                class="col d-flex justify-content-center mb-5"
+            <NewsTrailer
                 v-for="newsObject in news"
                 v-bind:key="newsObject.id"
-            >
-                <NewsTrailer :newsObject="newsObject" />
-            </div>
+                :newsObject="newsObject"
+                @news-deleted="removeNews"
+            />
         </div>
         <div ref="observer" class="observer"></div>
     </section>
@@ -89,6 +91,7 @@ export default {
     height: 0px;
 }
 .row__news {
-    justify-content: space-between;
+    justify-content: center;
+    gap: 1rem;
 }
 </style>

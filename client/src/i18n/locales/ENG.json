@@ -66,5 +66,26 @@
     },
     "theme": {
         "title": "Change the color theme"
+    },
+    "auth":{
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "username": "Username",
+        "password": "Password",
+        "remember": "Remember me",
+        "forgot": "Forgot password?",
+        "email": "Email",
+        "confirmPassword": "Confirm password",
+        "haveAccount": "Already have an account?",
+        "noAccount": "Don't have an account?",
+        "registerNow": "Register now"
+    },
+    "admin": {
+        "link": "Admin",
+        "title": "admin dashboard",
+        "add_news": "add news",
+        "add_work_to_shop": "add shop item",
+        "add_work_to_gallery": "add gallery item"
     }
 }

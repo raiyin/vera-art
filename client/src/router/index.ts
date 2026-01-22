@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../stores/AuthStore';
 
 // import Home from '@/views/Home.vue';
 import Shop from '@/views/Shop.vue';
@@ -6,7 +7,7 @@ import AllWorks from '@/views/AllWorks.vue';
 import News from '@/views/News.vue';
 import PayDelivery from '@/views/PayDeliver.vue';
 import Services from '@/views/Services.vue';
-import NewsItem from '@/components/News/NewsItem.vue';
+import NewsItem from '@/components/app-news/NewsItem.vue';
 import NotFound from '@/views/NotFound.vue';
 
 const router = createRouter({
@@ -46,14 +47,80 @@ const router = createRouter({
         {
             path: '/news/:id',
             name: 'newsitem',
-            component: () => import('@/components/News/NewsItem.vue'),
+            component: () => import('@/components/app-news/NewsItem.vue'),
         },
         {
             path: '/:pathMatch(.*)*',
             name: 'notfound',
             component: () => import('@/views/NotFound.vue'),
         },
+        {
+            path: '/login',
+            name: 'login',
+            component: () => import('@/views/Login.vue'),
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: () => import('@/views/Register.vue'),
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            component: () => import('@/views/AdminView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-gallery-item',
+            name: 'add_gallery_item',
+            component: () => import('@/views/AddGalleryItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-shop-item',
+            name: 'add_shop_item',
+            component: () => import('@/views/AddShopItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/add-news',
+            name: 'add_news',
+            component: () => import('@/views/AddNewsView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/works/edit/:id',
+            name: 'edit-gallery-item',
+            component: () => import('@/views/EditGalleryItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/sales/edit/:id',
+            name: 'edit-shop-item',
+            component: () => import('@/views/EditShopItemView.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            path: '/news/edit/:id',
+            name: 'edit-news',
+            component: () => import('@/views/EditNewsView.vue'),
+            meta: { requiresAuth: true }
+        }
     ],
+});
+
+// Navigation guard for authentication
+router.beforeEach((to, from, next) => {
+    const authStore = useAuthStore();
+    const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+    if (requiresAuth && !authStore.isAuthenticated) {
+        next('/login');
+    } else if (to.name === 'login' && authStore.isAuthenticated) {
+        next('/admin');
+    } else {
+        next();
+    }
 });
 
 export default router;

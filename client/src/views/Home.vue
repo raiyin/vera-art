@@ -4,11 +4,7 @@ export default {};
 
 <template>
     <div class="ava-wrapper">
-        <img
-            src="../assets/img/home/img_parallax.jpg"
-            alt="Pertsukova"
-            class="bgimg-1"
-        />
+        <img src="../assets/images/img_parallax.webp" alt="Pertsukova" class="bgimg-1" />
     </div>
 
     <div class="bigblock">
@@ -96,17 +92,17 @@ export default {};
 }
 
 .bgimg-2 {
-    background-image: url('../assets/img/home/img_parallax2.jpg');
+    background-image: url('../assets/images/img_parallax2.webp');
     min-height: 60rem;
 }
 
 .bgimg-3 {
-    background-image: url('../assets/img/home/img_parallax3.jpg');
+    background-image: url('../assets/images/img_parallax3.webp');
     min-height: 60rem;
 }
 
 .bgimg-4 {
-    background-image: url('../assets/img/home/img_parallax.jpg');
+    background-image: url('../assets/images/img_parallax.webp');
     display: block;
     min-height: 80vh;
     height: auto;
@@ -160,9 +156,7 @@ export default {};
 h3 {
     letter-spacing: 0.5rem;
     text-transform: uppercase;
-    font:
-        2rem 'Lato',
-        sans-serif;
+    font: 2rem 'Lato', sans-serif;
 }
 
 /* Отключение параллаксной прокрутки для планшетов и телефонов */
