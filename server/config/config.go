@@ -19,7 +19,6 @@ type DirectoriesConfig struct {
 	SaleDbDirPrefix  string `mapstructure:"sale_db_dir_prefix"`
 	NewsDirSave      string `mapstructure:"news_dir_save"`
 	NewsDbDirPrefix  string `mapstructure:"news_db_dir_prefix"`
-	News             string `mapstructure:"news"`
 }
 
 type Config struct {

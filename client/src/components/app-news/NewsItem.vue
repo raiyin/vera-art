@@ -2,7 +2,7 @@
 import SideNewsTrailer from '@/components/app-news/SideNewsTrailer.vue';
 import NewsItemDescription from '@/components/app-news/NewsItemDescription.vue';
 import { inject } from 'vue';
-import type { NewsItemType } from '@/types';
+import type { NewsDesc } from '@/types';
 import { fetchCurrentNews, fetchOtherNews } from '@/api/requests';
 import PhotoSection from '@/components/app-news/PhotoSection.vue';
 import SideNewsTrailerSkeleton from '../app-skeletons/SideNewsTrailerSkeleton.vue';
@@ -29,8 +29,8 @@ export default {
     },
     data() {
         return {
-            currentNewsItem: {} as NewsItemType,
-            otherNews: [] as NewsItemType[],
+            currentNewsItem: {} as NewsDesc,
+            otherNews: [] as NewsDesc[],
             isImgLoaded: false,
         };
     },
@@ -40,7 +40,7 @@ export default {
         },
 
         makeVideoName(index: number) {
-            return /*this.imagebasedir*/ +this.currentNewsItem.dir + index + '.mp4';
+            return +this.currentNewsItem.dir + index + '.mp4';
         },
 
         onImgLoaded() {
@@ -59,10 +59,7 @@ export default {
                 'this.currentNewsItem.img_backfull',
                 this.currentNewsItem.img_backfull
             );
-            return (
-                // this.imagebasedir +
-                this.currentNewsItem.dir + this.currentNewsItem.img_backfull
-            );
+            return this.currentNewsItem.dir + this.currentNewsItem.img_backfull;
         },
     },
 };

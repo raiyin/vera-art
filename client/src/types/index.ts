@@ -1,4 +1,3 @@
-export type { NewsItemType } from './news-item-type';
 export type { NewsDesc } from './news-desc';
 export type { NewsDescDto } from './news-desc';
 export type { Material } from './material';

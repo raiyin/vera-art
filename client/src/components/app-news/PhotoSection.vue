@@ -1,7 +1,7 @@
 <script lang="ts">
 import NewsPhotoItem from '@/components/app-news/NewsPhotoItem.vue';
 import { PropType } from 'vue';
-import type { NewsItemType } from '@/types';
+import type { NewsDesc } from '@/types';
 import ModalDialog from '../app-ui/ModalDialog.vue';
 import NewsCarousel from './NewsCarousel.vue';
 
@@ -13,8 +13,8 @@ export default {
     },
     props: {
         currentNewsItem: {
-            type: Object as PropType<NewsItemType>,
-            default: {} as NewsItemType,
+            type: Object as PropType<NewsDesc>,
+            default: {} as NewsDesc,
         },
     },
     data() {
@@ -34,38 +34,42 @@ export default {
     <section class="container text-center main-content">
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 1" :key="image_index">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            @click="setSelectedIndex(image_index)"
-                        />
-                    </template>
+                <!-- Renders 1 to length -->
+                <template v-for="image_index in currentNewsItem.images.length">
+                    <NewsPhotoItem
+                        v-if="image_index % 3 == 1"
+                        :key="image_index"
+                        :image_index="image_index"
+                        :currentNews="currentNewsItem"
+                        :fileName="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index)"
+                    />
                 </template>
             </div>
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 2" :key="image_index">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            @click="setSelectedIndex(image_index)"
-                        />
-                    </template>
+                <template v-for="image_index in currentNewsItem.images.length">
+                    <NewsPhotoItem
+                        v-if="image_index % 3 == 2"
+                        :key="image_index"
+                        :image_index="image_index"
+                        :currentNews="currentNewsItem"
+                        :fileName="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index)"
+                    />
                 </template>
             </div>
 
             <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
-                <template v-for="image_index in currentNewsItem.imagescount">
-                    <template v-if="image_index % 3 == 0" :key="image_index">
-                        <NewsPhotoItem
-                            :image_index="image_index"
-                            :currentNews="currentNewsItem"
-                            @click="setSelectedIndex(image_index)"
-                        />
-                    </template>
+                <template v-for="image_index in currentNewsItem.images.length">
+                    <NewsPhotoItem
+                        v-if="image_index % 3 == 0"
+                        :key="image_index"
+                        :image_index="image_index"
+                        :currentNews="currentNewsItem"
+                        :fileName="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index)"
+                    />
                 </template>
             </div>
 

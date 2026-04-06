@@ -1,7 +1,7 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
 import { inject, PropType, ref } from 'vue';
-import type { NewsItemType } from '@/types';
+import type { NewsDesc } from '@/types';
 
 export default {
     setup() {
@@ -15,8 +15,8 @@ export default {
     },
     props: {
         currentNewsItem: {
-            type: Object as PropType<NewsItemType>,
-            default: {} as NewsItemType,
+            type: Object as PropType<NewsDesc>,
+            default: {} as NewsDesc,
         },
     },
     methods: {
@@ -24,8 +24,8 @@ export default {
             return this.t('news.videoslide') + ' ' + index;
         },
 
-        makeVideoName(index: number): string {
-            return this.currentNewsItem.dir + index + '.mp4';
+        makeVideoName(fileName: string): string {
+            return this.currentNewsItem.dir + fileName;
         },
 
         setPause() {
@@ -63,9 +63,9 @@ export default {
 
 <template>
     <section id="carouselVideoExample" class="carousel slide" data-bs-interval="false">
-        <div v-if="currentNewsItem.videoscount > 1" class="carousel-indicators">
+        <div v-if="currentNewsItem.videos.length > 1" class="carousel-indicators">
             <button
-                v-for="video_index in currentNewsItem.videoscount"
+                v-for="video_index in currentNewsItem.videos.length"
                 :key="video_index"
                 type="button"
                 data-bs-target="#carouselVideoExample"
@@ -79,14 +79,17 @@ export default {
 
         <div class="carousel-inner">
             <div
-                v-for="video_index in currentNewsItem.videoscount"
+                v-for="video_index in currentNewsItem.videos.length"
                 :key="video_index"
                 class="carousel-item"
                 data-bs-interval="false"
                 :class="{ active: video_index === 1 }"
             >
                 <video class="img-fluid" controls>
-                    <source :src="makeVideoName(video_index)" type="video/mp4" />
+                    <source
+                        :src="makeVideoName(currentNewsItem.videos[video_index - 1])"
+                        type="video/mp4"
+                    />
                     <p>
                         Sorry, there's a problem playing this video. Please try using a
                         different browser.
@@ -96,7 +99,7 @@ export default {
         </div>
 
         <button
-            v-if="currentNewsItem.videoscount > 1"
+            v-if="currentNewsItem.videos.length > 1"
             class="carousel-control-prev"
             type="button"
             data-bs-target="#carouselVideoExample"
@@ -107,7 +110,7 @@ export default {
         </button>
 
         <button
-            v-if="currentNewsItem.videoscount > 1"
+            v-if="currentNewsItem.videos.length > 1"
             class="carousel-control-next"
             type="button"
             data-bs-target="#carouselVideoExample"
