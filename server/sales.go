@@ -39,6 +39,7 @@ func GetSales(c *gin.Context) {
 		panic(err)
 	}
 
+	var images sql.NullString
 	defer rows.Close()
 	sales := []models.SaleWithBase{}
 	for rows.Next() {
@@ -49,11 +50,20 @@ func GetSales(c *gin.Context) {
 			&p.NameRu, &p.NameEn,
 			&p.BaseId, &p.StrId,
 			&p.ImgCount, &p.Descr,
+			&images,
 			&p.BaseRu, &p.BaseEn)
+
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
+
+		if images.Valid {
+			p.Images = strings.Split(images.String, ";")
+		} else {
+			p.Images = []string{}
+		}
+
 		sales = append(sales, p)
 	}
 
@@ -247,11 +257,12 @@ func GetSaleById(c *gin.Context) {
 		WHERE s.id = ?
 	`
 
+	var images sql.NullString
 	var sale models.SaleWithBase
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Dir, &sale.Width, &sale.Height, &sale.Year,
 		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.ImgCount, &sale.Descr, &sale.BaseRu, &sale.BaseEn,
+		&sale.ImgCount, &sale.Descr, &images, &sale.BaseRu, &sale.BaseEn,
 	)
 
 	if err != nil {
@@ -261,6 +272,12 @@ func GetSaleById(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
+	}
+
+	if images.Valid {
+		sale.Images = strings.Split(images.String, ";")
+	} else {
+		sale.Images = []string{}
 	}
 
 	// Get materials for this sale

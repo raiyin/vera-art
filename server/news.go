@@ -35,6 +35,15 @@ func GetNewsById(c *gin.Context) {
 		&news.TextRu, &news.TextEn, &images, &videos)
 	// &news.TextRu, &news.TextEn, &news.Images, &news.Videos)
 
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
 	if images.Valid {
 		news.Images = strings.Split(images.String, ";")
 	} else {
@@ -45,15 +54,6 @@ func GetNewsById(c *gin.Context) {
 		news.Videos = strings.Split(videos.String, ";")
 	} else {
 		news.Videos = []string{}
-	}
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-		return
 	}
 
 	c.JSON(http.StatusOK, news)

@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ImageProps } from '@/types';
+import type { ImageProps } from '@/props/image-props';
 import type { PropType } from 'vue';
 
 export default {
@@ -30,7 +30,7 @@ export default {
         },
     },
     beforeMount() {
-        this.imgCountGTOne = this.imageObject.img_count > 1;
+        this.imgCountGTOne = this.imageObject.images.length > 1;
     },
 };
 </script>
@@ -39,7 +39,7 @@ export default {
     <div :id="imageId" class="carousel slide" data-bs-ride="false">
         <div v-if="imgCountGTOne" class="carousel-indicators">
             <button
-                v-for="index in imageObject.img_count"
+                v-for="index in imageObject.images.length"
                 v-bind:key="index"
                 type="button"
                 :data-bs-target="imgIdtoLink"
@@ -51,12 +51,8 @@ export default {
         </div>
 
         <div class="carousel-inner">
-            <template v-for="index in imageObject.img_count" v-bind:key="index">
-                <div
-                    :class="
-                        index === 1 ? 'carousel-item active' : 'carousel-item'
-                    "
-                >
+            <template v-for="index in imageObject.images.length" v-bind:key="index">
+                <div :class="index === 1 ? 'carousel-item active' : 'carousel-item'">
                     <img
                         :src="makeFileName(imageObject.dir, index)"
                         class="d-block modal-image"

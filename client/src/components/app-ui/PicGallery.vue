@@ -78,7 +78,6 @@ export default {
     border-radius: 0.5rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     margin-bottom: 2rem;
-    /* border: 1px solid var(--color-caption-border); */
     width: fit-content;
 }
 

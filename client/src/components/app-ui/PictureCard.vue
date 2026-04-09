@@ -102,7 +102,7 @@ export default {
             return this.imageObject.str_id + 'DeleteModal';
         },
         mainCardImage() {
-            return this.imagebasedir + this.imageObject.dir + '1.jpg';
+            return this.imagebasedir + this.imageObject.dir + this.imageObject.images[0];
         },
         showCardShadow() {
             if (this.themeStore.theme === 'light') {

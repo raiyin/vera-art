@@ -38,14 +38,26 @@ func GetWorks(c *gin.Context) {
 		panic(err)
 	}
 	defer rows.Close()
+
+	var images sql.NullString
 	works := []models.Work{}
 	for rows.Next() {
 		w := models.Work{}
-		err := rows.Scan(&w.Id, &w.Dir, &w.Width, &w.Height, &w.Year, &w.NameRu, &w.NameEn, &w.BaseId, &w.StrId, &w.ImgCount, &w.Descr, &w.Type, &w.BaseRu, &w.BaseEn)
+		err := rows.Scan(
+			&w.Id, &w.Dir, &w.Width, &w.Height, &w.Year, &w.NameRu,
+			&w.NameEn, &w.BaseId, &w.StrId, &w.ImgCount, &w.Descr,
+			&w.Type, &images, &w.BaseRu, &w.BaseEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
+
+		if images.Valid {
+			w.Images = strings.Split(images.String, ";")
+		} else {
+			w.Images = []string{}
+		}
+
 		works = append(works, w)
 	}
 
@@ -317,12 +329,13 @@ func GetWorkById(c *gin.Context) {
 		WHERE w.id = ?
 	`
 
+	var images sql.NullString
 	var work models.Work
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Dir, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.ImgCount, &work.Descr, &work.Type, &work.BaseRu, &work.BaseEn,
-	)
+		&work.ImgCount, &work.Descr, &work.Type, &images,
+		&work.BaseRu, &work.BaseEn)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -331,6 +344,12 @@ func GetWorkById(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 		return
+	}
+
+	if images.Valid {
+		work.Images = strings.Split(images.String, ";")
+	} else {
+		work.Images = []string{}
 	}
 
 	// Get materials for this work

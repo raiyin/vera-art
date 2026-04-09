@@ -1,6 +1,7 @@
 <script lang="ts">
 import Gallery from '@/components/app-ui/ShopGallery.vue';
-import type { ImageProps, SortOption } from '@/types';
+import type { SortOption } from '@/types';
+import type { ImageProps } from '@/props/image-props';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';

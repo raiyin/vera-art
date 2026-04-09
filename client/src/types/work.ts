@@ -9,5 +9,6 @@ export interface CreateWorkDto {
     img_count: number;
     descr: string;
     type: number;
+    images: string[];
     removed_indices?: number[];
 }

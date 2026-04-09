@@ -9,6 +9,7 @@ export interface Sale {
     materials_ids: number[];
     img_count: number;
     descr: string;
+    images: string[];
     removed_indices?: number[];
 }
 
@@ -23,5 +24,6 @@ export interface AddSaleDto {
     materials_ids: number[];
     img_count: number;
     descr: string;
+    images: string[];
     removed_indices?: number[];
 }

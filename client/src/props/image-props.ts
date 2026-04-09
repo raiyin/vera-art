@@ -14,4 +14,5 @@ export interface ImageProps {
     img_count: number;
     str_id: string;
     type?: number;
+    images: string[];
 }
