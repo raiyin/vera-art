@@ -1,7 +1,7 @@
 <script lang="ts">
 import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
 import SideNewsTrailerSkeleton from '../app-skeletons/SideNewsTrailerSkeleton.vue';
-import { NewsItemType } from '@/types';
+import { NewsDesc } from '@/types';
 import { PropType } from 'vue';
 
 export default {
@@ -11,7 +11,7 @@ export default {
     },
     props: {
         sideNewsObject: {
-            type: Object as PropType<NewsItemType>,
+            type: Object as PropType<NewsDesc>,
             required: true,
         },
     },

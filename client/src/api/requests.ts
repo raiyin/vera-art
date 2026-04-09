@@ -1,9 +1,9 @@
-import type { NewsItemType } from '../types';
+import type { NewsDesc } from '../types';
 import axios from 'axios';
 
 const fetchCurrentNews = async (
     path: string
-): Promise<NewsItemType> => {
+): Promise<NewsDesc> => {
     try {
         const newsid = path.substring(path.lastIndexOf('/') + 1);
         const response = await axios.get(import.meta.env.VITE_SERVER_URL + 'news', {
@@ -14,13 +14,13 @@ const fetchCurrentNews = async (
         return oneCurrentNews;
     } catch (e) {
         console.log(e);
-        return {} as NewsItemType;
+        return {} as NewsDesc;
     }
 };
 
 const fetchOtherNews = async (
     path: string
-): Promise<NewsItemType[]> => {
+): Promise<NewsDesc[]> => {
     try {
         const newsid = path.substring(path.lastIndexOf('/') + 1);
         const response = await axios.get(import.meta.env.VITE_SERVER_URL + 'news', {

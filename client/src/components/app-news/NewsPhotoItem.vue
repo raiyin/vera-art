@@ -1,7 +1,7 @@
 <script lang="ts">
 import ButtonClose from '@/components/app-ui/ButtonClose.vue';
 import type { PropType } from 'vue';
-import type { NewsItemType } from '@/types';
+import type { NewsDesc } from '@/types';
 
 export default {
     setup() {
@@ -16,8 +16,12 @@ export default {
             default: 0,
         },
         currentNews: {
-            type: Object as PropType<NewsItemType>,
-            default: {} as NewsItemType,
+            type: Object as PropType<NewsDesc>,
+            default: {} as NewsDesc,
+        },
+        fileName: {
+            type: String,
+            default: '',
         },
     },
     data() {
@@ -29,11 +33,8 @@ export default {
         onImgLoad() {
             this.isLoaded = true;
         },
-        makeImageName(index: number) {
-            if (index === 0) {
-                console.error('Wrong image_index props');
-            }
-            return `${this.currentNews?.dir}${index}.jpg`;
+        makeImageName(fileName: string) {
+            return `${this.currentNews?.dir}${fileName}`;
         },
         makeModalIdLink(index: number) {
             if (index === 0) {
@@ -58,7 +59,7 @@ export default {
         <img
             v-show="isLoaded"
             v-bind:key="image_index"
-            :src="makeImageName(image_index)"
+            :src="makeImageName(fileName)"
             @load="onImgLoad"
             data-bs-target="#imgNewsModal"
             data-bs-toggle="modal"

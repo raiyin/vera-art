@@ -12,9 +12,12 @@ export interface NewsDesc {
     videoscount: number;
     text_en: string;
     text_ru: string;
+    images: string[];
+    videos: string[];
 }
 
 export interface NewsDescDto {
+    id: string;
     datetime: string;
     title_en: string;
     title_ru: string;
@@ -27,4 +30,6 @@ export interface NewsDescDto {
     videoscount: number;
     text_en: string;
     text_ru: string;
+    images: string[];
+    videos: string[];
 }
