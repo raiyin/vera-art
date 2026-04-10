@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { ImageProps } from '@/props/image-props';
+import type { GetWorkDto } from '@/props/image-props';
 import type { PropType } from 'vue';
 
 export default {
     props: {
         imageObject: {
-            type: Object as PropType<ImageProps>,
-            default: {} as ImageProps,
+            type: Object as PropType<GetWorkDto>,
+            default: {} as GetWorkDto,
         },
         imageId: {
             type: String,
@@ -20,8 +20,8 @@ export default {
         };
     },
     methods: {
-        makeFileName(dir: string, index: number) {
-            return this.imagebasedir + dir + index + this.extension;
+        makeFileName(index: number) {
+            return this.imagebasedir + this.imageObject.dir + this.imageObject.images;
         },
     },
     computed: {
@@ -54,7 +54,7 @@ export default {
             <template v-for="index in imageObject.images.length" v-bind:key="index">
                 <div :class="index === 1 ? 'carousel-item active' : 'carousel-item'">
                     <img
-                        :src="makeFileName(imageObject.dir, index)"
+                        :src="makeFileName(index)"
                         class="d-block modal-image"
                         alt="..."
                     />

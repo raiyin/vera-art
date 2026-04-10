@@ -15,8 +15,46 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/raiyin/artserver/config"
+	"github.com/raiyin/artserver/dtos"
 	"github.com/raiyin/artserver/models"
 )
+
+func getFileNamesString(files []string) string {
+	names := make([]string, len(files))
+	copy(names, files)
+	return strings.Join(names, ";")
+}
+
+// workToDto converts a models.Work to dtos.GetWorkDto using material maps.
+func workToDto(work models.Work, materialsEn map[int]string, materialsRu map[int]string) dtos.GetWorkDto {
+	dto := dtos.GetWorkDto{
+		Id:          work.Id,
+		StrId:       work.StrId,
+		Dir:         work.Dir,
+		NameRu:      work.NameRu,
+		NameEn:      work.NameEn,
+		Year:        work.Year,
+		Descr:       work.Descr,
+		BaseRu:      work.BaseRu,
+		BaseEn:      work.BaseEn,
+		Width:       work.Width,
+		Height:      work.Height,
+		Type:        work.Type,
+		Images:      work.Images,
+		MaterialsEn: []string{},
+		MaterialsRu: []string{},
+	}
+	// Populate material names
+	for _, mid := range work.MaterialsIds {
+		if en, ok := materialsEn[mid]; ok {
+			dto.MaterialsEn = append(dto.MaterialsEn, en)
+		}
+		if ru, ok := materialsRu[mid]; ok {
+			dto.MaterialsRu = append(dto.MaterialsRu, ru)
+		}
+	}
+	return dto
+}
 
 func GetWorks(c *gin.Context) {
 
@@ -45,7 +83,7 @@ func GetWorks(c *gin.Context) {
 		w := models.Work{}
 		err := rows.Scan(
 			&w.Id, &w.Dir, &w.Width, &w.Height, &w.Year, &w.NameRu,
-			&w.NameEn, &w.BaseId, &w.StrId, &w.ImgCount, &w.Descr,
+			&w.NameEn, &w.BaseId, &w.StrId, &w.Descr,
 			&w.Type, &images, &w.BaseRu, &w.BaseEn)
 		if err != nil {
 			fmt.Println(err)
@@ -61,7 +99,66 @@ func GetWorks(c *gin.Context) {
 		works = append(works, w)
 	}
 
-	c.JSON(http.StatusOK, works)
+	// If no works, return empty array
+	if len(works) == 0 {
+		c.JSON(http.StatusOK, []dtos.GetWorkDto{})
+		return
+	}
+
+	// Collect work IDs
+	workIds := make([]int, len(works))
+	for i, w := range works {
+		workIds[i] = w.Id
+	}
+
+	// Convert to []any for query
+	args := make([]any, len(workIds))
+	for i, id := range workIds {
+		args[i] = id
+	}
+
+	// Fetch materials for these works
+	queryStr := `
+		SELECT wm.work_id, m.id, m.material_en, m.material_ru
+		FROM works_materials wm
+		JOIN materials m ON wm.material_id = m.id
+		WHERE wm.work_id IN (` + strings.Repeat("?,", len(workIds)-1) + `?)`
+	materialRows, err := db.Query(queryStr, args...)
+	if err != nil && err != sql.ErrNoRows {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer materialRows.Close()
+
+	// Map work ID -> material IDs -> names
+	materialsEn := make(map[int]string)
+	materialsRu := make(map[int]string)
+	workMaterials := make(map[int][]int)
+	for materialRows.Next() {
+		var workId, materialId int
+		var materialEn, materialRu string
+		err := materialRows.Scan(&workId, &materialId, &materialEn, &materialRu)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		materialsEn[materialId] = materialEn
+		materialsRu[materialId] = materialRu
+		workMaterials[workId] = append(workMaterials[workId], materialId)
+	}
+
+	// Assign material IDs to each work
+	for i := range works {
+		works[i].MaterialsIds = workMaterials[works[i].Id]
+	}
+
+	// Convert to DTOs
+	dtos := make([]dtos.GetWorkDto, len(works))
+	for i, w := range works {
+		dtos[i] = workToDto(w, materialsEn, materialsRu)
+	}
+
+	c.JSON(http.StatusOK, dtos)
 }
 
 func AddWork(c *gin.Context) {
@@ -73,7 +170,7 @@ func AddWork(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("json is: %q\n", dataJson)
+	// fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
 	var work models.Work
@@ -104,7 +201,7 @@ func AddWork(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr, type) "+
+		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, descr, type, images) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
@@ -115,9 +212,10 @@ func AddWork(c *gin.Context) {
 		work.NameEn,
 		work.BaseId,
 		strings.Replace(work.NameEn, " ", "_", -1),
-		work.ImgCount,
 		work.Descr,
-		work.Type)
+		work.Type,
+		strings.Join(work.Images, ";"),
+	)
 
 	if err != nil {
 		tx.Rollback()
@@ -163,7 +261,10 @@ func AddWork(c *gin.Context) {
 	files := form.File
 
 	// Process each file
-	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work.NameEn, " ", "_", -1) + "/"
+	dirPath := config.AppConfigInstance.Directories.WorksDirSave +
+		config.AppConfigInstance.Directories.WorksDbDirPrefix +
+		strings.Replace(work.NameEn, " ", "_", -1) + "/"
+
 	fmt.Printf("dirPath: %s\n", dirPath)
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
@@ -196,7 +297,7 @@ func AddWork(c *gin.Context) {
 			defer file.Close()
 
 			// Create a destination file
-			dst, err := os.Create(dirPath + strconv.Itoa(index+1) + filepath.Ext(fileHeader.Filename))
+			dst, err := os.Create(dirPath + work.Images[index])
 			if err != nil {
 				c.JSON(500, gin.H{"error": err.Error()})
 				tx.Rollback()
@@ -334,7 +435,7 @@ func GetWorkById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Dir, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.ImgCount, &work.Descr, &work.Type, &images,
+		&work.Descr, &work.Type, &images,
 		&work.BaseRu, &work.BaseEn)
 
 	if err != nil {
@@ -432,11 +533,11 @@ func UpdateWork(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE works
 		SET dir = ?, width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, img_count = ?, descr = ?, type = ?
+			base_id = ?, str_id = ?, descr = ?, type = ?
 		WHERE id = ?`,
 		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
-		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.ImgCount, work.Descr, work.Type, id)
+		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.Descr, work.Type, id)
 
 	if err != nil {
 		tx.Rollback()

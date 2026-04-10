@@ -1,1 +1,1 @@
-export type { ImageProps } from './image-props';
+export type { GetWorkDto as ImageProps } from './image-props';

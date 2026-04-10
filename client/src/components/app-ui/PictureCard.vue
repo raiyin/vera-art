@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { ImageProps } from '@/props/image-props';
+import type { GetWorkDto } from '@/props/image-props';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
@@ -26,8 +26,8 @@ export default {
     },
     props: {
         imageObject: {
-            type: Object as PropType<ImageProps>,
-            default: {} as ImageProps,
+            type: Object as PropType<GetWorkDto>,
+            default: {} as GetWorkDto,
         },
     },
     emits: ['work-deleted'],

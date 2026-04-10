@@ -6,7 +6,6 @@ export interface CreateWorkDto {
     name_en: string;
     base_id: number;
     materials_ids: number[];
-    img_count: number;
     descr: string;
     type: number;
     images: string[];

@@ -300,7 +300,7 @@
                         >Тип работы <span class="required">*</span></label
                     >
                     <select
-                        v-model="work.type"
+                        v-model.number="work.type"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.work_type }"
@@ -378,9 +378,9 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [] as number[],
-                img_count: 0,
                 descr: '',
-                type: 0,
+                images: [] as string[],
+                type: 1,
             } as CreateWorkDto,
             files: [] as File[],
             previewImages: [] as { file: File; preview: string }[],
@@ -498,6 +498,7 @@ export default defineComponent({
 
             // Добавляем новые файлы
             this.files = [...this.files, ...selectedFiles];
+            this.work.images = this.files.map((file) => file.name);
 
             // Создаем превью для новых изображений
             selectedFiles.forEach((file) => {
@@ -514,6 +515,7 @@ export default defineComponent({
         removeImage(index: number) {
             this.previewImages.splice(index, 1);
             this.files.splice(index, 1);
+            this.work.images.splice(index, 1);
         },
         validateField(fieldName: string) {
             switch (fieldName) {
@@ -572,7 +574,7 @@ export default defineComponent({
                     }
                     break;
                 case 'work_type':
-                    if (this.work.work_type < 0) {
+                    if (this.work.type < 0) {
                         this.errors.work_type = 'Пожалуйста, выберите тип работы';
                     } else {
                         this.errors.work_type = '';
@@ -621,9 +623,7 @@ export default defineComponent({
                 // Добавляем остальные данные
                 const workData = {
                     ...this.work,
-                    img_count: this.previewImages.length,
                 };
-                workData.work_type = parseInt(workData.work_type);
 
                 formData.append('data', JSON.stringify(workData));
 
@@ -667,9 +667,9 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [],
-                img_count: 0,
                 descr: '',
-                work_type: 0,
+                type: 0,
+                images: [],
             };
             this.files = [];
             this.previewImages = [];
@@ -716,18 +716,18 @@ export default defineComponent({
                 this.work.year >= 2000 &&
                 this.work.year <= new Date().getFullYear() &&
                 this.work.base_id > 0 &&
-                (this.work.work_type < 3
+                (this.work.type < 3
                     ? this.work.materials_ids.length > 0
                     : this.work.materials_ids.length == 0) &&
                 this.files.length > 0 &&
-                this.work.work_type > 0
+                this.work.type > 0
             );
         },
         units(): 'см' | 'px' {
-            return this.work.work_type <= 1 ? 'см' : 'px';
+            return this.work.type <= 1 ? 'см' : 'px';
         },
         isMaterialsRequired() {
-            return this.work.work_type === '1' || this.work.work_type === '2';
+            return this.work.type === 1 || this.work.type === 2;
         },
     },
 });

@@ -37,7 +37,7 @@ func LoadConfig(configPath string) error {
 
 	// Set defaults
 	viper.SetDefault("app.port", 8000)
-	viper.SetDefault("directories.works", ".")
+	viper.SetDefault("app.name", "artserver")
 
 	// Read config
 	if err := viper.ReadInConfig(); err != nil {
