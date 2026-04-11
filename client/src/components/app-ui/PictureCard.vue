@@ -1,5 +1,4 @@
 <script lang="ts">
-import type { GetWorkDto } from '@/props/image-props';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
@@ -7,6 +6,7 @@ import PictureCardSkeleton from '../app-skeletons/PictureCardSkeleton.vue';
 import PicCarousel from './PicCarousel.vue';
 import { useAuthStore } from '../../stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { CommonGetWorkDto, GetSaleDto } from '@/types';
 
 export default {
     setup() {
@@ -26,8 +26,8 @@ export default {
     },
     props: {
         imageObject: {
-            type: Object as PropType<GetWorkDto>,
-            default: {} as GetWorkDto,
+            type: Object as PropType<CommonGetWorkDto>,
+            default: {} as CommonGetWorkDto,
         },
     },
     emits: ['work-deleted'],
@@ -45,22 +45,32 @@ export default {
         },
         edit() {
             // Check if the item is a shop item (has price) or gallery item (has type)
-            if (this.imageObject.price && this.imageObject.price !== '') {
+            if (
+                this.imageObject.__type === 'GetSaleDto'
+                // &&
+                // this.imageObject.price &&
+                // this.imageObject.price !== ''
+            ) {
                 // Shop item - redirect to EditShopItemView
                 this.$router.push('/sales/edit/' + this.imageObject.id);
-            } else if (this.imageObject.type !== undefined) {
+            } else if (
+                this.imageObject.__type === 'GetWorkDto'
+                // &&
+                // this.imageObject.type !== undefined
+            ) {
                 // Gallery item - redirect to EditGalleryItemView
-                this.$router.push('/works/edit/' + this.imageObject.id);
-            } else {
-                // Default to gallery item if neither condition is met
                 this.$router.push('/works/edit/' + this.imageObject.id);
             }
         },
         async onImageDelete(id: string) {
             try {
+                const typeOfWork =
+                    this.imageObject.constructor.name === 'GetWorkDto'
+                        ? 'works/'
+                        : 'sales/';
                 const token = localStorage.getItem('token');
                 const response = await fetch(
-                    import.meta.env.VITE_SERVER_URL + 'works/' + id,
+                    import.meta.env.VITE_SERVER_URL + typeOfWork + id,
                     {
                         method: 'DELETE',
                         headers: {
@@ -158,7 +168,7 @@ export default {
                         </span>
                     </div>
 
-                    <p v-if="imageObject.price">
+                    <p v-if="imageObject.__type === 'GetSaleDto' && imageObject.price">
                         {{ $t('card.price') + ` ${imageObject.price} ` + $t('card.rub') }}
                     </p>
 

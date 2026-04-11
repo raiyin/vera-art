@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { GetWorkDto } from '@/props/image-props';
+import type { CommonGetWorkDto } from '@/types';
 import type { PropType } from 'vue';
 import PictureCard from './PictureCard.vue';
 
@@ -9,7 +9,7 @@ export default {
     },
     props: {
         images: {
-            type: [Array] as PropType<GetWorkDto[]>,
+            type: [Array] as PropType<CommonGetWorkDto[]>,
             required: true,
         },
     },
@@ -20,7 +20,7 @@ export default {
         };
     },
     computed: {
-        filteredImages(): GetWorkDto[] {
+        filteredImages(): CommonGetWorkDto[] {
             if (this.selectedWorkType === 'all') {
                 return this.images;
             }

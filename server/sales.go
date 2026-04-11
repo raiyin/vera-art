@@ -9,14 +9,48 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/raiyin/artserver/config"
+	"github.com/raiyin/artserver/dtos"
 	"github.com/raiyin/artserver/models"
 )
+
+func MaterialsBySaleId(saleId int) []models.Material {
+	query := "select m.* from materials m join sales_materials sm on m.id = sm.material_id where sm.sale_id = ?"
+	rows, err := db.Query(query, saleId)
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer rows.Close()
+	materials := []models.Material{}
+	for rows.Next() {
+		m := models.Material{}
+		err := rows.Scan(
+			&m.Id, &m.MaterialRu, &m.MaterialEn)
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		materials = append(materials, m)
+	}
+
+	return materials
+}
+
+func Map[T, U any](slice []T, fn func(T) U) []U {
+	result := make([]U, len(slice))
+	for i, v := range slice {
+		result[i] = fn(v)
+	}
+	return result
+}
 
 func GetSales(c *gin.Context) {
 
@@ -40,18 +74,18 @@ func GetSales(c *gin.Context) {
 	}
 
 	var images sql.NullString
+	var base_en sql.NullString
+	var base_ru sql.NullString
+
 	defer rows.Close()
-	sales := []models.SaleWithBase{}
+	sales := []dtos.GetSaleDto{}
 	for rows.Next() {
-		p := models.SaleWithBase{}
+		p := models.Sale{}
 		err := rows.Scan(
 			&p.Id, &p.Dir, &p.Width,
 			&p.Height, &p.Year, &p.Price,
-			&p.NameRu, &p.NameEn,
-			&p.BaseId, &p.StrId,
-			&p.ImgCount, &p.Descr,
-			&images,
-			&p.BaseRu, &p.BaseEn)
+			&p.NameRu, &p.NameEn, &p.BaseId, &p.StrId,
+			&p.Descr, &images, &base_ru, &base_en)
 
 		if err != nil {
 			fmt.Println(err)
@@ -64,7 +98,33 @@ func GetSales(c *gin.Context) {
 			p.Images = []string{}
 		}
 
-		sales = append(sales, p)
+		dto := dtos.GetSaleDto{
+			Id:          p.Id,
+			Dir:         p.Dir,
+			Width:       p.Width,
+			Height:      p.Height,
+			Year:        p.Year,
+			Price:       p.Price,
+			NameRu:      p.NameRu,
+			NameEn:      p.NameEn,
+			BaseRu:      base_ru.String,
+			BaseEn:      base_en.String,
+			StrId:       p.StrId,
+			Descr:       p.Descr,
+			Images:      p.Images,
+			MaterialsEn: []string{},
+			MaterialsRu: []string{},
+		}
+
+		var materials []models.Material = MaterialsBySaleId(p.Id)
+		dto.MaterialsEn = Map(materials, func(m models.Material) string {
+			return m.MaterialEn
+		})
+		dto.MaterialsRu = Map(materials, func(m models.Material) string {
+			return m.MaterialRu
+		})
+
+		sales = append(sales, dto)
 	}
 
 	c.JSON(http.StatusOK, sales)
@@ -110,8 +170,8 @@ func CreateSale(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into sales (id, dir, width, height, year, price, name_ru, name_en, base_id, str_id, img_count, descr) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"insert into sales (id, dir, width, height, year, price, name_ru, name_en, base_id, str_id, descr) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
 		sale.Width,
@@ -122,7 +182,6 @@ func CreateSale(c *gin.Context) {
 		sale.NameEn,
 		sale.BaseId,
 		strings.Replace(sale.NameEn, " ", "_", -1),
-		sale.ImgCount,
 		sale.Descr)
 
 	if err != nil {
@@ -137,7 +196,7 @@ func CreateSale(c *gin.Context) {
 
 	for _, material_id := range sale.MaterialsIds {
 		_, err = tx.Exec(
-			"insert into sale_materials (sale_id, material_id) "+
+			"insert into sales_materials (sale_id, material_id) "+
 				"values (?, ?)",
 			maxID+1,
 			material_id)
@@ -258,11 +317,11 @@ func GetSaleById(c *gin.Context) {
 	`
 
 	var images sql.NullString
-	var sale models.SaleWithBase
+	var sale dtos.GetSaleDto
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Dir, &sale.Width, &sale.Height, &sale.Year,
-		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.ImgCount, &sale.Descr, &images, &sale.BaseRu, &sale.BaseEn,
+		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.StrId,
+		&sale.Descr, &images, &sale.BaseRu, &sale.BaseEn,
 	)
 
 	if err != nil {
@@ -284,7 +343,7 @@ func GetSaleById(c *gin.Context) {
 	materialsQuery := `
 		SELECT m.id, m.material_ru, m.material_en
 		FROM materials m
-		JOIN sale_materials sm ON m.id = sm.material_id
+		JOIN sales_materials sm ON m.id = sm.material_id
 		WHERE sm.sale_id = ?
 	`
 
@@ -308,10 +367,10 @@ func GetSaleById(c *gin.Context) {
 
 	// Create a Sale struct with materials_ids
 	saleWithMaterials := struct {
-		models.SaleWithBase
+		dtos.GetSaleDto
 		MaterialsIds []int `json:"materials_ids"`
 	}{
-		SaleWithBase: sale,
+		GetSaleDto:   sale,
 		MaterialsIds: materialsIds,
 	}
 
@@ -367,11 +426,11 @@ func UpdateSale(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE sales
 		SET dir = ?, width = ?, height = ?, year = ?, price = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, img_count = ?, descr = ?
+			base_id = ?, str_id = ?, descr = ?
 		WHERE id = ?`,
 		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
 		sale.Width, sale.Height, sale.Year, sale.Price, sale.NameRu, sale.NameEn,
-		sale.BaseId, strings.Replace(sale.NameEn, " ", "_", -1), sale.ImgCount, sale.Descr, id)
+		sale.BaseId, strings.Replace(sale.NameEn, " ", "_", -1), sale.Descr, id)
 
 	if err != nil {
 		tx.Rollback()
@@ -381,7 +440,7 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// Delete existing material associations
-	_, err = tx.Exec("DELETE FROM sale_materials WHERE sale_id IN (SELECT id FROM sales WHERE id = ?)", id)
+	_, err = tx.Exec("DELETE FROM sales_materials WHERE sale_id IN (SELECT id FROM sales WHERE id = ?)", id)
 	if err != nil {
 		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -400,7 +459,7 @@ func UpdateSale(c *gin.Context) {
 		}
 
 		_, err = tx.Exec(
-			"INSERT INTO sale_materials (sale_id, material_id) VALUES (?, ?)",
+			"INSERT INTO sales_materials (sale_id, material_id) VALUES (?, ?)",
 			saleId, material_id)
 
 		if err != nil {
@@ -411,12 +470,12 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// Handle file uploads if any
-	form, err := c.MultipartForm()
-	if err != nil && err != http.ErrNotMultipart {
-		c.JSON(400, gin.H{"error": err.Error()})
-		tx.Rollback()
-		return
-	}
+	// form, err := c.MultipartForm()
+	// if err != nil && err != http.ErrNotMultipart {
+	// 	c.JSON(400, gin.H{"error": err.Error()})
+	// 	tx.Rollback()
+	// 	return
+	// }
 
 	// Process directory and images
 	dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
@@ -435,133 +494,133 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// Handle removed images if any
-	if len(sale.RemovedIndices) > 0 {
-		// Remove specified images from directory
-		for _, index := range sale.RemovedIndices {
-			imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
-			if _, err := os.Stat(imagePath); err == nil {
-				err := os.Remove(imagePath)
-				if err != nil {
-					fmt.Printf("Error removing file %s: %v\n", imagePath, err)
-				} else {
-					fmt.Printf("Removed file: %s\n", imagePath)
-				}
-			}
-		}
+	// if len(sale.RemovedIndices) > 0 {
+	// 	// Remove specified images from directory
+	// 	for _, index := range sale.RemovedIndices {
+	// 		imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
+	// 		if _, err := os.Stat(imagePath); err == nil {
+	// 			err := os.Remove(imagePath)
+	// 			if err != nil {
+	// 				fmt.Printf("Error removing file %s: %v\n", imagePath, err)
+	// 			} else {
+	// 				fmt.Printf("Removed file: %s\n", imagePath)
+	// 			}
+	// 		}
+	// 	}
 
-		// Rename remaining files to fill gaps
-		// First, get all existing files and sort them
-		files, err := os.ReadDir(dirPath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
-			tx.Rollback()
-			return
-		}
+	// 	// Rename remaining files to fill gaps
+	// 	// First, get all existing files and sort them
+	// 	files, err := os.ReadDir(dirPath)
+	// 	if err != nil {
+	// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
+	// 		tx.Rollback()
+	// 		return
+	// 	}
 
-		// Get list of remaining image numbers
-		var remainingNumbers []int
-		for _, file := range files {
-			if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-				if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-					// Check if this number is not in removed indices
-					isRemoved := false
-					for _, removedIndex := range sale.RemovedIndices {
-						if num == removedIndex {
-							isRemoved = true
-							break
-						}
-					}
-					if !isRemoved {
-						remainingNumbers = append(remainingNumbers, num)
-					}
-				}
-			}
-		}
+	// 	// Get list of remaining image numbers
+	// 	var remainingNumbers []int
+	// 	for _, file := range files {
+	// 		if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+	// 			if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+	// 				// Check if this number is not in removed indices
+	// 				isRemoved := false
+	// 				for _, removedIndex := range sale.RemovedIndices {
+	// 					if num == removedIndex {
+	// 						isRemoved = true
+	// 						break
+	// 					}
+	// 				}
+	// 				if !isRemoved {
+	// 					remainingNumbers = append(remainingNumbers, num)
+	// 				}
+	// 			}
+	// 		}
+	// 	}
 
-		// Sort remaining numbers
-		sort.Ints(remainingNumbers)
+	// 	// Sort remaining numbers
+	// 	sort.Ints(remainingNumbers)
 
-		// Rename files to be sequential starting from 1
-		for i, num := range remainingNumbers {
-			oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
-			newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
-			if oldPath != newPath {
-				err := os.Rename(oldPath, newPath)
-				if err != nil {
-					fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
-				} else {
-					fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
-				}
-			}
-		}
-	}
+	// 	// Rename files to be sequential starting from 1
+	// 	for i, num := range remainingNumbers {
+	// 		oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
+	// 		newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
+	// 		if oldPath != newPath {
+	// 			err := os.Rename(oldPath, newPath)
+	// 			if err != nil {
+	// 				fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
+	// 			} else {
+	// 				fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	// Handle file uploads if any
-	if form != nil {
-		// Get all files from the form
-		files := form.File
+	// if form != nil {
+	// 	// Get all files from the form
+	// 	files := form.File
 
-		// Determine the next available index for new files
-		nextIndex := 1
-		if len(sale.RemovedIndices) == 0 {
-			// If no files were removed, next index is img_count + 1
-			// But we need to check existing files
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-							if num >= nextIndex {
-								nextIndex = num + 1
-							}
-						}
-					}
-				}
-			}
-		} else {
-			// If files were removed, next index is the count of remaining files + 1
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				count := 0
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						count++
-					}
-				}
-				nextIndex = count + 1
-			}
-		}
+	// 	// Determine the next available index for new files
+	// 	nextIndex := 1
+	// 	if len(sale.RemovedIndices) == 0 {
+	// 		// If no files were removed, next index is img_count + 1
+	// 		// But we need to check existing files
+	// 		if filesInDir, err := os.ReadDir(dirPath); err == nil {
+	// 			for _, file := range filesInDir {
+	// 				if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+	// 					if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
+	// 						if num >= nextIndex {
+	// 							nextIndex = num + 1
+	// 						}
+	// 					}
+	// 				}
+	// 			}
+	// 		}
+	// 	} else {
+	// 		// If files were removed, next index is the count of remaining files + 1
+	// 		if filesInDir, err := os.ReadDir(dirPath); err == nil {
+	// 			count := 0
+	// 			for _, file := range filesInDir {
+	// 				if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
+	// 					count++
+	// 				}
+	// 			}
+	// 			nextIndex = count + 1
+	// 		}
+	// 	}
 
-		// Save new images
-		for fieldName, fileHeaders := range files {
-			for index, fileHeader := range fileHeaders {
-				// Open the file
-				file, err := fileHeader.Open()
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-				defer file.Close()
+	// 	// Save new images
+	// 	for fieldName, fileHeaders := range files {
+	// 		for index, fileHeader := range fileHeaders {
+	// 			// Open the file
+	// 			file, err := fileHeader.Open()
+	// 			if err != nil {
+	// 				c.JSON(500, gin.H{"error": err.Error()})
+	// 				tx.Rollback()
+	// 				return
+	// 			}
+	// 			defer file.Close()
 
-				// Create a destination file
-				dst, err := os.Create(dirPath + strconv.Itoa(nextIndex+index) + filepath.Ext(fileHeader.Filename))
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-				defer dst.Close()
+	// 			// Create a destination file
+	// 			dst, err := os.Create(dirPath + strconv.Itoa(nextIndex+index) + filepath.Ext(fileHeader.Filename))
+	// 			if err != nil {
+	// 				c.JSON(500, gin.H{"error": err.Error()})
+	// 				tx.Rollback()
+	// 				return
+	// 			}
+	// 			defer dst.Close()
 
-				// Copy the file data
-				if _, err := io.Copy(dst, file); err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
+	// 			// Copy the file data
+	// 			if _, err := io.Copy(dst, file); err != nil {
+	// 				c.JSON(500, gin.H{"error": err.Error()})
+	// 				tx.Rollback()
+	// 				return
+	// 			}
 
-				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
-			}
-		}
-	}
+	// 			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+	// 		}
+	// 	}
+	// }
 
 	err = tx.Commit()
 	if err != nil {

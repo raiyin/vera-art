@@ -1,4 +1,4 @@
-export interface GetWorkDto {
+export interface GetBaseWork {
     id: string;
     str_id: string;
     dir: string;

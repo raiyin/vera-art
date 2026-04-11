@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { GetWorkDto } from '@/props/image-props';
+import { CommonGetWorkDto } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
     props: {
         imageObject: {
-            type: Object as PropType<GetWorkDto>,
-            default: {} as GetWorkDto,
+            type: Object as PropType<CommonGetWorkDto>,
+            default: {} as CommonGetWorkDto,
         },
         imageId: {
             type: String,
