@@ -11,7 +11,6 @@ export interface CreateWorkDto {
     descr: string;
     type: number;
     images: string[];
-    removed_indices?: number[];
 }
 
 export type TypedGetWorkDto = GetBaseWork & {

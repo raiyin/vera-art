@@ -28,7 +28,7 @@ export default {
                 });
 
                 const newWorks = response.data.map((work) => ({
-                    __type: 'GetSaleDto',
+                    __type: 'GetWorkDto',
                     ...work,
                 }));
                 this.works = [...this.works, ...newWorks];

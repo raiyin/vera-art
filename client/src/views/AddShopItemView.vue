@@ -366,7 +366,7 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [] as number[],
-                img_count: 0,
+                images: [] as string[],
                 descr: '',
             } as AddSaleDto,
             files: [] as File[],
@@ -608,7 +608,6 @@ export default defineComponent({
                 // Добавляем остальные данные
                 const saleData = {
                     ...this.sale,
-                    img_count: this.previewImages.length,
                 };
 
                 formData.append('data', JSON.stringify(saleData));
@@ -654,7 +653,7 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [],
-                img_count: 0,
+                images: [],
                 descr: '',
             };
             this.files = [];

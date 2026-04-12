@@ -9,10 +9,8 @@ export interface Sale {
     name_en: string;
     base_id: number;
     materials_ids: number[];
-    img_count: number;
     descr: string;
     images: string[];
-    removed_indices?: number[];
 }
 
 // export interface GetSaleDto {
@@ -50,8 +48,6 @@ export interface AddSaleDto {
     name_en: string;
     base_id: number;
     materials_ids: number[];
-    img_count: number;
     descr: string;
     images: string[];
-    removed_indices?: number[];
 }

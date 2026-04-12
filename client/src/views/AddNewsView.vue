@@ -17,14 +17,15 @@ export default defineComponent({
     data() {
         return {
             news: {
+                id: 0,
                 title_en: '',
                 title_ru: '',
                 subTitle_en: '',
                 subTitle_ru: '',
                 img_back: '', // имя файла
                 img_backfull: '', // имя файла
-                imagescount: 0,
-                videoscount: 0,
+                images: [],
+                videos: [],
                 datetime: '',
                 text_en: '',
                 text_ru: '',
@@ -429,8 +430,6 @@ export default defineComponent({
                 // Add news data as JSON
                 const newsData = {
                     ...this.news,
-                    imagescount: this.images.length,
-                    videoscount: this.videos.length,
                     datetime:
                         this.news.datetime || new Date().toISOString().split('T')[0],
                 };
@@ -472,6 +471,7 @@ export default defineComponent({
 
         resetForm() {
             this.news = {
+                id: '',
                 datetime: '',
                 title_en: '',
                 title_ru: '',
@@ -480,10 +480,10 @@ export default defineComponent({
                 dir: '',
                 img_back: '',
                 img_backfull: '',
-                imagescount: 0,
-                videoscount: 0,
                 text_en: '',
                 text_ru: '',
+                images: [],
+                videos: [],
             };
             this.images = [];
             this.videos = [];

@@ -361,17 +361,6 @@ import { defineComponent } from 'vue';
 import { CreateWorkDto, Base, Material, RequestResult } from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
 
-interface Work extends CreateWorkDto {
-    id: number;
-    str_id: string;
-    dir: string;
-    base_ru: string;
-    base_en: string;
-    type: number;
-    img_count: number;
-    removed_indices?: number[];
-}
-
 export default defineComponent({
     name: 'EditGalleryItemView',
     components: {
@@ -389,21 +378,15 @@ export default defineComponent({
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
-                base_ru: '',
-                base_en: '',
                 materials_ids: [] as number[],
-                img_count: 0,
                 descr: '',
                 type: 0,
                 images: [] as string[],
-            } as Work,
+            },
             files: [] as File[],
-            existingImageIndices: [] as number[], // Track indices of existing images
             previewImages: [] as {
                 file?: File;
                 preview: string;
-                isExisting: boolean;
-                index?: number;
             }[],
             isSubmitting: false,
             bases: [] as Base[],
@@ -429,7 +412,7 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
-            originalWork: {} as Work,
+            originalWork: {},
         };
     },
     async created() {
@@ -488,15 +471,11 @@ export default defineComponent({
         },
         loadPreviewImages() {
             this.previewImages = [];
-            this.existingImageIndices = [];
-            for (let i = 1; i <= this.work.img_count; i++) {
-                const imageUrl = `${this.work.dir}${i}.jpg`;
+            for (let i = 1; i <= this.work.images.length; i++) {
+                const imageUrl = `${this.work.dir}${this.work.images[i - 1]}`;
                 this.previewImages.push({
                     preview: imageUrl,
-                    isExisting: true,
-                    index: i,
                 });
-                this.existingImageIndices.push(i);
             }
         },
         handleDragOver() {
@@ -562,32 +541,12 @@ export default defineComponent({
                     this.previewImages.push({
                         file,
                         preview: e.target?.result as string,
-                        isExisting: false,
                     });
                 };
                 reader.readAsDataURL(file);
             });
         },
-        removeImage(index: number) {
-            const image = this.previewImages[index];
-
-            // If it's an existing image, remove it from existingImageIndices
-            if (image.isExisting && image.index !== undefined) {
-                const existingIndex = this.existingImageIndices.indexOf(image.index);
-                if (existingIndex !== -1) {
-                    this.existingImageIndices.splice(existingIndex, 1);
-                }
-            } else {
-                // If it's a new image, remove it from files array
-                const fileIndex = this.previewImages
-                    .slice(0, index)
-                    .filter((img) => !img.isExisting).length;
-                this.files.splice(fileIndex, 1);
-            }
-
-            // Remove from previewImages
-            this.previewImages.splice(index, 1);
-        },
+        removeImage(index: number) {},
         validateField(fieldName: string) {
             switch (fieldName) {
                 case 'name_ru':
@@ -687,25 +646,9 @@ export default defineComponent({
                     });
                 }
 
-                // Добавляем информацию об удаленных существующих изображениях
-                const removedIndices = [];
-                for (let i = 1; i <= this.originalWork.img_count; i++) {
-                    if (!this.existingImageIndices.includes(i)) {
-                        removedIndices.push(i);
-                    }
-                }
-
-                // Добавляем остальные данные
-                const totalImages = this.existingImageIndices.length + this.files.length;
-                const images = Array.from(
-                    { length: totalImages },
-                    (_, i) => `${i + 1}.jpg`
-                );
                 const workData = {
                     ...this.work,
-                    img_count: totalImages,
                     images: images,
-                    removed_indices: removedIndices, // Добавляем информацию об удаленных изображениях
                 };
                 workData.type = parseInt(workData.type as any);
 
@@ -753,7 +696,6 @@ export default defineComponent({
             this.work = { ...this.originalWork };
             this.files = [];
             this.previewImages = [];
-            this.existingImageIndices = [];
             this.loadPreviewImages();
             if (this.$refs.fileInput) {
                 (this.$refs.fileInput as HTMLInputElement).value = '';
@@ -1098,7 +1040,7 @@ select:has(option.placeholder:checked) {
     align-items: flex-start;
     gap: 0.75rem;
     max-width: 350px;
-    z-index: 1000;
+    z-index: 2;
 }
 
 .alert-content {
@@ -1255,7 +1197,7 @@ select:has(option.placeholder:checked) {
     top: 100%;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 2;
     background: white;
     border: 1px solid #ced4da;
     border-radius: 0.25rem;

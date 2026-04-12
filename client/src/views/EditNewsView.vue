@@ -484,18 +484,19 @@ export default defineComponent({
     data() {
         return {
             news: {
+                id: '',
                 title_en: '',
                 title_ru: '',
                 subTitle_en: '',
                 subTitle_ru: '',
                 img_back: '', // имя файла
                 img_backfull: '', // имя файла
-                imagescount: 0,
-                videoscount: 0,
                 datetime: '',
                 text_en: '',
                 text_ru: '',
                 dir: '',
+                images: [],
+                videos: [],
             } as NewsDescDto,
 
             // Для отправки файлов
@@ -547,7 +548,6 @@ export default defineComponent({
                 this.news.subTitle_en.trim() !== '' &&
                 (this.img_back_preview !== null || this.news.img_back !== '') &&
                 (this.img_backfull_preview !== null || this.news.img_backfull !== '') &&
-                (this.previewImages.length > 0 || this.news.imagescount > 0) &&
                 this.news.text_ru.trim() !== '' &&
                 this.news.text_en.trim() !== ''
             );
@@ -578,25 +578,6 @@ export default defineComponent({
                         file: new File([], this.news.img_backfull),
                         preview: `${this.news.dir}${this.news.img_backfull}`,
                     };
-                }
-
-                // Set up previews for existing gallery images
-                if (this.news.imagescount > 0) {
-                    for (let i = 1; i <= this.news.imagescount; i++) {
-                        const imageUrl = `${this.news.dir}${i}.jpg`;
-                        this.previewImages.push({
-                            file: new File([], `${i}.jpg`),
-                            preview: imageUrl,
-                        });
-                    }
-                }
-
-                // Set up previews for existing videos
-                if (this.news.videoscount > 0) {
-                    for (let i = 1; i <= this.news.videoscount; i++) {
-                        const videoUrl = `${this.news.dir}${i}.mp4`;
-                        this.previewVideos.push(videoUrl);
-                    }
                 }
 
                 this.isLoading = false;
@@ -876,12 +857,6 @@ export default defineComponent({
                     }
                     break;
                 case 'images':
-                    if (this.previewImages.length === 0 && this.news.imagescount === 0) {
-                        this.errors.images =
-                            'Пожалуйста, добавьте хотя бы одно изображение';
-                    } else {
-                        this.errors.images = '';
-                    }
                     break;
                 case 'text_ru':
                     if (!this.news.text_ru.trim()) {
@@ -956,8 +931,6 @@ export default defineComponent({
                 // Add news data as JSON
                 const newsData = {
                     ...this.news,
-                    imagescount: this.images.length || this.news.imagescount,
-                    videoscount: this.videos.length || this.news.videoscount,
                     datetime:
                         this.news.datetime || new Date().toISOString().split('T')[0],
                 };

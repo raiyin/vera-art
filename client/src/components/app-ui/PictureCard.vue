@@ -45,20 +45,9 @@ export default {
         },
         edit() {
             // Check if the item is a shop item (has price) or gallery item (has type)
-            if (
-                this.imageObject.__type === 'GetSaleDto'
-                // &&
-                // this.imageObject.price &&
-                // this.imageObject.price !== ''
-            ) {
-                // Shop item - redirect to EditShopItemView
+            if (this.imageObject.__type === 'GetSaleDto') {
                 this.$router.push('/sales/edit/' + this.imageObject.id);
-            } else if (
-                this.imageObject.__type === 'GetWorkDto'
-                // &&
-                // this.imageObject.type !== undefined
-            ) {
-                // Gallery item - redirect to EditGalleryItemView
+            } else if (this.imageObject.__type === 'GetWorkDto') {
                 this.$router.push('/works/edit/' + this.imageObject.id);
             }
         },

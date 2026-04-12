@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -602,68 +601,6 @@ func UpdateWork(c *gin.Context) {
 		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
 	}
 
-	// Handle removed images if any
-	if len(work.RemovedIndices) > 0 {
-		// Remove specified images from directory
-		for _, index := range work.RemovedIndices {
-			imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
-			if _, err := os.Stat(imagePath); err == nil {
-				err := os.Remove(imagePath)
-				if err != nil {
-					fmt.Printf("Error removing file %s: %v\n", imagePath, err)
-				} else {
-					fmt.Printf("Removed file: %s\n", imagePath)
-				}
-			}
-		}
-
-		// Rename remaining files to fill gaps
-		// First, get all existing files and sort them
-		files, err := os.ReadDir(dirPath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
-			tx.Rollback()
-			return
-		}
-
-		// Get list of remaining image numbers
-		var remainingNumbers []int
-		for _, file := range files {
-			if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-				if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-					// Check if this number is not in removed indices
-					isRemoved := false
-					for _, removedIndex := range work.RemovedIndices {
-						if num == removedIndex {
-							isRemoved = true
-							break
-						}
-					}
-					if !isRemoved {
-						remainingNumbers = append(remainingNumbers, num)
-					}
-				}
-			}
-		}
-
-		// Sort remaining numbers
-		sort.Ints(remainingNumbers)
-
-		// Rename files to be sequential starting from 1
-		for i, num := range remainingNumbers {
-			oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
-			newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
-			if oldPath != newPath {
-				err := os.Rename(oldPath, newPath)
-				if err != nil {
-					fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
-				} else {
-					fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
-				}
-			}
-		}
-	}
-
 	// Handle file uploads if any
 	if form != nil {
 		// Get all files from the form
@@ -671,32 +608,6 @@ func UpdateWork(c *gin.Context) {
 
 		// Determine the next available index for new files
 		nextIndex := 1
-		if len(work.RemovedIndices) == 0 {
-			// If no files were removed, next index is img_count + 1
-			// But we need to check existing files
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-							if num >= nextIndex {
-								nextIndex = num + 1
-							}
-						}
-					}
-				}
-			}
-		} else {
-			// If files were removed, next index is the count of remaining files + 1
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				count := 0
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						count++
-					}
-				}
-				nextIndex = count + 1
-			}
-		}
 
 		// Save new images
 		for fieldName, fileHeaders := range files {

@@ -8,8 +8,6 @@ export interface NewsDesc {
     dir: string;
     img_back: string;
     img_backfull: string;
-    imagescount: number;
-    videoscount: number;
     text_en: string;
     text_ru: string;
     images: string[];
@@ -26,8 +24,6 @@ export interface NewsDescDto {
     dir: string;
     img_back: string;
     img_backfull: string;
-    imagescount: number;
-    videoscount: number;
     text_en: string;
     text_ru: string;
     images: string[];

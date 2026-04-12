@@ -377,7 +377,7 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [] as number[],
-                img_count: 0,
+
                 descr: '',
             } as SaleWithId,
             files: [] as File[],
@@ -466,8 +466,8 @@ export default defineComponent({
         },
         loadPreviewImages() {
             this.previewImages = [];
-            for (let i = 1; i <= this.sale.img_count; i++) {
-                const imageUrl = `${this.sale.dir}${i}.jpg`;
+            for (let i = 1; i <= this.sale.images.length; i++) {
+                const imageUrl = `${this.sale.dir}${this.sale.images[i - 1]}`;
                 this.previewImages.push({ preview: imageUrl });
             }
         },
@@ -666,11 +666,6 @@ export default defineComponent({
                 // Добавляем остальные данные
                 const saleData = {
                     ...this.sale,
-                    img_count:
-                        this.sale.img_count -
-                        this.removedIndices.length +
-                        this.files.length,
-                    removed_indices: this.removedIndices,
                 };
 
                 formData.append('data', JSON.stringify(saleData));
