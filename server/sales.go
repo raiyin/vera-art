@@ -142,7 +142,7 @@ func CreateSale(c *gin.Context) {
 	fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
-	var sale models.Sale
+	var sale dtos.CreateSaleDto
 	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
@@ -309,19 +309,14 @@ func GetSaleById(c *gin.Context) {
 	}
 
 	// Get sale data
-	query := `
-		SELECT s.*, b.base_ru, b.base_en
-		FROM sales s
-		JOIN bases b ON s.base_id = b.id
-		WHERE s.id = ?
-	`
+	query := `SELECT * FROM sales WHERE id = ?`
 
 	var images sql.NullString
-	var sale dtos.GetSaleDto
+	var sale models.Sale
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Dir, &sale.Width, &sale.Height, &sale.Year,
-		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.StrId,
-		&sale.Descr, &images, &sale.BaseRu, &sale.BaseEn,
+		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
+		&sale.Descr, &images,
 	)
 
 	if err != nil {
@@ -366,18 +361,25 @@ func GetSaleById(c *gin.Context) {
 	}
 
 	// Create a Sale struct with materials_ids
-	saleWithMaterials := struct {
-		dtos.GetSaleDto
-		MaterialsIds []int `json:"materials_ids"`
-	}{
-		GetSaleDto:   sale,
+	getEditSaleDto := dtos.EditSaleDto{
+		Id:           sale.Id,
+		Dir:          sale.Dir,
+		Width:        sale.Width,
+		Height:       sale.Height,
+		Year:         sale.Year,
+		Price:        sale.Price,
+		NameRu:       sale.NameRu,
+		NameEn:       sale.NameEn,
+		StrId:        sale.StrId,
+		BaseId:       sale.BaseId,
+		Descr:        sale.Descr,
+		Images:       sale.Images,
 		MaterialsIds: materialsIds,
 	}
 
-	c.JSON(http.StatusOK, saleWithMaterials)
+	c.JSON(http.StatusOK, getEditSaleDto)
 }
 
-// Update sale by id
 func UpdateSale(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {
@@ -393,7 +395,7 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// 2. Parse the JSON
-	var sale models.Sale
+	var sale dtos.UpdateSaleDto
 	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)

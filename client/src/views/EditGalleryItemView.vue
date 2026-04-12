@@ -368,6 +368,7 @@ interface Work extends CreateWorkDto {
     base_ru: string;
     base_en: string;
     type: number;
+    img_count: number;
     removed_indices?: number[];
 }
 
@@ -394,6 +395,7 @@ export default defineComponent({
                 img_count: 0,
                 descr: '',
                 type: 0,
+                images: [] as string[],
             } as Work,
             files: [] as File[],
             existingImageIndices: [] as number[], // Track indices of existing images
@@ -694,9 +696,15 @@ export default defineComponent({
                 }
 
                 // Добавляем остальные данные
+                const totalImages = this.existingImageIndices.length + this.files.length;
+                const images = Array.from(
+                    { length: totalImages },
+                    (_, i) => `${i + 1}.jpg`
+                );
                 const workData = {
                     ...this.work,
-                    img_count: this.existingImageIndices.length + this.files.length,
+                    img_count: totalImages,
+                    images: images,
                     removed_indices: removedIndices, // Добавляем информацию об удаленных изображениях
                 };
                 workData.type = parseInt(workData.type as any);
@@ -800,7 +808,7 @@ export default defineComponent({
             return this.work.type <= 1 ? 'см' : 'px';
         },
         isMaterialsRequired() {
-            return this.work.type === '1' || this.work.type === '2';
+            return this.work.type === 1 || this.work.type === 2;
         },
     },
 });

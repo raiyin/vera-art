@@ -530,14 +530,16 @@ func UpdateWork(c *gin.Context) {
 	}
 
 	// Update work record
+	// Build images string from work.Images slice
+	imagesStr := strings.Join(work.Images, ";")
 	_, err = tx.Exec(`
 		UPDATE works
 		SET dir = ?, width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, descr = ?, type = ?
+			base_id = ?, str_id = ?, descr = ?, type = ?, images = ?
 		WHERE id = ?`,
 		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
-		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.Descr, work.Type, id)
+		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.Descr, work.Type, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()
