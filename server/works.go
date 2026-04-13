@@ -23,11 +23,11 @@ func getFileNamesString(files []string) string {
 	return strings.Join(names, ";")
 }
 
-// workToDto converts a models.Work to dtos.GetWorkDto using material maps.
-func workToDto(work models.Work) dtos.GetWorkDto {
+// workModelToWorkResponse converts a models.Work to dtos.GetWorkDto using material maps.
+func workModelToWorkResponse(work models.Work) dtos.WorkResponse {
 	var dir = config.AppConfigInstance.Directories.RelWorksDir +
 		work.StrId + "/"
-	dto := dtos.GetWorkDto{
+	dto := dtos.WorkResponse{
 		Id:          work.Id,
 		StrId:       work.StrId,
 		Dir:         dir,
@@ -73,6 +73,46 @@ func workToDto(work models.Work) dtos.GetWorkDto {
 	return dto
 }
 
+func workModelToUpdateWorkResponse(work models.Work) dtos.UpdateWorkResponse {
+	var dir = config.AppConfigInstance.Directories.RelWorksDir +
+		work.StrId + "/"
+	dto := dtos.UpdateWorkResponse{
+		Id:           work.Id,
+		StrId:        work.StrId,
+		Dir:          dir,
+		NameRu:       work.NameRu,
+		NameEn:       work.NameEn,
+		BaseId:       work.BaseId,
+		Year:         work.Year,
+		Descr:        work.Descr,
+		Width:        work.Width,
+		Height:       work.Height,
+		Type:         work.Type,
+		Images:       strings.Split(work.Images, ";"),
+		MaterialsIds: []int{},
+	}
+
+	// Query materials_ru and materials_en arrays from many-to-many works_materials table and materials tables
+	rows, err := db.Query("select material_id from works_materials where work_id = ?", work.Id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	materialIds := []int{}
+	for rows.Next() {
+		var materialId int
+		err := rows.Scan(&materialId)
+		if err != nil {
+			panic(err)
+		}
+		materialIds = append(materialIds, materialId)
+	}
+
+	dto.MaterialsIds = materialIds
+	return dto
+}
+
 func GetWorks(c *gin.Context) {
 
 	offset := c.Query("offset")
@@ -94,7 +134,7 @@ func GetWorks(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	works := []dtos.GetWorkDto{}
+	works := []dtos.WorkResponse{}
 	for rows.Next() {
 		w := models.Work{}
 		err := rows.Scan(
@@ -106,12 +146,12 @@ func GetWorks(c *gin.Context) {
 			continue
 		}
 
-		works = append(works, workToDto(w))
+		works = append(works, workModelToWorkResponse(w))
 	}
 
 	// If no works, return empty array
 	if len(works) == 0 {
-		c.JSON(http.StatusOK, []dtos.GetWorkDto{})
+		c.JSON(http.StatusOK, []dtos.WorkResponse{})
 		return
 	}
 
@@ -130,7 +170,7 @@ func AddWork(c *gin.Context) {
 	// fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
-	var work dtos.AddWorkDto
+	var work dtos.CreateWorkRequest
 	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
@@ -379,20 +419,13 @@ func GetWorkById(c *gin.Context) {
 	}
 
 	// Get work data
-	query := `
-		SELECT w.*, b.base_ru, b.base_en
-		FROM works w
-		JOIN bases b ON w.base_id = b.id
-		WHERE w.id = ?
-	`
+	query := ` SELECT * FROM works WHERE id = ?`
 
-	var images sql.NullString
-	var work dtos.EditWorkDto
+	var work models.Work
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.Descr, &work.Type, &images,
-		&work.BaseRu, &work.BaseEn)
+		&work.Descr, &work.Type, &work.Images)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -403,41 +436,39 @@ func GetWorkById(c *gin.Context) {
 		return
 	}
 
-	if images.Valid {
-		work.Images = strings.Split(images.String, ";")
-	} else {
-		work.Images = []string{}
-	}
+	workResponse := workModelToWorkResponse(work)
 
-	// Get materials for this work
-	materialsQuery := `
-		SELECT m.id, m.material_ru, m.material_en
-		FROM materials m
-		JOIN works_materials wm ON m.id = wm.material_id
-		WHERE wm.work_id = ?
-	`
+	c.JSON(http.StatusOK, workResponse)
+}
 
-	materialRows, err := db.Query(materialsQuery, work.Id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+func GetWorkByIdForEdit(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
-	defer materialRows.Close()
 
-	var materialsIds []int
-	for materialRows.Next() {
-		var material models.Material
-		err := materialRows.Scan(&material.Id, &material.MaterialRu, &material.MaterialEn)
-		if err != nil {
+	// Get work data
+	query := `SELECT * FROM works WHERE id = ?`
+
+	var work models.Work
+	err := db.QueryRow(query, id).Scan(
+		&work.Id, &work.Width, &work.Height, &work.Year,
+		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
+		&work.Descr, &work.Type, &work.Images)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
+		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
 		}
-		materialsIds = append(materialsIds, material.Id)
+		return
 	}
 
-	work.MaterialsIds = materialsIds
+	var workResponse dtos.UpdateWorkResponse
+	workResponse = workModelToUpdateWorkResponse(work)
+	c.JSON(http.StatusOK, workResponse)
 
-	c.JSON(http.StatusOK, work)
 }
 
 // Update work by id
@@ -456,7 +487,7 @@ func UpdateWork(c *gin.Context) {
 	}
 
 	// 2. Parse the JSON
-	var work dtos.EditWorkDto
+	var work dtos.UpdateWorkRequest
 	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)

@@ -469,7 +469,7 @@ export default defineComponent({
         async loadWork() {
             try {
                 const id = this.$route.params.id;
-                const response = await axios.get(this.server + 'works/' + id);
+                const response = await axios.get(`${this.server}works/${id}/edit`);
                 this.work = response.data;
                 this.originalWork = { ...response.data };
 

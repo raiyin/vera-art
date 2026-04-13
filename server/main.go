@@ -122,21 +122,25 @@ func main() {
 	r_gin.POST("/login", Login)
 
 	r_gin.GET("/sales", GetSales)
-	r_gin.GET("/works", GetWorks)
-	r_gin.GET("/works/:id", GetWorkById)
-	r_gin.GET("/news", GetNews)
-	r_gin.GET("/news/:id", GetNewsById)
-	r_gin.GET("/materials", getMaterials)
-	r_gin.GET("/bases", getBases)
 	r_gin.GET("/sales/:id", GetSaleById)
-	r_gin.POST("/works", AddWork)
-	r_gin.PUT("/works/:id", AuthMiddleware(), UpdateWork)
 	r_gin.POST("/sales", CreateSale)
 	r_gin.PUT("/sales/:id", AuthMiddleware(), UpdateSale)
-	r_gin.POST("/news", AddNews)
+
+	r_gin.GET("/works", GetWorks)
+	r_gin.GET("/works/:id", GetWorkById)
+	r_gin.GET("/works/:id/edit", GetWorkByIdForEdit)
+	r_gin.POST("/works", AddWork)
+	r_gin.PUT("/works/:id", AuthMiddleware(), UpdateWork)
 	r_gin.DELETE("/works/:id", AuthMiddleware(), DeleteWork)
+
+	r_gin.GET("/news", GetNews)
+	r_gin.GET("/news/:id", GetNewsById)
+	r_gin.POST("/news", AddNews)
 	r_gin.DELETE("/news/:id", AuthMiddleware(), DeleteNews)
 	r_gin.PUT("/news/:id", AuthMiddleware(), UpdateNews)
+
+	r_gin.GET("/materials", getMaterials)
+	r_gin.GET("/bases", getBases)
 
 	defer db.Close()
 	if err := r_gin.Run("localhost:8000"); err != nil {
