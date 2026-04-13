@@ -15,13 +15,11 @@ export default {
     data() {
         return {
             imgCountGTOne: false,
-            extension: '.jpg',
-            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
         makeFileName(index: number) {
-            return this.imagebasedir + this.imageObject.dir + this.imageObject.images;
+            return this.imageObject.dir + this.imageObject.images[index - 1];
         },
     },
     computed: {

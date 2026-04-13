@@ -1,5 +1,6 @@
 <script lang="ts">
 import Gallery from '@/components/app-ui/PicGallery.vue';
+import { GetWorkDto } from '@/types';
 import { TypedGetWorkDto } from '@/types/work';
 import axios from 'axios';
 
@@ -27,17 +28,17 @@ export default {
                     },
                 });
 
-                const newWorks = response.data.map((work) => ({
-                    __type: 'GetWorkDto',
-                    ...work,
-                }));
+                const newWorks: TypedGetWorkDto[] = response.data.map(
+                    (work: GetWorkDto) => ({
+                        ...work,
+                    })
+                );
                 this.works = [...this.works, ...newWorks];
             } catch (e) {
                 console.error('Error fetching works on allworks page ' + e);
             }
         },
         handleWorkDeleted(id: string) {
-            // Remove the deleted work from the works array
             this.works = this.works.filter((work: any) => work.id !== id);
         },
     },

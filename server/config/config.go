@@ -13,12 +13,12 @@ type AppConfig struct {
 }
 
 type DirectoriesConfig struct {
-	WorksDirSave     string `mapstructure:"works_dir_save"`
-	WorksDbDirPrefix string `mapstructure:"works_db_dir_prefix"`
-	SaleDirSave      string `mapstructure:"sale_dir_save"`
-	SaleDbDirPrefix  string `mapstructure:"sale_db_dir_prefix"`
-	NewsDirSave      string `mapstructure:"news_dir_save"`
-	NewsDbDirPrefix  string `mapstructure:"news_db_dir_prefix"`
+	AbsWorksDir     string `mapstructure:"abs_works_dir"`
+	RelWorksDir     string `mapstructure:"rel_works_dir"`
+	SaleDirSave     string `mapstructure:"sale_dir_save"`
+	SaleDbDirPrefix string `mapstructure:"sale_db_dir_prefix"`
+	NewsDirSave     string `mapstructure:"news_dir_save"`
+	NewsDbDirPrefix string `mapstructure:"news_db_dir_prefix"`
 }
 
 type Config struct {

@@ -387,7 +387,10 @@ export default defineComponent({
             previewImages: [] as {
                 file?: File;
                 preview: string;
+                isExisting?: boolean;
+                filename?: string;
             }[],
+            imagesToDelete: [] as string[], // Track existing images to delete
             isSubmitting: false,
             bases: [] as Base[],
             materials: [] as Material[],
@@ -412,7 +415,21 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
-            originalWork: {},
+            originalWork: {
+                id: 0,
+                str_id: '',
+                dir: '',
+                width: 0,
+                height: 0,
+                year: new Date().getFullYear(),
+                name_ru: '',
+                name_en: '',
+                base_id: 0,
+                materials_ids: [] as number[],
+                descr: '',
+                type: 0,
+                images: [] as string[],
+            },
         };
     },
     async created() {
@@ -471,10 +488,12 @@ export default defineComponent({
         },
         loadPreviewImages() {
             this.previewImages = [];
-            for (let i = 1; i <= this.work.images.length; i++) {
-                const imageUrl = `${this.work.dir}${this.work.images[i - 1]}`;
+            for (let i = 0; i < this.work.images.length; i++) {
+                const imageUrl = `${this.work.dir}${this.work.images[i]}`;
                 this.previewImages.push({
                     preview: imageUrl,
+                    isExisting: true,
+                    filename: this.work.images[i],
                 });
             }
         },
@@ -541,12 +560,32 @@ export default defineComponent({
                     this.previewImages.push({
                         file,
                         preview: e.target?.result as string,
+                        isExisting: false,
+                        filename: file.name,
                     });
                 };
                 reader.readAsDataURL(file);
             });
         },
-        removeImage(index: number) {},
+        removeImage(index: number) {
+            const imageToRemove = this.previewImages[index];
+
+            if (imageToRemove.isExisting && imageToRemove.filename) {
+                // Mark existing image for deletion
+                if (!this.imagesToDelete.includes(imageToRemove.filename)) {
+                    this.imagesToDelete.push(imageToRemove.filename);
+                }
+            } else if (imageToRemove.file) {
+                // Remove from files array if it's a newly uploaded file
+                const fileIndex = this.files.indexOf(imageToRemove.file);
+                if (fileIndex > -1) {
+                    this.files.splice(fileIndex, 1);
+                }
+            }
+
+            // Remove from preview images
+            this.previewImages.splice(index, 1);
+        },
         validateField(fieldName: string) {
             switch (fieldName) {
                 case 'name_ru':
@@ -639,6 +678,27 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
+                // Build final list of images:
+                // 1. Start with existing images
+                // 2. Remove images marked for deletion
+                // 3. Add new image filenames (using sanitized original filenames)
+                const finalImages: string[] = [];
+
+                // Add existing images that are not marked for deletion
+                for (const imageName of this.work.images) {
+                    if (!this.imagesToDelete.includes(imageName)) {
+                        finalImages.push(imageName);
+                    }
+                }
+
+                // Add new image filenames (sanitized)
+                for (const file of this.files) {
+                    // Sanitize filename similar to server-side
+                    let sanitizedFilename = file.name.replace(/ /g, '_');
+                    sanitizedFilename = sanitizedFilename.replace(/[()'"\[\]]/g, '');
+                    finalImages.push(sanitizedFilename);
+                }
+
                 // Добавляем файлы, если есть
                 if (this.files.length > 0) {
                     this.files.forEach((file) => {
@@ -648,7 +708,7 @@ export default defineComponent({
 
                 const workData = {
                     ...this.work,
-                    images: images,
+                    images: finalImages,
                 };
                 workData.type = parseInt(workData.type as any);
 
@@ -668,6 +728,11 @@ export default defineComponent({
 
                 if (response.status === 200) {
                     this.showSuccessAlert = true;
+                    // Update work images with final list
+                    this.work.images = finalImages;
+                    // Clear deletion list and files
+                    this.imagesToDelete = [];
+                    this.files = [];
                     // Обновляем оригинальную работу
                     this.originalWork = { ...this.work };
                 } else {
@@ -696,6 +761,7 @@ export default defineComponent({
             this.work = { ...this.originalWork };
             this.files = [];
             this.previewImages = [];
+            this.imagesToDelete = [];
             this.loadPreviewImages();
             if (this.$refs.fileInput) {
                 (this.$refs.fileInput as HTMLInputElement).value = '';

@@ -105,7 +105,7 @@ func main() {
 	// Access configuration values
 	appConfig := config.AppConfigInstance
 	log.Printf("Starting %s on port %d", appConfig.App.Name, appConfig.App.Port)
-	log.Printf("dir is %s and %s", appConfig.Directories.WorksDbDirPrefix, appConfig.Directories.WorksDirSave)
+	log.Printf("dir is %s and %s", appConfig.Directories.RelWorksDir, appConfig.Directories.AbsWorksDir)
 
 	r_gin := gin.Default()
 	// r.Run(fmt.Sprintf(":%d", appConfig.App.Port))
