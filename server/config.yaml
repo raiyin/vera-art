@@ -7,7 +7,7 @@ app:
 directories:
   abs_works_dir: "d:/projects/vera-art/client"
   rel_works_dir: "/content/works/"
-  sale_dir_save: "d:/projects/vera-art/client"
-  sale_db_dir_prefix: "/content/sale/"
+  abs_sales_dir: "d:/projects/vera-art/client"
+  rel_sales_dir: "/content/sales/"
   news_dir_save: "d:/projects/vera-art/client"
   news_db_dir_prefix: "/content/news/"

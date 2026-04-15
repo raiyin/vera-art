@@ -18,6 +18,55 @@ import (
 	"github.com/raiyin/artserver/models"
 )
 
+func mapSaleModelToSaleResponse(sale models.Sale) dtos.SaleResponse {
+	var dir = config.AppConfigInstance.Directories.RelSalesDir +
+		sale.StrId + "/"
+	dto := dtos.SaleResponse{
+		Id:          sale.Id,
+		StrId:       sale.StrId,
+		Dir:         dir,
+		NameRu:      sale.NameRu,
+		NameEn:      sale.NameEn,
+		Year:        sale.Year,
+		Descr:       sale.Descr,
+		Width:       sale.Width,
+		Height:      sale.Height,
+		Price:       sale.Price,
+		BaseRu:      "",
+		BaseEn:      "",
+		Images:      strings.Split(sale.Images, ";"),
+		MaterialsEn: []string{},
+		MaterialsRu: []string{},
+	}
+	// Query base_ru and base_en
+	db.QueryRow("select base_ru, base_en from bases where id = ?", sale.BaseId).Scan(&dto.BaseRu, &dto.BaseEn)
+
+	// Query materials_ru and materials_en arrays from many-to-many works_materials table and materials tables
+	rows, err := db.Query("select material_id from sales_materials where sale_id = ?", sale.Id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	materialIds := []int{}
+	for rows.Next() {
+		var materialId int
+		err := rows.Scan(&materialId)
+		if err != nil {
+			panic(err)
+		}
+		materialIds = append(materialIds, materialId)
+	}
+	for _, materialId := range materialIds {
+		var materialRu, materialEn string
+		db.QueryRow("select material_ru, material_en from materials where id = ?", materialId).Scan(&materialRu, &materialEn)
+		dto.MaterialsRu = append(dto.MaterialsRu, materialRu)
+		dto.MaterialsEn = append(dto.MaterialsEn, materialEn)
+	}
+
+	return dto
+}
+
 func MaterialsBySaleId(saleId int) []models.Material {
 	query := "select m.* from materials m join sales_materials sm on m.id = sm.material_id where sm.sale_id = ?"
 	rows, err := db.Query(query, saleId)
@@ -57,7 +106,7 @@ func GetSales(c *gin.Context) {
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 
-	query := "select s.*, b.base_ru, b.base_en from sales s join bases b on s.base_id = b.id"
+	query := "select * from sales"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit
@@ -73,57 +122,22 @@ func GetSales(c *gin.Context) {
 		panic(err)
 	}
 
-	var images sql.NullString
-	var base_en sql.NullString
-	var base_ru sql.NullString
-
 	defer rows.Close()
-	sales := []dtos.GetSaleDto{}
+	sales := []dtos.SaleResponse{}
 	for rows.Next() {
-		p := models.Sale{}
+		s := models.Sale{}
 		err := rows.Scan(
-			&p.Id, &p.Dir, &p.Width,
-			&p.Height, &p.Year, &p.Price,
-			&p.NameRu, &p.NameEn, &p.BaseId, &p.StrId,
-			&p.Descr, &images, &base_ru, &base_en)
+			&s.Id, &s.Width,
+			&s.Height, &s.Year, &s.Price,
+			&s.NameRu, &s.NameEn, &s.BaseId, &s.StrId,
+			&s.Descr, &s.Images)
 
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
-		if images.Valid {
-			p.Images = strings.Split(images.String, ";")
-		} else {
-			p.Images = []string{}
-		}
-
-		dto := dtos.GetSaleDto{
-			Id:          p.Id,
-			Dir:         p.Dir,
-			Width:       p.Width,
-			Height:      p.Height,
-			Year:        p.Year,
-			Price:       p.Price,
-			NameRu:      p.NameRu,
-			NameEn:      p.NameEn,
-			BaseRu:      base_ru.String,
-			BaseEn:      base_en.String,
-			StrId:       p.StrId,
-			Descr:       p.Descr,
-			Images:      p.Images,
-			MaterialsEn: []string{},
-			MaterialsRu: []string{},
-		}
-
-		var materials []models.Material = MaterialsBySaleId(p.Id)
-		dto.MaterialsEn = Map(materials, func(m models.Material) string {
-			return m.MaterialEn
-		})
-		dto.MaterialsRu = Map(materials, func(m models.Material) string {
-			return m.MaterialRu
-		})
-
+		dto := mapSaleModelToSaleResponse(s)
 		sales = append(sales, dto)
 	}
 
@@ -142,7 +156,7 @@ func CreateSale(c *gin.Context) {
 	fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
-	var sale dtos.CreateSaleDto
+	var sale dtos.CreateSaleRequest
 	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
@@ -173,7 +187,7 @@ func CreateSale(c *gin.Context) {
 		"insert into sales (id, dir, width, height, year, price, name_ru, name_en, base_id, str_id, descr) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
-		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
+		config.AppConfigInstance.Directories.RelSalesDir+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
 		sale.Width,
 		sale.Height,
 		sale.Year,
@@ -228,7 +242,7 @@ func CreateSale(c *gin.Context) {
 	files := form.File
 
 	// Process each file
-	dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
+	dirPath := config.AppConfigInstance.Directories.AbsSalesDir + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
 		if err != nil {
@@ -311,12 +325,11 @@ func GetSaleById(c *gin.Context) {
 	// Get sale data
 	query := `SELECT * FROM sales WHERE id = ?`
 
-	var images sql.NullString
 	var sale models.Sale
 	err := db.QueryRow(query, id).Scan(
-		&sale.Id, &sale.Dir, &sale.Width, &sale.Height, &sale.Year,
+		&sale.Id, &sale.Width, &sale.Height, &sale.Year,
 		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.Descr, &images,
+		&sale.Descr, &sale.Images,
 	)
 
 	if err != nil {
@@ -328,56 +341,9 @@ func GetSaleById(c *gin.Context) {
 		return
 	}
 
-	if images.Valid {
-		sale.Images = strings.Split(images.String, ";")
-	} else {
-		sale.Images = []string{}
-	}
+	getSaleDto := mapSaleModelToSaleResponse(sale)
 
-	// Get materials for this sale
-	materialsQuery := `
-		SELECT m.id, m.material_ru, m.material_en
-		FROM materials m
-		JOIN sales_materials sm ON m.id = sm.material_id
-		WHERE sm.sale_id = ?
-	`
-
-	materialRows, err := db.Query(materialsQuery, sale.Id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer materialRows.Close()
-
-	var materialsIds []int
-	for materialRows.Next() {
-		var material models.Material
-		err := materialRows.Scan(&material.Id, &material.MaterialRu, &material.MaterialEn)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		materialsIds = append(materialsIds, material.Id)
-	}
-
-	// Create a Sale struct with materials_ids
-	getEditSaleDto := dtos.EditSaleDto{
-		Id:           sale.Id,
-		Dir:          sale.Dir,
-		Width:        sale.Width,
-		Height:       sale.Height,
-		Year:         sale.Year,
-		Price:        sale.Price,
-		NameRu:       sale.NameRu,
-		NameEn:       sale.NameEn,
-		StrId:        sale.StrId,
-		BaseId:       sale.BaseId,
-		Descr:        sale.Descr,
-		Images:       sale.Images,
-		MaterialsIds: materialsIds,
-	}
-
-	c.JSON(http.StatusOK, getEditSaleDto)
+	c.JSON(http.StatusOK, getSaleDto)
 }
 
 func UpdateSale(c *gin.Context) {
@@ -395,7 +361,7 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// 2. Parse the JSON
-	var sale dtos.UpdateSaleDto
+	var sale dtos.UpdateSaleRequest
 	if err := json.Unmarshal([]byte(dataJson), &sale); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
@@ -405,18 +371,17 @@ func UpdateSale(c *gin.Context) {
 	// 3. Either need to delete the old dir
 	// Get sale data, if
 	query := `
-		SELECT dir, name_en
+		SELECT name_en
 		FROM sales
 		WHERE id = ?
 	`
 
 	var sale_for_dir models.Sale
-	err := db.QueryRow(query, id).Scan(&sale_for_dir.Dir, &sale_for_dir.NameEn)
+	err := db.QueryRow(query, id).Scan(&sale_for_dir.NameEn)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	var needToDeleteOldDir = sale_for_dir.Dir == sale.Dir
 
 	// Begin transaction
 	tx, err := db.Begin()
@@ -430,7 +395,7 @@ func UpdateSale(c *gin.Context) {
 		SET dir = ?, width = ?, height = ?, year = ?, price = ?, name_ru = ?, name_en = ?,
 			base_id = ?, str_id = ?, descr = ?
 		WHERE id = ?`,
-		config.AppConfigInstance.Directories.SaleDbDirPrefix+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
+		config.AppConfigInstance.Directories.RelSalesDir+strings.Replace(sale.NameEn, " ", "_", -1)+"/",
 		sale.Width, sale.Height, sale.Year, sale.Price, sale.NameRu, sale.NameEn,
 		sale.BaseId, strings.Replace(sale.NameEn, " ", "_", -1), sale.Descr, id)
 
@@ -472,7 +437,7 @@ func UpdateSale(c *gin.Context) {
 	}
 
 	// Process directory and images
-	dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
+	dirPath := config.AppConfigInstance.Directories.AbsSalesDir + strings.Replace(sale.NameEn, " ", "_", -1) + "/"
 	fmt.Printf("dirPath: %s\n", dirPath)
 
 	// Create directory if it doesn't exist
@@ -492,14 +457,6 @@ func UpdateSale(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		tx.Rollback()
 		log.Fatal(err)
-	}
-
-	if needToDeleteOldDir {
-		dirPath := config.AppConfigInstance.Directories.SaleDirSave + strings.Replace(sale_for_dir.NameEn, " ", "_", -1) + "/"
-		err = os.RemoveAll(dirPath)
-		fmt.Printf("Delete dir is: %v\n", dirPath)
-		if err != nil {
-		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Sale updated successfully"})

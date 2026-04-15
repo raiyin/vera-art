@@ -54,15 +54,14 @@ type UpdateWorkRequest struct {
 }
 
 type CreateWorkRequest struct {
-	StrId        string `json:"str_id"`
-	NameRu       string `json:"name_ru"`
-	NameEn       string `json:"name_en"`
-	BaseId       int    `json:"base_id"`
-	Year         int    `json:"year"`
-	Descr        string `json:"descr"`
-	Width        int    `json:"width"`
-	Height       int    `json:"height"`
-	Type         int    `json:"type"`
-	Images       string `json:"images"`
-	MaterialsIds []int  `json:"materials_ids"`
+	NameRu       string   `json:"name_ru"`
+	NameEn       string   `json:"name_en"`
+	BaseId       int      `json:"base_id"`
+	Year         int      `json:"year"`
+	Descr        string   `json:"descr"`
+	Width        int      `json:"width"`
+	Height       int      `json:"height"`
+	Type         int      `json:"type"`
+	Images       []string `json:"images"`
+	MaterialsIds []int    `json:"materials_ids"`
 }

@@ -17,12 +17,6 @@ import (
 	"github.com/raiyin/artserver/models"
 )
 
-func getFileNamesString(files []string) string {
-	names := make([]string, len(files))
-	copy(names, files)
-	return strings.Join(names, ";")
-}
-
 // workModelToWorkResponse converts a models.Work to dtos.GetWorkDto using material maps.
 func workModelToWorkResponse(work models.Work) dtos.WorkResponse {
 	var dir = config.AppConfigInstance.Directories.RelWorksDir +

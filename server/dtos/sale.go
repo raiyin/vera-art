@@ -4,70 +4,66 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type GetSaleDto struct {
+type SaleResponse struct {
 	Id          int      `json:"id"`
+	StrId       string   `json:"str_id"`
 	Dir         string   `json:"dir"`
-	Width       int      `json:"width"`
-	Height      int      `json:"height"`
-	Year        int      `json:"year"`
-	Price       int      `json:"price"`
 	NameRu      string   `json:"name_ru"`
 	NameEn      string   `json:"name_en"`
-	StrId       string   `json:"str_id"`
+	Year        int      `json:"year"`
 	Descr       string   `json:"descr"`
-	Images      []string `json:"images"`
 	BaseRu      string   `json:"base_ru"`
 	BaseEn      string   `json:"base_en"`
+	Width       int      `json:"width"`
+	Height      int      `json:"height"`
+	Price       int      `json:"price"`
+	Images      []string `json:"images"`
 	MaterialsEn []string `json:"materials_en"`
 	MaterialsRu []string `json:"materials_ru"`
 }
 
-// EditSaleDto is the DTO for editing a sale from backend to frontend.
-type EditSaleDto struct {
+// Служит для отображения информации о картине на продажу на странице редактирования.
+type UpdateSaleResponse struct {
 	Id           int      `json:"id"`
+	StrId        string   `json:"str_id"`
 	Dir          string   `json:"dir"`
-	Width        int      `json:"width"`
-	Height       int      `json:"height"`
-	Year         int      `json:"year"`
-	Price        int      `json:"price"`
 	NameRu       string   `json:"name_ru"`
 	NameEn       string   `json:"name_en"`
-	StrId        string   `json:"str_id"`
 	BaseId       int      `json:"base_id"`
+	Year         int      `json:"year"`
 	Descr        string   `json:"descr"`
+	Width        int      `json:"width"`
+	Height       int      `json:"height"`
+	Price        int      `json:"price"`
 	Images       []string `json:"images"`
 	MaterialsIds []int    `json:"materials_ids"`
 }
 
-// UpdateEditSaleDto is the DTO for updating a sale from frontend.
-type UpdateSaleDto struct {
+// UpdateSaleRequest is the DTO for updating a sale from frontend.
+type UpdateSaleRequest struct {
 	Id           int      `json:"id"`
-	Dir          string   `json:"dir"`
-	Width        int      `json:"width"`
-	Height       int      `json:"height"`
-	Year         int      `json:"year"`
-	Price        int      `json:"price"`
 	NameRu       string   `json:"name_ru"`
 	NameEn       string   `json:"name_en"`
-	StrId        string   `json:"str_id"`
 	BaseId       int      `json:"base_id"`
+	Year         int      `json:"year"`
 	Descr        string   `json:"descr"`
+	Width        int      `json:"width"`
+	Height       int      `json:"height"`
+	Price        int      `json:"price"`
 	Images       []string `json:"images"`
 	MaterialsIds []int    `json:"materials_ids"`
 }
 
-// CreateSaleDto is the DTO for creating a sale from frontend.
-type CreateSaleDto struct {
-	Dir          string   `json:"dir"`
-	Width        int      `json:"width"`
-	Height       int      `json:"height"`
-	Year         int      `json:"year"`
-	Price        int      `json:"price"`
+// CreateSaleRequest is the DTO for creating a sale from frontend.
+type CreateSaleRequest struct {
 	NameRu       string   `json:"name_ru"`
 	NameEn       string   `json:"name_en"`
-	StrId        string   `json:"str_id"`
 	BaseId       int      `json:"base_id"`
+	Year         int      `json:"year"`
 	Descr        string   `json:"descr"`
+	Width        int      `json:"width"`
+	Height       int      `json:"height"`
+	Price        int      `json:"price"`
 	Images       []string `json:"images"`
 	MaterialsIds []int    `json:"materials_ids"`
 }

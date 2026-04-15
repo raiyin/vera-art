@@ -15,8 +15,8 @@ type AppConfig struct {
 type DirectoriesConfig struct {
 	AbsWorksDir     string `mapstructure:"abs_works_dir"`
 	RelWorksDir     string `mapstructure:"rel_works_dir"`
-	SaleDirSave     string `mapstructure:"sale_dir_save"`
-	SaleDbDirPrefix string `mapstructure:"sale_db_dir_prefix"`
+	AbsSalesDir     string `mapstructure:"abs_sales_dir"`
+	RelSalesDir     string `mapstructure:"rel_sales_dir"`
 	NewsDirSave     string `mapstructure:"news_dir_save"`
 	NewsDbDirPrefix string `mapstructure:"news_db_dir_prefix"`
 }
