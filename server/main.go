@@ -123,6 +123,7 @@ func main() {
 
 	r_gin.GET("/sales", GetSales)
 	r_gin.GET("/sales/:id", GetSaleById)
+	r_gin.GET("/sales/:id/edit", GetSaleByIdForEdit)
 	r_gin.POST("/sales", CreateSale)
 	r_gin.PUT("/sales/:id", AuthMiddleware(), UpdateSale)
 

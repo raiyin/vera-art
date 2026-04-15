@@ -67,6 +67,46 @@ func mapSaleModelToSaleResponse(sale models.Sale) dtos.SaleResponse {
 	return dto
 }
 
+func mapSaleModelToUpdateSaleResponse(sale models.Sale) dtos.UpdateSaleResponse {
+	var dir = config.AppConfigInstance.Directories.RelSalesDir +
+		sale.StrId + "/"
+	dto := dtos.UpdateSaleResponse{
+		Id:           sale.Id,
+		StrId:        sale.StrId,
+		Dir:          dir,
+		NameRu:       sale.NameRu,
+		NameEn:       sale.NameEn,
+		BaseId:       sale.BaseId,
+		Year:         sale.Year,
+		Descr:        sale.Descr,
+		Width:        sale.Width,
+		Height:       sale.Height,
+		Price:        sale.Price,
+		Images:       strings.Split(sale.Images, ";"),
+		MaterialsIds: []int{},
+	}
+
+	// Query materials_ru and materials_en arrays from many-to-many works_materials table and materials tables
+	rows, err := db.Query("select material_id from sales_materials where sale_id = ?", sale.Id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	materialIds := []int{}
+	for rows.Next() {
+		var materialId int
+		err := rows.Scan(&materialId)
+		if err != nil {
+			panic(err)
+		}
+		materialIds = append(materialIds, materialId)
+	}
+
+	dto.MaterialsIds = materialIds
+	return dto
+}
+
 func MaterialsBySaleId(saleId int) []models.Material {
 	query := "select m.* from materials m join sales_materials sm on m.id = sm.material_id where sm.sale_id = ?"
 	rows, err := db.Query(query, saleId)
@@ -344,6 +384,36 @@ func GetSaleById(c *gin.Context) {
 	getSaleDto := mapSaleModelToSaleResponse(sale)
 
 	c.JSON(http.StatusOK, getSaleDto)
+}
+
+func GetSaleByIdForEdit(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
+		return
+	}
+
+	// Get work data
+	query := `SELECT * FROM sales WHERE id = ?`
+
+	var sale models.Sale
+	err := db.QueryRow(query, id).Scan(
+		&sale.Id, &sale.Width, &sale.Height, &sale.Year, &sale.Price,
+		&sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
+		&sale.Descr, &sale.Images)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "sale not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	var saleResponse dtos.UpdateSaleResponse
+	saleResponse = mapSaleModelToUpdateSaleResponse(sale)
+	c.JSON(http.StatusOK, saleResponse)
+
 }
 
 func UpdateSale(c *gin.Context) {
