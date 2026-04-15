@@ -358,7 +358,13 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { CreateWorkDto, Base, Material, RequestResult } from '@/types';
+import {
+    Base,
+    Material,
+    RequestResult,
+    UpdateWorkRequest,
+    UpdateWorkResponse,
+} from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
 
 export default defineComponent({
@@ -382,7 +388,23 @@ export default defineComponent({
                 descr: '',
                 type: 0,
                 images: [] as string[],
-            },
+            } as UpdateWorkResponse,
+            // Для сброса формы
+            originalWork: {
+                id: 0,
+                str_id: '',
+                dir: '',
+                name_ru: '',
+                name_en: '',
+                base_id: 0,
+                year: new Date().getFullYear(),
+                descr: '',
+                width: 0,
+                height: 0,
+                type: 0,
+                images: [] as string[],
+                materials_ids: [] as number[],
+            } as UpdateWorkResponse,
             files: [] as File[],
             previewImages: [] as {
                 file?: File;
@@ -415,21 +437,6 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
-            originalWork: {
-                id: 0,
-                str_id: '',
-                dir: '',
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [] as number[],
-                descr: '',
-                type: 0,
-                images: [] as string[],
-            },
         };
     },
     async created() {
@@ -694,9 +701,10 @@ export default defineComponent({
                 // Add new image filenames (sanitized)
                 for (const file of this.files) {
                     // Sanitize filename similar to server-side
-                    let sanitizedFilename = file.name.replace(/ /g, '_');
-                    sanitizedFilename = sanitizedFilename.replace(/[()'"\[\]]/g, '');
-                    finalImages.push(sanitizedFilename);
+                    // let sanitizedFilename = file.name.replace(/ /g, '_');
+                    // sanitizedFilename = sanitizedFilename.replace(/[()'"\[\]]/g, '');
+                    // finalImages.push(sanitizedFilename);
+                    finalImages.push(file.name);
                 }
 
                 // Добавляем файлы, если есть
@@ -706,13 +714,14 @@ export default defineComponent({
                     });
                 }
 
-                const workData = {
+                let workDataToUpdate: UpdateWorkRequest;
+                workDataToUpdate = {
                     ...this.work,
                     images: finalImages,
                 };
-                workData.type = parseInt(workData.type as any);
+                workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
 
-                formData.append('data', JSON.stringify(workData));
+                formData.append('data', JSON.stringify(workDataToUpdate));
 
                 const strId = this.$route.params.id;
                 const response = await axios.put(

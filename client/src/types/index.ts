@@ -7,5 +7,7 @@ export type { AddSaleDto, GetSaleDto, Sale } from './sale';
 export type { Base } from './base';
 export type { RequestResult } from './request-result';
 export type { UserPassPair } from './userpasspair';
-export type {CommonGetWorkDto} from './common_work'
-export type {GetBaseWork} from './base_work'
+export type { CommonGetWorkDto } from './common_work';
+export type { GetBaseWork } from './base_work';
+export type { UpdateWorkResponse } from './work';
+export type { UpdateWorkRequest } from './work';

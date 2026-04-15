@@ -1,6 +1,6 @@
 <script lang="ts">
 import Gallery from '@/components/app-ui/PicGallery.vue';
-import { GetWorkDto } from '@/types';
+import { GetBaseWork, GetWorkDto } from '@/types';
 import { TypedGetWorkDto } from '@/types/work';
 import axios from 'axios';
 
@@ -29,11 +29,13 @@ export default {
                 });
 
                 const newWorks: TypedGetWorkDto[] = response.data.map(
-                    (work: GetWorkDto) => ({
+                    (work: GetBaseWork) => ({
                         ...work,
+                        __type: 'GetWorkDto',
                     })
                 );
                 this.works = [...this.works, ...newWorks];
+                console.log(this.works);
             } catch (e) {
                 console.error('Error fetching works on allworks page ' + e);
             }

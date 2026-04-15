@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -495,16 +495,13 @@ func UpdateWork(c *gin.Context) {
 	}
 
 	// 3. Get old work data to compare and clean up
-	query := `
-		SELECT name_en, str_id
-		FROM works
-		WHERE id = ?
-	`
+	query := `SELECT name_en, str_id FROM works WHERE id = ?`
 
 	var oldNameEn string
 	var oldStrId string
-	err := db.QueryRow(query, id).Scan(&oldNameEn, &oldStrId)
-	if err != nil {
+	if err := db.QueryRow(query, id).Scan(&oldNameEn, &oldStrId); err != nil {
+
+		log.Fatalf("Error loading config: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -517,15 +514,15 @@ func UpdateWork(c *gin.Context) {
 
 	// Update work record
 	// Build images string from work.Images slice
-	imagesStr := work.Images
-	// newDir := config.AppConfigInstance.Directories.WorksDbDirPrefix + strings.Replace(work.NameEn, " ", "_", -1) + "/"
+	imagesStr := strings.Join(work.Images, ";")
 	_, err = tx.Exec(`
 		UPDATE works
 		SET width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
 			base_id = ?, str_id = ?, descr = ?, type = ?, images = ?
 		WHERE id = ?`,
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
-		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.Descr, work.Type, imagesStr, id)
+		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1),
+		work.Descr, work.Type, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()
@@ -564,6 +561,36 @@ func UpdateWork(c *gin.Context) {
 		}
 	}
 
+	// rename old dir name by new
+	err = os.Rename(
+		config.AppConfigInstance.Directories.AbsWorksDir+
+			config.AppConfigInstance.Directories.RelWorksDir+oldStrId+"/",
+		config.AppConfigInstance.Directories.AbsWorksDir+
+			config.AppConfigInstance.Directories.RelWorksDir+strings.Replace(work.NameEn, " ", "_", -1)+"/")
+
+	// Delete only files in dir whith names that do not exists in work.Images
+	files, err := os.ReadDir(
+		config.AppConfigInstance.Directories.AbsWorksDir +
+			config.AppConfigInstance.Directories.RelWorksDir + strings.Replace(work.NameEn, " ", "_", -1) + "/")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, file := range files {
+		if !slices.Contains(work.Images, file.Name()) {
+			err = os.Remove(
+				config.AppConfigInstance.Directories.AbsWorksDir +
+					config.AppConfigInstance.Directories.RelWorksDir +
+					strings.Replace(work.NameEn, " ", "_", -1) + "/" +
+					file.Name())
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+	}
+
 	// Handle file uploads if any
 	form, err := c.MultipartForm()
 	if err != nil && err != http.ErrNotMultipart {
@@ -572,163 +599,22 @@ func UpdateWork(c *gin.Context) {
 		return
 	}
 
-	// Process directory and images
-	// First, determine if we need to move to a new directory (name changed)
-	newNameNormalized := strings.Replace(work.NameEn, " ", "_", -1)
-	nameChanged := oldStrId != newNameNormalized
-
-	oldDirPath := config.AppConfigInstance.Directories.AbsWorksDir +
-		config.AppConfigInstance.Directories.RelWorksDir +
-		oldStrId + "/"
-
-	if nameChanged {
-
-		// New directory path
-		newDirPath := config.AppConfigInstance.Directories.AbsWorksDir +
-			config.AppConfigInstance.Directories.RelWorksDir +
-			newNameNormalized + "/"
-		fmt.Printf("New dirPath: %s\n", newDirPath)
-
-		// Create new directory if it doesn't exist
-		if _, err := os.Stat(newDirPath); os.IsNotExist(err) {
-			err := os.MkdirAll(newDirPath, 0777)
-			if err != nil {
-				fmt.Printf("Error creating directory: %v\n", err)
-				c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
-				tx.Rollback()
-				return
-			}
-			fmt.Printf("Directory '%s' created successfully.\n", newDirPath)
-		}
-
-		// Clean up old images in the new directory (if directory already existed)
-		// Delete all files in the new directory to start fresh
-		if _, err := os.Stat(newDirPath); err == nil {
-			files, err := filepath.Glob(filepath.Join(newDirPath, "*"))
-			if err == nil {
-				for _, file := range files {
-					os.Remove(file)
-				}
-			}
-		}
-
-		// Handle file uploads if any
-		if form != nil {
-			// Get all files from the form
-			files := form.File
-
-			// Save new images with their original filenames (sanitized)
-			for fieldName, fileHeaders := range files {
-				for _, fileHeader := range fileHeaders {
-					// Open the file
-					file, err := fileHeader.Open()
-					if err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-					defer file.Close()
-
-					// Use original filename but sanitize it
-					originalFilename := fileHeader.Filename
-					// Sanitize filename: replace spaces with underscores, remove special characters
-					// sanitizedFilename := strings.Replace(originalFilename, " ", "_", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "(", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, ")", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "'", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "\"", "", -1)
-
-					// Create a destination file
-					// dst, err := os.Create(newDirPath + sanitizedFilename)
-					dst, err := os.Create(newDirPath + originalFilename)
-					if err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-					defer dst.Close()
-
-					// Copy the file data
-					if _, err := io.Copy(dst, file); err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-
-					// log.Printf("Saved file %s from field %s as %s", fileHeader.Filename, fieldName, sanitizedFilename)
-					log.Printf("Saved file %s from field %s as %s", fileHeader.Filename, fieldName, originalFilename)
-				}
-			}
-		}
-
-		// Clean up old directory if name changed
-		if nameChanged {
-			if _, err := os.Stat(oldDirPath); err == nil {
-				err = os.RemoveAll(oldDirPath)
-				fmt.Printf("Deleted old directory: %v\n", oldDirPath)
+	if form != nil {
+		for _, f := range form.File {
+			for _, file := range f {
+				// Upload the file to the server
+				err = c.SaveUploadedFile(file,
+					config.AppConfigInstance.Directories.AbsWorksDir+
+						config.AppConfigInstance.Directories.RelWorksDir+
+						strings.Replace(work.NameEn, " ", "_", -1)+"/"+
+						file.Filename)
 				if err != nil {
-					log.Printf("Error deleting old directory %s: %v", oldDirPath, err)
+					c.JSON(400, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
 				}
 			}
 		}
-
-		if form != nil {
-			// Get all files from the form
-			files := form.File
-
-			// Save new images with their original filenames (sanitized)
-			for fieldName, fileHeaders := range files {
-				for _, fileHeader := range fileHeaders {
-					// Open the file
-					file, err := fileHeader.Open()
-					if err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-					defer file.Close()
-
-					// Use original filename but sanitize it
-					originalFilename := fileHeader.Filename
-					// Sanitize filename: replace spaces with underscores, remove special characters
-					// sanitizedFilename := strings.Replace(originalFilename, " ", "_", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "(", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, ")", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "'", "", -1)
-					// sanitizedFilename = strings.Replace(sanitizedFilename, "\"", "", -1)
-
-					// Create a destination file
-					// dst, err := os.Create(newDirPath + sanitizedFilename)
-					dst, err := os.Create(newDirPath + originalFilename)
-					if err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-					defer dst.Close()
-
-					// Copy the file data
-					if _, err := io.Copy(dst, file); err != nil {
-						c.JSON(500, gin.H{"error": err.Error()})
-						tx.Rollback()
-						return
-					}
-
-					// log.Printf("Saved file %s from field %s as %s", fileHeader.Filename, fieldName, sanitizedFilename)
-					log.Printf("Saved file %s from field %s as %s", fileHeader.Filename, fieldName, originalFilename)
-				}
-			}
-		}
-
-	} else {
-		// remove all images from the old directory
-		files, err := filepath.Glob(filepath.Join(oldDirPath, "*"))
-		if err == nil {
-			for _, file := range files {
-				os.Remove(file)
-			}
-		}
-
 	}
 
 	err = tx.Commit()

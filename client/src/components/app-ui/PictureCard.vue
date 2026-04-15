@@ -49,6 +49,8 @@ export default {
                 this.$router.push('/sales/edit/' + this.imageObject.id);
             } else if (this.imageObject.__type === 'GetWorkDto') {
                 this.$router.push('/works/edit/' + this.imageObject.id);
+            } else {
+                console.error('Unknown item type', this.imageObject.__type);
             }
         },
         async onImageDelete(id: string) {

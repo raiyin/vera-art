@@ -41,7 +41,6 @@ type UpdateWorkResponse struct {
 
 type UpdateWorkRequest struct {
 	Id           int      `json:"id"`
-	StrId        string   `json:"str_id"`
 	NameRu       string   `json:"name_ru"`
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
