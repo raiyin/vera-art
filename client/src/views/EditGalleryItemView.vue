@@ -337,7 +337,7 @@
             v-model="showSuccessAlert"
             type="success"
             title="Успешно!"
-            message="Работа успешно обновлена в галерее."
+            message="Работа успешно обновлена в галлерею."
             closeButtonText="Закрыть"
         />
 
@@ -437,12 +437,26 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
+            successAlertTimeout: null as number | null,
+            errorAlertTimeout: null as number | null,
         };
     },
     async created() {
         await this.loadBases();
         await this.loadMaterials();
         await this.loadWork();
+    },
+
+    beforeUnmount() {
+        // Clear any pending timeouts when component is destroyed
+        if (this.successAlertTimeout) {
+            clearTimeout(this.successAlertTimeout);
+            this.successAlertTimeout = null;
+        }
+        if (this.errorAlertTimeout) {
+            clearTimeout(this.errorAlertTimeout);
+            this.errorAlertTimeout = null;
+        }
     },
     methods: {
         async loadBases() {
@@ -454,9 +468,9 @@ export default defineComponent({
                 console.error('Ошибка при загрузке основ:', error);
                 this.loadError = 'Не удалось загрузить список основ';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         async loadMaterials() {
@@ -468,9 +482,9 @@ export default defineComponent({
                 console.error('Ошибка при загрузке материалов:', error);
                 this.loadError = 'Не удалось загрузить список материалов';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         async loadWork() {
@@ -488,9 +502,9 @@ export default defineComponent({
                 console.error('Ошибка при загрузке работы:', error);
                 this.loadError = 'Не удалось загрузить работу';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         loadPreviewImages() {
@@ -736,7 +750,7 @@ export default defineComponent({
                 );
 
                 if (response.status === 200) {
-                    this.showSuccessAlert = true;
+                    this.showSuccessAlertWithTimeout();
                     // Update work images with final list
                     this.work.images = finalImages;
                     // Clear deletion list and files
@@ -745,23 +759,22 @@ export default defineComponent({
                     // Обновляем оригинальную работу
                     this.originalWork = { ...this.work };
                 } else {
-                    this.showErrorAlert = true;
-                    this.errorMessage =
-                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
+                    this.showErrorAlertWithTimeout(
+                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
+                    );
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
-                this.showErrorAlert = true;
+                let errorMsg =
+                    'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 if (error.response?.status === 413) {
-                    this.errorMessage =
+                    errorMsg =
                         'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
                 } else if (error.response?.status === 400) {
-                    this.errorMessage =
+                    errorMsg =
                         'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                } else {
-                    this.errorMessage =
-                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 }
+                this.showErrorAlertWithTimeout(errorMsg);
             } finally {
                 this.isSubmitting = false;
             }
@@ -788,7 +801,58 @@ export default defineComponent({
         basesToggleDropdown() {
             this.basesDropdownOpen = !this.basesDropdownOpen;
         },
+        showSuccessAlertWithTimeout() {
+            // Clear any existing timeout
+            if (this.successAlertTimeout) {
+                clearTimeout(this.successAlertTimeout);
+                this.successAlertTimeout = null;
+            }
+
+            // Show the alert
+            this.showSuccessAlert = true;
+
+            // Set timeout to hide after 5 seconds (5000 milliseconds)
+            this.successAlertTimeout = setTimeout(() => {
+                this.showSuccessAlert = false;
+                this.successAlertTimeout = null;
+            }, 5000);
+        },
+
+        showErrorAlertWithTimeout(message?: string) {
+            // Clear any existing timeout
+            if (this.errorAlertTimeout) {
+                clearTimeout(this.errorAlertTimeout);
+                this.errorAlertTimeout = null;
+            }
+
+            // Set error message if provided
+            if (message) {
+                this.errorMessage = message;
+            }
+
+            // Show the alert
+            this.showErrorAlert = true;
+
+            // Set timeout to hide after 5 seconds (5000 milliseconds)
+            this.errorAlertTimeout = setTimeout(() => {
+                this.showErrorAlert = false;
+                this.errorMessage = '';
+                this.errorAlertTimeout = null;
+            }, 5000);
+        },
+
         closeAlert() {
+            // Clear timeouts
+            if (this.successAlertTimeout) {
+                clearTimeout(this.successAlertTimeout);
+                this.successAlertTimeout = null;
+            }
+            if (this.errorAlertTimeout) {
+                clearTimeout(this.errorAlertTimeout);
+                this.errorAlertTimeout = null;
+            }
+
+            // Hide alerts
             this.showSuccessAlert = false;
             this.showErrorAlert = false;
             this.errorMessage = '';
