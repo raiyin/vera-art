@@ -65,7 +65,9 @@
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">{{ fileError }}</div>
+                    <div v-if="fileError" class="error-message">
+                        {{ fileError }}
+                    </div>
                     <div class="preview-container" v-if="previewImages.length > 0">
                         <div
                             v-for="(image, index) in previewImages"
@@ -188,7 +190,9 @@
                         placeholder="Например: 2023"
                         @blur="validateField('year')"
                     />
-                    <div v-if="errors.year" class="error-message">{{ errors.year }}</div>
+                    <div v-if="errors.year" class="error-message">
+                        {{ errors.year }}
+                    </div>
                 </div>
 
                 <!-- Цена -->
@@ -348,7 +352,7 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { AddSaleDto, Sale, Base, Material, RequestResult } from '@/types';
+import { CreateSaleDto, Base, Material, RequestResult } from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
 export default defineComponent({
     name: 'AddSale',
@@ -360,15 +364,15 @@ export default defineComponent({
             sale: {
                 width: 0,
                 height: 0,
-                year: new Date().getFullYear(),
-                price: 0,
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
-                materials_ids: [] as number[],
-                img_count: 0,
+                year: new Date().getFullYear(),
+                price: 0,
                 descr: '',
-            } as AddSaleDto,
+                materials_ids: [] as number[],
+                images: [] as string[],
+            } as CreateSaleDto,
             files: [] as File[],
             previewImages: [] as { file: File; preview: string }[],
             isSubmitting: false,
@@ -603,12 +607,12 @@ export default defineComponent({
                 // Добавляем файлы
                 this.files.forEach((file) => {
                     formData.append('images', file);
+                    this.sale.images.push(file.name);
                 });
 
                 // Добавляем остальные данные
                 const saleData = {
                     ...this.sale,
-                    img_count: this.previewImages.length,
                 };
 
                 formData.append('data', JSON.stringify(saleData));
@@ -654,7 +658,7 @@ export default defineComponent({
                 name_en: '',
                 base_id: 0,
                 materials_ids: [],
-                img_count: 0,
+                images: [],
                 descr: '',
             };
             this.files = [];

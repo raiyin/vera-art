@@ -1,5 +1,4 @@
 <script lang="ts">
-import type { ImageProps } from '@/props/image-props';
 import ModalDialog from './ModalDialog.vue';
 import { useThemeStore } from '../../stores/ThemeStore';
 import type { PropType } from 'vue';
@@ -7,6 +6,8 @@ import PictureCardSkeleton from '../app-skeletons/PictureCardSkeleton.vue';
 import PicCarousel from './PicCarousel.vue';
 import { useAuthStore } from '../../stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { CommonGetWorkDto, GetSaleDto } from '@/types';
+import Alert from './Alert.vue';
 
 export default {
     setup() {
@@ -23,11 +24,12 @@ export default {
         Modal: ModalDialog,
         CardSkeleton: PictureCardSkeleton,
         Carousel: PicCarousel,
+        Alert,
     },
     props: {
         imageObject: {
-            type: Object as PropType<ImageProps>,
-            default: {} as ImageProps,
+            type: Object as PropType<CommonGetWorkDto>,
+            default: {} as CommonGetWorkDto,
         },
     },
     emits: ['work-deleted'],
@@ -35,6 +37,10 @@ export default {
         return {
             isLoaded: false,
             imagebasedir: import.meta.env.VITE_IMAGE_DIR,
+            showAlert: false,
+            alertType: 'success',
+            alertTitle: '',
+            alertMessage: '',
         };
     },
     methods: {
@@ -45,22 +51,21 @@ export default {
         },
         edit() {
             // Check if the item is a shop item (has price) or gallery item (has type)
-            if (this.imageObject.price && this.imageObject.price !== '') {
-                // Shop item - redirect to EditShopItemView
+            if (this.imageObject.__type === 'GetSaleDto') {
                 this.$router.push('/sales/edit/' + this.imageObject.id);
-            } else if (this.imageObject.type !== undefined) {
-                // Gallery item - redirect to EditGalleryItemView
+            } else if (this.imageObject.__type === 'GetWorkDto') {
                 this.$router.push('/works/edit/' + this.imageObject.id);
             } else {
-                // Default to gallery item if neither condition is met
-                this.$router.push('/works/edit/' + this.imageObject.id);
+                console.error('Unknown item type', this.imageObject.__type);
             }
         },
         async onImageDelete(id: string) {
             try {
+                const typeOfWork =
+                    this.imageObject.__type === 'GetWorkDto' ? 'works/' : 'sales/';
                 const token = localStorage.getItem('token');
                 const response = await fetch(
-                    import.meta.env.VITE_SERVER_URL + 'works/' + id,
+                    import.meta.env.VITE_SERVER_URL + typeOfWork + id,
                     {
                         method: 'DELETE',
                         headers: {
@@ -72,19 +77,69 @@ export default {
                 if (response.ok) {
                     // Emit event to parent component to update the list
                     this.$emit('work-deleted', this.imageObject.id);
-                    // Close the modal
-                    const modal = document.getElementById(this.imgIdToDeleteId);
-                    if (modal) {
-                        const bsModal = (window as any).bootstrap.Modal.getInstance(
-                            modal
-                        );
-                        if (bsModal) bsModal.hide();
-                    }
+                    // Show success alert
+                    this.showAlertMessage('success', 'Успешно', 'Работа успешно удалена');
                 } else {
                     console.error('Failed to delete work');
+                    // Show error alert
+                    this.showAlertMessage(
+                        'danger',
+                        'Ошибка',
+                        'Не удалось удалить работу'
+                    );
                 }
             } catch (error) {
                 console.error('Error deleting work:', error);
+                // Show error alert
+                this.showAlertMessage(
+                    'danger',
+                    'Ошибка',
+                    'Произошла ошибка при удалении'
+                );
+            } finally {
+                // Close the modal in all cases
+                this.closeDeleteModal();
+            }
+        },
+        showAlertMessage(type: 'success' | 'danger', title: string, message: string) {
+            this.alertType = type;
+            this.alertTitle = title;
+            this.alertMessage = message;
+            this.showAlert = true;
+
+            // Hide alert after 5 seconds
+            setTimeout(() => {
+                this.showAlert = false;
+            }, 5000);
+        },
+        closeDeleteModal() {
+            const modal = document.getElementById(this.mapImgIdToDeleteId);
+            // Try different ways to get modal instance
+            let bsModal = null;
+
+            if ((window as any).bootstrap?.Modal) {
+                bsModal = (window as any).bootstrap.Modal.getInstance(modal);
+            } else if (
+                (window as any).jQuery &&
+                (window as any).jQuery(modal).data('bs.modal')
+            ) {
+                // jQuery fallback for Bootstrap 4
+                bsModal = (window as any).jQuery(modal).data('bs.modal');
+            }
+
+            console.log('bsModal', bsModal);
+            if (bsModal) {
+                bsModal.hide();
+            } else {
+                // Manual hide as fallback
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) backdrop.remove();
+
+                const restModal = document.getElementById('modal-backdrop');
+                if (restModal) restModal.remove();
             }
         },
     },
@@ -98,11 +153,11 @@ export default {
         imgIdToModalId() {
             return this.imageObject.str_id + 'Modal';
         },
-        imgIdToDeleteId() {
+        mapImgIdToDeleteId() {
             return this.imageObject.str_id + 'DeleteModal';
         },
         mainCardImage() {
-            return this.imagebasedir + this.imageObject.dir + '1.jpg';
+            return this.imagebasedir + this.imageObject.dir + this.imageObject.images[0];
         },
         showCardShadow() {
             if (this.themeStore.theme === 'light') {
@@ -158,7 +213,7 @@ export default {
                         </span>
                     </div>
 
-                    <p v-if="imageObject.price">
+                    <p v-if="imageObject.__type === 'GetSaleDto' && imageObject.price">
                         {{ $t('card.price') + ` ${imageObject.price} ` + $t('card.rub') }}
                     </p>
 
@@ -190,7 +245,7 @@ export default {
 
         <div
             class="modal fade"
-            :id="imgIdToDeleteId"
+            :id="mapImgIdToDeleteId"
             tabindex="-1"
             aria-labelledby="imageDeleteModalLabel"
             aria-hidden="true"
@@ -232,6 +287,14 @@ export default {
                 </div>
             </div>
         </div>
+
+        <Alert
+            v-model="showAlert"
+            :type="alertType"
+            :title="alertTitle"
+            :message="alertMessage"
+            close-button-text="Закрыть"
+        />
     </div>
 </template>
 

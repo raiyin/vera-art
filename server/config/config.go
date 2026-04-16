@@ -13,12 +13,12 @@ type AppConfig struct {
 }
 
 type DirectoriesConfig struct {
-	WorksDirSave     string `mapstructure:"works_dir_save"`
-	WorksDbDirPrefix string `mapstructure:"works_db_dir_prefix"`
-	SaleDirSave      string `mapstructure:"sale_dir_save"`
-	SaleDbDirPrefix  string `mapstructure:"sale_db_dir_prefix"`
-	NewsDirSave      string `mapstructure:"news_dir_save"`
-	NewsDbDirPrefix  string `mapstructure:"news_db_dir_prefix"`
+	AbsWorksDir     string `mapstructure:"abs_works_dir"`
+	RelWorksDir     string `mapstructure:"rel_works_dir"`
+	AbsSalesDir     string `mapstructure:"abs_sales_dir"`
+	RelSalesDir     string `mapstructure:"rel_sales_dir"`
+	NewsDirSave     string `mapstructure:"news_dir_save"`
+	NewsDbDirPrefix string `mapstructure:"news_db_dir_prefix"`
 }
 
 type Config struct {
@@ -37,7 +37,7 @@ func LoadConfig(configPath string) error {
 
 	// Set defaults
 	viper.SetDefault("app.port", 8000)
-	viper.SetDefault("directories.works", ".")
+	viper.SetDefault("app.name", "artserver")
 
 	// Read config
 	if err := viper.ReadInConfig(); err != nil {

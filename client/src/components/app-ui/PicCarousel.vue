@@ -1,12 +1,12 @@
 <script lang="ts">
-import type { ImageProps } from '@/types';
+import { CommonGetWorkDto } from '@/types';
 import type { PropType } from 'vue';
 
 export default {
     props: {
         imageObject: {
-            type: Object as PropType<ImageProps>,
-            default: {} as ImageProps,
+            type: Object as PropType<CommonGetWorkDto>,
+            default: {} as CommonGetWorkDto,
         },
         imageId: {
             type: String,
@@ -15,13 +15,11 @@ export default {
     data() {
         return {
             imgCountGTOne: false,
-            extension: '.jpg',
-            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
         };
     },
     methods: {
-        makeFileName(dir: string, index: number) {
-            return this.imagebasedir + dir + index + this.extension;
+        makeFileName(index: number) {
+            return this.imageObject.dir + this.imageObject.images[index - 1];
         },
     },
     computed: {
@@ -30,7 +28,7 @@ export default {
         },
     },
     beforeMount() {
-        this.imgCountGTOne = this.imageObject.img_count > 1;
+        this.imgCountGTOne = this.imageObject.images.length > 1;
     },
 };
 </script>
@@ -39,7 +37,7 @@ export default {
     <div :id="imageId" class="carousel slide" data-bs-ride="false">
         <div v-if="imgCountGTOne" class="carousel-indicators">
             <button
-                v-for="index in imageObject.img_count"
+                v-for="index in imageObject.images.length"
                 v-bind:key="index"
                 type="button"
                 :data-bs-target="imgIdtoLink"
@@ -51,14 +49,10 @@ export default {
         </div>
 
         <div class="carousel-inner">
-            <template v-for="index in imageObject.img_count" v-bind:key="index">
-                <div
-                    :class="
-                        index === 1 ? 'carousel-item active' : 'carousel-item'
-                    "
-                >
+            <template v-for="index in imageObject.images.length" v-bind:key="index">
+                <div :class="index === 1 ? 'carousel-item active' : 'carousel-item'">
                     <img
-                        :src="makeFileName(imageObject.dir, index)"
+                        :src="makeFileName(index)"
                         class="d-block modal-image"
                         alt="..."
                     />

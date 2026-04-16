@@ -1,4 +1,6 @@
-export interface Sale {
+import { GetBaseWork } from "./base_work";
+
+export interface CreateSaleDto {
     width: number;
     height: number;
     year: number;
@@ -7,21 +9,44 @@ export interface Sale {
     name_en: string;
     base_id: number;
     materials_ids: number[];
-    img_count: number;
     descr: string;
-    removed_indices?: number[];
+    images: string[];
 }
 
-export interface AddSaleDto {
-    width: number;
-    height: number;
-    year: number;
-    price: number;
+export interface UpdateSaleResponse {
+    id: number;
+    str_id: string;
+    dir: string;
     name_ru: string;
     name_en: string;
     base_id: number;
-    materials_ids: number[];
-    img_count: number;
+    year: number;
     descr: string;
-    removed_indices?: number[];
+    width: number;
+    height: number;
+    price: number;
+    images: string[];
+    materials_ids: number[];
 }
+
+export interface UpdateSaleRequest {
+    id: number;
+    name_ru: string;
+    name_en: string;
+    base_id: number;
+    year: number;
+    descr: string;
+    width: number;
+    height: number;
+    price: number;
+    images: string[];
+    materials_ids: number[];
+}
+
+export type GetSaleDto = GetBaseWork & {
+    price: number;
+};
+
+export type TypedGetSaleDto = GetSaleDto & {
+    __type: "GetSaleDto";
+};

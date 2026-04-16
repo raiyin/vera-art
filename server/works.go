@@ -8,22 +8,111 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
-	"sort"
-	"strconv"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/raiyin/artserver/config"
+	"github.com/raiyin/artserver/dtos"
 	"github.com/raiyin/artserver/models"
 )
+
+// workModelToWorkResponse converts a models.Work to dtos.GetWorkDto using material maps.
+func workModelToWorkResponse(work models.Work) dtos.WorkResponse {
+	var dir = config.AppConfigInstance.Directories.RelWorksDir +
+		work.StrId + "/"
+	dto := dtos.WorkResponse{
+		Id:          work.Id,
+		StrId:       work.StrId,
+		Dir:         dir,
+		NameRu:      work.NameRu,
+		NameEn:      work.NameEn,
+		Year:        work.Year,
+		Descr:       work.Descr,
+		Width:       work.Width,
+		Height:      work.Height,
+		Type:        work.Type,
+		BaseRu:      "",
+		BaseEn:      "",
+		Images:      strings.Split(work.Images, ";"),
+		MaterialsEn: []string{},
+		MaterialsRu: []string{},
+	}
+	// Query base_ru and base_en
+	db.QueryRow("select base_ru, base_en from bases where id = ?", work.BaseId).Scan(&dto.BaseRu, &dto.BaseEn)
+
+	// Query materials_ru and materials_en arrays from many-to-many works_materials table and materials tables
+	rows, err := db.Query("select material_id from works_materials where work_id = ?", work.Id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	materialIds := []int{}
+	for rows.Next() {
+		var materialId int
+		err := rows.Scan(&materialId)
+		if err != nil {
+			panic(err)
+		}
+		materialIds = append(materialIds, materialId)
+	}
+	for _, materialId := range materialIds {
+		var materialRu, materialEn string
+		db.QueryRow("select material_ru, material_en from materials where id = ?", materialId).Scan(&materialRu, &materialEn)
+		dto.MaterialsRu = append(dto.MaterialsRu, materialRu)
+		dto.MaterialsEn = append(dto.MaterialsEn, materialEn)
+	}
+
+	return dto
+}
+
+func workModelToUpdateWorkResponse(work models.Work) dtos.UpdateWorkResponse {
+	var dir = config.AppConfigInstance.Directories.RelWorksDir +
+		work.StrId + "/"
+	dto := dtos.UpdateWorkResponse{
+		Id:           work.Id,
+		StrId:        work.StrId,
+		Dir:          dir,
+		NameRu:       work.NameRu,
+		NameEn:       work.NameEn,
+		BaseId:       work.BaseId,
+		Year:         work.Year,
+		Descr:        work.Descr,
+		Width:        work.Width,
+		Height:       work.Height,
+		Type:         work.Type,
+		Images:       strings.Split(work.Images, ";"),
+		MaterialsIds: []int{},
+	}
+
+	// Query materials_ru and materials_en arrays from many-to-many works_materials table and materials tables
+	rows, err := db.Query("select material_id from works_materials where work_id = ?", work.Id)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+
+	materialIds := []int{}
+	for rows.Next() {
+		var materialId int
+		err := rows.Scan(&materialId)
+		if err != nil {
+			panic(err)
+		}
+		materialIds = append(materialIds, materialId)
+	}
+
+	dto.MaterialsIds = materialIds
+	return dto
+}
 
 func GetWorks(c *gin.Context) {
 
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 
-	query := "select w.*, b.base_ru, b.base_en from works w join bases b on w.base_id = b.id"
+	query := "select *  from works"
 
 	if len(limit) > 0 {
 		query = query + " limit " + limit
@@ -38,15 +127,26 @@ func GetWorks(c *gin.Context) {
 		panic(err)
 	}
 	defer rows.Close()
-	works := []models.Work{}
+
+	works := []dtos.WorkResponse{}
 	for rows.Next() {
 		w := models.Work{}
-		err := rows.Scan(&w.Id, &w.Dir, &w.Width, &w.Height, &w.Year, &w.NameRu, &w.NameEn, &w.BaseId, &w.StrId, &w.ImgCount, &w.Descr, &w.Type, &w.BaseRu, &w.BaseEn)
+		err := rows.Scan(
+			&w.Id, &w.Width, &w.Height, &w.Year, &w.NameRu,
+			&w.NameEn, &w.BaseId, &w.StrId, &w.Descr,
+			&w.Type, &w.Images)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		works = append(works, w)
+
+		works = append(works, workModelToWorkResponse(w))
+	}
+
+	// If no works, return empty array
+	if len(works) == 0 {
+		c.JSON(http.StatusOK, []dtos.WorkResponse{})
+		return
 	}
 
 	c.JSON(http.StatusOK, works)
@@ -61,10 +161,10 @@ func AddWork(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("json is: %q\n", dataJson)
+	// fmt.Printf("json is: %q\n", dataJson)
 
 	// 2. Parse the JSON
-	var work models.Work
+	var work dtos.CreateWorkRequest
 	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
@@ -92,10 +192,9 @@ func AddWork(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into works (id, dir, width, height, year, name_ru, name_en, base_id, str_id, img_count, descr, type) "+
+		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr, type, images) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
-		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
 		work.Width,
 		work.Height,
 		work.Year,
@@ -103,9 +202,10 @@ func AddWork(c *gin.Context) {
 		work.NameEn,
 		work.BaseId,
 		strings.Replace(work.NameEn, " ", "_", -1),
-		work.ImgCount,
 		work.Descr,
-		work.Type)
+		work.Type,
+		work.Images,
+	)
 
 	if err != nil {
 		tx.Rollback()
@@ -151,7 +251,10 @@ func AddWork(c *gin.Context) {
 	files := form.File
 
 	// Process each file
-	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work.NameEn, " ", "_", -1) + "/"
+	dirPath := config.AppConfigInstance.Directories.AbsWorksDir +
+		config.AppConfigInstance.Directories.RelWorksDir +
+		strings.Replace(work.NameEn, " ", "_", -1) + "/"
+
 	fmt.Printf("dirPath: %s\n", dirPath)
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
@@ -169,7 +272,7 @@ func AddWork(c *gin.Context) {
 	}
 
 	for fieldName, fileHeaders := range files {
-		for index, fileHeader := range fileHeaders {
+		for _, fileHeader := range fileHeaders {
 			// Open the file
 			file, err := fileHeader.Open()
 			if err != nil {
@@ -184,7 +287,7 @@ func AddWork(c *gin.Context) {
 			defer file.Close()
 
 			// Create a destination file
-			dst, err := os.Create(dirPath + strconv.Itoa(index+1) + filepath.Ext(fileHeader.Filename))
+			dst, err := os.Create(dirPath + fileHeader.Filename)
 			if err != nil {
 				c.JSON(500, gin.H{"error": err.Error()})
 				tx.Rollback()
@@ -290,7 +393,7 @@ func DeleteWork(c *gin.Context) {
 	}
 
 	// Delete the directory and its contents
-	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.WorksDbDirPrefix, "", -1)
+	dirPath := config.AppConfigInstance.Directories.AbsWorksDir + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.RelWorksDir, "", -1)
 	if _, err := os.Stat(dirPath); err == nil {
 		err := os.RemoveAll(dirPath)
 		if err != nil {
@@ -310,19 +413,13 @@ func GetWorkById(c *gin.Context) {
 	}
 
 	// Get work data
-	query := `
-		SELECT w.*, b.base_ru, b.base_en
-		FROM works w
-		JOIN bases b ON w.base_id = b.id
-		WHERE w.id = ?
-	`
+	query := ` SELECT * FROM works WHERE id = ?`
 
 	var work models.Work
 	err := db.QueryRow(query, id).Scan(
-		&work.Id, &work.Dir, &work.Width, &work.Height, &work.Year,
+		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.ImgCount, &work.Descr, &work.Type, &work.BaseRu, &work.BaseEn,
-	)
+		&work.Descr, &work.Type, &work.Images)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -333,35 +430,39 @@ func GetWorkById(c *gin.Context) {
 		return
 	}
 
-	// Get materials for this work
-	materialsQuery := `
-		SELECT m.id, m.material_ru, m.material_en
-		FROM materials m
-		JOIN works_materials wm ON m.id = wm.material_id
-		WHERE wm.work_id = ?
-	`
+	workResponse := workModelToWorkResponse(work)
 
-	materialRows, err := db.Query(materialsQuery, work.Id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	c.JSON(http.StatusOK, workResponse)
+}
+
+func GetWorkByIdForEdit(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id is required"})
 		return
 	}
-	defer materialRows.Close()
 
-	var materialsIds []int
-	for materialRows.Next() {
-		var material models.Material
-		err := materialRows.Scan(&material.Id, &material.MaterialRu, &material.MaterialEn)
-		if err != nil {
+	// Get work data
+	query := `SELECT * FROM works WHERE id = ?`
+
+	var work models.Work
+	err := db.QueryRow(query, id).Scan(
+		&work.Id, &work.Width, &work.Height, &work.Year,
+		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
+		&work.Descr, &work.Type, &work.Images)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
+		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
 		}
-		materialsIds = append(materialsIds, material.Id)
+		return
 	}
 
-	work.MaterialsIds = materialsIds
+	var workResponse dtos.UpdateWorkResponse
+	workResponse = workModelToUpdateWorkResponse(work)
+	c.JSON(http.StatusOK, workResponse)
 
-	c.JSON(http.StatusOK, work)
 }
 
 // Update work by id
@@ -380,28 +481,24 @@ func UpdateWork(c *gin.Context) {
 	}
 
 	// 2. Parse the JSON
-	var work models.Work
+	var work dtos.UpdateWorkRequest
 	if err := json.Unmarshal([]byte(dataJson), &work); err != nil {
 		c.JSON(400, gin.H{"error": "invalid data format"})
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
 
-	// 3. Either need to delete the old dir
-	// Get work data, if
-	query := `
-		SELECT dir, name_en
-		FROM works
-		WHERE id = ?
-	`
+	// 3. Get old work data to compare and clean up
+	query := `SELECT name_en, str_id FROM works WHERE id = ?`
 
-	var work_for_dir models.Work
-	err := db.QueryRow(query, id).Scan(&work_for_dir.Dir, &work_for_dir.NameEn)
-	if err != nil {
+	var oldNameEn string
+	var oldStrId string
+	if err := db.QueryRow(query, id).Scan(&oldNameEn, &oldStrId); err != nil {
+
+		log.Fatalf("Error loading config: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	var needToDeleteOldDir = work_for_dir.Dir == work.Dir
 
 	// Begin transaction
 	tx, err := db.Begin()
@@ -410,14 +507,16 @@ func UpdateWork(c *gin.Context) {
 	}
 
 	// Update work record
+	// Build images string from work.Images slice
+	imagesStr := strings.Join(work.Images, ";")
 	_, err = tx.Exec(`
 		UPDATE works
-		SET dir = ?, width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, img_count = ?, descr = ?, type = ?
+		SET width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
+			base_id = ?, str_id = ?, descr = ?, type = ?, images = ?
 		WHERE id = ?`,
-		config.AppConfigInstance.Directories.WorksDbDirPrefix+strings.Replace(work.NameEn, " ", "_", -1)+"/",
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
-		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1), work.ImgCount, work.Descr, work.Type, id)
+		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1),
+		work.Descr, work.Type, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()
@@ -456,6 +555,36 @@ func UpdateWork(c *gin.Context) {
 		}
 	}
 
+	// rename old dir name by new
+	err = os.Rename(
+		config.AppConfigInstance.Directories.AbsWorksDir+
+			config.AppConfigInstance.Directories.RelWorksDir+oldStrId+"/",
+		config.AppConfigInstance.Directories.AbsWorksDir+
+			config.AppConfigInstance.Directories.RelWorksDir+strings.Replace(work.NameEn, " ", "_", -1)+"/")
+
+	// Delete only files in dir whith names that do not exists in work.Images
+	files, err := os.ReadDir(
+		config.AppConfigInstance.Directories.AbsWorksDir +
+			config.AppConfigInstance.Directories.RelWorksDir + strings.Replace(work.NameEn, " ", "_", -1) + "/")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	for _, file := range files {
+		if !slices.Contains(work.Images, file.Name()) {
+			err = os.Remove(
+				config.AppConfigInstance.Directories.AbsWorksDir +
+					config.AppConfigInstance.Directories.RelWorksDir +
+					strings.Replace(work.NameEn, " ", "_", -1) + "/" +
+					file.Name())
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+				return
+			}
+		}
+	}
+
 	// Handle file uploads if any
 	form, err := c.MultipartForm()
 	if err != nil && err != http.ErrNotMultipart {
@@ -464,147 +593,20 @@ func UpdateWork(c *gin.Context) {
 		return
 	}
 
-	// Process directory and images
-	dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work.NameEn, " ", "_", -1) + "/"
-	fmt.Printf("dirPath: %s\n", dirPath)
-
-	// Create directory if it doesn't exist
-	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
-		err := os.MkdirAll(dirPath, 0777)
-		if err != nil {
-			fmt.Printf("Error creating directory: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
-			tx.Rollback()
-			return
-		}
-		fmt.Printf("Directory '%s' created successfully.\n", dirPath)
-	}
-
-	// Handle removed images if any
-	if len(work.RemovedIndices) > 0 {
-		// Remove specified images from directory
-		for _, index := range work.RemovedIndices {
-			imagePath := filepath.Join(dirPath, strconv.Itoa(index)+".jpg")
-			if _, err := os.Stat(imagePath); err == nil {
-				err := os.Remove(imagePath)
-				if err != nil {
-					fmt.Printf("Error removing file %s: %v\n", imagePath, err)
-				} else {
-					fmt.Printf("Removed file: %s\n", imagePath)
-				}
-			}
-		}
-
-		// Rename remaining files to fill gaps
-		// First, get all existing files and sort them
-		files, err := os.ReadDir(dirPath)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read directory"})
-			tx.Rollback()
-			return
-		}
-
-		// Get list of remaining image numbers
-		var remainingNumbers []int
-		for _, file := range files {
-			if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-				if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-					// Check if this number is not in removed indices
-					isRemoved := false
-					for _, removedIndex := range work.RemovedIndices {
-						if num == removedIndex {
-							isRemoved = true
-							break
-						}
-					}
-					if !isRemoved {
-						remainingNumbers = append(remainingNumbers, num)
-					}
-				}
-			}
-		}
-
-		// Sort remaining numbers
-		sort.Ints(remainingNumbers)
-
-		// Rename files to be sequential starting from 1
-		for i, num := range remainingNumbers {
-			oldPath := filepath.Join(dirPath, strconv.Itoa(num)+".jpg")
-			newPath := filepath.Join(dirPath, strconv.Itoa(i+1)+".jpg")
-			if oldPath != newPath {
-				err := os.Rename(oldPath, newPath)
-				if err != nil {
-					fmt.Printf("Error renaming file from %s to %s: %v\n", oldPath, newPath, err)
-				} else {
-					fmt.Printf("Renamed file from %s to %s\n", oldPath, newPath)
-				}
-			}
-		}
-	}
-
-	// Handle file uploads if any
 	if form != nil {
-		// Get all files from the form
-		files := form.File
-
-		// Determine the next available index for new files
-		nextIndex := 1
-		if len(work.RemovedIndices) == 0 {
-			// If no files were removed, next index is img_count + 1
-			// But we need to check existing files
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						if num, err := strconv.Atoi(strings.TrimSuffix(file.Name(), ".jpg")); err == nil {
-							if num >= nextIndex {
-								nextIndex = num + 1
-							}
-						}
-					}
-				}
-			}
-		} else {
-			// If files were removed, next index is the count of remaining files + 1
-			if filesInDir, err := os.ReadDir(dirPath); err == nil {
-				count := 0
-				for _, file := range filesInDir {
-					if !file.IsDir() && filepath.Ext(file.Name()) == ".jpg" {
-						count++
-					}
-				}
-				nextIndex = count + 1
-			}
-		}
-
-		// Save new images
-		for fieldName, fileHeaders := range files {
-			for index, fileHeader := range fileHeaders {
-				// Open the file
-				file, err := fileHeader.Open()
+		for _, f := range form.File {
+			for _, file := range f {
+				// Upload the file to the server
+				err = c.SaveUploadedFile(file,
+					config.AppConfigInstance.Directories.AbsWorksDir+
+						config.AppConfigInstance.Directories.RelWorksDir+
+						strings.Replace(work.NameEn, " ", "_", -1)+"/"+
+						file.Filename)
 				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
+					c.JSON(400, gin.H{"error": err.Error()})
 					tx.Rollback()
 					return
 				}
-				defer file.Close()
-
-				// Create a destination file
-				dst, err := os.Create(dirPath + strconv.Itoa(nextIndex+index) + filepath.Ext(fileHeader.Filename))
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-				defer dst.Close()
-
-				// Copy the file data
-				if _, err := io.Copy(dst, file); err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-
-				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 			}
 		}
 	}
@@ -614,14 +616,6 @@ func UpdateWork(c *gin.Context) {
 		c.JSON(500, gin.H{"error": err.Error()})
 		tx.Rollback()
 		log.Fatal(err)
-	}
-
-	if needToDeleteOldDir {
-		dirPath := config.AppConfigInstance.Directories.WorksDirSave + strings.Replace(work_for_dir.NameEn, " ", "_", -1) + "/"
-		err = os.RemoveAll(dirPath)
-		fmt.Printf("Delete dir is: %v\n", dirPath)
-		if err != nil {
-		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Work updated successfully"})

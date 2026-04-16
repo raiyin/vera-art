@@ -1,5 +1,7 @@
 <script lang="ts">
 import Gallery from '@/components/app-ui/PicGallery.vue';
+import { GetBaseWork, GetWorkDto } from '@/types';
+import { TypedGetWorkDto } from '@/types/work';
 import axios from 'axios';
 
 export default {
@@ -9,7 +11,7 @@ export default {
     emits: ['work-deleted'],
     data() {
         return {
-            works: [],
+            works: [] as TypedGetWorkDto[],
             page: -1,
             limit: import.meta.env.VITE_PAGE_SIZE,
             server: import.meta.env.VITE_SERVER_URL,
@@ -25,41 +27,20 @@ export default {
                         limit: this.limit,
                     },
                 });
-                this.works = [...this.works, ...response.data];
+
+                const newWorks: TypedGetWorkDto[] = response.data.map(
+                    (work: GetBaseWork) => ({
+                        ...work,
+                        __type: 'GetWorkDto',
+                    })
+                );
+                this.works = [...this.works, ...newWorks];
+                console.log(this.works);
             } catch (e) {
                 console.error('Error fetching works on allworks page ' + e);
             }
         },
-        async loadIllustrations() {
-            try {
-                this.illustrationPage += 1;
-                const response = await axios.get(this.server + 'illustrations', {
-                    params: {
-                        offset: this.illustrationPage * this.limit,
-                        limit: this.limit,
-                    },
-                });
-                this.illustrationImages = [...this.illustrationImages, ...response.data];
-            } catch (e) {
-                console.error('Error fetching imaillustration on all works page ' + e);
-            }
-        },
-        async load3D() {
-            try {
-                this.threeDPage += 1;
-                const response = await axios.get(this.server + 'threeds', {
-                    params: {
-                        offset: this.threeDPage * this.limit,
-                        limit: this.limit,
-                    },
-                });
-                this.threeDImages = [...this.threeDImages, ...response.data];
-            } catch (e) {
-                console.error('Error fetching 3d images on all works page ' + e);
-            }
-        },
         handleWorkDeleted(id: string) {
-            // Remove the deleted work from the works array
             this.works = this.works.filter((work: any) => work.id !== id);
         },
     },

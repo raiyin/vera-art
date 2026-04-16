@@ -14,8 +14,6 @@ type News struct {
 	Dir         string   `json:"dir"`
 	ImgBack     string   `json:"img_back"`
 	ImgBackfull string   `json:"img_backfull"`
-	ImagesCount int      `json:"imagescount"`
-	VideosCount int      `json:"videoscount"`
 	TextRu      string   `json:"text_ru"`
 	TextEn      string   `json:"text_en"`
 	Images      []string `json:"images"`

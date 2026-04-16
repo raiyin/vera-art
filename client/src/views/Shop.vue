@@ -1,6 +1,7 @@
 <script lang="ts">
 import Gallery from '@/components/app-ui/ShopGallery.vue';
-import type { ImageProps, SortOption } from '@/types';
+import type { SortOption } from '@/types';
+import type { GetSaleDto } from '@/types/sale';
 import axios from 'axios';
 import vSelect from 'vue-select';
 import 'vue-select/dist/vue-select.css';
@@ -12,7 +13,7 @@ export default {
     },
     data() {
         return {
-            images: [] as ImageProps[],
+            images: [] as GetSaleDto[],
             page: 0,
             limit: import.meta.env.VITE_PAGE_SIZE,
             server: import.meta.env.VITE_SERVER_URL,
@@ -29,7 +30,11 @@ export default {
                         limit: this.limit,
                     },
                 });
-                this.images = [...this.images, ...response.data];
+                const newImages = response.data.map((image) => ({
+                    __type: 'GetSaleDto',
+                    ...image,
+                }));
+                this.images = [...this.images, ...newImages];
             } catch (e) {
                 console.error('Error fetching images on shop page');
             }
@@ -60,7 +65,7 @@ export default {
     },
     watch: {
         selectedSort() {
-            this.images.sort((image_first: ImageProps, image_second: ImageProps) => {
+            this.images.sort((image_first: GetSaleDto, image_second: GetSaleDto) => {
                 if (
                     typeof image_first[this.selectedSort as keyof typeof image_first] ===
                     'string'

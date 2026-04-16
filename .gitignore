@@ -1,1 +1,4 @@
 client/content/*
+server/db/*
+server/db/db.sqlite
+server/db/db.sqlite

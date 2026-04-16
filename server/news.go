@@ -31,9 +31,18 @@ func GetNewsById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn,
 		&news.SubtitleRu, &news.SubtitleEn, &news.Dir, &news.ImgBack,
-		&news.ImgBackfull, &news.ImagesCount, &news.VideosCount,
+		&news.ImgBackfull,
 		&news.TextRu, &news.TextEn, &images, &videos)
 	// &news.TextRu, &news.TextEn, &news.Images, &news.Videos)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
 
 	if images.Valid {
 		news.Images = strings.Split(images.String, ";")
@@ -45,15 +54,6 @@ func GetNewsById(c *gin.Context) {
 		news.Videos = strings.Split(videos.String, ";")
 	} else {
 		news.Videos = []string{}
-	}
-
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
-		return
 	}
 
 	c.JSON(http.StatusOK, news)
@@ -99,8 +99,7 @@ func GetNews(c *gin.Context) {
 		p := models.News{}
 		err := rows.Scan(
 			&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.SubtitleRu,
-			&p.SubtitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.ImagesCount,
-			&p.VideosCount, &p.TextRu, &p.TextEn, &images, &videos)
+			&p.SubtitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.TextRu, &p.TextEn, &images, &videos)
 
 		if images.Valid {
 			p.Images = strings.Split(images.String, ";")
@@ -184,7 +183,7 @@ func AddNews(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, imagescount, videoscount, text_ru, text_en, images, videos) "+
+		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID,
 		news.Datetime,
@@ -195,8 +194,6 @@ func AddNews(c *gin.Context) {
 		temp_db_dir,
 		news.ImgBack,
 		news.ImgBackfull,
-		news.ImagesCount,
-		news.VideosCount,
 		news.TextRu,
 		news.TextEn,
 		news.Images,
@@ -420,11 +417,11 @@ func UpdateNews(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE news
 		SET datetime = ?, title_ru = ?, title_en = ?, subtitle_ru = ?, subtitle_en = ?,
-		    dir = ?, img_back = ?, img_backfull = ?, imagescount = ?, videoscount = ?,
+		    dir = ?, img_back = ?, img_backfull = ?,
 		    text_ru = ?, text_en = ?
 		WHERE id = ?`,
 		news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn,
-		news.Dir, "back.jpg", "backfull.jpg", news.ImagesCount, news.VideosCount,
+		news.Dir, news.ImgBack, news.ImgBackfull,
 		news.TextRu, news.TextEn, id)
 
 	if err != nil {
