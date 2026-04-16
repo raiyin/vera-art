@@ -384,9 +384,9 @@ export default defineComponent({
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
-                materials_ids: [] as number[],
                 descr: '',
                 type: 0,
+                materials_ids: [] as number[],
                 images: [] as string[],
             } as UpdateWorkResponse,
             // Для сброса формы
@@ -699,10 +699,6 @@ export default defineComponent({
                 // Формируем данные для отправки
                 const formData = new FormData();
 
-                // Build final list of images:
-                // 1. Start with existing images
-                // 2. Remove images marked for deletion
-                // 3. Add new image filenames (using sanitized original filenames)
                 const finalImages: string[] = [];
 
                 // Add existing images that are not marked for deletion
@@ -714,10 +710,6 @@ export default defineComponent({
 
                 // Add new image filenames (sanitized)
                 for (const file of this.files) {
-                    // Sanitize filename similar to server-side
-                    // let sanitizedFilename = file.name.replace(/ /g, '_');
-                    // sanitizedFilename = sanitizedFilename.replace(/[()'"\[\]]/g, '');
-                    // finalImages.push(sanitizedFilename);
                     finalImages.push(file.name);
                 }
 
@@ -773,6 +765,9 @@ export default defineComponent({
                 } else if (error.response?.status === 400) {
                     errorMsg =
                         'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+                } else {
+                    this.errorMessage =
+                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 }
                 this.showErrorAlertWithTimeout(errorMsg);
             } finally {

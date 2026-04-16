@@ -349,17 +349,17 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { AddSaleDto, Sale, Base, Material, RequestResult } from '@/types';
+import {
+    UpdateSaleRequest,
+    UpdateSaleResponse,
+    Base,
+    Material,
+    RequestResult,
+} from '@/types';
 import Alert from '@/components/app-ui/Alert.vue';
 
-interface SaleWithId extends AddSaleDto {
-    id: number;
-    dir: string;
-    str_id: string;
-}
-
 export default defineComponent({
-    name: 'EditSale',
+    name: 'EditShopItemView',
     components: {
         Alert,
     },
@@ -367,22 +367,43 @@ export default defineComponent({
         return {
             sale: {
                 id: 0,
-                dir: '',
                 str_id: '',
+                dir: '',
                 width: 0,
                 height: 0,
                 year: new Date().getFullYear(),
-                price: 0,
                 name_ru: '',
                 name_en: '',
                 base_id: 0,
-                materials_ids: [] as number[],
-
                 descr: '',
-            } as SaleWithId,
-            files: [] as File[],
-            removedIndices: [] as number[],
-            previewImages: [] as { file?: File; preview: string }[],
+                price: 0,
+                materials_ids: [] as number[],
+                images: [] as string[],
+            } as UpdateSaleResponse,
+            // Для сброса формы
+            originalSale: {
+                id: 0,
+                str_id: '',
+                dir: '',
+                name_ru: '',
+                name_en: '',
+                base_id: 0,
+                year: new Date().getFullYear(),
+                descr: '',
+                width: 0,
+                height: 0,
+                price: 0,
+                images: [] as string[],
+                materials_ids: [] as number[],
+            } as UpdateSaleResponse,
+            addedFiles: [] as File[],
+            previewImages: [] as {
+                file?: File;
+                preview: string;
+                isExisting?: boolean;
+                filename?: string;
+            }[],
+            imagesToDelete: [] as string[], // Track existing images to delete
             isSubmitting: false,
             bases: [] as Base[],
             materials: [] as Material[],
@@ -407,13 +428,25 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
-            originalSale: {} as SaleWithId,
+            successAlertTimeout: null as number | null,
+            errorAlertTimeout: null as number | null,
         };
     },
     async created() {
         await this.loadBases();
         await this.loadMaterials();
         await this.loadSale();
+    },
+    beforeUnmount() {
+        // Clear any pending timeouts when component is destroyed
+        if (this.successAlertTimeout) {
+            clearTimeout(this.successAlertTimeout);
+            this.successAlertTimeout = null;
+        }
+        if (this.errorAlertTimeout) {
+            clearTimeout(this.errorAlertTimeout);
+            this.errorAlertTimeout = null;
+        }
     },
     methods: {
         async loadBases() {
@@ -425,9 +458,9 @@ export default defineComponent({
                 console.error('Ошибка при загрузке основ:', error);
                 this.loadError = 'Не удалось загрузить список основ';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         async loadMaterials() {
@@ -439,15 +472,15 @@ export default defineComponent({
                 console.error('Ошибка при загрузке материалов:', error);
                 this.loadError = 'Не удалось загрузить список материалов';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         async loadSale() {
             try {
                 const id = this.$route.params.id;
-                const response = await axios.get(this.server + 'sales/' + id);
+                const response = await axios.get(`${this.server}sales/${id}/edit`);
                 this.sale = response.data;
                 this.originalSale = { ...response.data };
 
@@ -459,16 +492,19 @@ export default defineComponent({
                 console.error('Ошибка при загрузке работы:', error);
                 this.loadError = 'Не удалось загрузить работу';
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                this.showErrorAlertWithTimeout(
+                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                );
             }
         },
         loadPreviewImages() {
             this.previewImages = [];
-            for (let i = 1; i <= this.sale.images.length; i++) {
-                const imageUrl = `${this.sale.dir}${this.sale.images[i - 1]}`;
-                this.previewImages.push({ preview: imageUrl });
+            for (let i = 0; i < this.sale.images.length; i++) {
+                const imageUrl = `${this.sale.dir}${this.sale.images[i]}`;
+                this.previewImages.push({
+                    preview: imageUrl,
+                    filename: this.sale.images[i],
+                });
             }
         },
         handleDragOver() {
@@ -498,7 +534,7 @@ export default defineComponent({
             this.fileError = null;
 
             // Проверка на количество файлов
-            if (this.previewImages.length + selectedFiles.length > 10) {
+            if (this.addedFiles.length + selectedFiles.length > 10) {
                 this.fileError = 'Можно загрузить не более 10 изображений';
                 return;
             }
@@ -525,7 +561,7 @@ export default defineComponent({
             }
 
             // Добавляем новые файлы
-            this.files = [...this.files, ...selectedFiles];
+            this.addedFiles = [...this.addedFiles, ...selectedFiles];
 
             // Создаем превью для новых изображений
             selectedFiles.forEach((file) => {
@@ -534,34 +570,30 @@ export default defineComponent({
                     this.previewImages.push({
                         file,
                         preview: e.target?.result as string,
+                        filename: file.name,
                     });
                 };
                 reader.readAsDataURL(file);
             });
         },
         removeImage(index: number) {
-            const image = this.previewImages[index];
+            const imageToRemove = this.previewImages[index];
 
-            // If this is an existing image (not a new one), add its index to removedIndices
-            if (!image.file) {
-                // This is an existing image, track its index for removal
-                // We need to find the original index in the existing images
-                let existingImageIndex = 0;
-                for (let i = 0; i < index; i++) {
-                    if (!this.previewImages[i].file) {
-                        existingImageIndex++;
-                    }
-                }
-                this.removedIndices.push(existingImageIndex + 1); // 1-based index
-            } else {
-                // This is a new image, remove it from files array
-                const fileIndex = this.files.indexOf(image.file);
+            // if (imageToRemove.isExisting && imageToRemove.filename) {
+            //     // Mark existing image for deletion
+            //     if (!this.imagesToDelete.includes(imageToRemove.filename)) {
+            //         this.imagesToDelete.push(imageToRemove.filename);
+            //     }
+            // } else
+            if (imageToRemove.file) {
+                // Remove from files array if it's a newly uploaded file
+                const fileIndex = this.addedFiles.indexOf(imageToRemove.file);
                 if (fileIndex > -1) {
-                    this.files.splice(fileIndex, 1);
+                    this.addedFiles.splice(fileIndex, 1);
                 }
             }
 
-            // Remove from previewImages
+            // Remove from preview images
             this.previewImages.splice(index, 1);
         },
         validateField(fieldName: string) {
@@ -635,9 +667,9 @@ export default defineComponent({
             this.validateField('width');
             this.validateField('height');
             this.validateField('year');
-            this.validateField('price');
             this.validateField('base_id');
             this.validateField('materials_ids');
+            this.validateField('price');
 
             // Проверка отсутствия ошибок
             return Object.values(this.errors).every((error) => error === '');
@@ -657,18 +689,44 @@ export default defineComponent({
                 const formData = new FormData();
 
                 // Добавляем файлы, если есть
-                if (this.files.length > 0) {
-                    this.files.forEach((file) => {
+                const finalImages: string[] = [];
+
+                // Add existing images that are not marked for deletion
+                for (const imageName of this.sale.images) {
+                    // if (!this.imagesToDelete.includes(imageName)) {
+                    finalImages.push(imageName);
+                    // }
+                }
+
+                // Add new image filenames (sanitized)
+                for (const file of this.addedFiles) {
+                    finalImages.push(file.name);
+                }
+
+                // Добавляем файлы, если есть
+                if (this.addedFiles.length > 0) {
+                    this.addedFiles.forEach((file) => {
                         formData.append('images', file);
                     });
                 }
 
+                let updatedImages: string[];
+                if (this.previewImages && this.previewImages.length > 0) {
+                    updatedImages = this.previewImages
+                        .map((image) => image.filename)
+                        .filter((filename): filename is string => !!filename);
+                } else {
+                    updatedImages = [];
+                }
+
                 // Добавляем остальные данные
-                const saleData = {
+                const saleDataToUpdate: UpdateSaleRequest = {
                     ...this.sale,
+                    // images: finalImages,
+                    images: updatedImages,
                 };
 
-                formData.append('data', JSON.stringify(saleData));
+                formData.append('data', JSON.stringify(saleDataToUpdate));
 
                 const strId = this.$route.params.id;
                 const response = await axios.put(
@@ -683,17 +741,24 @@ export default defineComponent({
                 );
 
                 if (response.status === 200) {
-                    this.showSuccessAlert = true;
+                    this.showSuccessAlertWithTimeout();
+                    // Update sale images with final list
+                    this.sale.images = finalImages;
+                    // Clear deletion list and files
+                    this.imagesToDelete = [];
+                    this.addedFiles = [];
                     // Обновляем оригинальную работу
                     this.originalSale = { ...this.sale };
                 } else {
-                    this.showErrorAlert = true;
-                    this.errorMessage =
-                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
+                    this.showErrorAlertWithTimeout(
+                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
+                    );
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
-                this.showErrorAlert = true;
+                let errorMsg =
+                    'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+
                 if (error.response?.status === 413) {
                     this.errorMessage =
                         'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
@@ -704,15 +769,16 @@ export default defineComponent({
                     this.errorMessage =
                         'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
                 }
+                this.showErrorAlertWithTimeout(errorMsg);
             } finally {
                 this.isSubmitting = false;
             }
         },
         resetForm() {
             this.sale = { ...this.originalSale };
-            this.files = [];
-            this.removedIndices = [];
+            this.addedFiles = [];
             this.previewImages = [];
+            this.imagesToDelete = [];
             this.loadPreviewImages();
             if (this.$refs.fileInput) {
                 (this.$refs.fileInput as HTMLInputElement).value = '';
@@ -730,7 +796,58 @@ export default defineComponent({
         basesToggleDropdown() {
             this.basesDropdownOpen = !this.basesDropdownOpen;
         },
+        showSuccessAlertWithTimeout() {
+            // Clear any existing timeout
+            if (this.successAlertTimeout) {
+                clearTimeout(this.successAlertTimeout);
+                this.successAlertTimeout = null;
+            }
+
+            // Show the alert
+            this.showSuccessAlert = true;
+
+            // Set timeout to hide after 5 seconds (5000 milliseconds)
+            this.successAlertTimeout = setTimeout(() => {
+                this.showSuccessAlert = false;
+                this.successAlertTimeout = null;
+            }, 5000);
+        },
+
+        showErrorAlertWithTimeout(message?: string) {
+            // Clear any existing timeout
+            if (this.errorAlertTimeout) {
+                clearTimeout(this.errorAlertTimeout);
+                this.errorAlertTimeout = null;
+            }
+
+            // Set error message if provided
+            if (message) {
+                this.errorMessage = message;
+            }
+
+            // Show the alert
+            this.showErrorAlert = true;
+
+            // Set timeout to hide after 5 seconds (5000 milliseconds)
+            this.errorAlertTimeout = setTimeout(() => {
+                this.showErrorAlert = false;
+                this.errorMessage = '';
+                this.errorAlertTimeout = null;
+            }, 5000);
+        },
+
         closeAlert() {
+            // Clear timeouts
+            if (this.successAlertTimeout) {
+                clearTimeout(this.successAlertTimeout);
+                this.successAlertTimeout = null;
+            }
+            if (this.errorAlertTimeout) {
+                clearTimeout(this.errorAlertTimeout);
+                this.errorAlertTimeout = null;
+            }
+
+            // Hide alerts
             this.showSuccessAlert = false;
             this.showErrorAlert = false;
             this.errorMessage = '';

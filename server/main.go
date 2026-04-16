@@ -126,6 +126,7 @@ func main() {
 	r_gin.GET("/sales/:id/edit", GetSaleByIdForEdit)
 	r_gin.POST("/sales", CreateSale)
 	r_gin.PUT("/sales/:id", AuthMiddleware(), UpdateSale)
+	r_gin.DELETE("/sales/:id", AuthMiddleware(), DeleteSale)
 
 	r_gin.GET("/works", GetWorks)
 	r_gin.GET("/works/:id", GetWorkById)
