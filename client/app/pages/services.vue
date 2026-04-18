@@ -1,0 +1,28 @@
+<script lang="ts">
+export default {};
+</script>
+
+<template>
+    <UContainer class="services">
+        <p>
+            {{ $t('services.p_one') }}
+        </p>
+        <p>
+            {{ $t('services.p_two') }}
+        </p>
+        <p>
+            {{ $t('services.p_three') }}
+        </p>
+    </UContainer>
+</template>
+
+<style scoped>
+.services {
+    margin-top: 5rem;
+    flex: 1 0 auto;
+}
+
+p {
+    text-align: justify;
+}
+</style>

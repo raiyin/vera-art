@@ -1,25 +1,10 @@
 {
-    "compilerOptions": {
-        "allowJs": true,
-        "composite": true,
-        "resolveJsonModule": true,
-        "target": "esnext",
-        "types": ["node", "vite/client"],
-        "moduleResolution": "bundler",
-        "lib": ["es5", "es6", "dom", "dom.iterable"],
-        "module": "esnext"
-    },
-    "include": ["*.ts", "*.json", "src/**/*.json", ".d.ts"],
-    "files": [],
-    "references": [
-        {
-            "path": "./tsconfig.config.json"
-        },
-        {
-            "path": "./tsconfig.app.json"
-        },
-        {
-            "path": "./tsconfig.vitest.json"
-        }
-    ]
+  // https://nuxt.com/docs/guide/concepts/typescript
+  "files": [],
+  "references": [
+    { "path": "./.nuxt/tsconfig.app.json" },
+    { "path": "./.nuxt/tsconfig.server.json" },
+    { "path": "./.nuxt/tsconfig.shared.json" },
+    { "path": "./.nuxt/tsconfig.node.json" }
+  ]
 }
