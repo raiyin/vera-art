@@ -1,5 +1,5 @@
 <script lang="ts">
-import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
+import CalendarIcon from '@/components/IconCalendar.vue';
 import { useAuthStore } from '../../stores/AuthStore';
 import { storeToRefs } from 'pinia';
 

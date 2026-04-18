@@ -1,6 +1,6 @@
 <script lang="ts">
-import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
-import NewsDescriptionSkeleton from '../app-skeletons/NewsDescriptionSkeleton.vue';
+import CalendarIcon from '@/components/IconCalendar.vue';
+import NewsDescriptionSkeleton from '@/components/NewsDescriptionSkeleton.vue';
 
 export default {
     components: {

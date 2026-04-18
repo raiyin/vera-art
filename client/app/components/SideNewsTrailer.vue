@@ -1,5 +1,5 @@
 <script lang="ts">
-import CalendarIcon from '@/components/app-icons/IconCalendar.vue';
+import CalendarIcon from '@/components/IconCalendar.vue';
 import SideNewsTrailerSkeleton from '../app-skeletons/SideNewsTrailerSkeleton.vue';
 import { NewsDesc } from '@/types';
 import { PropType } from 'vue';

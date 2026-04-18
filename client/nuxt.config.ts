@@ -9,6 +9,12 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n'
   ],
 
+  fonts: {
+    families: [
+      { name: 'Montserrat', provider: 'google' }
+    ]
+  },
+
   devtools: {
     enabled: true
   },
@@ -19,7 +25,7 @@ export default defineNuxtConfig({
     '/': { prerender: true }
   },
 
-  vite: {
+  vite: {   
     optimizeDeps: {
       include: [
         '@vue/devtools-core',
