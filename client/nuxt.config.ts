@@ -18,6 +18,7 @@ export default defineNuxtConfig({
   routeRules: {
     '/': { prerender: true }
   },
+
   vite: {
     optimizeDeps: {
       include: [
@@ -26,6 +27,20 @@ export default defineNuxtConfig({
       ]
     }
   },
+
+  i18n: {
+    locales: [
+      { code: 'ru', language: 'ru-RU', name: 'Русский', file: 'ru.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+    ],
+    defaultLocale: 'ru',
+    restructureDir: 'i18n',
+    strategy: 'no_prefix',
+    
+    // Vue I18n configuration
+    vueI18n: './i18n.config.ts'  // optional external config file
+  },
+
   compatibilityDate: '2025-01-15',
 
   eslint: {

@@ -1,5 +1,8 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { locale, setLocale } = useI18n()
+const switchLocale = (newLocale: 'ru' | 'en') => {
+  setLocale(newLocale)
+}
 </script>
 
 <template>
