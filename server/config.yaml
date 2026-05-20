@@ -3,11 +3,18 @@ app:
   name: "Vera Art"
   port: 8000
 
-  # Directory where images will be stored
+# CORS configuration
+cors:
+  allowed_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+  debug: false
+
+# Directory where images will be stored
 directories:
-  abs_works_dir: "d:/projects/vera-art/client"
+  abs_works_dir: "/Users/raiyin/projects/mac/client"
   rel_works_dir: "/content/works/"
-  abs_sales_dir: "d:/projects/vera-art/client"
+  abs_sales_dir: "/Users/raiyin/projects/mac/client"
   rel_sales_dir: "/content/sales/"
-  news_dir_save: "d:/projects/vera-art/client"
+  news_dir_save: "/Users/raiyin/projects/mac/client"
   news_db_dir_prefix: "/content/news/"

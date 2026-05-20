@@ -1,0 +1,69 @@
+<script setup lang="ts">
+import type { TypedGetSaleDto } from '~/types/sale';
+import Gallery from '@/components/PicGallery.vue';
+import { ref, onMounted } from 'vue';
+
+const sales = ref<TypedGetSaleDto[]>([]);
+const page = ref(-1);
+const limit = ref(import.meta.env.VITE_LIMIT as number);
+const server = ref(import.meta.env.VITE_SERVER as string);
+const salesObserver = ref<Element | null>(null);
+
+const emit = defineEmits<{
+    'work-deleted': [id: string];
+}>();
+
+const loadWorks = async () => {
+    try {
+        page.value += 1;
+        const params = new URLSearchParams({
+            offset: (page.value * limit.value).toString(),
+            limit: limit.value.toString(),
+        });
+        const response = await fetch(`${server.value}sales?${params}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        const newWorks = data.map((work: any) => ({
+            ...work,
+            __type: 'GetSaleDto',
+        }));
+        sales.value = [...sales.value, ...newWorks];
+        console.log(sales.value);
+    } catch (e) {
+        console.error('Error fetching works on allworks page ' + e);
+    }
+};
+
+const handleSaleDeleted = (id: string) => {
+    sales.value = sales.value.filter((work: TypedGetSaleDto) => work.id !== id);
+};
+
+onMounted(() => {
+    const options = {
+        rootMargin: '0px',
+        threshold: 1.0,
+    };
+    const salesCallback = (entries: IntersectionObserverEntry[]) => {
+        if (entries[0]?.isIntersecting) {
+            loadWorks();
+        }
+    };
+    const observer = new IntersectionObserver(salesCallback, options);
+    if (salesObserver.value) observer.observe(salesObserver.value);
+});
+</script>
+
+<template>
+    <UContainer class="main-content">
+        <Gallery :images="sales" @work-deleted="handleSaleDeleted" />
+
+        <div ref="salesObserver" class="observer" />
+    </UContainer>
+</template>
+
+<style scoped>
+.observer {
+    height: 0px;
+}
+</style>

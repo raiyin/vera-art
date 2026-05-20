@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/raiyin/artserver/config"
 	"github.com/raiyin/artserver/dtos"
+	"github.com/raiyin/artserver/internal/config"
 	"github.com/raiyin/artserver/models"
 )
 
@@ -108,23 +109,32 @@ func workModelToUpdateWorkResponse(work models.Work) dtos.UpdateWorkResponse {
 }
 
 func GetWorks(c *gin.Context) {
-
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 
-	query := "select *  from works"
+	query := "SELECT * FROM works"
+	var args []interface{}
 
-	if len(limit) > 0 {
-		query = query + " limit " + limit
+	if limit != "" {
+		// Validate limit is a positive integer
+		if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 0 {
+			query += " LIMIT ?"
+			args = append(args, limitInt)
 
-		if len(offset) > 0 {
-			query = query + " offset " + offset
+			if offset != "" {
+				// Validate offset is a non-negative integer
+				if offsetInt, err := strconv.Atoi(offset); err == nil && offsetInt >= 0 {
+					query += " OFFSET ?"
+					args = append(args, offsetInt)
+				}
+			}
 		}
 	}
 
-	rows, err := db.Query(query)
+	rows, err := db.Query(query, args...)
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
 	}
 	defer rows.Close()
 
@@ -183,17 +193,17 @@ func AddWork(c *gin.Context) {
 	err = tx.QueryRow("select MAX(id) from works").Scan(&maxID)
 	if err != nil {
 		tx.Rollback()
-		log.Fatal(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Printf("Error: %v\n", err)
-		fmt.Printf("Error: %s\n", err)
-		fmt.Printf("Error: %q\n", err)
+		log.Printf("Error getting max ID: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
 		return
 	}
 
+	// Convert images array to semicolon-separated string
+	imagesStr := strings.Join(work.Images, ";")
+
 	_, err = tx.Exec(
 		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr, type, images) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		work.Width,
 		work.Height,
@@ -204,16 +214,13 @@ func AddWork(c *gin.Context) {
 		strings.Replace(work.NameEn, " ", "_", -1),
 		work.Descr,
 		work.Type,
-		work.Images,
+		imagesStr,
 	)
 
 	if err != nil {
 		tx.Rollback()
-		log.Fatal(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Printf("Error: %v\n", err)
-		fmt.Printf("Error: %s\n", err)
-		fmt.Printf("Error: %q\n", err)
+		log.Printf("Error inserting work: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save work to database"})
 		return
 	}
 
@@ -226,11 +233,8 @@ func AddWork(c *gin.Context) {
 
 		if err != nil {
 			tx.Rollback()
-			log.Fatal(err)
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			fmt.Printf("Error: %v\n", err)
-			fmt.Printf("Error: %s\n", err)
-			fmt.Printf("Error : %q\n", err)
+			log.Printf("Error inserting work material: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save work materials"})
 			return
 		}
 	}
@@ -238,12 +242,9 @@ func AddWork(c *gin.Context) {
 	// 3. Get the uploaded files and save them
 	form, err := c.MultipartForm()
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
 		tx.Rollback()
-		log.Fatal(err)
-		fmt.Printf("Error: %v\n", err)
-		fmt.Printf("Error: %s\n", err)
-		fmt.Printf("Error : %q\n", err)
+		log.Printf("Error getting multipart form: %v", err)
+		c.JSON(400, gin.H{"error": "Invalid form data"})
 		return
 	}
 
@@ -276,12 +277,9 @@ func AddWork(c *gin.Context) {
 			// Open the file
 			file, err := fileHeader.Open()
 			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
 				tx.Rollback()
-				log.Fatal(err)
-				fmt.Printf("Error: %v\n", err)
-				fmt.Printf("Error: %s\n", err)
-				fmt.Printf("Error : %q\n", err)
+				log.Printf("Error creating destination file: %v", err)
+				c.JSON(500, gin.H{"error": "Failed to save file"})
 				return
 			}
 			defer file.Close()
@@ -301,12 +299,9 @@ func AddWork(c *gin.Context) {
 
 			// Copy the file data
 			if _, err := io.Copy(dst, file); err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
 				tx.Rollback()
-				log.Fatal(err)
-				fmt.Printf("Error: %v\n", err)
-				fmt.Printf("Error: %s\n", err)
-				fmt.Printf("Error : %q\n", err)
+				log.Printf("Error copying file: %v", err)
+				c.JSON(500, gin.H{"error": "Failed to save file"})
 				return
 			}
 
@@ -316,12 +311,8 @@ func AddWork(c *gin.Context) {
 
 	err = tx.Commit()
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		tx.Rollback()
-		log.Fatal(err)
-		fmt.Printf("Error: %v\n", err)
-		fmt.Printf("Error: %s\n", err)
-		fmt.Printf("Error : %q\n", err)
+		log.Printf("Error committing transaction: %v", err)
+		c.JSON(500, gin.H{"error": "Failed to save work"})
 		return
 	}
 
@@ -494,16 +485,17 @@ func UpdateWork(c *gin.Context) {
 	var oldNameEn string
 	var oldStrId string
 	if err := db.QueryRow(query, id).Scan(&oldNameEn, &oldStrId); err != nil {
-
-		log.Fatalf("Error loading config: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Error getting work data: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Work not found"})
 		return
 	}
 
 	// Begin transaction
 	tx, err := db.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error beginning transaction: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
 	}
 
 	// Update work record
@@ -520,8 +512,8 @@ func UpdateWork(c *gin.Context) {
 
 	if err != nil {
 		tx.Rollback()
-		log.Fatal(err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("Error updating work: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update work"})
 		return
 	}
 
@@ -535,34 +527,36 @@ func UpdateWork(c *gin.Context) {
 
 	// Insert new material associations
 	for _, material_id := range work.MaterialsIds {
-		// Get the work ID first
-		var workId int
-		err = tx.QueryRow("SELECT id FROM works WHERE id = ?", id).Scan(&workId)
-		if err != nil {
-			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
 		_, err = tx.Exec(
 			"INSERT INTO works_materials (work_id, material_id) VALUES (?, ?)",
-			workId, material_id)
+			id, material_id)
 
 		if err != nil {
 			tx.Rollback()
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			log.Printf("Error inserting work material: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update work materials"})
 			return
 		}
 	}
 
 	// rename old dir name by new
-	err = os.Rename(
-		config.AppConfigInstance.Directories.AbsWorksDir+
-			config.AppConfigInstance.Directories.RelWorksDir+oldStrId+"/",
-		config.AppConfigInstance.Directories.AbsWorksDir+
-			config.AppConfigInstance.Directories.RelWorksDir+strings.Replace(work.NameEn, " ", "_", -1)+"/")
+	newStrId := strings.Replace(work.NameEn, " ", "_", -1)
+	if oldStrId != newStrId {
+		err = os.Rename(
+			config.AppConfigInstance.Directories.AbsWorksDir+
+				config.AppConfigInstance.Directories.RelWorksDir+oldStrId+"/",
+			config.AppConfigInstance.Directories.AbsWorksDir+
+				config.AppConfigInstance.Directories.RelWorksDir+newStrId+"/")
 
-	// Delete only files in dir whith names that do not exists in work.Images
+		if err != nil && !os.IsNotExist(err) {
+			tx.Rollback()
+			log.Printf("Error renaming directory: %v", err)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to rename work directory"})
+			return
+		}
+	}
+
+	// Delete only files in dir with names that do not exist in work.Images
 	files, err := os.ReadDir(
 		config.AppConfigInstance.Directories.AbsWorksDir +
 			config.AppConfigInstance.Directories.RelWorksDir + strings.Replace(work.NameEn, " ", "_", -1) + "/")
@@ -613,9 +607,9 @@ func UpdateWork(c *gin.Context) {
 
 	err = tx.Commit()
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		tx.Rollback()
-		log.Fatal(err)
+		log.Printf("Error committing transaction: %v", err)
+		c.JSON(500, gin.H{"error": "Failed to update work"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Work updated successfully"})

@@ -1,0 +1,538 @@
+{
+    "lang": "ENG",
+    "title": "Vera",
+    "header": {
+        "main": "Main",
+        "about_me": "About&nbsp;me",
+        "briefly": "Short",
+        "artist": "Artist",
+        "illustrator": "2D-artist/Illustrator",
+        "volunteer": "Volunteer/Mentor",
+        "teacher": "Teacher",
+        "all_works": "Works",
+        "news": "News",
+        "shop": "Shop",
+        "services": "Services",
+        "payment": "Payment",
+        "master_classes": "Master Classes",
+        "admin": "Admin Panel",
+        "menu": "Menu"
+    },
+    "home": {
+        "hi": "HELLO!",
+        "familiarity": "Let's get acquainted",
+        "whoami": "My name is Vera Olegovna Pertsukova. I am an artist, teacher, illustrator, 3d designer and just a good person. I am glad to see you on my website. Here you can get acquainted with my creativity, works, achievements, as well as learn about the news from my professional life.",
+        "buy": "I will be glad if you like any of my works, and even more so if you decide to buy it or order a painting. I hope you will enjoy spending time here and want to visit my site again and again. Stay tuned.",
+        "draw": "DRAW FROM THE WORLD",
+        "world": "The world is an amazing place, and it takes my breath away just thinking how much more there is to learn and do.",
+        "givemore": "AND GIVE MORE",
+        "convinced": "I am convinced that a person should not bury his talents, but multiply them. Therefore, I try to constantly develop myself and pass on the accumulated knowledge to my children and students.",
+        "start": "LET'S GET STARTED!",
+        "artist_title": "Artist",
+        "creativity_title": "Creativity",
+        "development_title": "Development",
+        "development_text": "I constantly develop in various artistic techniques and directions, exploring new materials and formats.",
+        "inspiration_text": "I draw inspiration from the surrounding world, nature, emotions, and cultural heritage.",
+        "philosophy_title": "Philosophy of Creativity",
+        "philosophy_description": "Each work is not just an image, but a story, an emotion, a piece of soul. I strive to create art that resonates with people on a deep level.",
+        "expression_title": "Expression",
+        "expression_text": "Conveying emotions through color and form",
+        "harmony_title": "Harmony",
+        "harmony_text": "Balance of composition and color solutions",
+        "growth_title": "Growth",
+        "growth_text": "Constant search for new techniques and ideas",
+        "sharing_text": "Sharing knowledge, inspiration, and beauty is what gives meaning to the creative journey.",
+        "teaching_title": "Teaching and Mentoring",
+        "years_experience": "years of experience",
+        "students": "students",
+        "works": "works",
+        "cta_text": "Ready to dive into the world of art? Explore my works, learn about news, or get in touch for collaboration.",
+        "view_works": "View Works",
+        "read_news": "Read News",
+        "services": "Services"
+    },
+    "allworks": {
+        "painting": "PAINTING",
+        "illustration": "ILLUSTRATION",
+        "3dgraphics": "3D GRAPHICS"
+    },
+    "shop": {
+        "byName": "By name",
+        "byNovelty": "By novelty",
+        "byHeight": "By height",
+        "byWidth": "By width"
+    },
+    "news": {
+        "videoslide": "Video slide",
+        "title": "News & Updates",
+        "subtitle": "Stay up to date with the latest news, exhibitions, and creative projects",
+        "readMore": "Read more",
+        "allLoaded": "You've reached the end! All news have been loaded.",
+        "noNews": "No news yet",
+        "noNewsDescription": "Check back later for updates, exhibitions, and new creative projects.",
+        "viewAllNews": "View All News",
+        "detail": {
+            "error": {
+                "title": "Error Loading News",
+                "loadFailed": "Failed to load news. Please try again later.",
+                "retryButton": "Try Again"
+            },
+            "image": {
+                "error": "Image failed to load"
+            },
+            "gallery": {
+                "title": "Gallery",
+                "empty": "No images available for this news"
+            },
+            "videos": {
+                "title": "Videos",
+                "empty": "No videos available for this news"
+            },
+            "sidebar": {
+                "title": "Other News",
+                "empty": "No other news available"
+            },
+            "modal": {
+                "close": "Close modal",
+                "previous": "Previous image",
+                "next": "Next image",
+                "caption": "Image {current} of {total}"
+            }
+        }
+    },
+    "breadcrumb": {
+        "home": "Home",
+        "news": "News"
+    },
+    "services": {
+        "p_one": "As an artist and teacher, I provide painting services in various ways materials and on any surfaces, as well as teaching children fine arts at home and in the classroom.",
+        "p_two": "I approach painting and teaching with great responsibility, everyone once achieving an excellent result. There was not a single case when my client I would be dissatisfied.",
+        "p_three": "As materials when painting paintings, materials such as watercolor, oil, charcoal, pencil, pastel, gouache, and as a basis - canvas, canvas on cardboard, cardboard, paper.",
+        "materials_heading": "Materials & Techniques",
+        "watercolor": "Watercolor",
+        "oil": "Oil",
+        "pencil_charcoal": "Pencil & Charcoal",
+        "pastel_gouache": "Pastel & Gouache",
+        "collaborate_heading": "Interested in collaborating?",
+        "collaborate_text": "Whether you need a custom painting, illustration, or art lessons, I'm here to help bring your vision to life.",
+        "contact_button": "Contact Me"
+    },
+    "payment": {
+        "p_one": "At the moment, my store operates according to a simplified scheme.",
+        "p_two": "You contact me in any way convenient for you, we agree on the picture and the price, and after the preliminary full payment of the picture and shipment, I send you the picture.",
+        "how_it_works": "How It Works",
+        "step1": "Step 1",
+        "step2": "Step 2",
+        "step3": "Step 3",
+        "contact_discuss": "Contact & Discuss",
+        "contact_text": "Reach out via email, social media, or phone. We'll discuss your desired artwork, size, style, and timeline.",
+        "agree_pay": "Agree & Pay",
+        "agree_text": "Once we agree on details, you make a full prepayment securely. I'll provide an invoice and confirmation.",
+        "creation_delivery": "Creation & Delivery",
+        "creation_text": "I create your artwork with care, then ship it via reliable courier. You'll receive tracking updates.",
+        "important_notes": "Important Notes",
+        "custom_commissions": "Custom Commissions",
+        "custom_text": "For custom paintings, a 50% deposit is required before starting, with the remainder due upon completion.",
+        "production_time": "Production Time",
+        "production_text": "Typical production time is 2‑4 weeks for original works, plus shipping time. Digital illustrations take 1‑2 weeks.",
+        "ready_order": "Ready to Order?",
+        "ready_text": "Have questions or want to discuss a specific artwork? Feel free to reach out—I'm happy to help!",
+        "browse_shop_button": "Browse Shop",
+        "contact_button": "Contact Me"
+    },
+    "mySelect": {
+        "placeholder": "Sort by"
+    },
+    "carousel": {
+        "back": "Back",
+        "next": "Next"
+    },
+    "card": {
+        "price": "Price:",
+        "rub": "rub."
+    },
+    "locale": {
+        "ENG": "English",
+        "RUS": "Russian"
+    },
+    "theme": {
+        "title": "Change the color theme"
+    },
+    "auth":{
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "username": "Username",
+        "password": "Password",
+        "remember": "Remember me",
+        "forgot": "Forgot password?",
+        "email": "Email",
+        "confirmPassword": "Confirm password",
+        "haveAccount": "Already have an account?",
+        "noAccount": "Don't have an account?",
+        "registerNow": "Register now",
+        "welcomeBack": "Welcome back! Please enter your credentials",
+        "createAccount": "Create your account to get started",
+        "usernamePlaceholder": "Enter your username",
+        "emailPlaceholder": "Enter your email (optional)",
+        "passwordPlaceholder": "Enter your password",
+        "passwordRequirements": "Minimum 8 characters with letters and numbers",
+        "confirmPasswordPlaceholder": "Confirm your password",
+        "agreeTo": "I agree to the",
+        "termsOfService": "Terms of Service",
+        "and": "and",
+        "privacyPolicy": "Privacy Policy",
+        "error": "Error",
+        "success": "Success!",
+        "fillAllFields": "Please fill in all fields",
+        "loginFailed": "Login failed",
+        "loginError": "Login failed. Please check your credentials.",
+        "invalidCredentials": "Invalid username or password. Please try again.",
+        "orContinueWith": "Or continue with",
+        "backToHome": "Back to home",
+        "usernameRequired": "Username is required",
+        "usernameMinLength": "Username must be at least 3 characters",
+        "usernameMaxLength": "Username must be less than 20 characters",
+        "passwordRequired": "Password is required",
+        "passwordMinLength": "Password must be at least 8 characters",
+        "passwordComplexity": "Password must contain letters and numbers",
+        "confirmPasswordRequired": "Please confirm your password",
+        "passwordsDontMatch": "Passwords do not match",
+        "registrationFailed": "Registration failed",
+        "registrationSuccess": "Registration successful! Redirecting to login...",
+        "registrationError": "Registration failed. Username may be taken."
+    },
+    "admin": {
+        "link": "Admin",
+        "title": "admin dashboard",
+        "add_news": "add news",
+        "add_work_to_shop": "add shop item",
+        "add_work_to_gallery": "add gallery item"
+    },
+    "notfound": {
+        "title": "Oops! Page Not Found",
+        "description": "It looks like you've wandered off the path. The page might have been moved or you entered the wrong address.",
+        "back_home": "Back to Home",
+        "browse_works": "Browse Artworks",
+        "visit_shop": "Visit Shop",
+        "search_prompt": "Or try searching for what you need:",
+        "search_placeholder": "Search the site...",
+        "quote": "Sometimes getting lost is the best way to find something beautiful.",
+        "author": "Vera Pertsukova"
+    },
+    "admin_gallery_form": {
+        "page_title": "Add new work to gallery",
+        "page_subtitle": "Fill in all required fields to add a new work",
+        "loading": "Loading data...",
+        "sections": {
+            "images": "Work images",
+            "main_info": "Main information",
+            "tech_specs": "Technical specifications",
+            "additional_info": "Additional information",
+            "work_type": "Work type"
+        },
+        "labels": {
+            "select_images": "Select images",
+            "drag_drop_text": "Drag and drop images here or click to select",
+            "file_formats": "Supported formats: JPG, JPEG, PNG (max. 10 files)",
+            "name_ru": "Painting name in Russian",
+            "name_en": "Painting name in English",
+            "dimensions": "Dimensions",
+            "width": "Width",
+            "height": "Height",
+            "year": "Year of creation",
+            "base": "Base",
+            "materials": "Materials",
+            "description": "Description",
+            "work_type": "Work type"
+        },
+        "placeholders": {
+            "name_ru": "For example: 'Звездная ночь'",
+            "name_en": "For example: 'Starry Night'",
+            "width": "Width",
+            "height": "Height",
+            "year": "For example: 2023",
+            "select_base": "Select base",
+            "select_materials": "Select materials",
+            "description": "Brief description of the painting"
+        },
+        "work_types": {
+            "painting": "Painting",
+            "illustration": "Illustration",
+            "3d": "3D"
+        },
+        "buttons": {
+            "clear_form": "Clear form",
+            "add_work": "Add work",
+            "submitting": "Submitting..."
+        },
+        "errors": {
+            "max_files": "You can upload no more than 10 images",
+            "invalid_file_type": "Please upload only images (JPG, JPEG, PNG)",
+            "file_size": "Each file size should not exceed 5 MB",
+            "name_ru_required": "Please enter the name in Russian",
+            "name_en_required": "Please enter the name in English",
+            "width_required": "Width must be greater than 0",
+            "height_required": "Height must be greater than 0",
+            "year_range": "Year must be between 2000 and {year}",
+            "base_required": "Please select a base",
+            "materials_required": "Please select at least one material",
+            "work_type_required": "Please select work type",
+            "images_required": "Please upload at least one image"
+        },
+        "messages": {
+            "load_bases_error": "Error loading bases:",
+            "load_bases_failed": "Failed to load bases list",
+            "load_materials_error": "Error loading materials:",
+            "load_materials_failed": "Failed to load materials list",
+            "submit_failed": "Failed to add work. Please try again.",
+            "file_too_large": "Files are too large. Please upload smaller images.",
+            "invalid_data": "Invalid data. Please check the entered values.",
+            "general_error": "An error occurred while adding the work. Please try again."
+        },
+        "units": {
+            "cm": "cm",
+            "px": "px"
+        },
+        "aria_labels": {
+            "remove_image": "Remove image {index}"
+        }
+    },
+    "admin_shop_form": {
+        "page_title": "Add new work to shop",
+        "page_subtitle": "Fill in all required fields to add a new work",
+        "loading": "Loading data...",
+        "sections": {
+            "images": "Work images",
+            "main_info": "Main information",
+            "tech_specs": "Technical specifications",
+            "additional_info": "Additional information"
+        },
+        "labels": {
+            "select_images": "Select images",
+            "drag_drop_text": "Drag and drop images here or click to select",
+            "file_formats": "Supported formats: JPG, JPEG, PNG (max. 10 files)",
+            "name_ru": "Painting name in Russian",
+            "name_en": "Painting name in English",
+            "dimensions": "Dimensions (cm)",
+            "width": "Width",
+            "height": "Height",
+            "year": "Year of creation",
+            "price": "Price",
+            "base": "Base",
+            "materials": "Materials",
+            "description": "Description"
+        },
+        "placeholders": {
+            "name_ru": "For example: 'Звездная ночь'",
+            "name_en": "For example: 'Starry Night'",
+            "width": "Width",
+            "height": "Height",
+            "year": "For example: 2023",
+            "price": "For example: 1000",
+            "select_base": "Select base",
+            "select_materials": "Select materials",
+            "description": "Brief description of the painting"
+        },
+        "buttons": {
+            "clear_form": "Clear form",
+            "add_work": "Add work",
+            "submitting": "Submitting..."
+        },
+        "errors": {
+            "max_files": "You can upload no more than 10 images",
+            "invalid_file_type": "Please upload only images (JPG, JPEG, PNG)",
+            "file_size": "Each file size should not exceed 5 MB",
+            "name_ru_required": "Please enter the name in Russian",
+            "name_en_required": "Please enter the name in English",
+            "width_required": "Width must be greater than 0",
+            "height_required": "Height must be greater than 0",
+            "year_range": "Year must be between 2000 and {year}",
+            "price_required": "Price must be greater than 0",
+            "base_required": "Please select a base",
+            "materials_required": "Please select at least one material",
+            "images_required": "Please upload at least one image"
+        },
+        "messages": {
+            "load_bases_error": "Error loading bases:",
+            "load_bases_failed": "Failed to load bases list",
+            "load_materials_error": "Error loading materials:",
+            "load_materials_failed": "Failed to load materials list",
+            "load_data_failed": "Failed to load data. Please try later.",
+            "submit_failed": "Failed to add work. Please try again.",
+            "file_too_large": "Files are too large. Please upload smaller images.",
+            "invalid_data": "Invalid data. Please check the entered values.",
+            "general_error": "An error occurred while adding the work. Please try again."
+        },
+        "units": {
+            "cm": "cm"
+        },
+        "aria_labels": {
+            "remove_image": "Remove image {index}"
+        }
+    },
+    "admin_news_form": {
+        "page_title": "Add news",
+        "page_subtitle": "Fill in all required fields to add news",
+        "loading": "Loading data...",
+        "sections": {
+            "images": "News images",
+            "main_info": "Main information",
+            "additional_info": "Additional information"
+        },
+        "labels": {
+            "main_image": "Main image",
+            "preview_image": "Preview image",
+            "photo_gallery": "Photo gallery",
+            "video_gallery": "Video gallery",
+            "title_ru": "Title in Russian",
+            "title_en": "Title in English",
+            "subtitle_ru": "Subtitle in Russian",
+            "subtitle_en": "Subtitle in English",
+            "date": "Date",
+            "text_ru": "Text in Russian",
+            "text_en": "Text in English",
+            "drag_drop_single": "Drag and drop file here or click to select",
+            "drag_drop_multiple": "Drag and drop files here or click to select",
+            "drag_drop_videos": "Drag and drop video files here or click to select"
+        },
+        "placeholders": {
+            "title_ru": "For example: 'Звездная ночь'",
+            "title_en": "For example: 'Starry Night'",
+            "subtitle_ru": "For example: 'Звездная ночь'",
+            "subtitle_en": "For example: 'Starry Night'",
+            "text_ru": "Enter news text in Russian",
+            "text_en": "Enter news text in English"
+        },
+        "hints": {
+            "image_formats": "Supported formats: JPG, JPEG, PNG (max. 5MB)",
+            "image_formats_multiple": "Supported formats: JPG, JPEG, PNG (max. 5MB each, max. 10 files)",
+            "video_formats": "Supported formats: MP4, MOV, AVI (max. 100MB each)"
+        },
+        "buttons": {
+            "clear_form": "Clear form",
+            "add_news": "Add news",
+            "submitting": "Submitting..."
+        },
+        "errors": {
+            "max_images": "You can upload no more than 10 images",
+            "invalid_image_type": "Please upload only images (JPG, JPEG, PNG)",
+            "image_size": "File size should not exceed 5 MB",
+            "invalid_video_type": "Please select only video files",
+            "video_size": "File size should not exceed 100MB",
+            "title_ru_required": "Please enter title in Russian",
+            "title_ru_length": "Title in Russian must be between 3 and 50 characters",
+            "title_en_required": "Please enter title in English",
+            "title_en_length": "Title in English must be between 3 and 50 characters",
+            "subtitle_ru_required": "Please enter subtitle in Russian",
+            "subtitle_ru_length": "Subtitle in Russian must be between 3 and 50 characters",
+            "subtitle_en_required": "Please enter subtitle in English",
+            "subtitle_en_length": "Subtitle in English must be between 3 and 50 characters",
+            "main_image_required": "Please add main news image",
+            "preview_image_required": "Please add preview news image",
+            "images_required": "Please add at least one image",
+            "text_ru_required": "Please add text in Russian",
+            "text_en_required": "Please add text in English"
+        },
+        "messages": {
+            "submit_success": "News successfully added",
+            "submit_failed": "Failed to add news. Please try again.",
+            "file_too_large": "Files are too large. Please upload smaller images.",
+            "invalid_data": "Invalid data. Please check the entered values.",
+            "general_error": "An error occurred while adding news. Please try again."
+        },
+        "aria_labels": {
+            "remove_main_image": "Remove main image",
+            "remove_preview_image": "Remove preview image",
+            "remove_image": "Remove image {index}",
+            "remove_video": "Remove video {index}"
+        }
+    },
+    "toast": {
+        "success": {
+            "title": "Success!",
+            "description": "Work successfully added to gallery."
+        },
+        "error": {
+            "title": "Error!",
+            "description": "Failed to add work to gallery. Please try again."
+        },
+        "close": "Close"
+    },
+    "footer": {
+        "copyright": "All rights reserved",
+        "developed": "Developed by"
+    },
+    "terms": {
+        "title": "Terms of Service",
+        "lastUpdated": "Last updated: April 24, 2026",
+        "introduction": "Welcome to Vera Pertsukova's website. These Terms of Service govern your use of our website and services. By accessing or using our site, you agree to be bound by these terms.",
+        "acceptance": "Acceptance of Terms",
+        "acceptanceText": "By accessing this website, you accept these terms in full. If you disagree with any part of these terms, you must not use our website.",
+        "intellectualProperty": "Intellectual Property Rights",
+        "intellectualPropertyText": "All content on this website, including but not limited to artworks, images, text, graphics, logos, and software, is the property of Vera Pertsukova or its content suppliers and is protected by international copyright laws.",
+        "useLicense": "Use License",
+        "useLicenseText": "You may view, download for caching purposes only, and print pages from the website for your own personal use, subject to the restrictions set out below and elsewhere in these terms.",
+        "restrictions": "Restrictions",
+        "restrictionsList": "You must not: republish material from this website; sell, rent or sub-license material from the website; reproduce, duplicate, copy or otherwise exploit material on this website for a commercial purpose; edit or otherwise modify any material on the website.",
+        "userContent": "User Content",
+        "userContentText": "If you submit any content to our website (e.g., comments, reviews), you grant us a worldwide, irrevocable, non-exclusive, royalty-free license to use, reproduce, adapt, publish, translate and distribute it in any media.",
+        "limitations": "Limitations of Liability",
+        "limitationsText": "We will not be liable to you in relation to the contents of, or use of, or otherwise in connection with, this website for any indirect, special or consequential loss.",
+        "indemnification": "Indemnification",
+        "indemnificationText": "You agree to indemnify and hold harmless Vera Pertsukova from and against any claims, damages, obligations, losses, liabilities, costs or debt arising from your use of the website.",
+        "changes": "Changes to Terms",
+        "changesText": "We may revise these terms from time to time. The revised terms will apply to the use of our website from the date of publication. Please check this page regularly.",
+        "governingLaw": "Governing Law",
+        "governingLawText": "These terms shall be governed by and construed in accordance with the laws of the Russian Federation and the European Union, where applicable.",
+        "contact": "Contact Information",
+        "contactText": "If you have any questions about these Terms of Service, please contact us via email or through the contact form on the website."
+    },
+    "privacy": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last updated: April 24, 2026",
+        "introduction": "This Privacy Policy describes how we collect, use, and protect your personal information when you use our website.",
+        "informationWeCollect": "Information We Collect",
+        "informationWeCollectText": "We may collect personal information such as your name, email address, and username when you register an account, make a purchase, or contact us. We also collect non-personal data like browser type, IP address, and pages visited.",
+        "howWeUse": "How We Use Your Information",
+        "howWeUseText": "We use your information to provide and improve our services, process transactions, communicate with you, and comply with legal obligations.",
+        "dataProtection": "Data Protection",
+        "dataProtectionText": "We implement appropriate technical and organizational measures to protect your personal data against unauthorized access, alteration, disclosure, or destruction.",
+        "cookies": "Cookies",
+        "cookiesText": "Our website uses cookies to enhance user experience. You can control cookies through your browser settings. By using our site, you consent to our use of cookies.",
+        "thirdParty": "Third-Party Services",
+        "thirdPartyText": "We may use third-party services (e.g., payment processors, analytics) that have their own privacy policies. We are not responsible for the practices of these third parties.",
+        "yourRights": "Your Rights",
+        "yourRightsText": "Under GDPR and Russian data protection laws, you have the right to access, correct, delete, or restrict processing of your personal data. You may also withdraw consent at any time.",
+        "dataRetention": "Data Retention",
+        "dataRetentionText": "We retain personal data only as long as necessary for the purposes for which it was collected, or as required by law.",
+        "internationalTransfers": "International Data Transfers",
+        "internationalTransfersText": "Your information may be transferred to and processed in countries outside your residence. We ensure adequate safeguards are in place.",
+        "changes": "Changes to Privacy Policy",
+        "changesText": "We may update this policy periodically. We will notify you of significant changes by posting the new policy on this page.",
+        "contact": "Contact Us",
+        "contactText": "If you have questions about this Privacy Policy or your data, please contact us using the information provided on the website."
+    },
+    "cookieConsent": {
+        "title": "Cookie Usage and Personal Data Collection",
+        "description": "We use cookies to improve website functionality, analytics, and marketing. Some cookies are necessary for the website to work. Read more in our",
+        "privacyPolicy": "Privacy Policy",
+        "and": "and",
+        "termsOfService": "Terms of Service",
+        "necessaryCookies": "Necessary cookies",
+        "alwaysActive": "always active",
+        "analyticsCookies": "Analytics cookies",
+        "marketingCookies": "Marketing cookies",
+        "acceptAll": "Accept all",
+        "savePreferences": "Save preferences",
+        "rejectAll": "Reject all",
+        "moreDetails": "More about cookies",
+        "details": {
+            "necessary": "Necessary cookies enable basic website functions such as security, network management, and access. These cookies cannot be disabled.",
+            "analytics": "Analytics cookies help us understand how visitors interact with the website by collecting and reporting anonymous information.",
+            "marketing": "Marketing cookies are used to track visitors across websites to display relevant advertising.",
+            "rights": "Under GDPR and Russian Federal Law No. 152-FZ, you have the right to withdraw consent at any time. Learn more about your rights in our",
+            "privacyPolicy": "Privacy Policy"
+        }
+    }
+}
