@@ -5,7 +5,7 @@ import (
 )
 
 type News struct {
-	Id          int      `json:"id"`
+	Id          string   `json:"id"`
 	Datetime    string   `json:"datetime"`
 	TitleRu     string   `json:"title_ru"`
 	TitleEn     string   `json:"title_en"`

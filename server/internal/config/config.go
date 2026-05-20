@@ -12,6 +12,11 @@ type AppConfig struct {
 	Port int
 }
 
+type CORSConfig struct {
+	AllowedOrigins []string `mapstructure:"allowed_origins"`
+	Debug          bool     `mapstructure:"debug"`
+}
+
 type DirectoriesConfig struct {
 	AbsWorksDir     string `mapstructure:"abs_works_dir"`
 	RelWorksDir     string `mapstructure:"rel_works_dir"`
@@ -23,6 +28,7 @@ type DirectoriesConfig struct {
 
 type Config struct {
 	App         AppConfig
+	CORS        CORSConfig
 	Directories DirectoriesConfig
 }
 
@@ -38,6 +44,8 @@ func LoadConfig(configPath string) error {
 	// Set defaults
 	viper.SetDefault("app.port", 8000)
 	viper.SetDefault("app.name", "artserver")
+	viper.SetDefault("cors.allowed_origins", []string{"http://localhost:3000", "http://127.0.0.1:3000"})
+	viper.SetDefault("cors.debug", false)
 
 	// Read config
 	if err := viper.ReadInConfig(); err != nil {

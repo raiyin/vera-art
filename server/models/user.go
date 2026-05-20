@@ -2,10 +2,16 @@ package models
 
 import (
 	_ "github.com/mattn/go-sqlite3"
+	"time"
 )
 
 type User struct {
-	Id       int    `json:"id"`
-	Username string `json:"username"`
-	PassHash string `json:"passhash"`
+	Id        int       `json:"id"`
+	Username  string    `json:"username"`
+	PassHash  string    `json:"passhash"`
+	Role      string    `json:"role"`
+	Email     string    `json:"email,omitempty"`
+	FullName  string    `json:"full_name,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

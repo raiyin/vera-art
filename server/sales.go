@@ -9,11 +9,12 @@ import (
 	"net/http"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/raiyin/artserver/config"
 	"github.com/raiyin/artserver/dtos"
+	"github.com/raiyin/artserver/internal/config"
 	"github.com/raiyin/artserver/models"
 )
 
@@ -141,26 +142,33 @@ func Map[T, U any](slice []T, fn func(T) U) []U {
 }
 
 func GetSales(c *gin.Context) {
-
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 
-	query := "select * from sales"
+	query := "SELECT * FROM sales"
+	var args []interface{}
 
-	if len(limit) > 0 {
-		query = query + " limit " + limit
+	if limit != "" {
+		// Validate limit is a positive integer
+		if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 0 {
+			query += " LIMIT ?"
+			args = append(args, limitInt)
 
-		if len(offset) > 0 {
-			query = query + " offset " + offset
+			if offset != "" {
+				// Validate offset is a non-negative integer
+				if offsetInt, err := strconv.Atoi(offset); err == nil && offsetInt >= 0 {
+					query += " OFFSET ?"
+					args = append(args, offsetInt)
+				}
+			}
 		}
 	}
 
-	rows, err := db.Query(query)
-
+	rows, err := db.Query(query, args...)
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
 	}
-
 	defer rows.Close()
 	sales := []dtos.SaleResponse{}
 	for rows.Next() {
@@ -472,6 +480,9 @@ func UpdateSale(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+	// Calculate new str_id
+	newStrId := strings.Replace(sale.NameEn, " ", "_", -1)
+
 	// Update sale record
 	// Build images string from sale.Images slice
 	imagesStr := strings.Join(sale.Images, ";")
@@ -481,7 +492,7 @@ func UpdateSale(c *gin.Context) {
 			base_id = ?, str_id = ?, descr = ?, price = ?, images = ?
 		WHERE id = ?`,
 		sale.Width, sale.Height, sale.Year, sale.NameRu, sale.NameEn,
-		sale.BaseId, strings.Replace(sale.NameEn, " ", "_", -1),
+		sale.BaseId, newStrId,
 		sale.Descr, sale.Price, imagesStr, id)
 
 	if err != nil {
@@ -512,18 +523,26 @@ func UpdateSale(c *gin.Context) {
 		}
 	}
 
-	// rename old dir name by new
-	err = os.Rename(
-		config.AppConfigInstance.Directories.AbsSalesDir+
-			config.AppConfigInstance.Directories.RelSalesDir+oldStrId+"/",
-		config.AppConfigInstance.Directories.AbsSalesDir+
-			config.AppConfigInstance.Directories.RelSalesDir+strings.Replace(sale.NameEn, " ", "_", -1)+"/")
+	// rename old dir name by new if name has changed
+	if oldStrId != newStrId {
+		err = os.Rename(
+			config.AppConfigInstance.Directories.AbsSalesDir+
+				config.AppConfigInstance.Directories.RelSalesDir+oldStrId+"/",
+			config.AppConfigInstance.Directories.AbsSalesDir+
+				config.AppConfigInstance.Directories.RelSalesDir+newStrId+"/")
+		if err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to rename directory: " + err.Error()})
+			return
+		}
+	}
 
 	// Delete only files in dir whith names that do not exists in sale.Images
 	files, err := os.ReadDir(
 		config.AppConfigInstance.Directories.AbsSalesDir +
-			config.AppConfigInstance.Directories.RelSalesDir + strings.Replace(sale.NameEn, " ", "_", -1) + "/")
+			config.AppConfigInstance.Directories.RelSalesDir + newStrId + "/")
 	if err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -533,9 +552,10 @@ func UpdateSale(c *gin.Context) {
 			err = os.Remove(
 				config.AppConfigInstance.Directories.AbsSalesDir +
 					config.AppConfigInstance.Directories.RelSalesDir +
-					strings.Replace(sale.NameEn, " ", "_", -1) + "/" +
+					newStrId + "/" +
 					file.Name())
 			if err != nil {
+				tx.Rollback()
 				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
@@ -557,7 +577,7 @@ func UpdateSale(c *gin.Context) {
 				err = c.SaveUploadedFile(file,
 					config.AppConfigInstance.Directories.AbsSalesDir+
 						config.AppConfigInstance.Directories.RelSalesDir+
-						strings.Replace(sale.NameEn, " ", "_", -1)+"/"+
+						newStrId+"/"+
 						file.Filename)
 				if err != nil {
 					c.JSON(400, gin.H{"error": err.Error()})

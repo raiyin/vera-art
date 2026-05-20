@@ -6,14 +6,16 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/raiyin/artserver/config"
+	"github.com/raiyin/artserver/internal/config"
 	"github.com/raiyin/artserver/models"
 )
 
@@ -60,35 +62,54 @@ func GetNewsById(c *gin.Context) {
 }
 
 func GetNews(c *gin.Context) {
-
 	id := c.Query("id")
 	offset := c.Query("offset")
 	limit := c.Query("limit")
 	id_ne := c.Query("id_ne")
 
-	query := "select * from news"
+	// Build query with parameterized placeholders
+	query := "SELECT * FROM news"
+	var args []interface{}
+	var whereClauses []string
 
-	if len(id) > 0 {
-		query = query + " where id = " + id
-	} else if len(id_ne) > 0 && len(limit) > 0 {
-		query = query +
-			" where id != " +
-			id_ne +
-			" order by datetime desc" +
-			" limit " + limit
-	} else if len(limit) > 0 {
-		query = query + " order by datetime desc" + " limit " + limit
+	if id != "" {
+		whereClauses = append(whereClauses, "id = ?")
+		args = append(args, id)
+	}
 
-		if len(offset) > 0 {
-			query = query + " offset " + offset
+	if id_ne != "" {
+		whereClauses = append(whereClauses, "id != ?")
+		args = append(args, id_ne)
+	}
+
+	if len(whereClauses) > 0 {
+		query += " WHERE " + strings.Join(whereClauses, " AND ")
+	}
+
+	query += " ORDER BY datetime DESC"
+
+	if limit != "" {
+		// Validate limit is a positive integer
+		if limitInt, err := strconv.Atoi(limit); err == nil && limitInt > 0 {
+			query += " LIMIT ?"
+			args = append(args, limitInt)
+
+			if offset != "" {
+				// Validate offset is a non-negative integer
+				if offsetInt, err := strconv.Atoi(offset); err == nil && offsetInt >= 0 {
+					query += " OFFSET ?"
+					args = append(args, offsetInt)
+				}
+			}
 		}
 	}
-	// query = query + " order by datetime desc"
-	fmt.Println(query)
 
-	rows, err := db.Query(query)
+	fmt.Println("Executing query:", query, "with args:", args)
+
+	rows, err := db.Query(query, args...)
 	if err != nil {
-		panic(err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
 	}
 	defer rows.Close()
 
@@ -182,6 +203,10 @@ func AddNews(c *gin.Context) {
 		news.Dir += string(os.PathSeparator)
 	}
 
+	// Convert images and videos slices to semicolon-separated strings
+	imagesStr := strings.Join(news.Images, ";")
+	videosStr := strings.Join(news.Videos, ";")
+
 	_, err = tx.Exec(
 		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
@@ -196,8 +221,8 @@ func AddNews(c *gin.Context) {
 		news.ImgBackfull,
 		news.TextRu,
 		news.TextEn,
-		news.Images,
-		news.Videos)
+		imagesStr,
+		videosStr)
 
 	if err != nil {
 		tx.Rollback()
@@ -238,6 +263,16 @@ func AddNews(c *gin.Context) {
 		}
 
 		for _, fileHeader := range fileHeaders {
+			// Validate the uploaded file
+			if err := validateUploadedFile(fileHeader); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				tx.Rollback()
+				return
+			}
+
+			// Sanitize filename
+			safeFilename := sanitizeFilename(fileHeader.Filename)
+
 			// Open the file
 			file, err := fileHeader.Open()
 			if err != nil {
@@ -248,13 +283,14 @@ func AddNews(c *gin.Context) {
 			defer file.Close()
 
 			// Determine file name based on field type
-			if fieldName == "images" {
+			switch fieldName {
+			case "images":
 				// TODO make a bunch request
 				_, err = tx.Exec(
 					"insert into images (table_type_link, filename, entity_id) "+
 						"values (?, ?, ?)",
 					3,
-					fileHeader.Filename,
+					safeFilename,
 					maxID)
 
 				if err != nil {
@@ -263,14 +299,14 @@ func AddNews(c *gin.Context) {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
-			} else if fieldName == "videos" {
+			case "videos":
 
 				// TODO make a bunch request
 				_, err = tx.Exec(
 					"insert into videos (table_type_link, filename, entity_id) "+
 						"values (?, ?, ?)",
 					3,
-					fileHeader.Filename,
+					safeFilename,
 					maxID)
 
 				if err != nil {
@@ -279,12 +315,12 @@ func AddNews(c *gin.Context) {
 					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
-			} else {
-				fmt.Println("Unknown field type:", fileHeader.Filename)
+			default:
+				fmt.Println("Unknown field type:", safeFilename)
 			}
 
 			// Create a destination file
-			dst, err := os.Create(filepath.Join(dirPath, fileHeader.Filename))
+			dst, err := os.Create(filepath.Join(dirPath, safeFilename))
 			if err != nil {
 				c.JSON(500, gin.H{"error": err.Error()})
 				tx.Rollback()
@@ -413,16 +449,20 @@ func UpdateNews(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+	// Convert images and videos slices to semicolon-separated strings
+	imagesStr := strings.Join(news.Images, ";")
+	videosStr := strings.Join(news.Videos, ";")
+
 	// Update news record
 	_, err = tx.Exec(`
 		UPDATE news
 		SET datetime = ?, title_ru = ?, title_en = ?, subtitle_ru = ?, subtitle_en = ?,
 		    dir = ?, img_back = ?, img_backfull = ?,
-		    text_ru = ?, text_en = ?
+		    text_ru = ?, text_en = ?, images = ?, videos = ?
 		WHERE id = ?`,
 		news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn,
 		news.Dir, news.ImgBack, news.ImgBackfull,
-		news.TextRu, news.TextEn, id)
+		news.TextRu, news.TextEn, imagesStr, videosStr, id)
 
 	if err != nil {
 		tx.Rollback()
@@ -486,15 +526,16 @@ func UpdateNews(c *gin.Context) {
 
 				// Determine file name based on field type
 				var fileName string
-				if fieldName == "img_back" {
+				switch fieldName {
+				case "img_back":
 					fileName = "back.jpg"
-				} else if fieldName == "img_backfull" {
+				case "img_backfull":
 					fileName = "back_full.jpg"
-				} else if fieldName == "images" {
+				case "images":
 					fileName = fmt.Sprintf("%d.jpg", index+1)
-				} else if fieldName == "videos" {
+				case "videos":
 					fileName = fmt.Sprintf("%d%s", index+1, filepath.Ext(fileHeader.Filename))
-				} else {
+				default:
 					fileName = fmt.Sprintf("%s_%d%s", fieldName, index+1, filepath.Ext(fileHeader.Filename))
 				}
 
@@ -527,6 +568,53 @@ func UpdateNews(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "News updated successfully"})
+}
+
+// validateUploadedFile checks if an uploaded file is safe to save
+func validateUploadedFile(fileHeader *multipart.FileHeader) error {
+	// Check file size (max 10MB)
+	const maxFileSize = 10 << 20 // 10 MB
+	if fileHeader.Size > maxFileSize {
+		return fmt.Errorf("file %s is too large: %d bytes (max: %d bytes)",
+			fileHeader.Filename, fileHeader.Size, maxFileSize)
+	}
+
+	// Check file extension
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	allowedExtensions := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+		".webp": true,
+		".mp4":  true,
+		".mov":  true,
+		".avi":  true,
+		".pdf":  true,
+	}
+	if !allowedExtensions[ext] {
+		return fmt.Errorf("file %s has disallowed extension: %s", fileHeader.Filename, ext)
+	}
+
+	// Check for path traversal in filename
+	if strings.Contains(fileHeader.Filename, "..") || strings.Contains(fileHeader.Filename, "/") {
+		return fmt.Errorf("invalid filename: %s", fileHeader.Filename)
+	}
+
+	return nil
+}
+
+// sanitizeFilename removes dangerous characters from filename
+func sanitizeFilename(filename string) string {
+	// Remove path components
+	filename = filepath.Base(filename)
+	// Replace spaces and special characters
+	filename = strings.ReplaceAll(filename, " ", "_")
+	filename = strings.ReplaceAll(filename, "..", "")
+	// Keep only alphanumeric, dots, underscores, and hyphens
+	reg := regexp.MustCompile(`[^a-zA-Z0-9._-]`)
+	filename = reg.ReplaceAllString(filename, "")
+	return filename
 }
 
 func checkIdIdExists(id string) bool {
