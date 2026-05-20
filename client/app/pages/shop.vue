@@ -1,122 +1,68 @@
-<script lang="ts">
-import Gallery from '@/components/app-ui/ShopGallery.vue';
-import type { SortOption } from '@/types';
-import type { GetSaleDto } from '@/types/sale';
-import axios from 'axios';
-import vSelect from 'vue-select';
-import 'vue-select/dist/vue-select.css';
+<script setup lang="ts">
+import type { TypedGetSaleDto } from '~/types/sale';
+import Gallery from '@/components/PicGallery.vue';
+import { ref, onMounted } from 'vue';
 
-export default {
-    components: {
-        Gallery,
-        vSelect,
-    },
-    data() {
-        return {
-            images: [] as GetSaleDto[],
-            page: 0,
-            limit: import.meta.env.VITE_PAGE_SIZE,
-            server: import.meta.env.VITE_SERVER_URL,
-            selectedSort: '',
-        };
-    },
-    methods: {
-        async loadWorks() {
-            try {
-                this.page += 1;
-                const response = await axios.get(this.server + 'sales', {
-                    params: {
-                        offset: this.page * this.limit,
-                        limit: this.limit,
-                    },
-                });
-                const newImages = response.data.map((image) => ({
-                    __type: 'GetSaleDto',
-                    ...image,
-                }));
-                this.images = [...this.images, ...newImages];
-            } catch (e) {
-                console.error('Error fetching images on shop page');
-            }
-        },
-    },
-    mounted() {
-        const callback = (entries: IntersectionObserverEntry[]) => {
-            if (entries[0].isIntersecting) {
-                this.loadWorks();
-            }
-        };
-        const options = {
-            rootMargin: '0px',
-            threshold: 1.0,
-        };
-        const observer = new IntersectionObserver(callback, options);
-        observer.observe(this.$refs.observer as Element);
-    },
-    computed: {
-        sortOptions() {
-            return [
-                { value: 'name_ru', name: this.$t('shop.byName') },
-                { value: 'year', name: this.$t('shop.byNovelty') },
-                { value: 'height', name: this.$t('shop.byHeight') },
-                { value: 'width', name: this.$t('shop.byWidth') },
-            ];
-        },
-    },
-    watch: {
-        selectedSort() {
-            this.images.sort((image_first: GetSaleDto, image_second: GetSaleDto) => {
-                if (
-                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
-                    'string'
-                )
-                    return (image_first[
-                        this.selectedSort as keyof typeof image_first
-                    ] as string)?.localeCompare(
-                        image_second[
-                            this.selectedSort as keyof typeof image_first
-                        ] as string
-                    );
+const sales = ref<TypedGetSaleDto[]>([]);
+const page = ref(-1);
+const limit = ref(import.meta.env.VITE_LIMIT as number);
+const server = ref(import.meta.env.VITE_SERVER as string);
+const salesObserver = ref<Element | null>(null);
 
-                if (
-                    typeof image_first[this.selectedSort as keyof typeof image_first] ===
-                    'number'
-                )
-                    return (
-                        +image_first[this.selectedSort as keyof typeof image_first] -
-                        +image_second[this.selectedSort as keyof typeof image_first]
-                    );
+const emit = defineEmits<{
+    'work-deleted': [id: string];
+}>();
 
-                return 0;
-            });
-        },
-    },
+const loadWorks = async () => {
+    try {
+        page.value += 1;
+        const params = new URLSearchParams({
+            offset: (page.value * limit.value).toString(),
+            limit: limit.value.toString(),
+        });
+        const response = await fetch(`${server.value}sales?${params}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        const newWorks = data.map((work: any) => ({
+            ...work,
+            __type: 'GetSaleDto',
+        }));
+        sales.value = [...sales.value, ...newWorks];
+        console.log(sales.value);
+    } catch (e) {
+        console.error('Error fetching works on allworks page ' + e);
+    }
 };
+
+const handleSaleDeleted = (id: string) => {
+    sales.value = sales.value.filter((work: TypedGetSaleDto) => work.id !== id);
+};
+
+onMounted(() => {
+    const options = {
+        rootMargin: '0px',
+        threshold: 1.0,
+    };
+    const salesCallback = (entries: IntersectionObserverEntry[]) => {
+        if (entries[0]?.isIntersecting) {
+            loadWorks();
+        }
+    };
+    const observer = new IntersectionObserver(salesCallback, options);
+    if (salesObserver.value) observer.observe(salesObserver.value);
+});
 </script>
 
 <template>
-    <UContainer class="mt-3">
-        <v-select
-            :options="sortOptions"
-            :reduce="(item: SortOption) => item.value"
-            label="name"
-            v-model="selectedSort"
-            inputId="value"
-            :placeholder="$t('mySelect.placeholder')"
-        >
-        </v-select>
+    <UContainer class="main-content">
+        <Gallery :images="sales" @work-deleted="handleSaleDeleted" />
+
+        <div ref="salesObserver" class="observer" />
     </UContainer>
-    <Gallery :images="images" />
-    <div ref="observer" class="observer" />
 </template>
 
 <style scoped>
-.v-select {
-    width: 20rem;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
 .observer {
     height: 0px;
 }

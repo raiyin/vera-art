@@ -1,36 +1,41 @@
+<script setup lang="ts">
+definePageMeta({
+    middleware: 'admin-auth',
+});
+</script>
+
 <script lang="ts">
-import axios from 'axios';
 import { defineComponent } from 'vue';
-import { NewsDescDto } from '@/types';
-import Alert from '@/components/app-ui/Alert.vue';
+import type { NewsDesc } from '../../types';
+import axios from 'axios';
+import { useToast } from '@nuxt/ui/runtime/composables/index.js';
 
 interface PreviewItem {
     file: File;
     preview: string;
 }
 
+type NewsForm = Omit<NewsDesc, 'id'>;
+
 export default defineComponent({
     name: 'AddNews',
-    components: {
-        Alert,
-    },
+    components: {},
     data() {
         return {
             news: {
-                id: 0,
                 title_en: '',
                 title_ru: '',
                 subTitle_en: '',
                 subTitle_ru: '',
                 img_back: '', // имя файла
                 img_backfull: '', // имя файла
-                images: [],
-                videos: [],
+                images: [] as string[],
+                videos: [] as string[],
                 datetime: '',
                 text_en: '',
                 text_ru: '',
                 dir: '',
-            } as NewsDescDto,
+            } as NewsForm,
 
             // Для отправки файлов
             images: [] as File[],
@@ -58,9 +63,6 @@ export default defineComponent({
                 text_en: '',
             } as Record<string, string>,
             fileError: null as string | null,
-            showSuccessAlert: false,
-            showErrorAlert: false,
-            errorMessage: '',
             isDragOver: false,
         };
     },
@@ -108,15 +110,14 @@ export default defineComponent({
             // Validate file type
             const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
             if (!validTypes.includes(selectedImage.type)) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+                this.fileError = this.$t('admin_news_form.errors.invalid_image_type');
                 return;
             }
 
             // Validate file size (max 5MB)
             const maxSize = 5 * 1024 * 1024; // 5MB
             if (selectedImage.size > maxSize) {
-                this.fileError = 'Размер файла не должен превышать 5 МБ';
+                this.fileError = this.$t('admin_news_form.errors.image_size');
                 return;
             }
 
@@ -148,15 +149,14 @@ export default defineComponent({
             // Validate file type
             const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
             if (!validTypes.includes(selectedImage.type)) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+                this.fileError = this.$t('admin_news_form.errors.invalid_image_type');
                 return;
             }
 
             // Validate file size (max 5MB)
             const maxSize = 5 * 1024 * 1024; // 5MB
             if (selectedImage.size > maxSize) {
-                this.fileError = 'Размер файла не должен превышать 5 МБ';
+                this.fileError = this.$t('admin_news_form.errors.image_size');
                 return;
             }
 
@@ -185,7 +185,7 @@ export default defineComponent({
 
             // Проверка на количество файлов
             if (this.images.length + selectedFiles.length > 10) {
-                this.fileError = 'Можно загрузить не более 10 изображений';
+                this.fileError = this.$t('admin_news_form.errors.max_images');
                 return;
             }
 
@@ -196,8 +196,7 @@ export default defineComponent({
             );
 
             if (invalidFiles.length > 0) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+                this.fileError = this.$t('admin_news_form.errors.invalid_image_type');
                 return;
             }
 
@@ -206,7 +205,7 @@ export default defineComponent({
             const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
 
             if (largeFiles.length > 0) {
-                this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
+                this.fileError = this.$t('admin_news_form.errors.image_size');
                 return;
             }
 
@@ -214,6 +213,11 @@ export default defineComponent({
 
             // Добавляем новые файлы
             this.images = [...this.images, ...selectedFiles];
+
+            // Добавляем имена файлов в news.images
+            selectedFiles.forEach((file) => {
+                this.news.images.push(file.name);
+            });
 
             // Создаем превью для новых изображений
             selectedFiles.forEach((file) => {
@@ -238,9 +242,9 @@ export default defineComponent({
 
             // Validate file type
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+                const file = files[i]!;
                 if (!file.type.startsWith('video/')) {
-                    this.fileError = 'Пожалуйста, выберите только видеофайлы';
+                    this.fileError = this.$t('admin_news_form.errors.invalid_video_type');
                     return;
                 }
             }
@@ -248,9 +252,9 @@ export default defineComponent({
             // Validate file size (max 100MB)
             const maxSize = 100 * 1024 * 1024;
             for (let i = 0; i < files.length; i++) {
-                const file = files[i];
+                const file = files[i]!;
                 if (file.size > maxSize) {
-                    this.fileError = 'Размер файла не должен превышать 100MB';
+                    this.fileError = this.$t('admin_news_form.errors.video_size');
                     return;
                 }
             }
@@ -259,18 +263,22 @@ export default defineComponent({
 
             // Populate both arrays
             for (let i = 0; i < files.length; i++) {
-                this.videos.push(files[i]);
-                this.previewVideos.push(URL.createObjectURL(files[i]));
+                const file = files[i]!;
+                this.videos.push(file);
+                this.news.videos.push(file.name);
+                this.previewVideos.push(URL.createObjectURL(file));
             }
         },
 
         removeImageFromImages(index: number) {
             this.previewImages.splice(index, 1);
             this.images.splice(index, 1);
+            this.news.images.splice(index, 1);
         },
         removeVideoFromVideos(index: number) {
             this.previewVideos.splice(index, 1);
             this.videos.splice(index, 1);
+            this.news.videos.splice(index, 1);
         },
 
         onVideoError() {
@@ -281,95 +289,109 @@ export default defineComponent({
             switch (fieldName) {
                 case 'title_ru':
                     if (!this.news.title_ru.trim()) {
-                        this.errors.title_ru = 'Пожалуйста, введите заголовок на русском';
+                        this.errors.title_ru = this.$t(
+                            'admin_news_form.errors.title_ru_required'
+                        );
                     } else if (
                         this.news.title_ru.trim().length < 3 ||
                         this.news.title_ru.trim().length > 50
                     ) {
-                        this.errors.title_ru =
-                            'Заголовок на русском должен быть от 3 до 50 символов';
+                        this.errors.title_ru = this.$t(
+                            'admin_news_form.errors.title_ru_length'
+                        );
                     } else {
                         this.errors.title_ru = '';
                     }
                     break;
                 case 'title_en':
                     if (!this.news.title_en.trim()) {
-                        this.errors.title_en =
-                            'Пожалуйста, введите заголовок на английском';
+                        this.errors.title_en = this.$t(
+                            'admin_news_form.errors.title_en_required'
+                        );
                     } else if (
                         this.news.title_en.trim().length < 3 ||
                         this.news.title_en.trim().length > 50
                     ) {
-                        this.errors.title_en =
-                            'Заголовок на английском должен быть от 3 до 50 символов';
+                        this.errors.title_en = this.$t(
+                            'admin_news_form.errors.title_en_length'
+                        );
                     } else {
                         this.errors.title_en = '';
                     }
                     break;
                 case 'subTitle_ru':
                     if (!this.news.subTitle_ru.trim()) {
-                        this.errors.subTitle_ru =
-                            'Пожалуйста, введите подзаголовок на русском';
+                        this.errors.subTitle_ru = this.$t(
+                            'admin_news_form.errors.subtitle_ru_required'
+                        );
                     } else if (
                         this.news.subTitle_ru.trim().length < 3 ||
                         this.news.subTitle_ru.trim().length > 50
                     ) {
-                        this.errors.subTitle_ru =
-                            'Подзаголовок на русском должен быть от 3 до 50 символов';
+                        this.errors.subTitle_ru = this.$t(
+                            'admin_news_form.errors.subtitle_ru_length'
+                        );
                     } else {
                         this.errors.subTitle_ru = '';
                     }
                     break;
                 case 'subTitle_en':
                     if (!this.news.subTitle_en.trim()) {
-                        this.errors.subTitle_en =
-                            'Пожалуйста, введите подзаголовок на английском';
+                        this.errors.subTitle_en = this.$t(
+                            'admin_news_form.errors.subtitle_en_required'
+                        );
                     } else if (
                         this.news.subTitle_en.trim().length < 3 ||
                         this.news.subTitle_en.trim().length > 50
                     ) {
-                        this.errors.subTitle_en =
-                            'Подзаголовок на английском должен быть от 3 до 50 символов';
+                        this.errors.subTitle_en = this.$t(
+                            'admin_news_form.errors.subtitle_en_length'
+                        );
                     } else {
                         this.errors.subTitle_en = '';
                     }
                     break;
                 case 'img_back':
                     if (!this.img_back_preview || !this.news.img_back) {
-                        this.errors.img_back =
-                            'Пожалуйста, добавьте предварительное изображение новости';
+                        this.errors.img_back = this.$t(
+                            'admin_news_form.errors.preview_image_required'
+                        );
                     } else {
                         this.errors.img_back = '';
                     }
                     break;
                 case 'img_backfull':
                     if (!this.img_backfull_preview || !this.news.img_backfull) {
-                        this.errors.img_backfull =
-                            'Пожалуйста, добавьте главное изображение новости';
+                        this.errors.img_backfull = this.$t(
+                            'admin_news_form.errors.main_image_required'
+                        );
                     } else {
                         this.errors.img_backfull = '';
                     }
                     break;
                 case 'images':
                     if (this.previewImages.length === 0) {
-                        this.errors.images =
-                            'Пожалуйста, добавьте хотя бы одно изображение';
+                        this.errors.images = this.$t(
+                            'admin_news_form.errors.images_required'
+                        );
                     } else {
                         this.errors.images = '';
                     }
                     break;
                 case 'text_ru':
                     if (!this.news.text_ru.trim()) {
-                        this.errors.text_ru =
-                            'Пожалуйста, добавьте текст на русском языке';
+                        this.errors.text_ru = this.$t(
+                            'admin_news_form.errors.text_ru_required'
+                        );
                     } else {
                         this.errors.text_ru = '';
                     }
                     break;
                 case 'text_en':
                     if (!this.news.text_en.trim()) {
-                        this.errors.text_en =
-                            'Пожалуйста, добавьте текст на английском языке';
+                        this.errors.text_en = this.$t(
+                            'admin_news_form.errors.text_en_required'
+                        );
                     } else {
                         this.errors.text_en = '';
                     }
@@ -405,7 +427,6 @@ export default defineComponent({
 
             try {
                 this.isSubmitting = true;
-                this.errorMessage = '';
 
                 // Формируем данные для отправки
                 const formData = new FormData();
@@ -444,26 +465,41 @@ export default defineComponent({
                 });
 
                 if (response.status === 200 || response.status === 201) {
-                    this.showSuccessAlert = true;
+                    const toast = useToast();
+                    toast.add({
+                        title: this.$t('toast.success.title'),
+                        description: this.$t('admin_news_form.messages.submit_success'),
+                        icon: 'i-heroicons-check-circle',
+                        color: 'success',
+                        duration: 5000,
+                    });
                     this.resetForm();
                 } else {
-                    this.showErrorAlert = true;
-                    this.errorMessage =
-                        'Не удалось добавить новость. Пожалуйста, попробуйте снова.';
+                    const toast = useToast();
+                    toast.add({
+                        title: this.$t('toast.error.title'),
+                        description: this.$t('admin_news_form.messages.submit_failed'),
+                        icon: 'i-heroicons-exclamation-triangle',
+                        color: 'error',
+                        duration: 5000,
+                    });
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
-                this.showErrorAlert = true;
+                const toast = useToast();
+                let description = this.$t('admin_news_form.messages.general_error');
                 if (error.response?.status === 413) {
-                    this.errorMessage =
-                        'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+                    description = this.$t('admin_news_form.messages.file_too_large');
                 } else if (error.response?.status === 400) {
-                    this.errorMessage =
-                        'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                } else {
-                    this.errorMessage =
-                        'Произошла ошибка при добавлении новости. Пожалуйста, попробуйте снова.';
+                    description = this.$t('admin_news_form.messages.invalid_data');
                 }
+                toast.add({
+                    title: this.$t('toast.error.title'),
+                    description,
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
             } finally {
                 this.isSubmitting = false;
             }
@@ -471,7 +507,6 @@ export default defineComponent({
 
         resetForm() {
             this.news = {
-                id: '',
                 datetime: '',
                 title_en: '',
                 title_ru: '',
@@ -482,8 +517,8 @@ export default defineComponent({
                 img_backfull: '',
                 text_en: '',
                 text_ru: '',
-                images: [],
-                videos: [],
+                images: [] as string[],
+                videos: [] as string[],
             };
             this.images = [];
             this.videos = [];
@@ -503,12 +538,6 @@ export default defineComponent({
             });
             this.fileError = null;
         },
-
-        closeAlert() {
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
-            this.errorMessage = '';
-        },
     },
 });
 </script>
@@ -516,42 +545,25 @@ export default defineComponent({
 <template>
     <div class="add-news-container">
         <div class="header-section">
-            <h1 class="page-title">Добавить новость</h1>
-            <p class="page-subtitle">
-                Заполните все обязательные поля для добавления новости
-            </p>
+            <div class="header-content">
+                <h1 class="page-title">{{ $t('admin_news_form.page_title') }}</h1>
+                <p class="page-subtitle">
+                    {{ $t('admin_news_form.page_subtitle') }}
+                </p>
+            </div>
         </div>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-model="showSuccessAlert"
-            type="success"
-            title="Успешно!"
-            message="Новость успешно добавлена."
-            closeButtonText="Закрыть"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-model="showErrorAlert"
-            type="danger"
-            title="Ошибка!"
-            :message="
-                errorMessage ||
-                'Не удалось добавить новость. Пожалуйста, попробуйте снова.'
-            "
-            closeButtonText="Закрыть"
-        />
 
         <form @submit.prevent="submitForm" class="news-form">
             <!-- Изображения новости -->
             <div class="form-section">
-                <h2 class="section-title">Изображения новости</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_news_form.sections.images') }}
+                </h2>
 
                 <!-- Главное изображение -->
                 <div class="form-group">
                     <label class="form-label">
-                        Главное изображение
+                        {{ $t('admin_news_form.labels.main_image') }}
                         <span class="required">*</span>
                     </label>
                     <div
@@ -584,10 +596,10 @@ export default defineComponent({
                                 ></path>
                             </svg>
                             <p class="upload-text">
-                                Перетащите файл сюда или нажмите для выбора
+                                {{ $t('admin_news_form.labels.drag_drop_single') }}
                             </p>
                             <p class="upload-hint">
-                                Поддерживаемые форматы: JPG, JPEG, PNG (макс. 5MB)
+                                {{ $t('admin_news_form.hints.image_formats') }}
                             </p>
                         </div>
                     </div>
@@ -599,13 +611,15 @@ export default defineComponent({
                             <img
                                 :src="img_backfull_preview.preview"
                                 class="preview-image"
-                                alt="Главное изображение"
+                                :alt="$t('admin_news_form.labels.main_image')"
                             />
                             <UButton
                                 type="button"
                                 @click="removeBackFullImage"
                                 class="remove-btn"
-                                aria-label="Удалить главное изображение"
+                                :aria-label="
+                                    $t('admin_news_form.aria_labels.remove_main_image')
+                                "
                             >
                                 &times;
                             </UButton>
@@ -616,7 +630,7 @@ export default defineComponent({
                 <!-- Превью изображение новости -->
                 <div class="form-group">
                     <label class="form-label">
-                        Превью изображение новости
+                        {{ $t('admin_news_form.labels.preview_image') }}
                         <span class="required">*</span>
                     </label>
                     <div
@@ -649,10 +663,10 @@ export default defineComponent({
                                 ></path>
                             </svg>
                             <p class="upload-text">
-                                Перетащите файл сюда или нажмите для выбора
+                                {{ $t('admin_news_form.labels.drag_drop_single') }}
                             </p>
                             <p class="upload-hint">
-                                Поддерживаемые форматы: JPG, JPEG, PNG (макс. 5MB)
+                                {{ $t('admin_news_form.hints.image_formats') }}
                             </p>
                         </div>
                     </div>
@@ -664,13 +678,15 @@ export default defineComponent({
                             <img
                                 :src="img_back_preview.preview"
                                 class="preview-image"
-                                alt="Превью изображение"
+                                :alt="$t('admin_news_form.labels.preview_image')"
                             />
                             <UButton
                                 type="button"
                                 @click="removeBackImage"
                                 class="remove-btn"
-                                aria-label="Удалить превью изображение"
+                                :aria-label="
+                                    $t('admin_news_form.aria_labels.remove_preview_image')
+                                "
                             >
                                 &times;
                             </UButton>
@@ -681,7 +697,7 @@ export default defineComponent({
                 <!-- Фотогаллерея -->
                 <div class="form-group">
                     <label class="form-label">
-                        Фотогаллерея
+                        {{ $t('admin_news_form.labels.photo_gallery') }}
                         <span class="required">*</span>
                     </label>
                     <div
@@ -715,11 +731,10 @@ export default defineComponent({
                                 ></path>
                             </svg>
                             <p class="upload-text">
-                                Перетащите файлы сюда или нажмите для выбора
+                                {{ $t('admin_news_form.labels.drag_drop_multiple') }}
                             </p>
                             <p class="upload-hint">
-                                Поддерживаемые форматы: JPG, JPEG, PNG (макс. 5MB каждый,
-                                макс. 10 файлов)
+                                {{ $t('admin_news_form.hints.image_formats_multiple') }}
                             </p>
                         </div>
                     </div>
@@ -735,13 +750,19 @@ export default defineComponent({
                             <img
                                 :src="image.preview"
                                 class="preview-image"
-                                :alt="`Изображение ${index + 1}`"
+                                :alt="`${$t('admin_news_form.labels.photo_gallery')} ${
+                                    index + 1
+                                }`"
                             />
                             <UButton
                                 type="button"
                                 @click="removeImageFromImages(index)"
                                 class="remove-btn"
-                                :aria-label="`Удалить изображение ${index + 1}`"
+                                :aria-label="
+                                    $t('admin_news_form.aria_labels.remove_image', {
+                                        index: index + 1,
+                                    })
+                                "
                             >
                                 &times;
                             </UButton>
@@ -751,7 +772,9 @@ export default defineComponent({
 
                 <!-- Видеогаллерея -->
                 <div class="form-group">
-                    <label class="form-label">Видеогаллерея</label>
+                    <label class="form-label">{{
+                        $t('admin_news_form.labels.video_gallery')
+                    }}</label>
                     <div
                         class="file-drop-area"
                         :class="{ 'drag-over': isDragOver }"
@@ -783,10 +806,10 @@ export default defineComponent({
                                 ></path>
                             </svg>
                             <p class="upload-text">
-                                Перетащите видеофайлы сюда или нажмите для выбора
+                                {{ $t('admin_news_form.labels.drag_drop_videos') }}
                             </p>
                             <p class="upload-hint">
-                                Поддерживаемые форматы: MP4, MOV, AVI (макс. 100MB каждый)
+                                {{ $t('admin_news_form.hints.video_formats') }}
                             </p>
                         </div>
                     </div>
@@ -810,7 +833,11 @@ export default defineComponent({
                                 type="button"
                                 @click="removeVideoFromVideos(index)"
                                 class="remove-btn"
-                                :aria-label="`Удалить видео ${index + 1}`"
+                                :aria-label="
+                                    $t('admin_news_form.aria_labels.remove_video', {
+                                        index: index + 1,
+                                    })
+                                "
                             >
                                 &times;
                             </UButton>
@@ -821,12 +848,14 @@ export default defineComponent({
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_news_form.sections.main_info') }}
+                </h2>
 
                 <!-- Заголовок -->
                 <div class="form-group">
                     <label class="form-label">
-                        Заголовок по по-русски
+                        {{ $t('admin_news_form.labels.title_ru') }}
                         <span class="required">*</span>
                     </label>
                     <UInput
@@ -834,7 +863,7 @@ export default defineComponent({
                         @blur="validateField('title_ru')"
                         type="text"
                         :class="['form-control', { 'is-invalid': errors.title_ru }]"
-                        placeholder="Например: 'Звездная ночь'"
+                        :placeholder="$t('admin_news_form.placeholders.title_ru')"
                     />
                     <div class="error-message" v-if="errors.title_ru">
                         {{ errors.title_ru }}
@@ -844,7 +873,7 @@ export default defineComponent({
                 <!-- Заголовок по английски-->
                 <div class="form-group">
                     <label class="form-label">
-                        Заголовок по-английски
+                        {{ $t('admin_news_form.labels.title_en') }}
                         <span class="required">*</span>
                     </label>
                     <UInput
@@ -852,7 +881,7 @@ export default defineComponent({
                         @blur="validateField('title_en')"
                         type="text"
                         :class="['form-control', { 'is-invalid': errors.title_en }]"
-                        placeholder="For example: 'Starry Night'"
+                        :placeholder="$t('admin_news_form.placeholders.title_en')"
                     />
                     <div class="error-message" v-if="errors.title_en">
                         {{ errors.title_en }}
@@ -862,7 +891,7 @@ export default defineComponent({
                 <!-- Подзаголовок -->
                 <div class="form-group">
                     <label class="form-label">
-                        Подзаголовок по-русски
+                        {{ $t('admin_news_form.labels.subtitle_ru') }}
                         <span class="required">*</span>
                     </label>
                     <UInput
@@ -870,7 +899,7 @@ export default defineComponent({
                         @blur="validateField('subTitle_ru')"
                         type="text"
                         :class="['form-control', { 'is-invalid': errors.subTitle_ru }]"
-                        placeholder="Например: 'Звездная ночь'"
+                        :placeholder="$t('admin_news_form.placeholders.subtitle_ru')"
                     />
                     <div class="error-message" v-if="errors.subTitle_ru">
                         {{ errors.subTitle_ru }}
@@ -880,7 +909,7 @@ export default defineComponent({
                 <!-- Подзаголовок по английски-->
                 <div class="form-group">
                     <label class="form-label">
-                        Подзаголовок по-английски
+                        {{ $t('admin_news_form.labels.subtitle_en') }}
                         <span class="required">*</span>
                     </label>
                     <UInput
@@ -888,7 +917,7 @@ export default defineComponent({
                         @blur="validateField('subTitle_en')"
                         type="text"
                         :class="['form-control', { 'is-invalid': errors.subTitle_en }]"
-                        placeholder="For example: 'Starry Night'"
+                        :placeholder="$t('admin_news_form.placeholders.subtitle_en')"
                     />
                     <div class="error-message" v-if="errors.subTitle_en">
                         {{ errors.subTitle_en }}
@@ -898,11 +927,15 @@ export default defineComponent({
 
             <!-- Дополнительная информация -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_news_form.sections.additional_info') }}
+                </h2>
 
                 <!-- Дата -->
                 <div class="form-group">
-                    <label class="form-label">Дата</label>
+                    <label class="form-label">{{
+                        $t('admin_news_form.labels.date')
+                    }}</label>
                     <UInput
                         v-model="news.datetime"
                         type="date"
@@ -916,19 +949,17 @@ export default defineComponent({
                 <!-- Текст -->
                 <div class="form-group">
                     <label class="form-label">
-                        Текст по-русски
+                        {{ $t('admin_news_form.labels.text_ru') }}
                         <span class="required">*</span>
                     </label>
-                    <textarea
+                    <UTextarea
                         v-model="news.text_ru"
                         @blur="validateField('text_ru')"
-                        :class="[
-                            'form-control textarea',
-                            { 'is-invalid': errors.text_ru },
-                        ]"
-                        placeholder="Введите текст новости на русском языке"
-                        rows="6"
-                    ></textarea>
+                        :class="['form-control', { 'is-invalid': errors.text_ru }]"
+                        :placeholder="$t('admin_news_form.placeholders.text_ru')"
+                        :rows="6"
+                        autoresize
+                    />
                     <div class="error-message" v-if="errors.text_ru">
                         {{ errors.text_ru }}
                     </div>
@@ -936,19 +967,17 @@ export default defineComponent({
 
                 <div class="form-group">
                     <label class="form-label">
-                        Текст по-английски
+                        {{ $t('admin_news_form.labels.text_en') }}
                         <span class="required">*</span>
                     </label>
-                    <textarea
+                    <UTextarea
                         v-model="news.text_en"
                         @blur="validateField('text_en')"
-                        :class="[
-                            'form-control textarea',
-                            { 'is-invalid': errors.text_en },
-                        ]"
-                        placeholder="Enter the news text in English"
-                        rows="6"
-                    ></textarea>
+                        :class="['form-control', { 'is-invalid': errors.text_en }]"
+                        :placeholder="$t('admin_news_form.placeholders.text_en')"
+                        :rows="6"
+                        autoresize
+                    />
                     <div class="error-message" v-if="errors.text_en">
                         {{ errors.text_en }}
                     </div>
@@ -958,17 +987,19 @@ export default defineComponent({
             <!-- Кнопки -->
             <div class="form-actions">
                 <UButton type="button" @click="resetForm" class="btn btn-secondary">
-                    Очистить форму
+                    {{ $t('admin_news_form.buttons.clear_form') }}
                 </UButton>
                 <UButton
                     type="submit"
                     class="btn btn-primary"
                     :disabled="isSubmitting || !isFormValid"
                 >
-                    <span v-if="!isSubmitting">Добавить новость</span>
+                    <span v-if="!isSubmitting">{{
+                        $t('admin_news_form.buttons.add_news')
+                    }}</span>
                     <span v-else>
                         <span class="spinner"></span>
-                        Отправка...
+                        {{ $t('admin_news_form.buttons.submitting') }}
                     </span>
                 </UButton>
             </div>
@@ -983,8 +1014,8 @@ select:has(option.placeholder:checked) {
 
 .add-news-container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 3rem auto;
+    padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -1239,71 +1270,6 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 1000;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
-}
-
 .error-message {
     color: #e74c3c;
     font-size: 0.875rem;
@@ -1346,12 +1312,6 @@ select:has(option.placeholder:checked) {
 
     .btn {
         width: 100%;
-    }
-
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
     }
 
     .page-title {

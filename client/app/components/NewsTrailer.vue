@@ -1,99 +1,103 @@
-<script lang="ts">
-import CalendarIcon from '@/components/IconCalendar.vue';
+<script setup lang="ts">
+import CalendarIcon from './IconCalendar.vue';
 import { useAuthStore } from '../../stores/AuthStore';
 import { storeToRefs } from 'pinia';
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useI18n } from '#imports';
 
-export default {
-    setup() {
-        const authStore = useAuthStore();
-        const { isAuthenticated } = storeToRefs(authStore);
+const props = defineProps<{
+    newsObject: {
+        id: string;
+        dir: string;
+        img_back: string;
+        title_ru: string;
+        title_en: string;
+        subTitle_ru: string;
+        subTitle_en: string;
+        datetime: string;
+    };
+}>();
 
-        return {
-            isAuthenticated,
-        };
-    },
-    components: {
-        CalendarIcon,
-    },
-    props: {
-        newsObject: {
-            type: Object,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            isLoaded: false,
-            imagebasedir: import.meta.env.VITE_IMAGE_DIR,
-            isDeleting: false,
-        };
-    },
-    methods: {
-        onImgLoad() {
-            this.isLoaded = true;
-        },
-        getHumanDate(inDate: string, locale: string) {
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            } as const;
-            const date = new Date(inDate);
-            const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
-            return date.toLocaleDateString(stdLocale, options);
-        },
-        editNews() {
-            this.$router.push('/news/edit/' + this.newsObject.id + '/');
-        },
-        async deleteNews() {
-            // Better confirmation dialog
-            if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
-                return;
-            }
+const emit = defineEmits<{
+    'news-deleted': [id: string];
+}>();
 
-            // Set loading state
-            this.isDeleting = true;
+const authStore = useAuthStore();
+const { isAuthenticated } = storeToRefs(authStore);
+const router = useRouter();
+const { locale } = useI18n();
 
-            try {
-                const response = await fetch(
-                    `${import.meta.env.VITE_SERVER_URL}news/${this.newsObject.id}`,
-                    {
-                        method: 'DELETE',
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
-                    }
-                );
+// Reactive state
+const isLoaded = ref(false);
+const isDeleting = ref(false);
+const isMounted = ref(false);
 
-                if (response.ok) {
-                    // Remove the news item from the UI
-                    this.$emit('news-deleted', this.newsObject.id);
-                } else {
-                    const errorData = await response.json();
-                    alert(
-                        `Ошибка при удалении новости: ${
-                            errorData.error || 'Неизвестная ошибка'
-                        }`
-                    );
-                }
-            } catch (error) {
-                console.error('Error deleting news:', error);
-                alert('Ошибка при удалении новости:_network_error');
-            } finally {
-                // Reset loading state
-                this.isDeleting = false;
-            }
-        },
-    },
-    computed: {
-        newsId() {
-            return '/news/' + this.newsObject.id;
-        },
-        bgImage() {
-            return this.imagebasedir + this.newsObject.dir + this.newsObject.img_back;
-        },
-    },
+// Computed properties
+const newsId = computed(() => '/news/' + props.newsObject.id);
+const bgImage = computed(() => props.newsObject.dir + props.newsObject.img_back);
+
+// Methods
+const onImgLoad = () => {
+    isLoaded.value = true;
 };
+
+const getHumanDate = (inDate: string, locale: string) => {
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    } as const;
+    const date = new Date(inDate);
+    const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
+    return date.toLocaleDateString(stdLocale, options);
+};
+
+const editNews = () => {
+    router.push('/news/edit/' + props.newsObject.id + '/');
+};
+
+const deleteNews = async () => {
+    // Better confirmation dialog
+    if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
+        return;
+    }
+
+    // Set loading state
+    isDeleting.value = true;
+
+    try {
+        const response = await fetch(
+            `${import.meta.env.VITE_SERVER_URL}news/${props.newsObject.id}`,
+            {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            }
+        );
+
+        if (response.ok) {
+            // Remove the news item from the UI
+            emit('news-deleted', props.newsObject.id);
+        } else {
+            const errorData = await response.json();
+            alert(
+                `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`
+            );
+        }
+    } catch (error) {
+        console.error('Error deleting news:', error);
+        alert('Ошибка при удалении новости:_network_error');
+    } finally {
+        // Reset loading state
+        isDeleting.value = false;
+    }
+};
+
+// Lifecycle hooks
+onMounted(() => {
+    isMounted.value = true;
+});
 </script>
 
 <template>
@@ -106,35 +110,35 @@ export default {
         </div>
 
         <div class="news-content">
-            <div>
-                {{
-                    !isLoaded
-                        ? ''
-                        : $i18n.locale === 'RUS'
-                        ? newsObject.title_ru
-                        : newsObject.title_en
-                }}
+            <div v-show="isLoaded">
+                {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}
             </div>
-            <div>
-                {{
-                    !isLoaded
-                        ? ''
-                        : $i18n.locale === 'RUS'
-                        ? newsObject.subTitle_ru
-                        : newsObject.subTitle_en
-                }}
+            <div v-show="isLoaded">
+                {{ locale === 'ru' ? newsObject.subTitle_ru : newsObject.subTitle_en }}
             </div>
-            <div>
-                <CalendarIcon v-if="isLoaded" />
-                <span>
-                    &nbsp;{{
-                        !isLoaded ? '' : getHumanDate(newsObject.datetime, $i18n.locale)
-                    }}
-                </span>
+            <div v-show="isLoaded">
+                <CalendarIcon />
+                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale) }} </span>
+            </div>
+
+            <!-- Skeleton placeholders for SSR consistency -->
+            <div v-show="!isLoaded" class="skeleton-text"></div>
+            <div
+                v-show="!isLoaded"
+                class="skeleton-text"
+                style="width: 70%; margin-top: 0.5rem"
+            ></div>
+            <div
+                v-show="!isLoaded"
+                class="skeleton-text"
+                style="width: 50%; margin-top: 0.5rem"
+            >
+                <CalendarIcon style="visibility: hidden" />
+                <span style="visibility: hidden">&nbsp;Placeholder</span>
             </div>
         </div>
 
-        <div class="image-control" v-if="isAuthenticated">
+        <div class="image-control" v-if="isAuthenticated && isMounted">
             <UButton class="btn btn-secondary w-100" type="button" v-on:click="editNews">
                 Редактировать
             </UButton>
@@ -244,5 +248,21 @@ export default {
     justify-content: space-between;
     gap: 0.5rem;
     margin-top: 1rem;
+}
+
+.skeleton-text {
+    height: 1.2rem;
+    background-color: var(--skeleton-gray);
+    background: linear-gradient(
+            100deg,
+            rgba(255, 255, 255, 0) 40%,
+            rgba(255, 255, 255, 0.5) 50%,
+            rgba(255, 255, 255, 0) 60%
+        )
+        var(--skeleton-gray);
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1s loading ease-in-out infinite;
+    border-radius: 0.4rem;
 }
 </style>

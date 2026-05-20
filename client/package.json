@@ -18,13 +18,22 @@
     "@nuxt/image": "2.0.0",
     "@nuxt/ui": "^4.6.1",
     "@nuxtjs/i18n": "^10.2.4",
+    "@pinia/nuxt": "^0.11.3",
+    "axios": "^1.15.1",
     "nuxt": "^4.4.2",
+    "pinia": "^3.0.4",
     "tailwindcss": "^4.2.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@iconify-json/heroicons": "^1.2.3",
     "@nuxt/eslint": "^1.15.2",
-    "eslint": "^10.2.0",
+    "@types/node": "^25.6.0",
+    "eslint": "^10.2.1",
+    "eslint-plugin-vue": "^10.8.0",
+    "globals": "^17.5.0",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.58.2",
     "vue-tsc": "^3.2.6"
   },
   "packageManager": "pnpm@10.33.0"

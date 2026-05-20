@@ -1,4 +1,4 @@
-import { createI18n } from 'vue-i18n';
+import { createI18n, } from 'vue-i18n';
 import ru from './locales/ru.json';
 import en from './locales/en.json';
 
@@ -12,6 +12,6 @@ const i18n = createI18n({
     fallbackLocale: import.meta.env.VITE_FALLBACK_LOCALE || 'ru',
     legacy: false,
     messages,
-});
+},);
 
 export default i18n;

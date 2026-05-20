@@ -1,9 +1,15 @@
 <script lang="ts">
+import { useI18n } from 'vue-i18n';
+
 export default {
     setup() {
+        const { t } = useI18n({ useScope: 'global' });
         const currentYear = new Date().getFullYear();
-        return { currentYear };
-    }
+        return {
+            currentYear,
+            t,
+        };
+    },
 };
 </script>
 
@@ -12,13 +18,19 @@ export default {
         <div class="footer-container">
             <div class="footer-content">
                 <div class="footer-text">
-                    <span class="copyright">© {{ currentYear }} Все права защищены</span>
+                    <span class="copyright"
+                        >© {{ currentYear }} {{ t('footer.copyright') }}</span
+                    >
                     <span class="separator">•</span>
                     <span class="studio-link">
-                        Разработано
-                        <a href="https://publicmaders.ru" target="_blank" rel="noopener noreferrer"
-                            class="studio-link-anchor">
-                            publicmaders.ru
+                        {{ t('footer.developed') }}
+                        <a
+                            href="https://www.publicmaders.ru"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="studio-link-anchor"
+                        >
+                            www.publicmaders.ru
                         </a>
                     </span>
                 </div>
@@ -113,10 +125,6 @@ export default {
 
     .footer {
         padding: 1.25rem 0;
-    }
-
-    .footer-note {
-        padding: 0 1rem;
     }
 }
 </style>

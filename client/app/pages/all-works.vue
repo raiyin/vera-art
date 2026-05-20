@@ -1,63 +1,57 @@
-<script lang="ts">
-import Gallery from '@/components/app-ui/PicGallery.vue';
-import { GetBaseWork, GetWorkDto } from '@/types';
-import { TypedGetWorkDto } from '@/types/work';
-import axios from 'axios';
+<script setup lang="ts">
+import type { TypedGetWorkDto } from '~/types/work';
+import Gallery from '@/components/PicGallery.vue';
+import { ref, onMounted } from 'vue';
 
-export default {
-    components: {
-        Gallery,
-    },
-    emits: ['work-deleted'],
-    data() {
-        return {
-            works: [] as TypedGetWorkDto[],
-            page: -1,
-            limit: import.meta.env.VITE_PAGE_SIZE,
-            server: import.meta.env.VITE_SERVER_URL,
-        };
-    },
-    methods: {
-        async loadWorks() {
-            try {
-                this.page += 1;
-                const response = await axios.get(this.server + 'works', {
-                    params: {
-                        offset: this.page * this.limit,
-                        limit: this.limit,
-                    },
-                });
+const works = ref<TypedGetWorkDto[]>([]);
+const page = ref(-1);
+const limit = ref(import.meta.env.VITE_LIMIT as number);
+const server = ref(import.meta.env.VITE_SERVER as string);
+const worksObserver = ref<Element | null>(null);
 
-                const newWorks: TypedGetWorkDto[] = response.data.map(
-                    (work: GetBaseWork) => ({
-                        ...work,
-                        __type: 'GetWorkDto',
-                    })
-                );
-                this.works = [...this.works, ...newWorks];
-                console.log(this.works);
-            } catch (e) {
-                console.error('Error fetching works on allworks page ' + e);
-            }
-        },
-        handleWorkDeleted(id: string) {
-            this.works = this.works.filter((work: any) => work.id !== id);
-        },
-    },
-    mounted() {
-        const options = {
-            rootMargin: '0px',
-            threshold: 1.0,
-        };
-        const worksCallback = (entries: IntersectionObserverEntry[]) => {
-            if (entries[0].isIntersecting) {
-                this.loadWorks();
-            }
-        };
-        const worksObserver = new IntersectionObserver(worksCallback, options);
-        worksObserver.observe(this.$refs.worksObserver as Element);
-    },
+const emit = defineEmits<{
+    'work-deleted': [id: string];
+}>();
+
+const loadWorks = async () => {
+    try {
+        page.value += 1;
+        const params = new URLSearchParams({
+            offset: (page.value * limit.value).toString(),
+            limit: limit.value.toString(),
+        });
+        const response = await fetch(`${server.value}works?${params}`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+
+        const newWorks = data.map((work: any) => ({
+            ...work,
+            __type: 'GetWorkDto',
+        }));
+        works.value = [...works.value, ...newWorks];
+        console.log(works.value);
+    } catch (e) {
+        console.error('Error fetching works on allworks page ' + e);
+    }
 };
+
+const handleWorkDeleted = (id: string) => {
+    works.value = works.value.filter((work: TypedGetWorkDto) => work.id !== id);
+};
+
+onMounted(() => {
+    const options = {
+        rootMargin: '0px',
+        threshold: 1.0,
+    };
+    const worksCallback = (entries: IntersectionObserverEntry[]) => {
+        if (entries[0]?.isIntersecting) {
+            loadWorks();
+        }
+    };
+    const observer = new IntersectionObserver(worksCallback, options);
+    if (worksObserver.value) observer.observe(worksObserver.value);
+});
 </script>
 
 <template>

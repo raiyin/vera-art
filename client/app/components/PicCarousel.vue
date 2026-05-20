@@ -1,36 +1,36 @@
-<script lang="ts">
-import { CommonGetWorkDto } from '@/types';
+<script setup lang="ts">
+import type { CommonGetWorkDto } from '~/types';
 import type { PropType } from 'vue';
+import { ref, computed, onBeforeMount } from 'vue';
+import { useI18n } from '#imports';
 
-export default {
-    props: {
-        imageObject: {
-            type: Object as PropType<CommonGetWorkDto>,
-            default: {} as CommonGetWorkDto,
-        },
-        imageId: {
-            type: String,
-        },
+const props = defineProps({
+    imageObject: {
+        type: Object as PropType<CommonGetWorkDto>,
+        default: {} as CommonGetWorkDto,
     },
-    data() {
-        return {
-            imgCountGTOne: false,
-        };
+    imageId: {
+        type: String,
     },
-    methods: {
-        makeFileName(index: number) {
-            return this.imageObject.dir + this.imageObject.images[index - 1];
-        },
-    },
-    computed: {
-        imgIdtoLink() {
-            return '#' + this.imageObject.str_id;
-        },
-    },
-    beforeMount() {
-        this.imgCountGTOne = this.imageObject.images.length > 1;
-    },
+});
+
+const { locale, t } = useI18n();
+
+// Reactive state
+const imgCountGTOne = ref(false);
+
+// Computed property
+const imgIdtoLink = computed(() => '#' + props.imageObject.str_id);
+
+// Methods
+const makeFileName = (index: number) => {
+    return props.imageObject.dir + props.imageObject.images[index - 1];
 };
+
+// Lifecycle hook
+onBeforeMount(() => {
+    imgCountGTOne.value = props.imageObject.images.length > 1;
+});
 </script>
 
 <template>
@@ -60,7 +60,7 @@ export default {
                     <div class="carousel-caption d-none d-md-block">
                         <h5>
                             {{
-                                $i18n.locale === 'RUS'
+                                locale === 'ru'
                                     ? `${imageObject.name_ru}`
                                     : `${imageObject.name_en}`
                             }}
@@ -79,7 +79,7 @@ export default {
         >
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="visually-hidden">
-                {{ $t('carousel.back') }}
+                {{ t('carousel.back') }}
             </span>
         </UButton>
 
@@ -92,7 +92,7 @@ export default {
         >
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="visually-hidden">
-                {{ $t('carousel.next') }}
+                {{ t('carousel.next') }}
             </span>
         </UButton>
     </div>

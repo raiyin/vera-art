@@ -1,0 +1,236 @@
+<script setup lang="ts">
+import { useI18n } from '#imports';
+import { useAuthStore } from '../stores/AuthStore';
+import { useNotificationStore } from '../stores/NotificationStore';
+import { useThemeStore } from '../stores/ThemeStore';
+import type { NavigationMenuItem } from '@nuxt/ui';
+
+const { locale, setLocale, t } = useI18n();
+const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
+const themeStore = useThemeStore();
+
+const route = useRoute();
+
+const switchLocale = (newLocale) => {
+    setLocale(newLocale);
+};
+
+const toggleTheme = () => {
+    themeStore.theme = themeStore.theme === 'light' ? 'dark' : 'light';
+};
+
+const logout = () => {
+    authStore.clearTokens();
+    notificationStore.stopPolling();
+    navigateTo('/');
+};
+
+// Build navigation items with translations
+const navigation = computed<NavigationMenuItem[]>(() => [
+    {
+        label: t('header.main'),
+        to: '/',
+    },
+    {
+        label: t('header.all_works'),
+        to: '/all-works',
+        active: route.path.startsWith('/all-works'),
+    },
+    {
+        label: t('header.news'),
+        to: '/news',
+        active: route.path.startsWith('/news'),
+    },
+    {
+        label: t('header.shop'),
+        to: '/shop',
+        active: route.path.startsWith('/shop'),
+    },
+    {
+        label: t('header.payment'),
+        to: '/pay-delivery',
+        icon: 'i-heroicons-credit-card',
+        active: route.path.startsWith('/pay-delivery'),
+        value: 'payment',
+    },
+    {
+        label: t('header.services'),
+        to: '/services',
+        active: route.path.startsWith('/services'),
+        icon: 'i-heroicons-document-text',
+        value: 'services',
+        open: true,
+        defaultOpen: true,
+        children: [
+            {
+                label: 'Акварельная живопись',
+                to: '/master-classes/watercolor',
+                icon: 'i-heroicons-paint-brush',
+                active: route.path.startsWith('/master-classes/watercolor'),
+                value: 'watercolor',
+            },
+            {
+                label: 'Масляная живопись',
+                to: '/master-classes/oil',
+                icon: 'i-heroicons-paint-brush',
+                active: route.path.startsWith('/master-classes/oil'),
+                value: 'oil',
+            },
+            {
+                label: 'Рисование для начинающих',
+                to: '/master-classes/beginners',
+                icon: 'i-heroicons-sparkles',
+                active: route.path.startsWith('/master-classes/beginners'),
+                value: 'beginners',
+            },
+            {
+                label: 'Онлайн-курсы',
+                to: '/courses/online',
+                icon: 'i-heroicons-computer-desktop',
+                active: route.path.startsWith('/courses/online'),
+                value: 'online-courses',
+            },
+            {
+                label: 'Индивидуальные занятия',
+                to: '/courses/individual',
+                icon: 'i-heroicons-user',
+                active: route.path.startsWith('/courses/individual'),
+                value: 'individual-courses',
+            },
+        ],
+    },
+]);
+
+if (authStore.isAuthenticated && authStore.isAdmin) {
+    navigation.push({
+        label: t('header.admin'),
+        to: '/admin',
+        active: route.path.startsWith('/admin'),
+    });
+}
+</script>
+
+<template>
+    <UHeader>
+        <template #title>
+            <NuxtLink to="/" class="flex items-center">
+                <img
+                    src="../assets/icons/favicon-art.svg"
+                    alt="Palette"
+                    class="h-10 w-10 transition-transform duration-200 hover:scale-110"
+                />
+            </NuxtLink>
+        </template>
+
+        <template #default>
+            <UNavigationMenu :items="navigation" />
+        </template>
+
+        <template #right>
+            <!-- Language switcher -->
+            <UTooltip
+                :text="locale === 'en' ? 'Switch to Russian' : 'Переключится на Русский'"
+            >
+                <UButton
+                    class="text-grey"
+                    variant="ghost"
+                    square
+                    @click="switchLocale(locale === 'en' ? 'ru' : 'en')"
+                >
+                    {{ locale === 'en' ? 'RU' : 'EN' }}
+                </UButton>
+            </UTooltip>
+
+            <!-- Theme toggle -->
+            <UTooltip :text="$t('theme.title')">
+                <UButton class="text-grey" variant="ghost" square @click="toggleTheme">
+                    <Icon
+                        :name="
+                            themeStore.theme === 'light'
+                                ? 'i-heroicons-moon'
+                                : 'i-heroicons-sun'
+                        "
+                        class="w-5 h-5"
+                    />
+                </UButton>
+            </UTooltip>
+
+            <!-- Notifications -->
+            <div v-if="authStore.isAuthenticated" class="relative">
+                <UTooltip text="Сообщения">
+                    <UButton class="text-grey" variant="ghost" square to="/chat">
+                        <Icon name="i-heroicons-chat-bubble-left-right" class="w-5 h-5" />
+                        <span
+                            v-if="notificationStore.hasUnread"
+                            class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                        >
+                            {{
+                                notificationStore.unreadCount > 9
+                                    ? '9+'
+                                    : notificationStore.unreadCount
+                            }}
+                        </span>
+                    </UButton>
+                </UTooltip>
+            </div>
+
+            <!-- Auth -->
+            <UTooltip v-if="authStore.isAuthenticated" text="Выйти">
+                <UButton class="text-grey" variant="ghost" square @click="logout">
+                    <Icon name="i-heroicons-user-circle" class="w-5 h-5" />
+                </UButton>
+            </UTooltip>
+
+            <UTooltip v-else :text="$t('auth.login')">
+                <UButton class="text-grey" variant="ghost" square to="/login">
+                    <Icon name="i-heroicons-user-circle" class="w-5 h-5" />
+                </UButton>
+            </UTooltip>
+
+            <!-- Social links (desktop only) -->
+            <div class="md:flex items-center space-x-1">
+                <UTooltip text="Telegram">
+                    <UButton
+                        variant="ghost"
+                        square
+                        href="https://t.me/MilayaV"
+                        target="_blank"
+                        class="text-grey"
+                        external
+                    >
+                        <Icon name="i-simple-icons-telegram" class="w-5 h-5" />
+                    </UButton>
+                </UTooltip>
+
+                <UTooltip text="VK">
+                    <UButton
+                        class="text-grey"
+                        variant="ghost"
+                        square
+                        href="https://vk.com/perczukowa"
+                        target="_blank"
+                        external
+                    >
+                        <Icon name="i-simple-icons-vk" class="w-5 h-5" />
+                    </UButton>
+                </UTooltip>
+                <UTooltip text="Email">
+                    <UButton
+                        class="text-grey"
+                        variant="ghost"
+                        square
+                        href="mailto:perczukowa@yandex.ru"
+                        external
+                    >
+                        <Icon name="i-simple-icons-gmail" class="w-5 h-5" />
+                    </UButton>
+                </UTooltip>
+            </div>
+        </template>
+
+        <template #body>
+            <UNavigationMenu :items="navigation" orientation="vertical" class="-mx-2.5" />
+        </template>
+    </UHeader>
+</template>

@@ -1,8 +1,8 @@
 <template>
-    <div class="admin-container container">
+    <div class="admin-container">
         <h1 class="title">{{ $t('admin.title') }}</h1>
         <div class="buttons-wrapper">
-            <router-link to="/add-news" class="action-button news-button">
+            <router-link to="/admin/add-news" class="action-button news-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"
@@ -22,7 +22,7 @@
                 </div>
             </router-link>
 
-            <router-link to="/add-shop-item" class="action-button shop-button">
+            <router-link to="/admin/add-shop-item" class="action-button shop-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"
@@ -42,7 +42,10 @@
                 </div>
             </router-link>
 
-            <router-link to="/add-gallery-item" class="action-button gallery-button">
+            <router-link
+                to="/admin/add-gallery-item"
+                class="action-button gallery-button"
+            >
                 <div class="button-content">
                     <svg
                         class="button-icon"
@@ -69,9 +72,8 @@
 
 <script>
 definePageMeta({
-    middleware: 'auth',
-    layout: 'admin',
     ssr: false, // админка только на клиенте
+    middleware: 'admin-auth',
     cache: {
         maxAge: 3600,
         swr: true,
@@ -85,8 +87,12 @@ definePageMeta({
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100%;
+    width: 100%;
     padding: 2rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    height: calc(100vh - 300px); /* еще больше отступов */
+    min-height: 300px;
 }
 
 .title {
@@ -173,12 +179,70 @@ definePageMeta({
 
 /* Responsive design */
 @media (max-width: 768px) {
+    .admin-container {
+        height: calc(100vh - 250px);
+        padding: 1.5rem;
+        justify-content: flex-start;
+        padding-top: 3rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .title {
+        margin-bottom: 1.5rem;
+        font-size: 1.8rem;
+        text-align: center;
+    }
+
     .buttons-wrapper {
         flex-direction: column;
+        width: 100%;
+        max-width: 400px;
+        margin: 0 auto;
+        flex: 1;
+        justify-content: center;
+        gap: 1.5rem;
     }
 
     .action-button {
         width: 100%;
+        padding: 1.2rem 2rem;
+        font-size: 1.1rem;
+    }
+
+    .button-icon {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-container {
+        height: calc(100vh - 250px);
+        padding: 1rem;
+        padding-top: 2rem;
+        overflow: hidden;
+        justify-content: flex-start;
+    }
+
+    .title {
+        font-size: 1.6rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .buttons-wrapper {
+        gap: 1rem;
+    }
+
+    .action-button {
+        padding: 1rem 1.2rem;
+        font-size: 1rem;
+    }
+
+    .button-icon {
+        width: 1.8rem;
+        height: 1.8rem;
     }
 }
 </style>

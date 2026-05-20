@@ -1,5 +1,41 @@
 <script setup>
-const { locale, setLocale } = useI18n()
+import { onMounted, onUnmounted, watch } from 'vue';
+import { useI18n, useColorMode } from '#imports';
+import { useMaterialStore } from './stores/MaterialStore';
+import { useThemeStore } from './stores/ThemeStore';
+import { useAuthStore } from './stores/AuthStore';
+import { useNotificationStore } from './stores/NotificationStore';
+import CookieConsent from './components/CookieConsent.vue';
+import Header from './components/Header.vue';
+const { locale, setLocale } = useI18n();
+const materialStore = useMaterialStore();
+const themeStore = useThemeStore();
+const authStore = useAuthStore();
+const notificationStore = useNotificationStore();
+const colorMode = useColorMode();
+
+// Sync theme store with Nuxt UI color mode (store -> colorMode)
+watch(
+    () => themeStore.theme,
+    (newTheme) => {
+        // Update both preference and value to ensure persistence
+        colorMode.preference = newTheme;
+        colorMode.value = newTheme;
+    },
+    { immediate: true }
+);
+
+// Sync color mode changes to theme store (colorMode -> store)
+watch(
+    () => colorMode.value,
+    (newColorMode) => {
+        if (newColorMode === 'light' || newColorMode === 'dark') {
+            if (themeStore.theme !== newColorMode) {
+                themeStore.theme = newColorMode;
+            }
+        }
+    }
+);
 
 useHead({
     meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
@@ -8,11 +44,26 @@ useHead({
         { rel: 'icon', href: '/favicon-16x16.png', type: 'image/png', sizes: '16x16' },
         { rel: 'icon', href: '/favicon-32x32.png', type: 'image/png', sizes: '32x32' },
         { rel: 'apple-touch-icon', href: '/favicon-128x128.png', sizes: '128x128' },
-        { rel: 'manifest', href: '/site.webmanifest' }
+        { rel: 'manifest', href: '/site.webmanifest' },
     ],
     htmlAttrs: {
         lang: locale.value,
     },
+});
+
+onMounted(() => {
+    // Load materials on app startup
+    materialStore.fetchMaterials();
+
+    // Start notification polling if user is authenticated
+    if (authStore.isAuthenticated) {
+        notificationStore.startPolling();
+    }
+});
+
+onUnmounted(() => {
+    // Stop notification polling
+    notificationStore.stopPolling();
 });
 
 const title = 'Страница художницы Перцуковой Веры';
@@ -27,56 +78,19 @@ useSeoMeta({
     ogImage: 'https://ui.nuxt.com/assets/templates/nuxt/starter-light.png',
     twitterCard: 'summary_large_image',
 });
-
-const switchLocale = (newLocale) => {
-    setLocale(newLocale)
-}
 </script>
 
 <template>
     <UApp>
-        <UHeader class="flex items-center">
-            <template #left>
-                <div class="flex items-center space-x-6 h-full">
-                    <NuxtLink to="/" class="uppercase  py-2">{{ $t('header.main') }}</NuxtLink>
-                    <NuxtLink to="/all-works" class="uppercase py-2">{{ $t('header.all_works') }}</NuxtLink>
-                    <NuxtLink to="/news" class="uppercase py-2">{{ $t('header.news') }}</NuxtLink>
-                    <NuxtLink to="/shop" class="uppercase  py-2">{{ $t('header.shop') }}</NuxtLink>
-                    <NuxtLink to="/services" class="uppercase py-2">{{ $t('header.services') }}</NuxtLink>
-                    <NuxtLink to="/pay-delivery" class="uppercase py-2">{{ $t('header.payment') }}</NuxtLink>
-                </div>
-            </template>
-            <template #right>
-                <div class="flex items-center space-x-4 h-full">
-                    <!-- Theme switcher placeholder -->
-                    <button class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
-                        <Icon name="i-simple-icons-sun" class="w-5 h-5" />
-                    </button>
-                    <!-- Locale switcher -->
-                    <button
-                        class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center cursor-pointer"
-                        @click="switchLocale(locale === 'en' ? 'ru' : 'en')"
-                    >
-                        {{ locale === 'en' ? 'RU' : 'EN' }}
-                    </button>
-                    <!-- Social media icons -->
-                    <a href="https://t.me/MilayaV" target="_blank" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
-                        <Icon name="i-simple-icons-telegram" class="w-5 h-5" />
-                    </a>
-                    <a href="https://vk.com/perczukowa" target="_blank" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
-                        <Icon name="i-simple-icons-vk" class="w-5 h-5" />
-                    </a>
-                    <a href="mailto:perczukowa@yandex.ru" class="p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center">
-                        <Icon name="i-simple-icons-gmail" class="w-5 h-5" />
-                    </a>
-                </div>
-            </template>
-        </UHeader>
+        <Header />
 
         <UMain>
             <NuxtPage />
         </UMain>
 
         <AppFooter />
+
+        <!-- Cookie Consent Banner -->
+        <CookieConsent />
     </UApp>
 </template>

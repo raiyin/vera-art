@@ -1,32 +1,21 @@
-<script lang="ts">
-import NewsPhotoItem from '@/components/app-news/NewsPhotoItem.vue';
-import { PropType } from 'vue';
-import type { NewsDesc } from '@/types';
-import ModalDialog from '../app-ui/ModalDialog.vue';
+<script setup lang="ts">
+import NewsPhotoItem from './NewsPhotoItem.vue';
+import type { PropType } from 'vue';
+import type { NewsDesc } from '../types';
 import NewsCarousel from './NewsCarousel.vue';
+import { ref } from 'vue';
 
-export default {
-    components: {
-        NewsPhotoItem,
-        NewsCarousel: NewsCarousel,
-        Modal: ModalDialog,
+const props = defineProps({
+    currentNewsItem: {
+        type: Object as PropType<NewsDesc>,
+        default: {} as NewsDesc,
     },
-    props: {
-        currentNewsItem: {
-            type: Object as PropType<NewsDesc>,
-            default: {} as NewsDesc,
-        },
-    },
-    data() {
-        return {
-            selectedIndex: 1,
-        };
-    },
-    methods: {
-        setSelectedIndex(index: number) {
-            this.selectedIndex = index - 1;
-        },
-    },
+});
+
+const selectedIndex = ref(1);
+
+const setSelectedIndex = (index: number) => {
+    selectedIndex.value = index - 1;
 };
 </script>
 

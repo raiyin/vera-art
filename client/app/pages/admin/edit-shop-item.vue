@@ -1,39 +1,50 @@
 <template>
     <div class="edit-sale-container">
         <div class="header-section">
-            <h1 class="page-title">Редактировать работу в магазине</h1>
-            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
+            <h1 class="page-title">
+                Редактировать работу в магазине
+            </h1>
+            <p class="page-subtitle">
+                Измените необходимые поля и сохраните изменения
+            </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
-            <div class="loader"></div>
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
+            <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="sale-form">
+        <form
+            v-else
+            class="sale-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">Изображения работы</h2>
+                <h2 class="section-title">
+                    Изображения работы
+                </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >Выберите новые изображения (опционально)</label
-                    >
+                    <label class="form-label">Выберите новые изображения (опционально)</label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
                         @click="triggerFileInput"
                     >
                         <UInput
+                            ref="fileInput"
                             type="file"
-                            @change="handleFileUpload"
                             multiple
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="fileInput"
+                            @change="handleFileUpload"
                         />
                         <div class="file-drop-content">
                             <svg
@@ -50,9 +61,14 @@
                             >
                                 <path
                                     d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                ></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
                             </svg>
                             <p class="upload-text">
                                 Перетащите изображения сюда или нажмите для выбора
@@ -62,10 +78,16 @@
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div class="preview-container" v-if="previewImages.length > 0">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -75,12 +97,12 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
-                                @click="removeImage(index)"
                                 class="remove-btn"
                                 :aria-label="`Удалить изображение ${index + 1}`"
+                                @click="removeImage(index,)"
                             >
                                 &times;
                             </UButton>
@@ -91,42 +113,46 @@
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    Основная информация
+                </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-русски <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-русски <span class="required">*</span></label>
                     <UInput
-                        type="text"
                         v-model="sale.name_ru"
+                        type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
+                        :class="{ 'is-invalid': errors.name_ru, }"
                         placeholder="Например: 'Звездная ночь'"
-                        @blur="validateField('name_ru')"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-английски
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-английски
+                        <span class="required">*</span></label>
                     <UInput
-                        type="text"
                         v-model="sale.name_en"
+                        type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
+                        :class="{ 'is-invalid': errors.name_en, }"
                         placeholder="Например: 'Starry Night'"
-                        @blur="validateField('name_en')"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -139,32 +165,38 @@
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <UInput
-                                type="number"
                                 v-model.number="sale.width"
+                                type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
+                                :class="{ 'is-invalid': errors.width, }"
                                 placeholder="Ширина"
-                                @blur="validateField('width')"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
                         <span class="size-separator">×</span>
                         <div class="size-input-wrapper">
                             <UInput
-                                type="number"
                                 v-model.number="sale.height"
+                                type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
+                                :class="{ 'is-invalid': errors.height, }"
                                 placeholder="Высота"
-                                @blur="validateField('height')"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -173,21 +205,22 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Год создания <span class="required">*</span></label
-                    >
+                    <label class="form-label">Год создания <span class="required">*</span></label>
                     <UInput
-                        type="number"
                         v-model.number="sale.year"
+                        type="number"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
+                        :class="{ 'is-invalid': errors.year, }"
                         placeholder="Например: 2023"
-                        @blur="validateField('year')"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
@@ -196,16 +229,19 @@
                 <div class="form-group">
                     <label class="form-label">Цена <span class="required">*</span></label>
                     <UInput
-                        type="number"
                         v-model.number="sale.price"
+                        type="number"
                         required
                         min="1"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.price }"
+                        :class="{ 'is-invalid': errors.price, }"
                         placeholder="Например: 1000"
-                        @blur="validateField('price')"
+                        @blur="validateField('price',)"
                     />
-                    <div v-if="errors.price" class="error-message">
+                    <div
+                        v-if="errors.price"
+                        class="error-message"
+                    >
                         {{ errors.price }}
                     </div>
                 </div>
@@ -213,47 +249,57 @@
 
             <!-- Технические характеристики -->
             <div class="form-section">
-                <h2 class="section-title">Технические характеристики</h2>
+                <h2 class="section-title">
+                    Технические характеристики
+                </h2>
 
                 <!-- Основа -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Основа <span class="required">*</span></label
-                    >
+                    <label class="form-label">Основа <span class="required">*</span></label>
                     <USelect
                         v-model="sale.base_id"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        @blur="validateField('base_id')"
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        @blur="validateField('base_id',)"
                     >
-                        <option value="" disabled>Выберите основу</option>
-                        <option v-for="base in bases" :key="base.id" :value="base.id">
+                        <option
+                            value=""
+                            disabled
+                        >
+                            Выберите основу
+                        </option>
+                        <option
+                            v-for="base in bases"
+                            :key="base.id"
+                            :value="base.id"
+                        >
                             {{
-                                $i18n.locale === 'RUS'
+                                $i18n.locale === 'ru'
                                     ? `${base.base_ru}`
                                     : `${base.base_en}`
                             }}
                         </option>
                     </USelect>
-                    <div v-if="errors.base_id" class="error-message">
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Материалы <span class="required">*</span></label
-                    >
+                    <label class="form-label">Материалы <span class="required">*</span></label>
                     <div class="multi-select-wrapper">
                         <div
                             class="select-display drop-down-arrow"
-                            @click="materialsToggleDropdown"
-                            :class="{ 'is-invalid': errors.materials_ids }"
+                            :class="{ 'is-invalid': errors.materials_ids, }"
                             tabindex="0"
+                            @click="materialsToggleDropdown"
                             @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids')"
+                            @blur="validateField('materials_ids',)"
                         >
                             {{ selectedMaterialsDisplay || 'Выберите материалы' }}
                         </div>
@@ -267,21 +313,29 @@
                                 class="option-item"
                             >
                                 <UInput
-                                    type="checkbox"
                                     :id="'material-' + material.id"
+                                    type="checkbox"
                                     :value="material.id"
-                                    v-model="sale.materials_ids"
+                                    :model-value="
+                                        sale.materials_ids.includes(material.id,)
+                                    "
+                                    @update:model-value="
+                                        (checked,) => toggleMaterial(material.id, checked,)
+                                    "
                                 />
                                 <label :for="'material-' + material.id">
                                     {{
-                                        $i18n.locale === 'RUS'
+                                        $i18n.locale === 'ru'
                                             ? material.material_ru
                                             : material.material_en
                                     }}
                                 </label>
                             </div>
                         </div>
-                        <div v-if="errors.materials_ids" class="error-message">
+                        <div
+                            v-if="errors.materials_ids"
+                            class="error-message"
+                        >
                             {{ errors.materials_ids }}
                         </div>
                     </div>
@@ -290,7 +344,9 @@
 
             <!-- Описание -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    Дополнительная информация
+                </h2>
                 <div class="form-group">
                     <label class="form-label">Описание</label>
                     <textarea
@@ -299,14 +355,20 @@
                         placeholder="Краткое описание картины"
                         rows="4"
                         maxlength="500"
-                    ></textarea>
-                    <div class="char-count">{{ sale.descr.length }}/500</div>
+                    />
+                    <div class="char-count">
+                        {{ sale.descr.length }}/500
+                    </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" @click="resetForm" class="btn btn-secondary">
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -316,7 +378,7 @@
                 >
                     <span v-if="!isSubmitting">Сохранить изменения</span>
                     <span v-else>
-                        <span class="spinner"></span>
+                        <span class="spinner" />
                         Сохранение...
                     </span>
                 </UButton>
@@ -329,7 +391,7 @@
             type="success"
             title="Успешно!"
             message="Работа успешно обновлена в магазине."
-            closeButtonText="Закрыть"
+            close-button-text="Закрыть"
         />
 
         <!-- Danger Alert -->
@@ -338,31 +400,27 @@
             type="danger"
             title="Ошибка!"
             :message="
-                errorMessage ||
-                'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
+                errorMessage
+                    || 'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
             "
-            closeButtonText="Закрыть"
+            close-button-text="Закрыть"
         />
     </div>
 </template>
 
 <script lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
-import {
+import { defineComponent, } from 'vue';
+import type {
     UpdateSaleRequest,
     UpdateSaleResponse,
     Base,
     Material,
     RequestResult,
-} from '@/types';
-import Alert from '@/components/app-ui/Alert.vue';
+} from '../../types';
 
 export default defineComponent({
     name: 'EditShopItemView',
-    components: {
-        Alert,
-    },
     data() {
         return {
             sale: {
@@ -398,10 +456,10 @@ export default defineComponent({
             } as UpdateSaleResponse,
             addedFiles: [] as File[],
             previewImages: [] as {
-                file?: File;
-                preview: string;
-                isExisting?: boolean;
-                filename?: string;
+                file?: File
+                preview: string
+                isExisting?: boolean
+                filename?: string
             }[],
             imagesToDelete: [] as string[], // Track existing images to delete
             isSubmitting: false,
@@ -428,457 +486,470 @@ export default defineComponent({
             errorMessage: '',
             showSuccessAlert: false,
             showErrorAlert: false,
-            successAlertTimeout: null as number | null,
-            errorAlertTimeout: null as number | null,
+            successAlertTimeout: null as ReturnType<typeof setTimeout> | null,
+            errorAlertTimeout: null as ReturnType<typeof setTimeout> | null,
         };
-    },
-    async created() {
-        await this.loadBases();
-        await this.loadMaterials();
-        await this.loadSale();
-    },
-    beforeUnmount() {
-        // Clear any pending timeouts when component is destroyed
-        if (this.successAlertTimeout) {
-            clearTimeout(this.successAlertTimeout);
-            this.successAlertTimeout = null;
-        }
-        if (this.errorAlertTimeout) {
-            clearTimeout(this.errorAlertTimeout);
-            this.errorAlertTimeout = null;
-        }
-    },
-    methods: {
-        async loadBases() {
-            try {
-                const response = await axios.get(this.server + 'bases');
-                this.bases = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке основ:', error);
-                this.loadError = 'Не удалось загрузить список основ';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
-        async loadMaterials() {
-            try {
-                const response = await axios.get(this.server + 'materials');
-                this.materials = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке материалов:', error);
-                this.loadError = 'Не удалось загрузить список материалов';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
-        async loadSale() {
-            try {
-                const id = this.$route.params.id;
-                const response = await axios.get(`${this.server}sales/${id}/edit`);
-                this.sale = response.data;
-                this.originalSale = { ...response.data };
-
-                // Load existing images as previews
-                this.loadPreviewImages();
-
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке работы:', error);
-                this.loadError = 'Не удалось загрузить работу';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
-        loadPreviewImages() {
-            this.previewImages = [];
-            for (let i = 0; i < this.sale.images.length; i++) {
-                const imageUrl = `${this.sale.dir}${this.sale.images[i]}`;
-                this.previewImages.push({
-                    preview: imageUrl,
-                    filename: this.sale.images[i],
-                });
-            }
-        },
-        handleDragOver() {
-            this.isDragOver = true;
-        },
-        handleDragLeave() {
-            this.isDragOver = false;
-        },
-        handleDrop(event: DragEvent) {
-            this.isDragOver = false;
-            if (event.dataTransfer && event.dataTransfer.files.length) {
-                const files = Array.from(event.dataTransfer.files);
-                this.addImages(files);
-            }
-        },
-        triggerFileInput() {
-            (this.$refs.fileInput as HTMLInputElement)?.click();
-        },
-        handleFileUpload(event: Event) {
-            const target = event.target as HTMLInputElement;
-            if (target.files && target.files.length) {
-                const files = Array.from(target.files);
-                this.addImages(files);
-            }
-        },
-        addImages(selectedFiles: File[]) {
-            this.fileError = null;
-
-            // Проверка на количество файлов
-            if (this.addedFiles.length + selectedFiles.length > 10) {
-                this.fileError = 'Можно загрузить не более 10 изображений';
-                return;
-            }
-
-            // Проверка типов файлов
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            const invalidFiles = selectedFiles.filter(
-                (file) => !validTypes.includes(file.type)
-            );
-
-            if (invalidFiles.length > 0) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                return;
-            }
-
-            // Проверка размера файлов (макс. 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-            if (largeFiles.length > 0) {
-                this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
-                return;
-            }
-
-            // Добавляем новые файлы
-            this.addedFiles = [...this.addedFiles, ...selectedFiles];
-
-            // Создаем превью для новых изображений
-            selectedFiles.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previewImages.push({
-                        file,
-                        preview: e.target?.result as string,
-                        filename: file.name,
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-        },
-        removeImage(index: number) {
-            const imageToRemove = this.previewImages[index];
-
-            // if (imageToRemove.isExisting && imageToRemove.filename) {
-            //     // Mark existing image for deletion
-            //     if (!this.imagesToDelete.includes(imageToRemove.filename)) {
-            //         this.imagesToDelete.push(imageToRemove.filename);
-            //     }
-            // } else
-            if (imageToRemove.file) {
-                // Remove from files array if it's a newly uploaded file
-                const fileIndex = this.addedFiles.indexOf(imageToRemove.file);
-                if (fileIndex > -1) {
-                    this.addedFiles.splice(fileIndex, 1);
-                }
-            }
-
-            // Remove from preview images
-            this.previewImages.splice(index, 1);
-        },
-        validateField(fieldName: string) {
-            switch (fieldName) {
-                case 'name_ru':
-                    if (!this.sale.name_ru.trim()) {
-                        this.errors.name_ru = 'Пожалуйста, введите название на русском';
-                    } else {
-                        this.errors.name_ru = '';
-                    }
-                    break;
-                case 'name_en':
-                    if (!this.sale.name_en.trim()) {
-                        this.errors.name_en =
-                            'Пожалуйста, введите название на английском';
-                    } else {
-                        this.errors.name_en = '';
-                    }
-                    break;
-                case 'width':
-                    if (this.sale.width <= 0) {
-                        this.errors.width = 'Ширина должна быть больше 0';
-                    } else {
-                        this.errors.width = '';
-                    }
-                    break;
-                case 'height':
-                    if (this.sale.height <= 0) {
-                        this.errors.height = 'Высота должна быть больше 0';
-                    } else {
-                        this.errors.height = '';
-                    }
-                    break;
-                case 'year':
-                    if (
-                        this.sale.year < 2000 ||
-                        this.sale.year > new Date().getFullYear()
-                    ) {
-                        this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
-                    } else {
-                        this.errors.year = '';
-                    }
-                    break;
-                case 'price':
-                    if (this.sale.price <= 0) {
-                        this.errors.price = 'Цена должна быть больше 0';
-                    } else {
-                        this.errors.price = '';
-                    }
-                    break;
-                case 'base_id':
-                    if (this.sale.base_id <= 0) {
-                        this.errors.base_id = 'Пожалуйста, выберите основу';
-                    } else {
-                        this.errors.base_id = '';
-                    }
-                    break;
-                case 'materials_ids':
-                    if (this.sale.materials_ids.length === 0) {
-                        this.errors.materials_ids =
-                            'Пожалуйста, выберите хотя бы один материал';
-                    } else {
-                        this.errors.materials_ids = '';
-                    }
-                    break;
-            }
-        },
-        validateForm() {
-            this.validateField('name_ru');
-            this.validateField('name_en');
-            this.validateField('width');
-            this.validateField('height');
-            this.validateField('year');
-            this.validateField('base_id');
-            this.validateField('materials_ids');
-            this.validateField('price');
-
-            // Проверка отсутствия ошибок
-            return Object.values(this.errors).every((error) => error === '');
-        },
-        async submitForm() {
-            if (this.isSubmitting) return;
-
-            if (!this.validateForm()) {
-                return;
-            }
-
-            try {
-                this.isSubmitting = true;
-                this.errorMessage = '';
-
-                // Формируем данные для отправки
-                const formData = new FormData();
-
-                // Добавляем файлы, если есть
-                const finalImages: string[] = [];
-
-                // Add existing images that are not marked for deletion
-                for (const imageName of this.sale.images) {
-                    // if (!this.imagesToDelete.includes(imageName)) {
-                    finalImages.push(imageName);
-                    // }
-                }
-
-                // Add new image filenames (sanitized)
-                for (const file of this.addedFiles) {
-                    finalImages.push(file.name);
-                }
-
-                // Добавляем файлы, если есть
-                if (this.addedFiles.length > 0) {
-                    this.addedFiles.forEach((file) => {
-                        formData.append('images', file);
-                    });
-                }
-
-                let updatedImages: string[];
-                if (this.previewImages && this.previewImages.length > 0) {
-                    updatedImages = this.previewImages
-                        .map((image) => image.filename)
-                        .filter((filename): filename is string => !!filename);
-                } else {
-                    updatedImages = [];
-                }
-
-                // Добавляем остальные данные
-                const saleDataToUpdate: UpdateSaleRequest = {
-                    ...this.sale,
-                    // images: finalImages,
-                    images: updatedImages,
-                };
-
-                formData.append('data', JSON.stringify(saleDataToUpdate));
-
-                const strId = this.$route.params.id;
-                const response = await axios.put(
-                    this.server + 'sales/' + strId,
-                    formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
-                    }
-                );
-
-                if (response.status === 200) {
-                    this.showSuccessAlertWithTimeout();
-                    // Update sale images with final list
-                    this.sale.images = finalImages;
-                    // Clear deletion list and files
-                    this.imagesToDelete = [];
-                    this.addedFiles = [];
-                    // Обновляем оригинальную работу
-                    this.originalSale = { ...this.sale };
-                } else {
-                    this.showErrorAlertWithTimeout(
-                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
-                    );
-                }
-            } catch (error: any) {
-                console.error('Error submitting form:', error);
-                let errorMsg =
-                    'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-
-                if (error.response?.status === 413) {
-                    this.errorMessage =
-                        'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-                } else if (error.response?.status === 400) {
-                    this.errorMessage =
-                        'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                } else {
-                    this.errorMessage =
-                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-                }
-                this.showErrorAlertWithTimeout(errorMsg);
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-        resetForm() {
-            this.sale = { ...this.originalSale };
-            this.addedFiles = [];
-            this.previewImages = [];
-            this.imagesToDelete = [];
-            this.loadPreviewImages();
-            if (this.$refs.fileInput) {
-                (this.$refs.fileInput as HTMLInputElement).value = '';
-            }
-
-            // Сброс ошибок
-            Object.keys(this.errors).forEach((key) => {
-                this.errors[key] = '';
-            });
-            this.fileError = null;
-        },
-        materialsToggleDropdown() {
-            this.materialsDropdownOpen = !this.materialsDropdownOpen;
-        },
-        basesToggleDropdown() {
-            this.basesDropdownOpen = !this.basesDropdownOpen;
-        },
-        showSuccessAlertWithTimeout() {
-            // Clear any existing timeout
-            if (this.successAlertTimeout) {
-                clearTimeout(this.successAlertTimeout);
-                this.successAlertTimeout = null;
-            }
-
-            // Show the alert
-            this.showSuccessAlert = true;
-
-            // Set timeout to hide after 5 seconds (5000 milliseconds)
-            this.successAlertTimeout = setTimeout(() => {
-                this.showSuccessAlert = false;
-                this.successAlertTimeout = null;
-            }, 5000);
-        },
-
-        showErrorAlertWithTimeout(message?: string) {
-            // Clear any existing timeout
-            if (this.errorAlertTimeout) {
-                clearTimeout(this.errorAlertTimeout);
-                this.errorAlertTimeout = null;
-            }
-
-            // Set error message if provided
-            if (message) {
-                this.errorMessage = message;
-            }
-
-            // Show the alert
-            this.showErrorAlert = true;
-
-            // Set timeout to hide after 5 seconds (5000 milliseconds)
-            this.errorAlertTimeout = setTimeout(() => {
-                this.showErrorAlert = false;
-                this.errorMessage = '';
-                this.errorAlertTimeout = null;
-            }, 5000);
-        },
-
-        closeAlert() {
-            // Clear timeouts
-            if (this.successAlertTimeout) {
-                clearTimeout(this.successAlertTimeout);
-                this.successAlertTimeout = null;
-            }
-            if (this.errorAlertTimeout) {
-                clearTimeout(this.errorAlertTimeout);
-                this.errorAlertTimeout = null;
-            }
-
-            // Hide alerts
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
-            this.errorMessage = '';
-        },
     },
     computed: {
         selectedMaterialsDisplay() {
             if (this.sale.materials_ids.length === 0) return '';
             const selectedNames = this.materials
-                .filter((material) => this.sale.materials_ids.includes(material.id))
-                .map((material) =>
-                    this.$i18n.locale === 'RUS'
+                .filter(material => this.sale.materials_ids.includes(material.id,),)
+                .map(material =>
+                    this.$i18n.locale === 'ru'
                         ? material.material_ru
-                        : material.material_en
-                );
-            return selectedNames.join(', ');
+                        : material.material_en,
+                    );
+            return selectedNames.join(', ',);
         },
         isFormValid() {
             return (
-                this.sale.name_ru.trim() !== '' &&
-                this.sale.name_en.trim() !== '' &&
-                this.sale.width > 0 &&
-                this.sale.height > 0 &&
-                this.sale.year >= 2000 &&
-                this.sale.year <= new Date().getFullYear() &&
-                this.sale.price > 0 &&
-                this.sale.base_id > 0 &&
-                this.sale.materials_ids.length > 0
+                this.sale.name_ru.trim() !== ''
+                    && this.sale.name_en.trim() !== ''
+                && this.sale.width > 0
+                    && this.sale.height > 0
+                && this.sale.year >= 2000
+                    && this.sale.year <= new Date().getFullYear()
+                && this.sale.price > 0
+                    && this.sale.base_id > 0
+                    && this.sale.materials_ids.length > 0
             );
         },
     },
+        async created() {
+            await this.loadBases();
+            await this.loadMaterials();
+            await this.loadSale();
+        },
+        beforeUnmount() {
+            // Clear any pending timeouts when component is destroyed
+            if (this.successAlertTimeout) {
+                clearTimeout(this.successAlertTimeout,);
+                this.successAlertTimeout = null;
+            }
+            if (this.errorAlertTimeout) {
+                clearTimeout(this.errorAlertTimeout,);
+                this.errorAlertTimeout = null;
+            }
+        },
+        methods: {
+            async loadBases() {
+                try {
+                    const response = await axios.get(this.server + 'bases',);
+                    this.bases = response.data;
+                    this.isLoading = false;
+                } catch (error) {
+                    console.error('Ошибка при загрузке основ:', error,);
+                    this.loadError = 'Не удалось загрузить список основ';
+                    this.isLoading = false;
+                    this.showErrorAlertWithTimeout(
+                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                    );
+                }
+            },
+            async loadMaterials() {
+                try {
+                    const response = await axios.get(this.server + 'materials',);
+                    this.materials = response.data;
+                    this.isLoading = false;
+                } catch (error) {
+                    console.error('Ошибка при загрузке материалов:', error,);
+                    this.loadError = 'Не удалось загрузить список материалов';
+                    this.isLoading = false;
+                    this.showErrorAlertWithTimeout(
+                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                    );
+                }
+            },
+            async loadSale() {
+                try {
+                    const id = this.$route.params.id;
+                    const response = await axios.get(`${this.server}sales/${id}/edit`,);
+                    this.sale = response.data;
+                    this.originalSale = { ...response.data, };
+
+                    // Load existing images as previews
+                    this.loadPreviewImages();
+
+                    this.isLoading = false;
+                } catch (error) {
+                    console.error('Ошибка при загрузке работы:', error,);
+                    this.loadError = 'Не удалось загрузить работу';
+                    this.isLoading = false;
+                    this.showErrorAlertWithTimeout(
+                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
+                    );
+                }
+            },
+            loadPreviewImages() {
+                this.previewImages = [];
+                for (let i = 0; i < this.sale.images.length; i++) {
+                    const imageUrl = `${this.sale.dir}${this.sale.images[i]}`;
+                    this.previewImages.push({
+                        preview: imageUrl,
+                        filename: this.sale.images[i],
+                    });
+                }
+            },
+            handleDragOver() {
+                this.isDragOver = true;
+            },
+            handleDragLeave() {
+                this.isDragOver = false;
+            },
+            handleDrop(event: DragEvent,) {
+                this.isDragOver = false;
+                if (event.dataTransfer && event.dataTransfer.files.length) {
+                    const files = Array.from(event.dataTransfer.files,);
+                    this.addImages(files,);
+                }
+            },
+            triggerFileInput() {
+                (this.$refs.fileInput as HTMLInputElement)?.click();
+            },
+            handleFileUpload(event: Event,) {
+                const target = event.target as HTMLInputElement;
+                if (target.files && target.files.length) {
+                    const files = Array.from(target.files,);
+                    this.addImages(files,);
+                }
+            },
+            addImages(selectedFiles: File[],) {
+                this.fileError = null;
+
+                // Проверка на количество файлов
+                if (this.addedFiles.length + selectedFiles.length > 10) {
+                    this.fileError = 'Можно загрузить не более 10 изображений';
+                    return;
+                }
+
+                // Проверка типов файлов
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+                const invalidFiles = selectedFiles.filter(
+                    (file,) => !validTypes.includes(file.type,),
+            );
+
+                if (invalidFiles.length > 0) {
+                    this.fileError
+                    = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+                    return;
+                }
+
+                // Проверка размера файлов (макс. 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
+
+                if (largeFiles.length > 0) {
+                    this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
+                    return;
+                }
+
+                // Добавляем новые файлы
+                this.addedFiles = [...this.addedFiles, ...selectedFiles,];
+
+                // Создаем превью для новых изображений
+                selectedFiles.forEach((file,) => {
+                    const reader = new FileReader();
+                    reader.onload = (e,) => {
+                        this.previewImages.push({
+                            file,
+                            preview: e.target?.result as string,
+                            filename: file.name,
+                        });
+                    };
+                    reader.readAsDataURL(file,);
+                });
+            },
+            removeImage(index: number,) {
+                const imageToRemove = this.previewImages[index];
+                if (!imageToRemove) return;
+
+                // if (imageToRemove.isExisting && imageToRemove.filename) {
+                //     // Mark existing image for deletion
+                //     if (!this.imagesToDelete.includes(imageToRemove.filename)) {
+                //         this.imagesToDelete.push(imageToRemove.filename);
+                //     }
+                // } else
+                if (imageToRemove.file) {
+                    // Remove from files array if it's a newly uploaded file
+                    const fileIndex = this.addedFiles.indexOf(imageToRemove.file,);
+                    if (fileIndex > -1) {
+                        this.addedFiles.splice(fileIndex, 1,);
+                    }
+                }
+
+                // Remove from preview images
+                this.previewImages.splice(index, 1,);
+            },
+            validateField(fieldName: string,) {
+                switch (fieldName) {
+            case 'name_ru':
+                if (!this.sale.name_ru.trim()) {
+                    this.errors.name_ru = 'Пожалуйста, введите название на русском';
+                } else {
+                    this.errors.name_ru = '';
+                }
+                break;
+            case 'name_en':
+                if (!this.sale.name_en.trim()) {
+                    this.errors.name_en
+                            = 'Пожалуйста, введите название на английском';
+                } else {
+                    this.errors.name_en = '';
+                }
+                break;
+            case 'width':
+                if (this.sale.width <= 0) {
+                    this.errors.width = 'Ширина должна быть больше 0';
+                } else {
+                    this.errors.width = '';
+                }
+                break;
+            case 'height':
+                if (this.sale.height <= 0) {
+                    this.errors.height = 'Высота должна быть больше 0';
+                } else {
+                    this.errors.height = '';
+                }
+                break;
+            case 'year':
+                if (
+                    this.sale.year < 2000
+                        || this.sale.year > new Date().getFullYear()
+                ) {
+                    this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+                } else {
+                    this.errors.year = '';
+                }
+                break;
+            case 'price':
+                if (this.sale.price <= 0) {
+                    this.errors.price = 'Цена должна быть больше 0';
+                } else {
+                    this.errors.price = '';
+                }
+                break;
+            case 'base_id':
+                if (this.sale.base_id <= 0) {
+                    this.errors.base_id = 'Пожалуйста, выберите основу';
+                } else {
+                    this.errors.base_id = '';
+                }
+                break;
+            case 'materials_ids':
+                if (this.sale.materials_ids.length === 0) {
+                    this.errors.materials_ids
+                            = 'Пожалуйста, выберите хотя бы один материал';
+                } else {
+                    this.errors.materials_ids = '';
+                }
+                break;
+                }
+            },
+            validateForm() {
+                this.validateField('name_ru',);
+                this.validateField('name_en',);
+                this.validateField('width',);
+                this.validateField('height',);
+                this.validateField('year',);
+                this.validateField('base_id',);
+                this.validateField('materials_ids',);
+                this.validateField('price',);
+
+                // Проверка отсутствия ошибок
+                return Object.values(this.errors,).every(error => error === '',);
+            },
+            async submitForm() {
+                if (this.isSubmitting) return;
+
+                if (!this.validateForm()) {
+                    return;
+                }
+
+                try {
+                    this.isSubmitting = true;
+                    this.errorMessage = '';
+
+                    // Формируем данные для отправки
+                    const formData = new FormData();
+
+                    // Добавляем файлы, если есть
+                    const finalImages: string[] = [];
+
+                    // Add existing images that are not marked for deletion
+                    for (const imageName of this.sale.images) {
+                        // if (!this.imagesToDelete.includes(imageName)) {
+                        finalImages.push(imageName,);
+                    // }
+                    }
+
+                    // Add new image filenames (sanitized)
+                    for (const file of this.addedFiles) {
+                        finalImages.push(file.name,);
+                    }
+
+                    // Добавляем файлы, если есть
+                    if (this.addedFiles.length > 0) {
+                        this.addedFiles.forEach((file,) => {
+                            formData.append('images', file,);
+                        });
+                    }
+
+                    let updatedImages: string[];
+                    if (this.previewImages && this.previewImages.length > 0) {
+                        updatedImages = this.previewImages
+                            .map(image => image.filename,)
+                            .filter((filename,): filename is string => !!filename,);
+                    } else {
+                        updatedImages = [];
+                    }
+
+                    // Добавляем остальные данные
+                    const saleDataToUpdate: UpdateSaleRequest = {
+                        ...this.sale,
+                        // images: finalImages,
+                        images: updatedImages,
+                    };
+
+                    formData.append('data', JSON.stringify(saleDataToUpdate,),);
+
+                    const strId = this.$route.params.id;
+                    const response = await axios.put(
+                        this.server + 'sales/' + strId,
+                        formData,
+                        {
+                            headers: {
+                                'Content-Type': 'multipart/form-data',
+                                Authorization: `Bearer ${localStorage.getItem('token',)}`,
+                            },
+                        }
+                    );
+
+                    if (response.status === 200) {
+                        this.showSuccessAlertWithTimeout();
+                        // Update sale images with final list
+                        this.sale.images = finalImages;
+                        // Clear deletion list and files
+                        this.imagesToDelete = [];
+                        this.addedFiles = [];
+                        // Обновляем оригинальную работу
+                        this.originalSale = { ...this.sale, };
+                    } else {
+                        this.showErrorAlertWithTimeout(
+                            'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
+                        );
+                    }
+                } catch (error: any) {
+                    console.error('Error submitting form:', error,);
+                    let errorMsg
+                    = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+
+                    if (error.response?.status === 413) {
+                        this.errorMessage
+                        = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+                    } else if (error.response?.status === 400) {
+                        this.errorMessage
+                        = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+                    } else {
+                        this.errorMessage
+                        = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+                    }
+                    this.showErrorAlertWithTimeout(errorMsg,);
+                } finally {
+                    this.isSubmitting = false;
+                }
+            },
+            resetForm() {
+                this.sale = { ...this.originalSale, };
+                this.addedFiles = [];
+                this.previewImages = [];
+                this.imagesToDelete = [];
+                this.loadPreviewImages();
+                if (this.$refs.fileInput) {
+                    (this.$refs.fileInput as HTMLInputElement).value = '';
+                }
+
+                // Сброс ошибок
+                Object.keys(this.errors,).forEach((key,) => {
+                    this.errors[key] = '';
+                });
+                this.fileError = null;
+            },
+            materialsToggleDropdown() {
+                this.materialsDropdownOpen = !this.materialsDropdownOpen;
+            },
+            toggleMaterial(materialId: number, checked: boolean,) {
+                if (checked) {
+                    if (!this.sale.materials_ids.includes(materialId,)) {
+                        this.sale.materials_ids.push(materialId,);
+                    }
+                } else {
+                    const index = this.sale.materials_ids.indexOf(materialId,);
+                    if (index > -1) {
+                        this.sale.materials_ids.splice(index, 1,);
+                    }
+                }
+            },
+            basesToggleDropdown() {
+                this.basesDropdownOpen = !this.basesDropdownOpen;
+            },
+            showSuccessAlertWithTimeout() {
+                // Clear any existing timeout
+                if (this.successAlertTimeout) {
+                    clearTimeout(this.successAlertTimeout,);
+                    this.successAlertTimeout = null;
+                }
+
+                // Show the alert
+                this.showSuccessAlert = true;
+
+                // Set timeout to hide after 5 seconds (5000 milliseconds)
+                this.successAlertTimeout = setTimeout(() => {
+                    this.showSuccessAlert = false;
+                    this.successAlertTimeout = null;
+                }, 5000,);
+            },
+
+            showErrorAlertWithTimeout(message?: string,) {
+                // Clear any existing timeout
+                if (this.errorAlertTimeout) {
+                    clearTimeout(this.errorAlertTimeout,);
+                    this.errorAlertTimeout = null;
+                }
+
+                // Set error message if provided
+                if (message) {
+                    this.errorMessage = message;
+                }
+
+                // Show the alert
+                this.showErrorAlert = true;
+
+                // Set timeout to hide after 5 seconds (5000 milliseconds)
+                this.errorAlertTimeout = setTimeout(() => {
+                    this.showErrorAlert = false;
+                    this.errorMessage = '';
+                    this.errorAlertTimeout = null;
+                }, 5000,);
+            },
+
+            closeAlert() {
+                // Clear timeouts
+                if (this.successAlertTimeout) {
+                    clearTimeout(this.successAlertTimeout,);
+                    this.successAlertTimeout = null;
+                }
+                if (this.errorAlertTimeout) {
+                    clearTimeout(this.errorAlertTimeout,);
+                    this.errorAlertTimeout = null;
+                }
+
+                // Hide alerts
+                this.showSuccessAlert = false;
+                this.showErrorAlert = false;
+                this.errorMessage = '';
+            },
+        },
 });
 </script>
 

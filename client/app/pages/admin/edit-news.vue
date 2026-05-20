@@ -468,8 +468,7 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { NewsDescDto } from '@/types';
-import Alert from '@/components/app-ui/Alert.vue';
+import type { NewsDescDto } from '../../types';
 
 interface PreviewItem {
     file: File;
@@ -478,9 +477,6 @@ interface PreviewItem {
 
 export default defineComponent({
     name: 'EditNewsView',
-    components: {
-        Alert,
-    },
     data() {
         return {
             news: {
@@ -721,6 +717,11 @@ export default defineComponent({
             // Добавляем новые файлы
             this.images = [...this.images, ...selectedFiles];
 
+            // Добавляем имена файлов в news.images
+            selectedFiles.forEach((file) => {
+                this.news.images.push(file.name);
+            });
+
             // Создаем превью для новых изображений
             selectedFiles.forEach((file) => {
                 const reader = new FileReader();
@@ -745,6 +746,7 @@ export default defineComponent({
             // Validate file type
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                if (!file) continue;
                 if (!file.type.startsWith('video/')) {
                     this.fileError = 'Пожалуйста, выберите только видеофайлы';
                     return;
@@ -755,6 +757,7 @@ export default defineComponent({
             const maxSize = 100 * 1024 * 1024;
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
+                if (!file) continue;
                 if (file.size > maxSize) {
                     this.fileError = 'Размер файла не должен превышать 100MB';
                     return;
@@ -765,18 +768,23 @@ export default defineComponent({
 
             // Populate both arrays
             for (let i = 0; i < files.length; i++) {
-                this.videos.push(files[i]);
-                this.previewVideos.push(URL.createObjectURL(files[i]));
+                const file = files[i];
+                if (!file) continue;
+                this.videos.push(file);
+                this.news.videos.push(file.name);
+                this.previewVideos.push(URL.createObjectURL(file));
             }
         },
 
         removeImageFromImages(index: number) {
             this.previewImages.splice(index, 1);
             this.images.splice(index, 1);
+            this.news.images.splice(index, 1);
         },
         removeVideoFromVideos(index: number) {
             this.previewVideos.splice(index, 1);
             this.videos.splice(index, 1);
+            this.news.videos.splice(index, 1);
         },
 
         onVideoError() {
@@ -973,23 +981,24 @@ export default defineComponent({
         },
 
         resetForm() {
-            this.news = { ...this.originalNews };
-            this.images = [];
-            this.videos = [];
-            this.previewImages = [];
-            this.img_back_preview = null;
-            this.img_backfull_preview = null;
-            // Сброс input файлов
-            const fileInputs = this.$el.querySelectorAll('input[type="file"]');
-            fileInputs.forEach((input: HTMLInputElement) => {
-                input.value = '';
-            });
+        	this.news = { ...this.originalNews };
+        	this.images = [];
+        	this.videos = [];
+        	this.previewImages = [];
+        	this.previewVideos = [];
+        	this.img_back_preview = null;
+        	this.img_backfull_preview = null;
+        	// Сброс input файлов
+        	const fileInputs = this.$el.querySelectorAll('input[type="file"]');
+        	fileInputs.forEach((input: HTMLInputElement) => {
+        		input.value = '';
+        	});
 
-            // Сброс ошибок
-            Object.keys(this.errors).forEach((key) => {
-                this.errors[key] = '';
-            });
-            this.fileError = null;
+        	// Сброс ошибок
+        	Object.keys(this.errors).forEach((key) => {
+        		this.errors[key] = '';
+        	});
+        	this.fileError = null;
         },
 
         closeAlert() {

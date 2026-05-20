@@ -1,25 +1,26 @@
 <template>
     <div class="add-sale-container">
         <div class="header-section">
-            <h1 class="page-title">Добавить новую работу в магазин</h1>
+            <h1 class="page-title">{{ $t('admin_shop_form.page_title') }}</h1>
             <p class="page-subtitle">
-                Заполните все обязательные поля, чтобы добавить новую работу
+                {{ $t('admin_shop_form.page_subtitle') }}
             </p>
         </div>
 
         <!-- Загрузчик -->
         <div v-if="isLoading" class="loading-container">
             <div class="loader"></div>
-            <p>Загрузка данных...</p>
+            <p>{{ $t('admin_shop_form.loading') }}</p>
         </div>
 
         <form v-else @submit.prevent="submitForm" class="sale-form">
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">Изображения работы</h2>
+                <h2 class="section-title">{{ $t('admin_shop_form.sections.images') }}</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >Выберите изображения <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.select_images') }}
+                        <span class="required">*</span></label
                     >
                     <div
                         class="file-drop-area"
@@ -58,10 +59,10 @@
                                 <line x1="12" y1="3" x2="12" y2="15"></line>
                             </svg>
                             <p class="upload-text">
-                                Перетащите изображения сюда или нажмите для выбора
+                                {{ $t('admin_shop_form.labels.drag_drop_text') }}
                             </p>
                             <p class="upload-hint">
-                                Поддерживаются форматы: JPG, JPEG, PNG (макс. 10 файлов)
+                                {{ $t('admin_shop_form.labels.file_formats') }}
                             </p>
                         </div>
                     </div>
@@ -83,7 +84,11 @@
                                 type="button"
                                 @click="removeImage(index)"
                                 class="remove-btn"
-                                :aria-label="`Удалить изображение ${index + 1}`"
+                                :aria-label="
+                                    $t('admin_shop_form.aria_labels.remove_image', {
+                                        index: index + 1,
+                                    })
+                                "
                             >
                                 &times;
                             </UButton>
@@ -94,12 +99,15 @@
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_shop_form.sections.main_info') }}
+                </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Название картины по-русски <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.name_ru') }}
+                        <span class="required">*</span></label
                     >
                     <UInput
                         type="text"
@@ -107,7 +115,7 @@
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_ru }"
-                        placeholder="Например: 'Звездная ночь'"
+                        :placeholder="$t('admin_shop_form.placeholders.name_ru')"
                         @blur="validateField('name_ru')"
                     />
                     <div v-if="errors.name_ru" class="error-message">
@@ -117,7 +125,7 @@
 
                 <div class="form-group">
                     <label class="form-label"
-                        >Название картины по-английски
+                        >{{ $t('admin_shop_form.labels.name_en') }}
                         <span class="required">*</span></label
                     >
                     <UInput
@@ -126,7 +134,7 @@
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_en }"
-                        placeholder="Например: 'Starry Night'"
+                        :placeholder="$t('admin_shop_form.placeholders.name_en')"
                         @blur="validateField('name_en')"
                     />
                     <div v-if="errors.name_en" class="error-message">
@@ -137,7 +145,8 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Размеры (см) <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.dimensions') }}
+                        <span class="required">*</span></label
                     >
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
@@ -148,7 +157,7 @@
                                 min="1"
                                 class="form-control size-input"
                                 :class="{ 'is-invalid': errors.width }"
-                                placeholder="Ширина"
+                                :placeholder="$t('admin_shop_form.labels.width')"
                                 @blur="validateField('width')"
                             />
                             <div v-if="errors.width" class="error-message">
@@ -164,7 +173,7 @@
                                 min="1"
                                 class="form-control size-input"
                                 :class="{ 'is-invalid': errors.height }"
-                                placeholder="Высота"
+                                :placeholder="$t('admin_shop_form.labels.height')"
                                 @blur="validateField('height')"
                             />
                             <div v-if="errors.height" class="error-message">
@@ -177,7 +186,8 @@
                 <!-- Год создания -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Год создания <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.year') }}
+                        <span class="required">*</span></label
                     >
                     <UInput
                         type="number"
@@ -187,7 +197,7 @@
                         :max="new Date().getFullYear()"
                         class="form-control"
                         :class="{ 'is-invalid': errors.year }"
-                        placeholder="Например: 2023"
+                        :placeholder="$t('admin_shop_form.placeholders.year')"
                         @blur="validateField('year')"
                     />
                     <div v-if="errors.year" class="error-message">
@@ -197,7 +207,10 @@
 
                 <!-- Цена -->
                 <div class="form-group">
-                    <label class="form-label">Цена <span class="required">*</span></label>
+                    <label class="form-label"
+                        >{{ $t('admin_shop_form.labels.price') }}
+                        <span class="required">*</span></label
+                    >
                     <UInput
                         type="number"
                         v-model.number="sale.price"
@@ -205,7 +218,7 @@
                         min="1"
                         class="form-control"
                         :class="{ 'is-invalid': errors.price }"
-                        placeholder="Например: 1000"
+                        :placeholder="$t('admin_shop_form.placeholders.price')"
                         @blur="validateField('price')"
                     />
                     <div v-if="errors.price" class="error-message">
@@ -216,12 +229,15 @@
 
             <!-- Технические характеристики -->
             <div class="form-section">
-                <h2 class="section-title">Технические характеристики</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_shop_form.sections.tech_specs') }}
+                </h2>
 
                 <!-- Основа -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Основа <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.base') }}
+                        <span class="required">*</span></label
                     >
                     <USelect
                         v-model="sale.base_id"
@@ -230,10 +246,12 @@
                         :class="{ 'is-invalid': errors.base_id }"
                         @blur="validateField('base_id')"
                     >
-                        <option value="" disabled>Выберите основу</option>
+                        <option value="" disabled>
+                            {{ $t('admin_shop_form.placeholders.select_base') }}
+                        </option>
                         <option v-for="base in bases" :key="base.id" :value="base.id">
                             {{
-                                $i18n.locale === 'RUS'
+                                $i18n.locale === 'ru'
                                     ? `${base.base_ru}`
                                     : `${base.base_en}`
                             }}
@@ -247,7 +265,8 @@
                 <!-- Материал -->
                 <div class="form-group">
                     <label class="form-label"
-                        >Материалы <span class="required">*</span></label
+                        >{{ $t('admin_shop_form.labels.materials') }}
+                        <span class="required">*</span></label
                     >
                     <div class="multi-select-wrapper">
                         <div
@@ -258,7 +277,10 @@
                             @keydown.enter="materialsToggleDropdown"
                             @blur="validateField('materials_ids')"
                         >
-                            {{ selectedMaterialsDisplay || 'Выберите материалы' }}
+                            {{
+                                selectedMaterialsDisplay ||
+                                $t('admin_shop_form.placeholders.select_materials')
+                            }}
                         </div>
                         <div
                             v-if="materialsDropdownOpen"
@@ -273,11 +295,16 @@
                                     type="checkbox"
                                     :id="'material-' + material.id"
                                     :value="material.id"
-                                    v-model="sale.materials_ids"
+                                    :model-value="
+                                        sale.materials_ids.includes(material.id)
+                                    "
+                                    @update:model-value="
+                                        (checked) => toggleMaterial(material.id, checked)
+                                    "
                                 />
                                 <label :for="'material-' + material.id">
                                     {{
-                                        $i18n.locale === 'RUS'
+                                        $i18n.locale === 'ru'
                                             ? material.material_ru
                                             : material.material_en
                                     }}
@@ -293,13 +320,17 @@
 
             <!-- Описание -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_shop_form.sections.additional_info') }}
+                </h2>
                 <div class="form-group">
-                    <label class="form-label">Описание</label>
+                    <label class="form-label">{{
+                        $t('admin_shop_form.labels.description')
+                    }}</label>
                     <textarea
                         v-model="sale.descr"
                         class="form-control textarea"
-                        placeholder="Краткое описание картины"
+                        :placeholder="$t('admin_shop_form.placeholders.description')"
                         rows="4"
                         maxlength="500"
                     ></textarea>
@@ -310,55 +341,38 @@
             <!-- Кнопки -->
             <div class="form-actions">
                 <UButton type="button" @click="resetForm" class="btn btn-secondary">
-                    Очистить форму
+                    {{ $t('admin_shop_form.buttons.clear_form') }}
                 </UButton>
                 <UButton
                     type="submit"
                     class="btn btn-primary"
                     :disabled="isSubmitting || !isFormValid"
                 >
-                    <span v-if="!isSubmitting">Добавить работу</span>
+                    <span v-if="!isSubmitting">{{
+                        $t('admin_shop_form.buttons.add_work')
+                    }}</span>
                     <span v-else>
                         <span class="spinner"></span>
-                        Отправка...
+                        {{ $t('admin_shop_form.buttons.submitting') }}
                     </span>
                 </UButton>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-model="showSuccessAlert"
-            type="success"
-            title="Успешно!"
-            message="Работа успешно добавлена в магазин."
-            closeButtonText="Закрыть"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-model="showErrorAlert"
-            type="danger"
-            title="Ошибка!"
-            :message="
-                errorMessage ||
-                'Не удалось добавить работу в магазин. Пожалуйста, попробуйте снова.'
-            "
-            closeButtonText="Закрыть"
-        />
     </div>
 </template>
 
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import { CreateSaleDto, Base, Material, RequestResult } from '@/types';
-import Alert from '@/components/app-ui/Alert.vue';
+import type { CreateSaleDto, Base, Material, RequestResult } from '../../types';
+import { useToast } from '@nuxt/ui/runtime/composables/index.js';
+
+definePageMeta({
+    middleware: 'admin-auth',
+});
+
 export default defineComponent({
     name: 'AddSale',
-    components: {
-        Alert,
-    },
     data() {
         return {
             sale: {
@@ -397,8 +411,6 @@ export default defineComponent({
                 materials_ids: '',
             } as Record<string, string>,
             errorMessage: '',
-            showSuccessAlert: false,
-            showErrorAlert: false,
         };
     },
     async created() {
@@ -412,12 +424,20 @@ export default defineComponent({
                 this.bases = response.data;
                 this.isLoading = false;
             } catch (error) {
-                console.error('Ошибка при загрузке основ:', error);
-                this.loadError = 'Не удалось загрузить список основ';
+                console.error(
+                    this.$t('admin_shop_form.messages.load_bases_error'),
+                    error
+                );
+                this.loadError = this.$t('admin_shop_form.messages.load_bases_failed');
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                const toast = useToast();
+                toast.add({
+                    title: this.$t('toast.error.title'),
+                    description: this.$t('admin_shop_form.messages.load_data_failed'),
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
             }
         },
         async loadMaterials() {
@@ -426,12 +446,22 @@ export default defineComponent({
                 this.materials = response.data;
                 this.isLoading = false;
             } catch (error) {
-                console.error('Ошибка при загрузке материалов:', error);
-                this.loadError = 'Не удалось загрузить список материалов';
+                console.error(
+                    this.$t('admin_shop_form.messages.load_materials_error'),
+                    error
+                );
+                this.loadError = this.$t(
+                    'admin_shop_form.messages.load_materials_failed'
+                );
                 this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+                const toast = useToast();
+                toast.add({
+                    title: this.$t('toast.error.title'),
+                    description: this.$t('admin_shop_form.messages.load_data_failed'),
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
             }
         },
         handleDragOver() {
@@ -462,7 +492,7 @@ export default defineComponent({
 
             // Проверка на количество файлов
             if (this.files.length + selectedFiles.length > 10) {
-                this.fileError = 'Можно загрузить не более 10 изображений';
+                this.fileError = this.$t('admin_shop_form.errors.max_files');
                 return;
             }
 
@@ -473,8 +503,7 @@ export default defineComponent({
             );
 
             if (invalidFiles.length > 0) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+                this.fileError = this.$t('admin_shop_form.errors.invalid_file_type');
                 return;
             }
 
@@ -483,7 +512,7 @@ export default defineComponent({
             const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
 
             if (largeFiles.length > 0) {
-                this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
+                this.fileError = this.$t('admin_shop_form.errors.file_size');
                 return;
             }
 
@@ -510,29 +539,36 @@ export default defineComponent({
             switch (fieldName) {
                 case 'name_ru':
                     if (!this.sale.name_ru.trim()) {
-                        this.errors.name_ru = 'Пожалуйста, введите название на русском';
+                        this.errors.name_ru = this.$t(
+                            'admin_shop_form.errors.name_ru_required'
+                        );
                     } else {
                         this.errors.name_ru = '';
                     }
                     break;
                 case 'name_en':
                     if (!this.sale.name_en.trim()) {
-                        this.errors.name_en =
-                            'Пожалуйста, введите название на английском';
+                        this.errors.name_en = this.$t(
+                            'admin_shop_form.errors.name_en_required'
+                        );
                     } else {
                         this.errors.name_en = '';
                     }
                     break;
                 case 'width':
                     if (this.sale.width <= 0) {
-                        this.errors.width = 'Ширина должна быть больше 0';
+                        this.errors.width = this.$t(
+                            'admin_shop_form.errors.width_required'
+                        );
                     } else {
                         this.errors.width = '';
                     }
                     break;
                 case 'height':
                     if (this.sale.height <= 0) {
-                        this.errors.height = 'Высота должна быть больше 0';
+                        this.errors.height = this.$t(
+                            'admin_shop_form.errors.height_required'
+                        );
                     } else {
                         this.errors.height = '';
                     }
@@ -542,29 +578,36 @@ export default defineComponent({
                         this.sale.year < 2000 ||
                         this.sale.year > new Date().getFullYear()
                     ) {
-                        this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+                        this.errors.year = this.$t('admin_shop_form.errors.year_range', {
+                            year: new Date().getFullYear(),
+                        });
                     } else {
                         this.errors.year = '';
                     }
                     break;
                 case 'price':
                     if (this.sale.price <= 0) {
-                        this.errors.price = 'Цена должна быть больше 0';
+                        this.errors.price = this.$t(
+                            'admin_shop_form.errors.price_required'
+                        );
                     } else {
                         this.errors.price = '';
                     }
                     break;
                 case 'base_id':
                     if (this.sale.base_id <= 0) {
-                        this.errors.base_id = 'Пожалуйста, выберите основу';
+                        this.errors.base_id = this.$t(
+                            'admin_shop_form.errors.base_required'
+                        );
                     } else {
                         this.errors.base_id = '';
                     }
                     break;
                 case 'materials_ids':
                     if (this.sale.materials_ids.length === 0) {
-                        this.errors.materials_ids =
-                            'Пожалуйста, выберите хотя бы один материал';
+                        this.errors.materials_ids = this.$t(
+                            'admin_shop_form.errors.materials_required'
+                        );
                     } else {
                         this.errors.materials_ids = '';
                     }
@@ -583,7 +626,7 @@ export default defineComponent({
 
             // Проверка наличия изображений
             if (this.files.length === 0) {
-                this.fileError = 'Пожалуйста, загрузите хотя бы одно изображение';
+                this.fileError = this.$t('admin_shop_form.errors.images_required');
                 return false;
             }
 
@@ -624,25 +667,52 @@ export default defineComponent({
                 });
 
                 if (response.status === 200) {
-                    this.showSuccessAlert = true;
+                    const toast = useToast();
+                    toast.add({
+                        title: this.$t('toast.success.title'),
+                        description: this.$t('toast.success.description'),
+                        icon: 'i-heroicons-check-circle',
+                        color: 'success',
+                        duration: 5000,
+                    });
                     this.resetForm();
                 } else {
-                    this.showErrorAlert = true;
-                    this.errorMessage =
-                        'Не удалось добавить работу. Пожалуйста, попробуйте снова.';
+                    const toast = useToast();
+                    toast.add({
+                        title: this.$t('toast.error.title'),
+                        description: this.$t('admin_shop_form.messages.submit_failed'),
+                        icon: 'i-heroicons-exclamation-triangle',
+                        color: 'error',
+                        duration: 5000,
+                    });
                 }
             } catch (error: any) {
                 console.error('Error submitting form:', error);
-                this.showErrorAlert = true;
+                const toast = useToast();
                 if (error.response?.status === 413) {
-                    this.errorMessage =
-                        'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+                    toast.add({
+                        title: this.$t('toast.error.title'),
+                        description: this.$t('admin_shop_form.messages.file_too_large'),
+                        icon: 'i-heroicons-exclamation-triangle',
+                        color: 'error',
+                        duration: 5000,
+                    });
                 } else if (error.response?.status === 400) {
-                    this.errorMessage =
-                        'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+                    toast.add({
+                        title: this.$t('toast.error.title'),
+                        description: this.$t('admin_shop_form.messages.invalid_data'),
+                        icon: 'i-heroicons-exclamation-triangle',
+                        color: 'error',
+                        duration: 5000,
+                    });
                 } else {
-                    this.errorMessage =
-                        'Произошла ошибка при добавлении работы. Пожалуйста, попробуйте снова.';
+                    toast.add({
+                        title: this.$t('toast.error.title'),
+                        description: this.$t('admin_shop_form.messages.general_error'),
+                        icon: 'i-heroicons-exclamation-triangle',
+                        color: 'error',
+                        duration: 5000,
+                    });
                 }
             } finally {
                 this.isSubmitting = false;
@@ -676,13 +746,20 @@ export default defineComponent({
         materialsToggleDropdown() {
             this.materialsDropdownOpen = !this.materialsDropdownOpen;
         },
+        toggleMaterial(materialId: number, checked: boolean) {
+            if (checked) {
+                if (!this.sale.materials_ids.includes(materialId)) {
+                    this.sale.materials_ids.push(materialId);
+                }
+            } else {
+                const index = this.sale.materials_ids.indexOf(materialId);
+                if (index > -1) {
+                    this.sale.materials_ids.splice(index, 1);
+                }
+            }
+        },
         basesToggleDropdown() {
             this.basesDropdownOpen = !this.basesDropdownOpen;
-        },
-        closeAlert() {
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
-            this.errorMessage = '';
         },
     },
     computed: {
@@ -691,7 +768,7 @@ export default defineComponent({
             const selectedNames = this.materials
                 .filter((material) => this.sale.materials_ids.includes(material.id))
                 .map((material) =>
-                    this.$i18n.locale === 'RUS'
+                    this.$i18n.locale === 'ru'
                         ? material.material_ru
                         : material.material_en
                 );
@@ -722,8 +799,8 @@ select:has(option.placeholder:checked) {
 
 .add-sale-container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 3rem auto;
+    padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);

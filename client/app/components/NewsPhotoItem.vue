@@ -1,54 +1,45 @@
-<script lang="ts">
-import ButtonClose from '@/components/app-ui/ButtonClose.vue';
+<script setup lang="ts">
 import type { PropType } from 'vue';
-import type { NewsDesc } from '@/types';
+import type { NewsDesc } from '../types';
+import { ref } from 'vue';
 
-export default {
-    setup() {
-        return {};
+const props = defineProps({
+    image_index: {
+        type: Number,
+        default: 0,
     },
-    components: {
-        ButtonClose,
+    currentNews: {
+        type: Object as PropType<NewsDesc>,
+        default: {} as NewsDesc,
     },
-    props: {
-        image_index: {
-            type: Number,
-            default: 0,
-        },
-        currentNews: {
-            type: Object as PropType<NewsDesc>,
-            default: {} as NewsDesc,
-        },
-        fileName: {
-            type: String,
-            default: '',
-        },
+    fileName: {
+        type: String,
+        default: '',
     },
-    data() {
-        return {
-            isLoaded: false as boolean,
-        };
-    },
-    methods: {
-        onImgLoad() {
-            this.isLoaded = true;
-        },
-        makeImageName(fileName: string) {
-            return `${this.currentNews?.dir}${fileName}`;
-        },
-        makeModalIdLink(index: number) {
-            if (index === 0) {
-                console.error('Wrong image_index props');
-            }
-            return '#exampleModal' + index;
-        },
-        makeModalId(index: number) {
-            if (index === 0) {
-                console.error('Wrong image_index props');
-            }
-            return 'exampleModal' + index;
-        },
-    },
+});
+
+const isLoaded = ref(false);
+
+const onImgLoad = () => {
+    isLoaded.value = true;
+};
+
+const makeImageName = (fileName: string) => {
+    return `${props.currentNews?.dir}${fileName}`;
+};
+
+const makeModalIdLink = (index: number) => {
+    if (index === 0) {
+        console.error('Wrong image_index props');
+    }
+    return '#exampleModal' + index;
+};
+
+const makeModalId = (index: number) => {
+    if (index === 0) {
+        console.error('Wrong image_index props');
+    }
+    return 'exampleModal' + index;
 };
 </script>
 

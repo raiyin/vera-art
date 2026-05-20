@@ -1,63 +1,59 @@
-<script lang="ts">
-import CalendarIcon from '@/components/IconCalendar.vue';
-import NewsDescriptionSkeleton from '@/components/NewsDescriptionSkeleton.vue';
+<script setup lang="ts">
+import CalendarIcon from './IconCalendar.vue';
+import NewsDescriptionSkeleton from './NewsDescriptionSkeleton.vue';
+import { ref, onMounted, nextTick } from 'vue';
+import { useI18n } from '#imports';
 
-export default {
-    components: {
-        CalendarIcon,
-        NewsDescriptionSkeleton,
-    },
-    props: {
-        newsObject: {
-            type: Object,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            news: [],
-            currentNews: {},
-            isLoaded: false,
-        };
-    },
-    methods: {
-        getHumanDate(inDate: string, locale: string) {
-            const options = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            } as const;
-            const date = new Date(inDate);
-            const stdLocale = locale === 'RUS' ? 'ru-RU' : 'en-EN';
-            return date.toLocaleDateString(stdLocale, options);
-        },
-        onLoad() {
-            this.isLoaded = true;
-        },
-    },
-    mounted() {
-        this.$nextTick(() => {
-            this.onLoad();
-        });
-    },
+const props = defineProps<{
+    newsObject: {
+        title_ru: string;
+        title_en: string;
+        subTitle_ru: string;
+        subTitle_en: string;
+        datetime: string;
+    };
+}>();
+
+const { locale } = useI18n();
+
+// Reactive state
+const isLoaded = ref(false);
+
+// Methods
+const getHumanDate = (inDate: string, locale: string) => {
+    const options = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    } as const;
+    const date = new Date(inDate);
+    const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
+    return date.toLocaleDateString(stdLocale, options);
 };
+
+const onLoad = () => {
+    isLoaded.value = true;
+};
+
+// Lifecycle hooks
+onMounted(() => {
+    nextTick(() => {
+        onLoad();
+    });
+});
 </script>
 
 <template>
     <div class="desc">
         <div class="title" @load="onLoad" v-show="isLoaded">
             <h2>
-                {{
-                    $i18n.locale === 'RUS' ? newsObject.title_ru : newsObject.title_en
-                }}&nbsp;{{
-                    $i18n.locale === 'RUS'
-                        ? newsObject.subTitle_ru
-                        : newsObject.subTitle_en
+                {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}&nbsp;{{
+                    locale === 'ru' ? newsObject.subTitle_ru : newsObject.subTitle_en
                 }}
             </h2>
             <div class="date" v-show="!!newsObject.datetime">
                 <CalendarIcon />
-                <span> &nbsp;{{ getHumanDate(newsObject.datetime, $i18n.locale) }}</span>
+                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale) }}</span>
             </div>
         </div>
         <NewsDescriptionSkeleton v-show="!isLoaded" />
