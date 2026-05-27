@@ -5,6 +5,9 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 export default {
     setup() {
         const { locale } = useI18n();
@@ -12,7 +15,6 @@ export default {
         const news = ref<NewsDescDto[]>([]);
         const page = ref(0);
         const limit = ref(9); // Load 9 news items at a time as requested
-        const server = ref(import.meta.env.VITE_SERVER as string);
         const loading = ref(false);
         const hasMore = ref(true);
         const observer = ref<IntersectionObserver | null>(null);
@@ -23,7 +25,7 @@ export default {
 
             try {
                 loading.value = true;
-                const response = await axios.get(server.value + 'news', {
+                const response = await axios.get(SERVER_URL + 'news', {
                     params: {
                         offset: page.value * limit.value,
                         limit: limit.value,

@@ -475,6 +475,10 @@ interface PreviewItem {
     preview: string;
 }
 
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 export default defineComponent({
     name: 'EditNewsView',
     data() {
@@ -533,9 +537,6 @@ export default defineComponent({
         await this.loadNews();
     },
     computed: {
-        server() {
-            return import.meta.env.VITE_SERVER_URL;
-        },
         isFormValid() {
             return (
                 this.news.title_ru.trim() !== '' &&
@@ -553,7 +554,7 @@ export default defineComponent({
         async loadNews() {
             try {
                 const id = this.$route.params.id;
-                const response = await axios.get(this.server + 'news/' + id);
+                const response = await axios.get(SERVER_URL + 'news/' + id);
                 this.news = response.data;
                 this.originalNews = { ...response.data };
 
@@ -947,7 +948,7 @@ export default defineComponent({
 
                 // Send data to server
                 const id = this.$route.params.id;
-                const response = await axios.put(`${this.server}news/${id}`, formData, {
+                const response = await axios.put(`${SERVER_URL}news/${id}`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         Authorization: `Bearer ${localStorage.getItem('token')}`,

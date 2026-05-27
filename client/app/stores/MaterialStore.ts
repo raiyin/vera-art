@@ -7,13 +7,15 @@ export const useMaterialStore = defineStore('materialStore', () => {
     const isLoading = ref(false,);
     const error = ref<string | null>(null,);
 
-    const serverUrl = import.meta.env.VITE_SERVER_URL || 'http://localhost:8000/';
+
+    const config = useRuntimeConfig();
+    const SERVER_URL = config.public.serverUrl;
 
     async function fetchMaterials() {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`${serverUrl}materials`,);
+            const response = await fetch(`${SERVER_URL}materials`,);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
             }

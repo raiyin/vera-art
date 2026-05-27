@@ -10,6 +10,10 @@ import type { NewsDesc } from '../../types';
 import axios from 'axios';
 import { useToast } from '@nuxt/ui/runtime/composables/index.js';
 
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 interface PreviewItem {
     file: File;
     preview: string;
@@ -67,9 +71,6 @@ export default defineComponent({
         };
     },
     computed: {
-        server() {
-            return import.meta.env.VITE_SERVER_URL;
-        },
         isFormValid() {
             return (
                 this.news.title_ru.trim() !== '' &&
@@ -458,7 +459,7 @@ export default defineComponent({
                 formData.append('data', JSON.stringify(newsData));
 
                 // Send data to server
-                const response = await axios.post(`${this.server}news`, formData, {
+                const response = await axios.post(`${SERVER_URL}news`, formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },

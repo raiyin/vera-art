@@ -17,8 +17,10 @@ export default defineNuxtConfig({
     css: ['~/assets/css/main.css',],
 
     runtimeConfig: {
+    // Private: Only available on the server-side
+        apiSecret: process.env.API_SECRET,
         public: {
-            serverUrl: process.env.VITE_SERVER_URL || 'http://localhost:8000/',
+            serverUrl: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/',
         },
     },
 

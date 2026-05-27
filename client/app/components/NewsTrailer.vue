@@ -5,6 +5,9 @@ import { storeToRefs } from 'pinia';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useI18n } from '#imports';
 
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 const props = defineProps<{
     newsObject: {
         id: string;
@@ -66,15 +69,12 @@ const deleteNews = async () => {
     isDeleting.value = true;
 
     try {
-        const response = await fetch(
-            `${import.meta.env.VITE_SERVER_URL}news/${props.newsObject.id}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            }
-        );
+        const response = await fetch(`${SERVER_URL}news/${props.newsObject.id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
 
         if (response.ok) {
             // Remove the news item from the UI

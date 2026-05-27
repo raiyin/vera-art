@@ -419,6 +419,10 @@ import type {
     RequestResult,
 } from '../../types';
 
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 export default defineComponent({
     name: 'EditShopItemView',
     data() {
@@ -467,7 +471,6 @@ export default defineComponent({
             materials: [] as Material[],
             isLoading: true,
             loadError: null as string | null,
-            server: import.meta.env.VITE_SERVER_URL,
             requestResult: 'unknown' as RequestResult,
             materialsDropdownOpen: false,
             basesDropdownOpen: false,
@@ -535,7 +538,7 @@ export default defineComponent({
         methods: {
             async loadBases() {
                 try {
-                    const response = await axios.get(this.server + 'bases',);
+                    const response = await axios.get(SERVER_URL + 'bases',);
                     this.bases = response.data;
                     this.isLoading = false;
                 } catch (error) {

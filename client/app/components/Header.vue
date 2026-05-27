@@ -12,7 +12,7 @@ const themeStore = useThemeStore();
 
 const route = useRoute();
 
-const switchLocale = (newLocale) => {
+const switchLocale = (newLocale: 'ru' | 'en') => {
     setLocale(newLocale);
 };
 
@@ -27,88 +27,91 @@ const logout = () => {
 };
 
 // Build navigation items with translations
-const navigation = computed<NavigationMenuItem[]>(() => [
-    {
-        label: t('header.main'),
-        to: '/',
-    },
-    {
-        label: t('header.all_works'),
-        to: '/all-works',
-        active: route.path.startsWith('/all-works'),
-    },
-    {
-        label: t('header.news'),
-        to: '/news',
-        active: route.path.startsWith('/news'),
-    },
-    {
-        label: t('header.shop'),
-        to: '/shop',
-        active: route.path.startsWith('/shop'),
-    },
-    {
-        label: t('header.payment'),
-        to: '/pay-delivery',
-        icon: 'i-heroicons-credit-card',
-        active: route.path.startsWith('/pay-delivery'),
-        value: 'payment',
-    },
-    {
-        label: t('header.services'),
-        to: '/services',
-        active: route.path.startsWith('/services'),
-        icon: 'i-heroicons-document-text',
-        value: 'services',
-        open: true,
-        defaultOpen: true,
-        children: [
-            {
-                label: 'Акварельная живопись',
-                to: '/master-classes/watercolor',
-                icon: 'i-heroicons-paint-brush',
-                active: route.path.startsWith('/master-classes/watercolor'),
-                value: 'watercolor',
-            },
-            {
-                label: 'Масляная живопись',
-                to: '/master-classes/oil',
-                icon: 'i-heroicons-paint-brush',
-                active: route.path.startsWith('/master-classes/oil'),
-                value: 'oil',
-            },
-            {
-                label: 'Рисование для начинающих',
-                to: '/master-classes/beginners',
-                icon: 'i-heroicons-sparkles',
-                active: route.path.startsWith('/master-classes/beginners'),
-                value: 'beginners',
-            },
-            {
-                label: 'Онлайн-курсы',
-                to: '/courses/online',
-                icon: 'i-heroicons-computer-desktop',
-                active: route.path.startsWith('/courses/online'),
-                value: 'online-courses',
-            },
-            {
-                label: 'Индивидуальные занятия',
-                to: '/courses/individual',
-                icon: 'i-heroicons-user',
-                active: route.path.startsWith('/courses/individual'),
-                value: 'individual-courses',
-            },
-        ],
-    },
-]);
+const navigation = computed<NavigationMenuItem[]>(() => {
+    const items: NavigationMenuItem[] = [
+        {
+            label: t('header.main'),
+            to: '/',
+        },
+        {
+            label: t('header.all_works'),
+            to: '/all-works',
+            active: route.path.startsWith('/all-works'),
+        },
+        {
+            label: t('header.news'),
+            to: '/news',
+            active: route.path.startsWith('/news'),
+        },
+        {
+            label: t('header.shop'),
+            to: '/shop',
+            active: route.path.startsWith('/shop'),
+        },
+        {
+            label: t('header.payment'),
+            to: '/pay-delivery',
+            icon: 'i-heroicons-credit-card',
+            active: route.path.startsWith('/pay-delivery'),
+            value: 'payment',
+        },
+        {
+            label: t('header.services'),
+            to: '/services',
+            active: route.path.startsWith('/services'),
+            icon: 'i-heroicons-document-text',
+            value: 'services',
+            type: 'trigger',
+            children: [
+                {
+                    label: 'Акварельная живопись',
+                    to: '/master-classes/watercolor',
+                    icon: 'i-heroicons-paint-brush',
+                    active: route.path.startsWith('/master-classes/watercolor'),
+                    value: 'watercolor',
+                },
+                {
+                    label: 'Масляная живопись',
+                    to: '/master-classes/oil',
+                    icon: 'i-heroicons-paint-brush',
+                    active: route.path.startsWith('/master-classes/oil'),
+                    value: 'oil',
+                },
+                {
+                    label: 'Рисование для начинающих',
+                    to: '/master-classes/beginners',
+                    icon: 'i-heroicons-sparkles',
+                    active: route.path.startsWith('/master-classes/beginners'),
+                    value: 'beginners',
+                },
+                {
+                    label: 'Онлайн-курсы',
+                    to: '/courses/online',
+                    icon: 'i-heroicons-computer-desktop',
+                    active: route.path.startsWith('/courses/online'),
+                    value: 'online-courses',
+                },
+                {
+                    label: 'Индивидуальные занятия',
+                    to: '/courses/individual',
+                    icon: 'i-heroicons-user',
+                    active: route.path.startsWith('/courses/individual'),
+                    value: 'individual-courses',
+                },
+            ],
+        },
+    ];
 
-if (authStore.isAuthenticated && authStore.isAdmin) {
-    navigation.push({
-        label: t('header.admin'),
-        to: '/admin',
-        active: route.path.startsWith('/admin'),
-    });
-}
+    if (authStore.isAuthenticated && authStore.isAdmin) {
+        items.push({
+            label: t('header.admin'),
+            to: '/admin',
+            active: route.path.startsWith('/admin'),
+        });
+    }
+
+    return items;
+});
 </script>
 
 <template>

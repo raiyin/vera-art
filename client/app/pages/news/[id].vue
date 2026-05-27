@@ -8,6 +8,9 @@ import SideNewsTrailer from '@/components/SideNewsTrailer.vue';
 import VideoSection from '@/components/VideoSection.vue';
 import NewsDescriptionSkeleton from '@/components/NewsDescriptionSkeleton.vue';
 
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
 export default {
     components: {
         SideNewsTrailer,
@@ -29,7 +32,6 @@ export default {
         const mainImageError = ref(false);
 
         const newsId = computed(() => route.params.id as string);
-        const serverUrl = computed(() => import.meta.env.VITE_SERVER as string);
 
         const getImageUrl = (path: string | undefined, dir: string) => {
             if (!path) return '';
@@ -54,13 +56,11 @@ export default {
                 loading.value = true;
                 error.value = null;
 
-                const response = await axios.get(
-                    `${serverUrl.value}news/${newsId.value}`
-                );
+                const response = await axios.get(`${SERVER_URL}news/${newsId.value}`);
                 currentNewsItem.value = response.data;
 
                 // Fetch other news for sidebar (excluding current)
-                const otherResponse = await axios.get(`${serverUrl.value}news`, {
+                const otherResponse = await axios.get(`${SERVER_URL}news`, {
                     params: {
                         offset: 0,
                         limit: 6, // Get 6 to potentially exclude current
@@ -194,7 +194,9 @@ export default {
                 </svg>
                 <h2 class="error-title">{{ $t('news.detail.error.title') }}</h2>
                 <p class="error-message">{{ error }}</p>
-                <button @click="fetchNewsDetail" class="retry-button">{{ $t('news.detail.error.retryButton') }}</button>
+                <button @click="fetchNewsDetail" class="retry-button">
+                    {{ $t('news.detail.error.retryButton') }}
+                </button>
             </div>
         </div>
 
@@ -317,7 +319,10 @@ export default {
                             {{ $t('news.detail.sidebar.title') }}
                         </h3>
 
-                        <div v-if="otherNews.length > 0" class="space-y-2 overflow-y-auto sidebar-news-list">
+                        <div
+                            v-if="otherNews.length > 0"
+                            class="space-y-2 overflow-y-auto sidebar-news-list"
+                        >
                             <div
                                 v-for="news in otherNews"
                                 :key="news.id"
@@ -440,10 +445,7 @@ export default {
                     {{ $t('news.detail.gallery.title') }}
                 </h3>
                 <div
-                    v-if="
-                        currentNewsItem.images &&
-                        currentNewsItem.images.length > 0
-                    "
+                    v-if="currentNewsItem.images && currentNewsItem.images.length > 0"
                     class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                 >
                     <div
@@ -452,9 +454,7 @@ export default {
                         class="gallery-item cursor-pointer group"
                         @click="openImageModal(index)"
                     >
-                        <div
-                            class="aspect-square overflow-hidden rounded-lg relative"
-                        >
+                        <div class="aspect-square overflow-hidden rounded-lg relative">
                             <div
                                 v-if="imageLoadErrors.has(index)"
                                 class="image-error-placeholder w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800"
@@ -483,10 +483,7 @@ export default {
                                 @error="() => handleGalleryImageError(index)"
                             />
                         </div>
-                        <div
-                            class="gallery-overlay"
-                            v-if="!imageLoadErrors.has(index)"
-                        >
+                        <div class="gallery-overlay" v-if="!imageLoadErrors.has(index)">
                             <svg
                                 class="w-8 h-8 text-white"
                                 fill="none"
@@ -531,10 +528,7 @@ export default {
                     {{ $t('news.detail.videos.title') }}
                 </h3>
                 <div
-                    v-if="
-                        currentNewsItem.videos &&
-                        currentNewsItem.videos.length > 0
-                    "
+                    v-if="currentNewsItem.videos && currentNewsItem.videos.length > 0"
                     class="relative"
                 >
                     <VideoSection :currentNewsItem="currentNewsItem" />
@@ -665,7 +659,12 @@ export default {
 
                         <!-- Image Description -->
                         <div class="custom-modal-caption">
-                            {{ $t('news.detail.modal.caption', { current: selectedImageIndex + 1, total: currentNewsItem.images.length }) }}
+                            {{
+                                $t('news.detail.modal.caption', {
+                                    current: selectedImageIndex + 1,
+                                    total: currentNewsItem.images.length,
+                                })
+                            }}
                         </div>
                     </div>
 

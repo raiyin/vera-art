@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { useAuthStore, } from '../stores/AuthStore';
 
-const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:8000/';
+const config = useRuntimeConfig();
+const API_URL = config.public.serverUrl;
 
 // Create axios instance with interceptors
 const api = axios.create({
