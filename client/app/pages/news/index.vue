@@ -5,11 +5,10 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-
 export default {
     setup() {
+        const config = useRuntimeConfig();
+        const SERVER_URL = config.public.serverUrl;
         const { locale } = useI18n();
         const router = useRouter();
         const news = ref<NewsDescDto[]>([]);
