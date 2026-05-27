@@ -116,8 +116,8 @@ const navigation = computed<NavigationMenuItem[]>(() => {
 
 <template>
     <UHeader>
-        <template #title>
-            <NuxtLink to="/" class="flex items-center">
+        <template #left>
+            <NuxtLink to="/" class="flex items-center" aria-label="Vera site">
                 <img
                     src="../assets/icons/favicon-art.svg"
                     alt="Palette"
