@@ -380,10 +380,6 @@ import type { CreateWorkDto, RequestResult } from '../../types';
 import { useToast } from '@nuxt/ui/runtime/composables/index.js';
 import { useMaterialStore } from '../../stores/MaterialStore';
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-const materialStore = useMaterialStore();
-
 export default defineComponent({
     name: 'AddWork',
     data() {
@@ -421,18 +417,20 @@ export default defineComponent({
                 work_type: '',
             } as Record<string, string>,
             errorMessage: '',
+            serverUrl: '',
+            materialStore: null as ReturnType<typeof useMaterialStore> | null,
         };
     },
     computed: {
         bases() {
-            return materialStore.bases;
+            return this.materialStore?.bases ?? [];
         },
         materials() {
-            return materialStore.materials;
+            return this.materialStore?.materials ?? [];
         },
         selectedMaterialsDisplay() {
             if (this.work.materials_ids.length === 0) return '';
-            const selectedNames = materialStore.materials
+            const selectedNames = (this.materialStore?.materials ?? [])
                 .filter((material) => this.work.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'ru'
@@ -466,9 +464,15 @@ export default defineComponent({
             return this.work.type === 1 || this.work.type === 2;
         },
     },
-    async created() {
-        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-            await materialStore.fetchAll();
+    created() {
+        const config = useRuntimeConfig();
+        this.serverUrl = config.public.serverUrl;
+        this.materialStore = useMaterialStore();
+        if (
+            this.materialStore?.materials.length === 0 ||
+            this.materialStore?.bases.length === 0
+        ) {
+            this.materialStore?.fetchAll();
         }
     },
     methods: {
@@ -670,7 +674,7 @@ export default defineComponent({
 
                 formData.append('data', JSON.stringify(workData));
 
-                const response = await axios.post(SERVER_URL + 'works', formData, {
+                const response = await axios.post(this.serverUrl + 'works', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
