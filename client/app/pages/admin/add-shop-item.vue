@@ -364,16 +364,17 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import type { CreateSaleDto, Base, Material, RequestResult } from '../../types';
+import type { CreateSaleDto, RequestResult } from '../../types';
 import { useToast } from '@nuxt/ui/runtime/composables/index.js';
+import { useMaterialStore } from '../../stores/MaterialStore';
 
 definePageMeta({
     middleware: 'admin-auth',
 });
 
-
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const materialStore = useMaterialStore();
 
 export default defineComponent({
     name: 'AddSale',
@@ -394,8 +395,6 @@ export default defineComponent({
             files: [] as File[],
             previewImages: [] as { file: File; preview: string }[],
             isSubmitting: false,
-            bases: [] as Base[],
-            materials: [] as Material[],
             isLoading: true,
             loadError: null as string | null,
             requestResult: 'unknown' as RequestResult,
@@ -417,56 +416,13 @@ export default defineComponent({
         };
     },
     async created() {
-        await this.loadBases();
-        await this.loadMaterials();
+        // Wait for reference data to load from the store
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
+        this.isLoading = false;
     },
     methods: {
-        async loadBases() {
-            try {
-                const response = await axios.get(SERVER_URL + 'bases');
-                this.bases = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error(
-                    this.$t('admin_shop_form.messages.load_bases_error'),
-                    error
-                );
-                this.loadError = this.$t('admin_shop_form.messages.load_bases_failed');
-                this.isLoading = false;
-                const toast = useToast();
-                toast.add({
-                    title: this.$t('toast.error.title'),
-                    description: this.$t('admin_shop_form.messages.load_data_failed'),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
-                    duration: 5000,
-                });
-            }
-        },
-        async loadMaterials() {
-            try {
-                const response = await axios.get(SERVER_URL + 'materials');
-                this.materials = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error(
-                    this.$t('admin_shop_form.messages.load_materials_error'),
-                    error
-                );
-                this.loadError = this.$t(
-                    'admin_shop_form.messages.load_materials_failed'
-                );
-                this.isLoading = false;
-                const toast = useToast();
-                toast.add({
-                    title: this.$t('toast.error.title'),
-                    description: this.$t('admin_shop_form.messages.load_data_failed'),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
-                    duration: 5000,
-                });
-            }
-        },
         handleDragOver() {
             this.isDragOver = true;
         },
@@ -766,9 +722,15 @@ export default defineComponent({
         },
     },
     computed: {
+        bases() {
+            return materialStore.bases;
+        },
+        materials() {
+            return materialStore.materials;
+        },
         selectedMaterialsDisplay() {
             if (this.sale.materials_ids.length === 0) return '';
-            const selectedNames = this.materials
+            const selectedNames = materialStore.materials
                 .filter((material) => this.sale.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'ru'

@@ -52,8 +52,8 @@ useHead({
 });
 
 onMounted(() => {
-    // Load materials on app startup
-    materialStore.fetchMaterials();
+    // Load reference data (materials, bases) on app startup
+    materialStore.fetchAll();
 
     // Start notification polling if user is authenticated
     if (authStore.isAuthenticated) {

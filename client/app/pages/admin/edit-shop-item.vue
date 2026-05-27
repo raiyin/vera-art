@@ -414,14 +414,14 @@ import { defineComponent, } from 'vue';
 import type {
     UpdateSaleRequest,
     UpdateSaleResponse,
-    Base,
-    Material,
     RequestResult,
 } from '../../types';
+import { useMaterialStore } from '../../stores/MaterialStore';
 
 
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const materialStore = useMaterialStore();
 
 export default defineComponent({
     name: 'EditShopItemView',
@@ -467,8 +467,6 @@ export default defineComponent({
             }[],
             imagesToDelete: [] as string[], // Track existing images to delete
             isSubmitting: false,
-            bases: [] as Base[],
-            materials: [] as Material[],
             isLoading: true,
             loadError: null as string | null,
             requestResult: 'unknown' as RequestResult,
@@ -494,9 +492,15 @@ export default defineComponent({
         };
     },
     computed: {
+        bases() {
+            return materialStore.bases;
+        },
+        materials() {
+            return materialStore.materials;
+        },
         selectedMaterialsDisplay() {
             if (this.sale.materials_ids.length === 0) return '';
-            const selectedNames = this.materials
+            const selectedNames = materialStore.materials
                 .filter(material => this.sale.materials_ids.includes(material.id,),)
                 .map(material =>
                     this.$i18n.locale === 'ru'
@@ -520,8 +524,10 @@ export default defineComponent({
         },
     },
         async created() {
-            await this.loadBases();
-            await this.loadMaterials();
+            // Wait for reference data to load from the store
+            if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+                await materialStore.fetchAll();
+            }
             await this.loadSale();
         },
         beforeUnmount() {
@@ -536,38 +542,10 @@ export default defineComponent({
             }
         },
         methods: {
-            async loadBases() {
-                try {
-                    const response = await axios.get(SERVER_URL + 'bases',);
-                    this.bases = response.data;
-                    this.isLoading = false;
-                } catch (error) {
-                    console.error('Ошибка при загрузке основ:', error,);
-                    this.loadError = 'Не удалось загрузить список основ';
-                    this.isLoading = false;
-                    this.showErrorAlertWithTimeout(
-                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                    );
-                }
-            },
-            async loadMaterials() {
-                try {
-                    const response = await axios.get(this.server + 'materials',);
-                    this.materials = response.data;
-                    this.isLoading = false;
-                } catch (error) {
-                    console.error('Ошибка при загрузке материалов:', error,);
-                    this.loadError = 'Не удалось загрузить список материалов';
-                    this.isLoading = false;
-                    this.showErrorAlertWithTimeout(
-                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                    );
-                }
-            },
             async loadSale() {
                 try {
                     const id = this.$route.params.id;
-                    const response = await axios.get(`${this.server}sales/${id}/edit`,);
+                    const response = await axios.get(`${SERVER_URL}sales/${id}/edit`,);
                     this.sale = response.data;
                     this.originalSale = { ...response.data, };
 
@@ -818,7 +796,7 @@ export default defineComponent({
 
                     const strId = this.$route.params.id;
                     const response = await axios.put(
-                        this.server + 'sales/' + strId,
+                        SERVER_URL + 'sales/' + strId,
                         formData,
                         {
                             headers: {
