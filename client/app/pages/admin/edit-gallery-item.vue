@@ -357,15 +357,15 @@
 import axios from 'axios';
 import { defineComponent } from 'vue';
 import type {
-    Base,
-    Material,
     RequestResult,
     UpdateWorkRequest,
     UpdateWorkResponse,
 } from '../../types';
+import { useMaterialStore } from '../../stores/MaterialStore';
 
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const materialStore = useMaterialStore();
 
 export default defineComponent({
     name: 'EditGalleryItemView',
@@ -411,8 +411,6 @@ export default defineComponent({
             }[],
             imagesToDelete: [] as string[], // Track existing images to delete
             isSubmitting: false,
-            bases: [] as Base[],
-            materials: [] as Material[],
             isLoading: true,
             loadError: null as string | null,
             requestResult: 'unknown' as RequestResult,
@@ -438,9 +436,15 @@ export default defineComponent({
         };
     },
     computed: {
+        bases() {
+            return materialStore.bases;
+        },
+        materials() {
+            return materialStore.materials;
+        },
         selectedMaterialsDisplay() {
             if (this.work.materials_ids.length === 0) return '';
-            const selectedNames = this.materials
+            const selectedNames = materialStore.materials
                 .filter((material) => this.work.materials_ids.includes(material.id))
                 .map((material) =>
                     this.$i18n.locale === 'ru'
@@ -472,8 +476,9 @@ export default defineComponent({
         },
     },
     async created() {
-        await this.loadBases();
-        await this.loadMaterials();
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
         await this.loadWork();
     },
 
@@ -489,34 +494,6 @@ export default defineComponent({
         }
     },
     methods: {
-        async loadBases() {
-            try {
-                const response = await axios.get(SERVER_URL + 'bases');
-                this.bases = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке основ:', error);
-                this.loadError = 'Не удалось загрузить список основ';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
-        async loadMaterials() {
-            try {
-                const response = await axios.get(SERVER_URL + 'materials');
-                this.materials = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке материалов:', error);
-                this.loadError = 'Не удалось загрузить список материалов';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
         async loadWork() {
             try {
                 const id = this.$route.params.id;
@@ -761,7 +738,7 @@ export default defineComponent({
 
                 const strId = this.$route.params.id;
                 const response = await axios.put(
-                    this.server + 'works/' + strId,
+                    SERVER_URL + 'works/' + strId,
                     formData,
                     {
                         headers: {

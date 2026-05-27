@@ -376,11 +376,13 @@
 <script lang="ts">
 import axios from 'axios';
 import { defineComponent } from 'vue';
-import type { CreateWorkDto, Base, Material, RequestResult } from '../../types';
+import type { CreateWorkDto, RequestResult } from '../../types';
 import { useToast } from '@nuxt/ui/runtime/composables/index.js';
+import { useMaterialStore } from '../../stores/MaterialStore';
 
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const materialStore = useMaterialStore();
 
 export default defineComponent({
     name: 'AddWork',
@@ -401,8 +403,6 @@ export default defineComponent({
             files: [] as File[],
             previewImages: [] as { file: File; preview: string }[],
             isSubmitting: false,
-            bases: [] as Base[],
-            materials: [] as Material[],
             isLoading: true,
             loadError: null as string | null,
             requestResult: 'unknown' as RequestResult,
@@ -424,13 +424,17 @@ export default defineComponent({
         };
     },
     computed: {
+        bases() {
+            return materialStore.bases;
+        },
+        materials() {
+            return materialStore.materials;
+        },
         selectedMaterialsDisplay() {
             if (this.work.materials_ids.length === 0) return '';
-            const selectedNames = this.materials
-                .filter((material: Material) =>
-                    this.work.materials_ids.includes(material.id)
-                )
-                .map((material: Material) =>
+            const selectedNames = materialStore.materials
+                .filter((material) => this.work.materials_ids.includes(material.id))
+                .map((material) =>
                     this.$i18n.locale === 'ru'
                         ? material.material_ru
                         : material.material_en
@@ -463,56 +467,11 @@ export default defineComponent({
         },
     },
     async created() {
-        await this.loadBases();
-        await this.loadMaterials();
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
     },
     methods: {
-        async loadBases() {
-            try {
-                const response = await axios.get(SERVER_URL + 'bases');
-                this.bases = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error(
-                    this.$t('admin_gallery_form.messages.load_bases_error'),
-                    error
-                );
-                this.loadError = this.$t('admin_gallery_form.messages.load_bases_failed');
-                this.isLoading = false;
-                const toast = useToast();
-                toast.add({
-                    title: this.$t('toast.error.title'),
-                    description: this.$t('toast.error.description'),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
-                    duration: 5000,
-                });
-            }
-        },
-        async loadMaterials() {
-            try {
-                const response = await axios.get(SERVER_URL + 'materials');
-                this.materials = response.data;
-                this.isLoading = false;
-            } catch (error) {
-                console.error(
-                    this.$t('admin_gallery_form.messages.load_materials_error'),
-                    error
-                );
-                this.loadError = this.$t(
-                    'admin_gallery_form.messages.load_materials_failed'
-                );
-                this.isLoading = false;
-                const toast = useToast();
-                toast.add({
-                    title: this.$t('toast.error.title'),
-                    description: this.$t('toast.error.description'),
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
-                    duration: 5000,
-                });
-            }
-        },
         handleDragOver() {
             this.isDragOver = true;
         },
