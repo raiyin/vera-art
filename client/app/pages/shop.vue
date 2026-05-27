@@ -5,10 +5,10 @@ import { ref, onMounted } from 'vue';
 
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const limit = config.public.limit;
 
 const sales = ref<TypedGetSaleDto[]>([]);
 const page = ref(-1);
-const limit = ref(import.meta.env.VITE_LIMIT as number);
 const salesObserver = ref<Element | null>(null);
 
 const emit = defineEmits<{
@@ -19,21 +19,19 @@ const loadWorks = async () => {
     try {
         page.value += 1;
         const params = new URLSearchParams({
-            offset: (page.value * limit.value).toString(),
-            limit: limit.value.toString(),
+            offset: (page.value * +limit).toString(),
+            limit: limit,
         });
         const response = await fetch(`${SERVER_URL}sales?${params}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
-
         const newWorks = data.map((work: any) => ({
             ...work,
             __type: 'GetSaleDto',
         }));
         sales.value = [...sales.value, ...newWorks];
-        console.log(sales.value);
     } catch (e) {
-        console.error('Error fetching works on allworks page ' + e);
+        console.error('Error fetching works on shop page ' + e);
     }
 };
 
@@ -42,9 +40,13 @@ const handleSaleDeleted = (id: string) => {
 };
 
 onMounted(() => {
+    // Load initial data immediately
+    loadWorks();
+
+    // Set up infinite scroll observer
     const options = {
         rootMargin: '0px',
-        threshold: 1.0,
+        threshold: 0,
     };
     const salesCallback = (entries: IntersectionObserverEntry[]) => {
         if (entries[0]?.isIntersecting) {

@@ -20,7 +20,8 @@ export default defineNuxtConfig({
     // Private: Only available on the server-side
         apiSecret: process.env.API_SECRET,
         public: {
-            serverUrl: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:8000/',
+            serverUrl: process.env.NUXT_PUBLIC_SERVER_URL || 'http://localhost:8000/',
+            limit: process.env.NUXT_PUBLIC_LIMIT || '9',
         },
     },
 

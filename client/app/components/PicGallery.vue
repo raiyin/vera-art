@@ -165,13 +165,6 @@ watch(showModal, (newVal) => {
     }
 });
 
-// Lifecycle hooks
-onMounted(() => {
-    console.log('PicGallery component mounted');
-    console.log('Images count:', props.images.length);
-    console.log('Filtered images count:', filteredImages.value.length);
-});
-
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown);
 });

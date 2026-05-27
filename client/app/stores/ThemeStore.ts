@@ -42,18 +42,15 @@ export const useThemeStore = defineStore('themeStore', () => {
 
     watch(theme, (theme,) => {
         if (typeof window !== 'undefined') {
-            console.log('Theme changed to:', theme,);
             localStorage.setItem('theme', JSON.stringify(theme,),);
             const body = document.querySelector('body',);
             const html = document.documentElement;
             if (theme === 'dark') {
                 body?.classList.add(DARK_CLASS_NAME,);
                 html.classList.add(HTML_DARK_CLASS,);
-                console.log('Added dark classes',);
             } else {
                 body?.classList.remove(DARK_CLASS_NAME,);
                 html.classList.remove(HTML_DARK_CLASS,);
-                console.log('Removed dark classes',);
             }
         }
     }, { immediate: true, },);
