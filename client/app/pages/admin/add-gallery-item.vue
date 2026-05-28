@@ -352,15 +352,13 @@ const work = reactive<CreateWorkDto>({
     materials_ids: [],
     descr: '',
     images: [],
-    type: 1,
+    type: null,
 });
 
 const files = ref<File[]>([]);
 const previewImages = ref<{ file: File; preview: string }[]>([]);
 const isSubmitting = ref(false);
 const isLoading = ref(true);
-const loadError = ref<string | null>(null);
-const requestResult = ref<RequestResult>('unknown');
 const isDragOver = ref(false);
 const fileError = ref<string | null>(null);
 const errorMessage = ref('');
@@ -673,7 +671,7 @@ function resetForm() {
     work.base_id = (null as unknown) as number;
     work.materials_ids = [];
     work.descr = '';
-    work.type = 1;
+    work.type = 0;
     work.images = [];
 
     files.value = [];
