@@ -254,6 +254,7 @@
             "year": "Например: 2023",
             "select_base": "Выберите основу",
             "select_materials": "Выберите материалы",
+            "select_work_type": "Выберите тип работы",
             "description": "Краткое описание картины"
         },
         "work_types": {

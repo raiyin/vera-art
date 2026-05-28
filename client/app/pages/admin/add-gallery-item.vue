@@ -222,22 +222,13 @@
                     >
                     <USelect
                         v-model="work.base_id"
+                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
+                        :placeholder="$t('admin_gallery_form.placeholders.select_base')"
                         @blur="validateField('base_id')"
-                    >
-                        <option value="" disabled>
-                            {{ $t('admin_gallery_form.placeholders.select_base') }}
-                        </option>
-                        <option v-for="base in bases" :key="base.id" :value="base.id">
-                            {{
-                                $i18n.locale === 'ru'
-                                    ? `${base.base_ru}`
-                                    : `${base.base_en}`
-                            }}
-                        </option>
-                    </USelect>
+                    />
                     <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
                     </div>
@@ -245,52 +236,24 @@
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.materials') }}
-                        <span class="required">{{
-                            isMaterialsRequired ? '*' : ''
-                        }}</span></label
-                    >
-                    <div class="multi-select-wrapper">
-                        <div
-                            class="select-display drop-down-arrow"
-                            :class="{ 'is-invalid': errors.materials_ids }"
-                            tabindex="0"
-                            @click="materialsToggleDropdown"
-                            @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids')"
-                        >
-                            {{
-                                selectedMaterialsDisplay ||
-                                $t('admin_gallery_form.placeholders.select_materials')
-                            }}
-                        </div>
-                        <div
-                            v-if="materialsDropdownOpen"
-                            class="dropdown-options form-control"
-                        >
-                            <div
-                                v-for="material in materials"
-                                :key="material.id"
-                                class="option-item"
-                            >
-                                <UInput
-                                    :id="'material-' + material.id"
-                                    type="checkbox"
-                                    :value="material.id"
-                                />
-                                <label :for="'material-' + material.id">
-                                    {{
-                                        $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
-                                    }}
-                                </label>
-                            </div>
-                        </div>
-                        <div v-if="errors.materials_ids" class="error-message">
-                            {{ errors.materials_ids }}
-                        </div>
+                    <label class="form-label">
+                        {{ $t('admin_gallery_form.labels.materials') }}
+                        <span class="required">{{ isMaterialsRequired ? '*' : '' }}</span>
+                    </label>
+                    <USelect
+                        v-model="work.materials_ids"
+                        :items="materialOptions"
+                        multiple
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.materials_ids }"
+                        :placeholder="
+                            $t('admin_gallery_form.placeholders.select_materials')
+                        "
+                        @blur="validateField('materials_ids')"
+                    />
+                    <div v-if="errors.materials_ids" class="error-message">
+                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
@@ -304,12 +267,12 @@
                     <label class="form-label">{{
                         $t('admin_gallery_form.labels.description')
                     }}</label>
-                    <textarea
+                    <UTextarea
                         v-model="work.descr"
-                        class="form-control textarea"
+                        class="form-control"
                         :placeholder="$t('admin_gallery_form.placeholders.description')"
-                        rows="4"
-                        maxlength="500"
+                        :rows="4"
+                        :maxlength="500"
                     />
                     <div class="char-count">{{ work.descr.length }}/500</div>
                 </div>
@@ -326,22 +289,16 @@
                         <span class="required">*</span></label
                     >
                     <USelect
-                        v-model.number="work.type"
+                        v-model="work.type"
+                        :items="workTypeOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.work_type }"
+                        :placeholder="
+                            $t('admin_gallery_form.placeholders.select_work_type')
+                        "
                         @blur="validateField('work_type')"
-                    >
-                        <option value="1" selected>
-                            {{ $t('admin_gallery_form.work_types.painting') }}
-                        </option>
-                        <option value="2">
-                            {{ $t('admin_gallery_form.work_types.illustration') }}
-                        </option>
-                        <option value="3">
-                            {{ $t('admin_gallery_form.work_types.3d') }}
-                        </option>
-                    </USelect>
+                    />
                     <div v-if="errors.work_type" class="error-message">
                         {{ errors.work_type }}
                     </div>
@@ -368,401 +325,383 @@
                 </UButton>
             </div>
         </form>
-
-        <!-- Toast notifications are handled via useToast() -->
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import type { CreateWorkDto, RequestResult } from '../../types';
-import { useToast } from '@nuxt/ui/runtime/composables/index.js';
 import { useMaterialStore } from '../../stores/MaterialStore';
 
-export default defineComponent({
-    name: 'AddWork',
-    data() {
-        return {
-            work: {
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [] as number[],
-                descr: '',
-                images: [] as string[],
-                type: 1,
-            } as CreateWorkDto,
-            files: [] as File[],
-            previewImages: [] as { file: File; preview: string }[],
-            isSubmitting: false,
-            isLoading: true,
-            loadError: null as string | null,
-            requestResult: 'unknown' as RequestResult,
-            materialsDropdownOpen: false,
-            basesDropdownOpen: false,
-            isDragOver: false,
-            fileError: null as string | null,
-            errors: {
-                name_ru: '',
-                name_en: '',
-                width: '',
-                height: '',
-                year: '',
-                base_id: '',
-                materials_ids: '',
-                work_type: '',
-            } as Record<string, string>,
-            errorMessage: '',
-            serverUrl: '',
-            materialStore: null as ReturnType<typeof useMaterialStore> | null,
+const { t, locale } = useI18n();
+const toast = useToast();
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
+const materialStore = useMaterialStore();
+
+// Reactive state
+const work = reactive<CreateWorkDto>({
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
+    name_ru: '',
+    name_en: '',
+    base_id: (null as unknown) as number,
+    materials_ids: [],
+    descr: '',
+    images: [],
+    type: 1,
+});
+
+const files = ref<File[]>([]);
+const previewImages = ref<{ file: File; preview: string }[]>([]);
+const isSubmitting = ref(false);
+const isLoading = ref(true);
+const loadError = ref<string | null>(null);
+const requestResult = ref<RequestResult>('unknown');
+const isDragOver = ref(false);
+const fileError = ref<string | null>(null);
+const errorMessage = ref('');
+
+const errors = reactive<Record<string, string>>({
+    name_ru: '',
+    name_en: '',
+    width: '',
+    height: '',
+    year: '',
+    base_id: '',
+    materials_ids: '',
+    work_type: '',
+});
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+// Computed
+const bases = computed(() => materialStore.bases);
+const materials = computed(() => materialStore.materials);
+
+const baseOptions = computed(() => {
+    const options = bases.value.map((base) => ({
+        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        value: base.id,
+    }));
+    return [...options];
+});
+
+const workTypeOptions = computed(() => {
+    return [
+        { label: t('admin_gallery_form.work_types.painting'), value: 1 },
+        { label: t('admin_gallery_form.work_types.illustration'), value: 2 },
+        { label: t('admin_gallery_form.work_types.3d'), value: 3 },
+    ];
+});
+
+const materialOptions = computed(() => {
+    return materials.value.map((material) => ({
+        label: locale.value === 'ru' ? material.material_ru : material.material_en,
+        value: material.id,
+    }));
+});
+
+const isFormValid = computed(() => {
+    return (
+        work.name_ru.trim() !== '' &&
+        work.name_en.trim() !== '' &&
+        work.width > 0 &&
+        work.height > 0 &&
+        work.year >= 2000 &&
+        work.year <= new Date().getFullYear() &&
+        work.base_id !== null &&
+        work.base_id > 0 &&
+        (work.type < 3
+            ? work.materials_ids.length > 0
+            : work.materials_ids.length === 0) &&
+        files.value.length > 0 &&
+        work.type > 0
+    );
+});
+
+const units = computed(() => {
+    return work.type <= 1
+        ? t('admin_gallery_form.units.cm')
+        : t('admin_gallery_form.units.px');
+});
+
+const isMaterialsRequired = computed(() => {
+    return work.type === 1 || work.type === 2;
+});
+
+// Methods
+function handleDragOver() {
+    isDragOver.value = true;
+}
+
+function handleDragLeave() {
+    isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent) {
+    isDragOver.value = false;
+    if (event.dataTransfer && event.dataTransfer.files.length) {
+        const droppedFiles = Array.from(event.dataTransfer.files);
+        addImages(droppedFiles);
+    }
+}
+
+function triggerFileInput() {
+    fileInput.value?.click();
+}
+
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length) {
+        const selectedFiles = Array.from(target.files);
+        addImages(selectedFiles);
+    }
+}
+
+function addImages(selectedFiles: File[]) {
+    fileError.value = null;
+
+    // Check max file count
+    if (files.value.length + selectedFiles.length > 10) {
+        fileError.value = t('admin_gallery_form.errors.max_files');
+        return;
+    }
+
+    // Check file types
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+
+    if (invalidFiles.length > 0) {
+        fileError.value = t('admin_gallery_form.errors.invalid_file_type');
+        return;
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+
+    if (largeFiles.length > 0) {
+        fileError.value = t('admin_gallery_form.errors.file_size');
+        return;
+    }
+
+    // Add new files
+    files.value = [...files.value, ...selectedFiles];
+    work.images = files.value.map((file) => file.name);
+
+    // Create previews for new images
+    selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+            });
         };
-    },
-    computed: {
-        bases() {
-            return this.materialStore?.bases ?? [];
-        },
-        materials() {
-            return this.materialStore?.materials ?? [];
-        },
-        selectedMaterialsDisplay() {
-            if (this.work.materials_ids.length === 0) return '';
-            const selectedNames = (this.materialStore?.materials ?? [])
-                .filter((material) => this.work.materials_ids.includes(material.id))
-                .map((material) =>
-                    this.$i18n.locale === 'ru'
-                        ? material.material_ru
-                        : material.material_en
-                );
-            return selectedNames.join(', ');
-        },
-        isFormValid() {
-            return (
-                this.work.name_ru.trim() !== '' &&
-                this.work.name_en.trim() !== '' &&
-                this.work.width > 0 &&
-                this.work.height > 0 &&
-                this.work.year >= 2000 &&
-                this.work.year <= new Date().getFullYear() &&
-                this.work.base_id > 0 &&
-                (this.work.type < 3
-                    ? this.work.materials_ids.length > 0
-                    : this.work.materials_ids.length == 0) &&
-                this.files.length > 0 &&
-                this.work.type > 0
-            );
-        },
-        units(): string {
-            return this.work.type <= 1
-                ? this.$t('admin_gallery_form.units.cm')
-                : this.$t('admin_gallery_form.units.px');
-        },
-        isMaterialsRequired() {
-            return this.work.type === 1 || this.work.type === 2;
-        },
-    },
-    created() {
-        const config = useRuntimeConfig();
-        this.serverUrl = config.public.serverUrl;
-        this.materialStore = useMaterialStore();
-        if (
-            this.materialStore?.materials.length === 0 ||
-            this.materialStore?.bases.length === 0
-        ) {
-            this.materialStore?.fetchAll();
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeImage(index: number) {
+    previewImages.value.splice(index, 1);
+    files.value.splice(index, 1);
+    work.images.splice(index, 1);
+}
+
+function validateField(fieldName: string) {
+    switch (fieldName) {
+        case 'name_ru':
+            if (!work.name_ru.trim()) {
+                errors.name_ru = t('admin_gallery_form.errors.name_ru_required');
+            } else {
+                errors.name_ru = '';
+            }
+            break;
+        case 'name_en':
+            if (!work.name_en.trim()) {
+                errors.name_en = t('admin_gallery_form.errors.name_en_required');
+            } else {
+                errors.name_en = '';
+            }
+            break;
+        case 'width':
+            if (work.width <= 0) {
+                errors.width = t('admin_gallery_form.errors.width_required');
+            } else {
+                errors.width = '';
+            }
+            break;
+        case 'height':
+            if (work.height <= 0) {
+                errors.height = t('admin_gallery_form.errors.height_required');
+            } else {
+                errors.height = '';
+            }
+            break;
+        case 'year':
+            if (work.year < 2000 || work.year > new Date().getFullYear()) {
+                errors.year = t('admin_gallery_form.errors.year_range', {
+                    year: new Date().getFullYear(),
+                });
+            } else {
+                errors.year = '';
+            }
+            break;
+        case 'base_id':
+            if (work.base_id === null || work.base_id <= 0) {
+                errors.base_id = t('admin_gallery_form.errors.base_required');
+            } else {
+                errors.base_id = '';
+            }
+            break;
+        case 'materials_ids':
+            if (work.materials_ids.length === 0) {
+                errors.materials_ids = t('admin_gallery_form.errors.materials_required');
+            } else {
+                errors.materials_ids = '';
+            }
+            break;
+        case 'work_type':
+            if (work.type <= 0) {
+                errors.work_type = t('admin_gallery_form.errors.work_type_required');
+            } else {
+                errors.work_type = '';
+            }
+            break;
+    }
+}
+
+function validateForm() {
+    validateField('name_ru');
+    validateField('name_en');
+    validateField('width');
+    validateField('height');
+    validateField('year');
+    validateField('base_id');
+    validateField('materials_ids');
+    validateField('work_type');
+
+    // Check images
+    if (files.value.length === 0) {
+        fileError.value = t('admin_gallery_form.errors.images_required');
+        return false;
+    }
+
+    // Check no errors
+    return Object.values(errors).every((error) => error === '');
+}
+
+async function submitForm() {
+    if (isSubmitting.value) return;
+
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        isSubmitting.value = true;
+        errorMessage.value = '';
+
+        // Build form data
+        const formData = new FormData();
+
+        // Add files
+        files.value.forEach((file) => {
+            formData.append('images', file);
+        });
+
+        // Add other data
+        formData.append('data', JSON.stringify(work));
+
+        const response = await axios.post(SERVER_URL + 'works', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.status === 200) {
+            toast.add({
+                title: t('toast.success.title'),
+                description: t('toast.success.description'),
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
+            });
+            resetForm();
+        } else {
+            toast.add({
+                title: t('toast.error.title'),
+                description: t('toast.error.description'),
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
+            errorMessage.value = t('admin_gallery_form.messages.submit_failed');
         }
-    },
-    methods: {
-        handleDragOver() {
-            this.isDragOver = true;
-        },
-        handleDragLeave() {
-            this.isDragOver = false;
-        },
-        handleDrop(event: DragEvent) {
-            this.isDragOver = false;
-            if (event.dataTransfer && event.dataTransfer.files.length) {
-                const files = Array.from(event.dataTransfer.files);
-                this.addImages(files);
-            }
-        },
-        triggerFileInput() {
-            (this.$refs.fileInput as HTMLInputElement)?.click();
-        },
-        handleFileUpload(event: Event) {
-            const target = event.target as HTMLInputElement;
-            if (target.files && target.files.length) {
-                const files = Array.from(target.files);
-                this.addImages(files);
-            }
-        },
-        addImages(selectedFiles: File[]) {
-            this.fileError = null;
+    } catch (error: any) {
+        console.error('Error submitting form:', error);
+        let description = t('toast.error.description');
+        if (error.response?.status === 413) {
+            description = t('admin_gallery_form.messages.file_too_large');
+        } else if (error.response?.status === 400) {
+            description = t('admin_gallery_form.messages.invalid_data');
+        } else {
+            description = t('admin_gallery_form.messages.general_error');
+        }
+        toast.add({
+            title: t('toast.error.title'),
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
+    } finally {
+        isSubmitting.value = false;
+    }
+}
 
-            // Проверка на количество файлов
-            if (this.files.length + selectedFiles.length > 10) {
-                this.fileError = this.$t('admin_gallery_form.errors.max_files');
-                return;
-            }
+function resetForm() {
+    work.width = 0;
+    work.height = 0;
+    work.year = new Date().getFullYear();
+    work.name_ru = '';
+    work.name_en = '';
+    work.base_id = (null as unknown) as number;
+    work.materials_ids = [];
+    work.descr = '';
+    work.type = 1;
+    work.images = [];
 
-            // Проверка типов файлов
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            const invalidFiles = selectedFiles.filter(
-                (file) => !validTypes.includes(file.type)
-            );
+    files.value = [];
+    previewImages.value = [];
 
-            if (invalidFiles.length > 0) {
-                this.fileError = this.$t('admin_gallery_form.errors.invalid_file_type');
-                return;
-            }
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
 
-            // Проверка размера файлов (макс. 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    // Reset errors
+    Object.keys(errors).forEach((key) => {
+        errors[key] = '';
+    });
+    fileError.value = null;
+}
 
-            if (largeFiles.length > 0) {
-                this.fileError = this.$t('admin_gallery_form.errors.file_size');
-                return;
-            }
-
-            // Добавляем новые файлы
-            this.files = [...this.files, ...selectedFiles];
-            this.work.images = this.files.map((file) => file.name);
-
-            // Создаем превью для новых изображений
-            selectedFiles.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previewImages.push({
-                        file,
-                        preview: e.target?.result as string,
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-        },
-        removeImage(index: number) {
-            this.previewImages.splice(index, 1);
-            this.files.splice(index, 1);
-            this.work.images.splice(index, 1);
-        },
-        validateField(fieldName: string) {
-            switch (fieldName) {
-                case 'name_ru':
-                    if (!this.work.name_ru.trim()) {
-                        this.errors.name_ru = this.$t(
-                            'admin_gallery_form.errors.name_ru_required'
-                        );
-                    } else {
-                        this.errors.name_ru = '';
-                    }
-                    break;
-                case 'name_en':
-                    if (!this.work.name_en.trim()) {
-                        this.errors.name_en = this.$t(
-                            'admin_gallery_form.errors.name_en_required'
-                        );
-                    } else {
-                        this.errors.name_en = '';
-                    }
-                    break;
-                case 'width':
-                    if (this.work.width <= 0) {
-                        this.errors.width = this.$t(
-                            'admin_gallery_form.errors.width_required'
-                        );
-                    } else {
-                        this.errors.width = '';
-                    }
-                    break;
-                case 'height':
-                    if (this.work.height <= 0) {
-                        this.errors.height = this.$t(
-                            'admin_gallery_form.errors.height_required'
-                        );
-                    } else {
-                        this.errors.height = '';
-                    }
-                    break;
-                case 'year':
-                    if (
-                        this.work.year < 2000 ||
-                        this.work.year > new Date().getFullYear()
-                    ) {
-                        this.errors.year = this.$t(
-                            'admin_gallery_form.errors.year_range',
-                            { year: new Date().getFullYear() }
-                        );
-                    } else {
-                        this.errors.year = '';
-                    }
-                    break;
-                case 'base_id':
-                    if (this.work.base_id <= 0) {
-                        this.errors.base_id = this.$t(
-                            'admin_gallery_form.errors.base_required'
-                        );
-                    } else {
-                        this.errors.base_id = '';
-                    }
-                    break;
-                case 'materials_ids':
-                    if (this.work.materials_ids.length === 0) {
-                        this.errors.materials_ids = this.$t(
-                            'admin_gallery_form.errors.materials_required'
-                        );
-                    } else {
-                        this.errors.materials_ids = '';
-                    }
-                    break;
-                case 'work_type':
-                    if (this.work.type < 0) {
-                        this.errors.work_type = this.$t(
-                            'admin_gallery_form.errors.work_type_required'
-                        );
-                    } else {
-                        this.errors.work_type = '';
-                    }
-                    break;
-            }
-        },
-        validateForm() {
-            this.validateField('name_ru');
-            this.validateField('name_en');
-            this.validateField('width');
-            this.validateField('height');
-            this.validateField('year');
-            this.validateField('base_id');
-            this.validateField('materials_ids');
-            this.validateField('work_type');
-
-            // Проверка наличия изображений
-            if (this.files.length === 0) {
-                this.fileError = this.$t('admin_gallery_form.errors.images_required');
-                return false;
-            }
-
-            // Проверка отсутствия ошибок
-            return Object.values(this.errors).every((error) => error === '');
-        },
-        async submitForm() {
-            if (this.isSubmitting) return;
-
-            if (!this.validateForm()) {
-                return;
-            }
-
-            try {
-                this.isSubmitting = true;
-                this.errorMessage = '';
-
-                // Формируем данные для отправки
-                const formData = new FormData();
-
-                // Добавляем файлы
-                this.files.forEach((file) => {
-                    formData.append('images', file);
-                });
-
-                // Добавляем остальные данные
-                const workData = {
-                    ...this.work,
-                };
-
-                formData.append('data', JSON.stringify(workData));
-
-                const response = await axios.post(this.serverUrl + 'works', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                if (response.status === 200) {
-                    const toast = useToast();
-                    toast.add({
-                        title: this.$t('toast.success.title'),
-                        description: this.$t('toast.success.description'),
-                        icon: 'i-heroicons-check-circle',
-                        color: 'success',
-                        duration: 5000,
-                    });
-                    this.resetForm();
-                } else {
-                    const toast = useToast();
-                    toast.add({
-                        title: this.$t('toast.error.title'),
-                        description: this.$t('toast.error.description'),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'error',
-                        duration: 5000,
-                    });
-                    this.errorMessage = this.$t(
-                        'admin_gallery_form.messages.submit_failed'
-                    );
-                }
-            } catch (error: any) {
-                console.error('Error submitting form:', error);
-                const toast = useToast();
-                let description = this.$t('toast.error.description');
-                if (error.response?.status === 413) {
-                    description = this.$t('admin_gallery_form.messages.file_too_large');
-                } else if (error.response?.status === 400) {
-                    description = this.$t('admin_gallery_form.messages.invalid_data');
-                } else {
-                    description = this.$t('admin_gallery_form.messages.general_error');
-                }
-                toast.add({
-                    title: this.$t('toast.error.title'),
-                    description,
-                    icon: 'i-heroicons-exclamation-triangle',
-                    color: 'error',
-                    duration: 5000,
-                });
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-        resetForm() {
-            this.work = {
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                descr: '',
-                type: 0,
-                images: [],
-            };
-            this.files = [];
-            this.previewImages = [];
-            if (this.$refs.fileInput) {
-                (this.$refs.fileInput as HTMLInputElement).value = '';
-            }
-
-            // Сброс ошибок
-            Object.keys(this.errors).forEach((key) => {
-                this.errors[key] = '';
-            });
-            this.fileError = null;
-        },
-        materialsToggleDropdown() {
-            this.materialsDropdownOpen = !this.materialsDropdownOpen;
-        },
-        basesToggleDropdown() {
-            this.basesDropdownOpen = !this.basesDropdownOpen;
-        },
-    },
+// Lifecycle
+onMounted(async () => {
+    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+        await materialStore.fetchAll();
+    }
+    isLoading.value = false;
 });
 </script>
 
 <style scoped>
 select:has(option.placeholder:checked) {
-    color: red;
+    color: #999;
 }
 
 .add-work-container {
@@ -836,13 +775,28 @@ select:has(option.placeholder:checked) {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    min-height: 46px;
+    box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:hover {
+    border-color: #4a90e2;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Consistent placeholder color across all input fields */
+.form-control::placeholder,
+.form-control input::placeholder,
+.form-control [data-placeholder],
+.form-control [data-slot='placeholder'] {
+    color: #999 !important;
+    opacity: 1;
 }
 
 .is-invalid {
@@ -855,7 +809,7 @@ select:has(option.placeholder:checked) {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
+    padding-right: 2.5rem;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -974,11 +928,6 @@ select:has(option.placeholder:checked) {
     color: #666;
 }
 
-.textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
 .char-count {
     font-size: 0.875rem;
     color: #666;
@@ -1031,71 +980,6 @@ select:has(option.placeholder:checked) {
     background-color: #e0e0e0;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 1000;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
 }
 
 .error-message {
@@ -1160,12 +1044,6 @@ select:has(option.placeholder:checked) {
         width: 100%;
     }
 
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
-    }
-
     .page-title {
         font-size: 1.5rem;
     }
@@ -1173,65 +1051,5 @@ select:has(option.placeholder:checked) {
     .section-title {
         font-size: 1.2rem;
     }
-}
-
-.multi-select-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.select-display {
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    background-color: white;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
-}
-
-.select-display:hover {
-    border-color: #4a90e2;
-}
-
-.dropdown-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: white;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.option-item {
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.option-item:hover {
-    background-color: #f8f9fa;
-}
-
-.option-item input {
-    margin-right: 8px;
-}
-
-.arrow {
-    float: right;
-    transition: transform 0.3s;
-}
-
-.arrow-up {
-    transform: rotate(180deg);
 }
 </style>

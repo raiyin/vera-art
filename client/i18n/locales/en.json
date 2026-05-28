@@ -254,6 +254,7 @@
             "year": "For example: 2023",
             "select_base": "Select base",
             "select_materials": "Select materials",
+            "select_work_type": "Select work type",
             "description": "Brief description of the painting"
         },
         "work_types": {
