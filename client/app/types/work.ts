@@ -9,6 +9,7 @@ export interface CreateWorkDto {
     base_id: number
     materials_ids: number[]
     descr: string
+    descr_en: string
     type: number | null
     images: string[]
 }

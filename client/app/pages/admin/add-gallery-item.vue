@@ -265,7 +265,7 @@
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description')
+                        $t('admin_gallery_form.labels.description_ru')
                     }}</label>
                     <UTextarea
                         v-model="work.descr"
@@ -275,6 +275,19 @@
                         :maxlength="500"
                     />
                     <div class="char-count">{{ work.descr.length }}/500</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{
+                        $t('admin_gallery_form.labels.description_en')
+                    }}</label>
+                    <UTextarea
+                        v-model="work.descr_en"
+                        class="form-control"
+                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :rows="4"
+                        :maxlength="500"
+                    />
+                    <div class="char-count">{{ work.descr_en.length }}/500</div>
                 </div>
             </div>
 
@@ -351,6 +364,7 @@ const work = reactive<CreateWorkDto>({
     base_id: (null as unknown) as number,
     materials_ids: [],
     descr: '',
+    descr_en: '',
     images: [],
     type: null,
 });
@@ -671,6 +685,7 @@ function resetForm() {
     work.base_id = (null as unknown) as number;
     work.materials_ids = [];
     work.descr = '';
+    work.descr_en = '';
     work.type = 0;
     work.images = [];
 

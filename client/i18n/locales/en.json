@@ -243,7 +243,8 @@
             "year": "Year of creation",
             "base": "Base",
             "materials": "Materials",
-            "description": "Description",
+            "description_en": "Description in English",
+            "description_ru": "Description in Russian",
             "work_type": "Work type"
         },
         "placeholders": {

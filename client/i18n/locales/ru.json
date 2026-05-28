@@ -243,7 +243,8 @@
             "year": "Год создания",
             "base": "Основа",
             "materials": "Материалы",
-            "description": "Описание",
+            "description_en": "Описание по английски",
+            "description_ru": "Описание по русски",
             "work_type": "Тип работы"
         },
         "placeholders": {
