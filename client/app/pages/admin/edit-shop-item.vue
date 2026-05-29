@@ -258,29 +258,13 @@
                     <label class="form-label">Основа <span class="required">*</span></label>
                     <USelect
                         v-model="sale.base_id"
+                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id, }"
-                        @blur="validateField('base_id',)"
-                    >
-                        <option
-                            value=""
-                            disabled
-                        >
-                            Выберите основу
-                        </option>
-                        <option
-                            v-for="base in bases"
-                            :key="base.id"
-                            :value="base.id"
-                        >
-                            {{
-                                $i18n.locale === 'ru'
-                                    ? `${base.base_ru}`
-                                    : `${base.base_en}`
-                            }}
-                        </option>
-                    </USelect>
+                        placeholder="Выберите основу"
+                        @blur="validateField('base_id')"
+                    />
                     <div
                         v-if="errors.base_id"
                         class="error-message"
@@ -387,30 +371,35 @@
 
         <!-- Success Alert -->
         <UAlert
-            v-model="showSuccessAlert"
-            type="success"
+            v-if="showSuccessAlert"
             title="Успешно!"
-            message="Работа успешно обновлена в магазине."
-            close-button-text="Закрыть"
+            description="Работа успешно обновлена в магазине."
+            color="success"
+            icon="i-heroicons-check-circle"
+            closable
+            @close="showSuccessAlert = false"
         />
 
         <!-- Danger Alert -->
         <UAlert
-            v-model="showErrorAlert"
-            type="danger"
+            v-if="showErrorAlert"
             title="Ошибка!"
-            :message="
+            :description="
                 errorMessage
                     || 'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
             "
-            close-button-text="Закрыть"
+            color="error"
+            icon="i-heroicons-exclamation-triangle"
+            closable
+            @close="showErrorAlert = false"
         />
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
-import { defineComponent, } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import type {
     UpdateSaleRequest,
     UpdateSaleResponse,
@@ -418,531 +407,436 @@ import type {
 } from '../../types';
 import { useMaterialStore } from '../../stores/MaterialStore';
 
-
+const route = useRoute();
+const { locale } = useI18n();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 const materialStore = useMaterialStore();
 
-export default defineComponent({
-    name: 'EditShopItemView',
-    data() {
-        return {
-            sale: {
-                id: 0,
-                str_id: '',
-                dir: '',
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                descr: '',
-                price: 0,
-                materials_ids: [] as number[],
-                images: [] as string[],
-            } as UpdateSaleResponse,
-            // Для сброса формы
-            originalSale: {
-                id: 0,
-                str_id: '',
-                dir: '',
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                year: new Date().getFullYear(),
-                descr: '',
-                width: 0,
-                height: 0,
-                price: 0,
-                images: [] as string[],
-                materials_ids: [] as number[],
-            } as UpdateSaleResponse,
-            addedFiles: [] as File[],
-            previewImages: [] as {
-                file?: File
-                preview: string
-                isExisting?: boolean
-                filename?: string
-            }[],
-            imagesToDelete: [] as string[], // Track existing images to delete
-            isSubmitting: false,
-            isLoading: true,
-            loadError: null as string | null,
-            requestResult: 'unknown' as RequestResult,
-            materialsDropdownOpen: false,
-            basesDropdownOpen: false,
-            isDragOver: false,
-            fileError: null as string | null,
-            errors: {
-                name_ru: '',
-                name_en: '',
-                width: '',
-                height: '',
-                year: '',
-                price: '',
-                base_id: '',
-                materials_ids: '',
-            } as Record<string, string>,
-            errorMessage: '',
-            showSuccessAlert: false,
-            showErrorAlert: false,
-            successAlertTimeout: null as ReturnType<typeof setTimeout> | null,
-            errorAlertTimeout: null as ReturnType<typeof setTimeout> | null,
+// Reactive state
+const sale = reactive<UpdateSaleResponse>({
+    id: 0,
+    str_id: '',
+    dir: '',
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
+    name_ru: '',
+    name_en: '',
+    base_id: 0,
+    descr: '',
+    price: 0,
+    materials_ids: [],
+    images: [],
+});
+
+const originalSale = reactive<UpdateSaleResponse>({
+    id: 0,
+    str_id: '',
+    dir: '',
+    name_ru: '',
+    name_en: '',
+    base_id: 0,
+    year: new Date().getFullYear(),
+    descr: '',
+    width: 0,
+    height: 0,
+    price: 0,
+    images: [],
+    materials_ids: [],
+});
+
+const addedFiles = ref<File[]>([]);
+const previewImages = ref<{ file?: File; preview: string; isExisting?: boolean; filename?: string }[]>([]);
+const imagesToDelete = ref<string[]>([]);
+const isSubmitting = ref(false);
+const isLoading = ref(true);
+const loadError = ref<string | null>(null);
+const requestResult = ref<RequestResult>('unknown');
+const materialsDropdownOpen = ref(false);
+const basesDropdownOpen = ref(false);
+const isDragOver = ref(false);
+const fileError = ref<string | null>(null);
+const errorMessage = ref('');
+const showSuccessAlert = ref(false);
+const showErrorAlert = ref(false);
+
+const errors = reactive<Record<string, string>>({
+    name_ru: '',
+    name_en: '',
+    width: '',
+    height: '',
+    year: '',
+    price: '',
+    base_id: '',
+    materials_ids: '',
+});
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+// Computed
+const bases = computed(() => materialStore.bases);
+const materials = computed(() => materialStore.materials);
+
+const baseOptions = computed(() => {
+    return bases.value.map((base) => ({
+        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        value: base.id,
+    }));
+});
+
+const selectedMaterialsDisplay = computed(() => {
+    if (sale.materials_ids.length === 0) return '';
+    const selectedNames = materialStore.materials
+        .filter(material => sale.materials_ids.includes(material.id))
+        .map(material =>
+            locale.value === 'ru' ? material.material_ru : material.material_en
+        );
+    return selectedNames.join(', ');
+});
+
+const isFormValid = computed(() => {
+    return (
+        sale.name_ru.trim() !== ''
+        && sale.name_en.trim() !== ''
+        && sale.width > 0
+        && sale.height > 0
+        && sale.year >= 2000
+        && sale.year <= new Date().getFullYear()
+        && sale.price > 0
+        && sale.base_id > 0
+        && sale.materials_ids.length > 0
+    );
+});
+
+// Methods
+async function loadSale() {
+    try {
+        const id = route.params.id;
+        const response = await axios.get(`${SERVER_URL}sales/${id}/edit`);
+        Object.assign(sale, response.data);
+        Object.assign(originalSale, { ...response.data });
+        loadPreviewImages();
+        isLoading.value = false;
+    } catch (error) {
+        console.error('Ошибка при загрузке работы:', error);
+        loadError.value = 'Не удалось загрузить работу';
+        isLoading.value = false;
+        showErrorAlert.value = true;
+        errorMessage.value = 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+    }
+}
+
+function loadPreviewImages() {
+    previewImages.value = [];
+    for (let i = 0; i < sale.images.length; i++) {
+        const imageUrl = `${sale.dir}${sale.images[i]}`;
+        previewImages.value.push({
+            preview: imageUrl,
+            filename: sale.images[i],
+        });
+    }
+}
+
+function handleDragOver() {
+    isDragOver.value = true;
+}
+
+function handleDragLeave() {
+    isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent) {
+    isDragOver.value = false;
+    if (event.dataTransfer && event.dataTransfer.files.length) {
+        const files = Array.from(event.dataTransfer.files);
+        addImages(files);
+    }
+}
+
+function triggerFileInput() {
+    fileInput.value?.click();
+}
+
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length) {
+        const files = Array.from(target.files);
+        addImages(files);
+    }
+}
+
+function addImages(selectedFiles: File[]) {
+    fileError.value = null;
+
+    if (addedFiles.value.length + selectedFiles.length > 10) {
+        fileError.value = 'Можно загрузить не более 10 изображений';
+        return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = selectedFiles.filter(
+        (file) => !validTypes.includes(file.type)
+    );
+
+    if (invalidFiles.length > 0) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    const largeFiles = selectedFiles.filter(file => file.size > maxSize);
+
+    if (largeFiles.length > 0) {
+        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
+        return;
+    }
+
+    addedFiles.value = [...addedFiles.value, ...selectedFiles];
+
+    selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+                filename: file.name,
+            });
         };
-    },
-    computed: {
-        bases() {
-            return materialStore.bases;
-        },
-        materials() {
-            return materialStore.materials;
-        },
-        selectedMaterialsDisplay() {
-            if (this.sale.materials_ids.length === 0) return '';
-            const selectedNames = materialStore.materials
-                .filter(material => this.sale.materials_ids.includes(material.id,),)
-                .map(material =>
-                    this.$i18n.locale === 'ru'
-                        ? material.material_ru
-                        : material.material_en,
-                    );
-            return selectedNames.join(', ',);
-        },
-        isFormValid() {
-            return (
-                this.sale.name_ru.trim() !== ''
-                    && this.sale.name_en.trim() !== ''
-                && this.sale.width > 0
-                    && this.sale.height > 0
-                && this.sale.year >= 2000
-                    && this.sale.year <= new Date().getFullYear()
-                && this.sale.price > 0
-                    && this.sale.base_id > 0
-                    && this.sale.materials_ids.length > 0
-            );
-        },
-    },
-        async created() {
-            // Wait for reference data to load from the store
-            if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-                await materialStore.fetchAll();
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeImage(index: number) {
+    const imageToRemove = previewImages.value[index];
+    if (!imageToRemove) return;
+
+    if (imageToRemove.file) {
+        const fileIndex = addedFiles.value.indexOf(imageToRemove.file);
+        if (fileIndex > -1) {
+            addedFiles.value.splice(fileIndex, 1);
+        }
+    }
+
+    previewImages.value.splice(index, 1);
+}
+
+function validateField(fieldName: string) {
+    switch (fieldName) {
+        case 'name_ru':
+            if (!sale.name_ru.trim()) {
+                errors.name_ru = 'Пожалуйста, введите название на русском';
+            } else {
+                errors.name_ru = '';
             }
-            await this.loadSale();
-        },
-        beforeUnmount() {
-            // Clear any pending timeouts when component is destroyed
-            if (this.successAlertTimeout) {
-                clearTimeout(this.successAlertTimeout,);
-                this.successAlertTimeout = null;
+            break;
+        case 'name_en':
+            if (!sale.name_en.trim()) {
+                errors.name_en = 'Пожалуйста, введите название на английском';
+            } else {
+                errors.name_en = '';
             }
-            if (this.errorAlertTimeout) {
-                clearTimeout(this.errorAlertTimeout,);
-                this.errorAlertTimeout = null;
+            break;
+        case 'width':
+            if (sale.width <= 0) {
+                errors.width = 'Ширина должна быть больше 0';
+            } else {
+                errors.width = '';
             }
-        },
-        methods: {
-            async loadSale() {
-                try {
-                    const id = this.$route.params.id;
-                    const response = await axios.get(`${SERVER_URL}sales/${id}/edit`,);
-                    this.sale = response.data;
-                    this.originalSale = { ...response.data, };
+            break;
+        case 'height':
+            if (sale.height <= 0) {
+                errors.height = 'Высота должна быть больше 0';
+            } else {
+                errors.height = '';
+            }
+            break;
+        case 'year':
+            if (
+                sale.year < 2000
+                || sale.year > new Date().getFullYear()
+            ) {
+                errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+            } else {
+                errors.year = '';
+            }
+            break;
+        case 'price':
+            if (sale.price <= 0) {
+                errors.price = 'Цена должна быть больше 0';
+            } else {
+                errors.price = '';
+            }
+            break;
+        case 'base_id':
+            if (sale.base_id <= 0) {
+                errors.base_id = 'Пожалуйста, выберите основу';
+            } else {
+                errors.base_id = '';
+            }
+            break;
+        case 'materials_ids':
+            if (sale.materials_ids.length === 0) {
+                errors.materials_ids = 'Пожалуйста, выберите хотя бы один материал';
+            } else {
+                errors.materials_ids = '';
+            }
+            break;
+    }
+}
 
-                    // Load existing images as previews
-                    this.loadPreviewImages();
+function validateForm() {
+    validateField('name_ru');
+    validateField('name_en');
+    validateField('width');
+    validateField('height');
+    validateField('year');
+    validateField('base_id');
+    validateField('materials_ids');
+    validateField('price');
 
-                    this.isLoading = false;
-                } catch (error) {
-                    console.error('Ошибка при загрузке работы:', error,);
-                    this.loadError = 'Не удалось загрузить работу';
-                    this.isLoading = false;
-                    this.showErrorAlertWithTimeout(
-                        'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                    );
-                }
-            },
-            loadPreviewImages() {
-                this.previewImages = [];
-                for (let i = 0; i < this.sale.images.length; i++) {
-                    const imageUrl = `${this.sale.dir}${this.sale.images[i]}`;
-                    this.previewImages.push({
-                        preview: imageUrl,
-                        filename: this.sale.images[i],
-                    });
-                }
-            },
-            handleDragOver() {
-                this.isDragOver = true;
-            },
-            handleDragLeave() {
-                this.isDragOver = false;
-            },
-            handleDrop(event: DragEvent,) {
-                this.isDragOver = false;
-                if (event.dataTransfer && event.dataTransfer.files.length) {
-                    const files = Array.from(event.dataTransfer.files,);
-                    this.addImages(files,);
-                }
-            },
-            triggerFileInput() {
-                (this.$refs.fileInput as HTMLInputElement)?.click();
-            },
-            handleFileUpload(event: Event,) {
-                const target = event.target as HTMLInputElement;
-                if (target.files && target.files.length) {
-                    const files = Array.from(target.files,);
-                    this.addImages(files,);
-                }
-            },
-            addImages(selectedFiles: File[],) {
-                this.fileError = null;
+    return Object.values(errors).every(error => error === '');
+}
 
-                // Проверка на количество файлов
-                if (this.addedFiles.length + selectedFiles.length > 10) {
-                    this.fileError = 'Можно загрузить не более 10 изображений';
-                    return;
-                }
+async function submitForm() {
+    if (isSubmitting.value) return;
 
-                // Проверка типов файлов
-                const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
-                const invalidFiles = selectedFiles.filter(
-                    (file,) => !validTypes.includes(file.type,),
-            );
+    if (!validateForm()) {
+        return;
+    }
 
-                if (invalidFiles.length > 0) {
-                    this.fileError
-                    = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                    return;
-                }
+    try {
+        isSubmitting.value = true;
+        errorMessage.value = '';
 
-                // Проверка размера файлов (макс. 5MB)
-                const maxSize = 5 * 1024 * 1024; // 5MB
-                const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
+        const formData = new FormData();
 
-                if (largeFiles.length > 0) {
-                    this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
-                    return;
-                }
+        const finalImages: string[] = [];
 
-                // Добавляем новые файлы
-                this.addedFiles = [...this.addedFiles, ...selectedFiles,];
+        for (const imageName of sale.images) {
+            finalImages.push(imageName);
+        }
 
-                // Создаем превью для новых изображений
-                selectedFiles.forEach((file,) => {
-                    const reader = new FileReader();
-                    reader.onload = (e,) => {
-                        this.previewImages.push({
-                            file,
-                            preview: e.target?.result as string,
-                            filename: file.name,
-                        });
-                    };
-                    reader.readAsDataURL(file,);
-                });
-            },
-            removeImage(index: number,) {
-                const imageToRemove = this.previewImages[index];
-                if (!imageToRemove) return;
+        for (const file of addedFiles.value) {
+            finalImages.push(file.name);
+        }
 
-                // if (imageToRemove.isExisting && imageToRemove.filename) {
-                //     // Mark existing image for deletion
-                //     if (!this.imagesToDelete.includes(imageToRemove.filename)) {
-                //         this.imagesToDelete.push(imageToRemove.filename);
-                //     }
-                // } else
-                if (imageToRemove.file) {
-                    // Remove from files array if it's a newly uploaded file
-                    const fileIndex = this.addedFiles.indexOf(imageToRemove.file,);
-                    if (fileIndex > -1) {
-                        this.addedFiles.splice(fileIndex, 1,);
-                    }
-                }
+        if (addedFiles.value.length > 0) {
+            addedFiles.value.forEach((file) => {
+                formData.append('images', file);
+            });
+        }
 
-                // Remove from preview images
-                this.previewImages.splice(index, 1,);
-            },
-            validateField(fieldName: string,) {
-                switch (fieldName) {
-            case 'name_ru':
-                if (!this.sale.name_ru.trim()) {
-                    this.errors.name_ru = 'Пожалуйста, введите название на русском';
-                } else {
-                    this.errors.name_ru = '';
-                }
-                break;
-            case 'name_en':
-                if (!this.sale.name_en.trim()) {
-                    this.errors.name_en
-                            = 'Пожалуйста, введите название на английском';
-                } else {
-                    this.errors.name_en = '';
-                }
-                break;
-            case 'width':
-                if (this.sale.width <= 0) {
-                    this.errors.width = 'Ширина должна быть больше 0';
-                } else {
-                    this.errors.width = '';
-                }
-                break;
-            case 'height':
-                if (this.sale.height <= 0) {
-                    this.errors.height = 'Высота должна быть больше 0';
-                } else {
-                    this.errors.height = '';
-                }
-                break;
-            case 'year':
-                if (
-                    this.sale.year < 2000
-                        || this.sale.year > new Date().getFullYear()
-                ) {
-                    this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
-                } else {
-                    this.errors.year = '';
-                }
-                break;
-            case 'price':
-                if (this.sale.price <= 0) {
-                    this.errors.price = 'Цена должна быть больше 0';
-                } else {
-                    this.errors.price = '';
-                }
-                break;
-            case 'base_id':
-                if (this.sale.base_id <= 0) {
-                    this.errors.base_id = 'Пожалуйста, выберите основу';
-                } else {
-                    this.errors.base_id = '';
-                }
-                break;
-            case 'materials_ids':
-                if (this.sale.materials_ids.length === 0) {
-                    this.errors.materials_ids
-                            = 'Пожалуйста, выберите хотя бы один материал';
-                } else {
-                    this.errors.materials_ids = '';
-                }
-                break;
-                }
-            },
-            validateForm() {
-                this.validateField('name_ru',);
-                this.validateField('name_en',);
-                this.validateField('width',);
-                this.validateField('height',);
-                this.validateField('year',);
-                this.validateField('base_id',);
-                this.validateField('materials_ids',);
-                this.validateField('price',);
+        let updatedImages: string[];
+        if (previewImages.value && previewImages.value.length > 0) {
+            updatedImages = previewImages.value
+                .map(image => image.filename)
+                .filter((filename): filename is string => !!filename);
+        } else {
+            updatedImages = [];
+        }
 
-                // Проверка отсутствия ошибок
-                return Object.values(this.errors,).every(error => error === '',);
-            },
-            async submitForm() {
-                if (this.isSubmitting) return;
+        const saleDataToUpdate: UpdateSaleRequest = {
+            ...sale,
+            images: updatedImages,
+        };
 
-                if (!this.validateForm()) {
-                    return;
-                }
+        formData.append('data', JSON.stringify(saleDataToUpdate));
 
-                try {
-                    this.isSubmitting = true;
-                    this.errorMessage = '';
+        const strId = route.params.id;
+        const response = await axios.put(
+            SERVER_URL + 'sales/' + strId,
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            }
+        );
 
-                    // Формируем данные для отправки
-                    const formData = new FormData();
+        if (response.status === 200) {
+            showSuccessAlert.value = true;
+            sale.images = finalImages;
+            imagesToDelete.value = [];
+            addedFiles.value = [];
+            Object.assign(originalSale, { ...sale });
+        } else {
+            showErrorAlert.value = true;
+            errorMessage.value = 'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
+        }
+    } catch (error: any) {
+        console.error('Error submitting form:', error);
+        let errorMsg = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
 
-                    // Добавляем файлы, если есть
-                    const finalImages: string[] = [];
+        if (error.response?.status === 413) {
+            errorMessage.value = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+        } else if (error.response?.status === 400) {
+            errorMessage.value = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+        } else {
+            errorMessage.value = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+        }
+        showErrorAlert.value = true;
+    } finally {
+        isSubmitting.value = false;
+    }
+}
 
-                    // Add existing images that are not marked for deletion
-                    for (const imageName of this.sale.images) {
-                        // if (!this.imagesToDelete.includes(imageName)) {
-                        finalImages.push(imageName,);
-                    // }
-                    }
+function resetForm() {
+    Object.assign(sale, { ...originalSale });
+    addedFiles.value = [];
+    previewImages.value = [];
+    imagesToDelete.value = [];
+    loadPreviewImages();
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
 
-                    // Add new image filenames (sanitized)
-                    for (const file of this.addedFiles) {
-                        finalImages.push(file.name,);
-                    }
+    Object.keys(errors).forEach((key) => {
+        errors[key] = '';
+    });
+    fileError.value = null;
+}
 
-                    // Добавляем файлы, если есть
-                    if (this.addedFiles.length > 0) {
-                        this.addedFiles.forEach((file,) => {
-                            formData.append('images', file,);
-                        });
-                    }
+function materialsToggleDropdown() {
+    materialsDropdownOpen.value = !materialsDropdownOpen.value;
+}
 
-                    let updatedImages: string[];
-                    if (this.previewImages && this.previewImages.length > 0) {
-                        updatedImages = this.previewImages
-                            .map(image => image.filename,)
-                            .filter((filename,): filename is string => !!filename,);
-                    } else {
-                        updatedImages = [];
-                    }
+function toggleMaterial(materialId: number, checked: boolean) {
+    if (checked) {
+        if (!sale.materials_ids.includes(materialId)) {
+            sale.materials_ids.push(materialId);
+        }
+    } else {
+        const index = sale.materials_ids.indexOf(materialId);
+        if (index > -1) {
+            sale.materials_ids.splice(index, 1);
+        }
+    }
+}
 
-                    // Добавляем остальные данные
-                    const saleDataToUpdate: UpdateSaleRequest = {
-                        ...this.sale,
-                        // images: finalImages,
-                        images: updatedImages,
-                    };
+function basesToggleDropdown() {
+    basesDropdownOpen.value = !basesDropdownOpen.value;
+}
 
-                    formData.append('data', JSON.stringify(saleDataToUpdate,),);
-
-                    const strId = this.$route.params.id;
-                    const response = await axios.put(
-                        SERVER_URL + 'sales/' + strId,
-                        formData,
-                        {
-                            headers: {
-                                'Content-Type': 'multipart/form-data',
-                                Authorization: `Bearer ${localStorage.getItem('token',)}`,
-                            },
-                        }
-                    );
-
-                    if (response.status === 200) {
-                        this.showSuccessAlertWithTimeout();
-                        // Update sale images with final list
-                        this.sale.images = finalImages;
-                        // Clear deletion list and files
-                        this.imagesToDelete = [];
-                        this.addedFiles = [];
-                        // Обновляем оригинальную работу
-                        this.originalSale = { ...this.sale, };
-                    } else {
-                        this.showErrorAlertWithTimeout(
-                            'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
-                        );
-                    }
-                } catch (error: any) {
-                    console.error('Error submitting form:', error,);
-                    let errorMsg
-                    = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-
-                    if (error.response?.status === 413) {
-                        this.errorMessage
-                        = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-                    } else if (error.response?.status === 400) {
-                        this.errorMessage
-                        = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                    } else {
-                        this.errorMessage
-                        = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-                    }
-                    this.showErrorAlertWithTimeout(errorMsg,);
-                } finally {
-                    this.isSubmitting = false;
-                }
-            },
-            resetForm() {
-                this.sale = { ...this.originalSale, };
-                this.addedFiles = [];
-                this.previewImages = [];
-                this.imagesToDelete = [];
-                this.loadPreviewImages();
-                if (this.$refs.fileInput) {
-                    (this.$refs.fileInput as HTMLInputElement).value = '';
-                }
-
-                // Сброс ошибок
-                Object.keys(this.errors,).forEach((key,) => {
-                    this.errors[key] = '';
-                });
-                this.fileError = null;
-            },
-            materialsToggleDropdown() {
-                this.materialsDropdownOpen = !this.materialsDropdownOpen;
-            },
-            toggleMaterial(materialId: number, checked: boolean,) {
-                if (checked) {
-                    if (!this.sale.materials_ids.includes(materialId,)) {
-                        this.sale.materials_ids.push(materialId,);
-                    }
-                } else {
-                    const index = this.sale.materials_ids.indexOf(materialId,);
-                    if (index > -1) {
-                        this.sale.materials_ids.splice(index, 1,);
-                    }
-                }
-            },
-            basesToggleDropdown() {
-                this.basesDropdownOpen = !this.basesDropdownOpen;
-            },
-            showSuccessAlertWithTimeout() {
-                // Clear any existing timeout
-                if (this.successAlertTimeout) {
-                    clearTimeout(this.successAlertTimeout,);
-                    this.successAlertTimeout = null;
-                }
-
-                // Show the alert
-                this.showSuccessAlert = true;
-
-                // Set timeout to hide after 5 seconds (5000 milliseconds)
-                this.successAlertTimeout = setTimeout(() => {
-                    this.showSuccessAlert = false;
-                    this.successAlertTimeout = null;
-                }, 5000,);
-            },
-
-            showErrorAlertWithTimeout(message?: string,) {
-                // Clear any existing timeout
-                if (this.errorAlertTimeout) {
-                    clearTimeout(this.errorAlertTimeout,);
-                    this.errorAlertTimeout = null;
-                }
-
-                // Set error message if provided
-                if (message) {
-                    this.errorMessage = message;
-                }
-
-                // Show the alert
-                this.showErrorAlert = true;
-
-                // Set timeout to hide after 5 seconds (5000 milliseconds)
-                this.errorAlertTimeout = setTimeout(() => {
-                    this.showErrorAlert = false;
-                    this.errorMessage = '';
-                    this.errorAlertTimeout = null;
-                }, 5000,);
-            },
-
-            closeAlert() {
-                // Clear timeouts
-                if (this.successAlertTimeout) {
-                    clearTimeout(this.successAlertTimeout,);
-                    this.successAlertTimeout = null;
-                }
-                if (this.errorAlertTimeout) {
-                    clearTimeout(this.errorAlertTimeout,);
-                    this.errorAlertTimeout = null;
-                }
-
-                // Hide alerts
-                this.showSuccessAlert = false;
-                this.showErrorAlert = false;
-                this.errorMessage = '';
-            },
-        },
+// Lifecycle
+onMounted(async () => {
+    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+        await materialStore.fetchAll();
+    }
+    await loadSale();
 });
 </script>
 
 <style scoped>
 select:has(option.placeholder:checked) {
-    color: red;
+    color: #999;
 }
 
 .edit-sale-container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 3rem auto;
+    padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -960,7 +854,7 @@ select:has(option.placeholder:checked) {
 }
 
 .page-subtitle {
-    color: #666;
+    color: #333;
     font-size: 1rem;
     margin: 0;
 }
@@ -1010,13 +904,28 @@ select:has(option.placeholder:checked) {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    min-height: 46px;
+    box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:hover {
+    border-color: #4a90e2;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Consistent placeholder color across all input fields */
+.form-control::placeholder,
+.form-control input::placeholder,
+.form-control [data-placeholder],
+.form-control [data-slot='placeholder'] {
+    color: #999 !important;
+    opacity: 1;
 }
 
 .is-invalid {
@@ -1207,71 +1116,6 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 1000;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
-}
-
 .error-message {
     color: #e74c3c;
     font-size: 0.875rem;
@@ -1332,12 +1176,6 @@ select:has(option.placeholder:checked) {
 
     .btn {
         width: 100%;
-    }
-
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
     }
 
     .page-title {

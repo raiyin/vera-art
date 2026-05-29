@@ -372,7 +372,7 @@
                 <div class="form-group">
                     <label class="form-label">Дата</label>
                     <UInput
-                        v-model="news.datetime.split('T')[0]"
+                        v-model="newsDate"
                         type="date"
                         required
                         min="2000-01-01"
@@ -444,582 +444,545 @@
 
         <!-- Success Alert -->
         <UAlert
-            v-model="showSuccessAlert"
-            type="success"
+            v-if="showSuccessAlert"
             title="Успешно!"
-            message="Новость успешно обновлена."
-            closeButtonText="Закрыть"
+            description="Новость успешно обновлена."
+            color="success"
+            icon="i-heroicons-check-circle"
+            closable
+            @close="showSuccessAlert = false"
         />
 
         <!-- Danger Alert -->
         <UAlert
-            v-model="showErrorAlert"
-            type="danger"
+            v-if="showErrorAlert"
             title="Ошибка!"
-            :message="
+            :description="
                 errorMessage ||
                 'Не удалось обновить новость. Пожалуйста, попробуйте снова.'
             "
-            closeButtonText="Закрыть"
+            color="error"
+            icon="i-heroicons-exclamation-triangle"
+            closable
+            @close="showErrorAlert = false"
         />
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import type { NewsDescDto } from '../../types';
+
+const route = useRoute();
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
 
 interface PreviewItem {
     file: File;
     preview: string;
 }
 
-
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-
-export default defineComponent({
-    name: 'EditNewsView',
-    data() {
-        return {
-            news: {
-                id: '',
-                title_en: '',
-                title_ru: '',
-                subTitle_en: '',
-                subTitle_ru: '',
-                img_back: '', // имя файла
-                img_backfull: '', // имя файла
-                datetime: '',
-                text_en: '',
-                text_ru: '',
-                dir: '',
-                images: [],
-                videos: [],
-            } as NewsDescDto,
-
-            // Для отправки файлов
-            images: [] as File[],
-            videos: [] as File[],
-
-            img_back_preview: null as PreviewItem | null,
-            img_backfull_preview: null as PreviewItem | null,
-
-            previewImages: [] as PreviewItem[],
-            previewVideos: [] as string[],
-
-            video_error: '',
-            previewWidth: 400,
-
-            isSubmitting: false,
-            errors: {
-                title_ru: '',
-                title_en: '',
-                subTitle_ru: '',
-                subTitle_en: '',
-                img_back: '',
-                img_backfull: '',
-                images: '',
-                text_ru: '',
-                text_en: '',
-            } as Record<string, string>,
-            fileError: null as string | null,
-            showSuccessAlert: false,
-            showErrorAlert: false,
-            errorMessage: '',
-            isDragOver: false,
-            isLoading: true,
-            originalNews: {} as NewsDescDto,
-        };
-    },
-    async created() {
-        await this.loadNews();
-    },
-    computed: {
-        isFormValid() {
-            return (
-                this.news.title_ru.trim() !== '' &&
-                this.news.title_en.trim() !== '' &&
-                this.news.subTitle_ru.trim() !== '' &&
-                this.news.subTitle_en.trim() !== '' &&
-                (this.img_back_preview !== null || this.news.img_back !== '') &&
-                (this.img_backfull_preview !== null || this.news.img_backfull !== '') &&
-                this.news.text_ru.trim() !== '' &&
-                this.news.text_en.trim() !== ''
-            );
-        },
-    },
-    methods: {
-        async loadNews() {
-            try {
-                const id = this.$route.params.id;
-                const response = await axios.get(SERVER_URL + 'news/' + id);
-                this.news = response.data;
-                this.originalNews = { ...response.data };
-
-                // Set up previews for existing images if they exist
-                if (this.news.img_back) {
-                    // For existing back image, we create a preview URL
-                    // In a real implementation, you would need to fetch the actual image
-                    // For now, we'll just set the flag to indicate it exists
-                    this.img_back_preview = {
-                        file: new File([], this.news.img_back),
-                        preview: `${this.news.dir}${this.news.img_back}`,
-                    };
-                }
-
-                if (this.news.img_backfull) {
-                    // For existing backfull image, we create a preview URL
-                    this.img_backfull_preview = {
-                        file: new File([], this.news.img_backfull),
-                        preview: `${this.news.dir}${this.news.img_backfull}`,
-                    };
-                }
-
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке новости:', error);
-                this.isLoading = false;
-                this.showErrorAlert = true;
-                this.errorMessage =
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
-            }
-        },
-        handleDragOver() {
-            this.isDragOver = true;
-        },
-        handleDragLeave() {
-            this.isDragOver = false;
-        },
-        handleDrop(event: DragEvent) {
-            this.isDragOver = false;
-            // Handle drop for different file inputs
-        },
-        triggerFileInput(refName: string) {
-            const input = this.$refs[refName] as HTMLInputElement;
-            if (input) {
-                input.click();
-            }
-        },
-        handleBackImageSelected(event: Event) {
-            const target = event.target as HTMLInputElement;
-            const selectedImage = target.files?.[0];
-
-            if (!selectedImage) return;
-
-            // Validate file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(selectedImage.type)) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                return;
-            }
-
-            // Validate file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (selectedImage.size > maxSize) {
-                this.fileError = 'Размер файла не должен превышать 5 МБ';
-                return;
-            }
-
-            // Store file object for form submission, but keep string for type compatibility
-            this.news.img_back = selectedImage.name;
-            this.fileError = null;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.img_back_preview = {
-                    file: selectedImage,
-                    preview: e.target?.result as string,
-                };
-            };
-            reader.readAsDataURL(selectedImage);
-        },
-
-        removeBackImage() {
-            this.img_back_preview = null;
-            this.news.img_back = '';
-        },
-
-        handleBackFullImageSelected(event: Event) {
-            const target = event.target as HTMLInputElement;
-            const selectedImage = target.files?.[0];
-
-            if (!selectedImage) return;
-
-            // Validate file type
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            if (!validTypes.includes(selectedImage.type)) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                return;
-            }
-
-            // Validate file size (max 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            if (selectedImage.size > maxSize) {
-                this.fileError = 'Размер файла не должен превышать 5 МБ';
-                return;
-            }
-
-            // Store file name for type compatibility, but keep file object for submission
-            this.news.img_backfull = selectedImage.name;
-            this.fileError = null;
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.img_backfull_preview = {
-                    file: selectedImage,
-                    preview: e.target?.result as string,
-                };
-            };
-            reader.readAsDataURL(selectedImage);
-        },
-
-        removeBackFullImage() {
-            this.img_backfull_preview = null;
-            this.news.img_backfull = '';
-        },
-
-        handleImagesSelected(event: Event) {
-            const target = event.target as HTMLInputElement;
-            const selectedFiles = Array.from(target.files || []);
-
-            // Проверка на количество файлов
-            if (this.images.length + selectedFiles.length > 10) {
-                this.fileError = 'Можно загрузить не более 10 изображений';
-                return;
-            }
-
-            // Проверка типов файлов
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            const invalidFiles = selectedFiles.filter(
-                (file) => !validTypes.includes(file.type)
-            );
-
-            if (invalidFiles.length > 0) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                return;
-            }
-
-            // Проверка размера файлов (макс. 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-            if (largeFiles.length > 0) {
-                this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
-                return;
-            }
-
-            this.fileError = null;
-
-            // Добавляем новые файлы
-            this.images = [...this.images, ...selectedFiles];
-
-            // Добавляем имена файлов в news.images
-            selectedFiles.forEach((file) => {
-                this.news.images.push(file.name);
-            });
-
-            // Создаем превью для новых изображений
-            selectedFiles.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previewImages.push({
-                        file,
-                        preview: e.target?.result as string,
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-        },
-
-        async handleVideosSelected(event: Event) {
-            const target = event.target as HTMLInputElement;
-            const files = target.files as FileList;
-            this.previewVideos.length = 0;
-            this.videos = [];
-
-            if (!files || files.length == 0) return;
-
-            // Validate file type
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!file) continue;
-                if (!file.type.startsWith('video/')) {
-                    this.fileError = 'Пожалуйста, выберите только видеофайлы';
-                    return;
-                }
-            }
-
-            // Validate file size (max 100MB)
-            const maxSize = 100 * 1024 * 1024;
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!file) continue;
-                if (file.size > maxSize) {
-                    this.fileError = 'Размер файла не должен превышать 100MB';
-                    return;
-                }
-            }
-
-            this.fileError = null;
-
-            // Populate both arrays
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                if (!file) continue;
-                this.videos.push(file);
-                this.news.videos.push(file.name);
-                this.previewVideos.push(URL.createObjectURL(file));
-            }
-        },
-
-        removeImageFromImages(index: number) {
-            this.previewImages.splice(index, 1);
-            this.images.splice(index, 1);
-            this.news.images.splice(index, 1);
-        },
-        removeVideoFromVideos(index: number) {
-            this.previewVideos.splice(index, 1);
-            this.videos.splice(index, 1);
-            this.news.videos.splice(index, 1);
-        },
-
-        onVideoError() {
-            // Video error handling
-        },
-
-        validateField(fieldName: string) {
-            switch (fieldName) {
-                case 'title_ru':
-                    if (!this.news.title_ru.trim()) {
-                        this.errors.title_ru = 'Пожалуйста, введите заголовок на русском';
-                    } else if (
-                        this.news.title_ru.trim().length < 3 ||
-                        this.news.title_ru.trim().length > 50
-                    ) {
-                        this.errors.title_ru =
-                            'Заголовок на русском должен быть от 3 до 50 символов';
-                    } else {
-                        this.errors.title_ru = '';
-                    }
-                    break;
-                case 'title_en':
-                    if (!this.news.title_en.trim()) {
-                        this.errors.title_en =
-                            'Пожалуйста, введите заголовок на английском';
-                    } else if (
-                        this.news.title_en.trim().length < 3 ||
-                        this.news.title_en.trim().length > 50
-                    ) {
-                        this.errors.title_en =
-                            'Заголовок на английском должен быть от 3 до 50 символов';
-                    } else {
-                        this.errors.title_en = '';
-                    }
-                    break;
-                case 'subtitle_ru':
-                    if (!this.news.subTitle_ru.trim()) {
-                        this.errors.subTitle_ru =
-                            'Пожалуйста, введите подзаголовок на русском';
-                    } else if (
-                        this.news.subTitle_ru.trim().length < 3 ||
-                        this.news.subTitle_ru.trim().length > 50
-                    ) {
-                        this.errors.subTitle_ru =
-                            'Подзаголовок на русском должен быть от 3 до 50 символов';
-                    } else {
-                        this.errors.subTitle_ru = '';
-                    }
-                    break;
-                case 'subTitle_en':
-                    if (!this.news.subTitle_en.trim()) {
-                        this.errors.subTitle_en =
-                            'Пожалуйста, введите подзаголовок на английском';
-                    } else if (
-                        this.news.subTitle_en.trim().length < 3 ||
-                        this.news.subTitle_en.trim().length > 50
-                    ) {
-                        this.errors.subTitle_en =
-                            'Подзаголовок на английском должен быть от 3 до 50 символов';
-                    } else {
-                        this.errors.subTitle_en = '';
-                    }
-                    break;
-                case 'img_back':
-                    if (!this.img_back_preview && !this.news.img_back) {
-                        this.errors.img_back =
-                            'Пожалуйста, добавьте предварительное изображение новости';
-                    } else {
-                        this.errors.img_back = '';
-                    }
-                    break;
-                case 'img_backfull':
-                    if (!this.img_backfull_preview && !this.news.img_backfull) {
-                        this.errors.img_backfull =
-                            'Пожалуйста, добавьте главное изображение новости';
-                    } else {
-                        this.errors.img_backfull = '';
-                    }
-                    break;
-                case 'images':
-                    break;
-                case 'text_ru':
-                    if (!this.news.text_ru.trim()) {
-                        this.errors.text_ru =
-                            'Пожалуйста, добавьте текст на русском языке';
-                    } else {
-                        this.errors.text_ru = '';
-                    }
-                    break;
-                case 'text_en':
-                    if (!this.news.text_en.trim()) {
-                        this.errors.text_en =
-                            'Пожалуйста, добавьте текст на английском языке';
-                    } else {
-                        this.errors.text_en = '';
-                    }
-                    break;
-            }
-        },
-
-        validateForm() {
-            this.validateField('title_ru');
-            this.validateField('title_en');
-            this.validateField('subTitle_ru');
-            this.validateField('subTitle_en');
-            this.validateField('img_back');
-            this.validateField('img_backfull');
-            this.validateField('images');
-            this.validateField('text_ru');
-            this.validateField('text_en');
-
-            // Проверка отсутствия ошибок
-            return Object.values(this.errors).every((error) => error === '');
-        },
-
-        /**
-         * Submit the news form data to the server
-         * Sends news information along with images and videos
-         */
-        async submitForm() {
-            if (this.isSubmitting) return;
-
-            if (!this.validateForm()) {
-                return;
-            }
-
-            try {
-                this.isSubmitting = true;
-                this.errorMessage = '';
-
-                // Формируем данные для отправки
-                const formData = new FormData();
-
-                // Append main images if they were changed
-                if (this.img_back_preview?.file) {
-                    formData.append('img_back', this.img_back_preview.file);
-                }
-
-                if (this.img_backfull_preview?.file) {
-                    formData.append('img_backfull', this.img_backfull_preview.file);
-                }
-
-                // Add additional images and videos
-                this.images.forEach((image) => {
-                    formData.append('images', image);
-                });
-
-                this.videos.forEach((video) => {
-                    formData.append('videos', video);
-                });
-
-                // Add news data as JSON
-                const newsData = {
-                    ...this.news,
-                    datetime:
-                        this.news.datetime || new Date().toISOString().split('T')[0],
-                };
-
-                formData.append('data', JSON.stringify(newsData));
-
-                // Send data to server
-                const id = this.$route.params.id;
-                const response = await axios.put(`${SERVER_URL}news/${id}`, formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
-
-                if (response.status === 200) {
-                    this.showSuccessAlert = true;
-                    this.originalNews = { ...this.news };
-                } else {
-                    this.showErrorAlert = true;
-                    this.errorMessage =
-                        'Не удалось обновить новость. Пожалуйста, попробуйте снова.';
-                }
-            } catch (error: any) {
-                console.error('Error submitting form:', error);
-                this.showErrorAlert = true;
-                if (error.response?.status === 413) {
-                    this.errorMessage =
-                        'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-                } else if (error.response?.status === 400) {
-                    this.errorMessage =
-                        'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                } else {
-                    this.errorMessage =
-                        'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
-                }
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-
-        resetForm() {
-        	this.news = { ...this.originalNews };
-        	this.images = [];
-        	this.videos = [];
-        	this.previewImages = [];
-        	this.previewVideos = [];
-        	this.img_back_preview = null;
-        	this.img_backfull_preview = null;
-        	// Сброс input файлов
-        	const fileInputs = this.$el.querySelectorAll('input[type="file"]');
-        	fileInputs.forEach((input: HTMLInputElement) => {
-        		input.value = '';
-        	});
-
-        	// Сброс ошибок
-        	Object.keys(this.errors).forEach((key) => {
-        		this.errors[key] = '';
-        	});
-        	this.fileError = null;
-        },
-
-        closeAlert() {
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
-            this.errorMessage = '';
-        },
-    },
+const news = reactive<NewsDescDto>({
+    id: '',
+    title_en: '',
+    title_ru: '',
+    subTitle_en: '',
+    subTitle_ru: '',
+    img_back: '',
+    img_backfull: '',
+    datetime: '',
+    text_en: '',
+    text_ru: '',
+    dir: '',
+    images: [],
+    videos: [],
 });
+
+const images = ref<File[]>([]);
+const videos = ref<File[]>([]);
+
+const img_back_preview = ref<PreviewItem | null>(null);
+const img_backfull_preview = ref<PreviewItem | null>(null);
+
+const previewImages = ref<PreviewItem[]>([]);
+const previewVideos = ref<string[]>([]);
+
+const previewWidth = ref(400);
+const isSubmitting = ref(false);
+const fileError = ref<string | null>(null);
+const isDragOver = ref(false);
+const isLoading = ref(true);
+const showSuccessAlert = ref(false);
+const showErrorAlert = ref(false);
+const errorMessage = ref('');
+
+const errors = reactive<Record<string, string>>({
+    title_ru: '',
+    title_en: '',
+    subTitle_ru: '',
+    subTitle_en: '',
+    img_back: '',
+    img_backfull: '',
+    images: '',
+    text_ru: '',
+    text_en: '',
+});
+
+const originalNews = ref<NewsDescDto>({} as NewsDescDto);
+
+const backFullInput = ref<HTMLInputElement | null>(null);
+const backInput = ref<HTMLInputElement | null>(null);
+const imagesInput = ref<HTMLInputElement | null>(null);
+const videosInput = ref<HTMLInputElement | null>(null);
+
+const newsDate = computed({
+    get: () => news.datetime.split('T')[0],
+    set: (val) => { news.datetime = val; },
+});
+
+const isFormValid = computed(() => {
+    return (
+        news.title_ru.trim() !== '' &&
+        news.title_en.trim() !== '' &&
+        news.subTitle_ru.trim() !== '' &&
+        news.subTitle_en.trim() !== '' &&
+        (img_back_preview.value !== null || news.img_back !== '') &&
+        (img_backfull_preview.value !== null || news.img_backfull !== '') &&
+        news.text_ru.trim() !== '' &&
+        news.text_en.trim() !== ''
+    );
+});
+
+onMounted(async () => {
+    await loadNews();
+});
+
+async function loadNews() {
+    try {
+        const id = route.params.id;
+        const response = await axios.get(SERVER_URL + 'news/' + id);
+        Object.assign(news, response.data);
+        originalNews.value = { ...response.data };
+
+        if (news.img_back) {
+            img_back_preview.value = {
+                file: new File([], news.img_back),
+                preview: `${news.dir}${news.img_back}`,
+            };
+        }
+
+        if (news.img_backfull) {
+            img_backfull_preview.value = {
+                file: new File([], news.img_backfull),
+                preview: `${news.dir}${news.img_backfull}`,
+            };
+        }
+
+        isLoading.value = false;
+    } catch (error) {
+        console.error('Ошибка при загрузке новости:', error);
+        isLoading.value = false;
+        showErrorAlert.value = true;
+        errorMessage.value = 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+    }
+}
+
+function handleDragOver() {
+    isDragOver.value = true;
+}
+
+function handleDragLeave() {
+    isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent) {
+    isDragOver.value = false;
+}
+
+function triggerFileInput(refName: string) {
+    let input: HTMLInputElement | null = null;
+    switch (refName) {
+        case 'backFullInput':
+            input = backFullInput.value;
+            break;
+        case 'backInput':
+            input = backInput.value;
+            break;
+        case 'imagesInput':
+            input = imagesInput.value;
+            break;
+        case 'videosInput':
+            input = videosInput.value;
+            break;
+    }
+    if (input) {
+        input.click();
+    }
+}
+
+function handleBackImageSelected(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const selectedImage = target.files?.[0];
+
+    if (!selectedImage) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(selectedImage.type)) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (selectedImage.size > maxSize) {
+        fileError.value = 'Размер файла не должен превышать 5 МБ';
+        return;
+    }
+
+    news.img_back = selectedImage.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_back_preview.value = {
+            file: selectedImage,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(selectedImage);
+}
+
+function removeBackImage() {
+    img_back_preview.value = null;
+    news.img_back = '';
+}
+
+function handleBackFullImageSelected(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const selectedImage = target.files?.[0];
+
+    if (!selectedImage) return;
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(selectedImage.type)) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (selectedImage.size > maxSize) {
+        fileError.value = 'Размер файла не должен превышать 5 МБ';
+        return;
+    }
+
+    news.img_backfull = selectedImage.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_backfull_preview.value = {
+            file: selectedImage,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(selectedImage);
+}
+
+function removeBackFullImage() {
+    img_backfull_preview.value = null;
+    news.img_backfull = '';
+}
+
+function handleImagesSelected(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const selectedFiles = Array.from(target.files || []);
+
+    if (images.value.length + selectedFiles.length > 10) {
+        fileError.value = 'Можно загрузить не более 10 изображений';
+        return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+
+    if (invalidFiles.length > 0) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+
+    if (largeFiles.length > 0) {
+        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
+        return;
+    }
+
+    fileError.value = null;
+
+    images.value = [...images.value, ...selectedFiles];
+
+    selectedFiles.forEach((file) => {
+        news.images.push(file.name);
+    });
+
+    selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+async function handleVideosSelected(event: Event) {
+    const target = event.target as HTMLInputElement;
+    const files = target.files as FileList;
+    previewVideos.value.length = 0;
+    videos.value = [];
+
+    if (!files || files.length == 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]!;
+        if (!file.type.startsWith('video/')) {
+            fileError.value = 'Пожалуйста, выберите только видеофайлы';
+            return;
+        }
+    }
+
+    const maxSize = 100 * 1024 * 1024;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]!;
+        if (file.size > maxSize) {
+            fileError.value = 'Размер файла не должен превышать 100MB';
+            return;
+        }
+    }
+
+    fileError.value = null;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i]!;
+        videos.value.push(file);
+        news.videos.push(file.name);
+        previewVideos.value.push(URL.createObjectURL(file));
+    }
+}
+
+function removeImageFromImages(index: number) {
+    previewImages.value.splice(index, 1);
+    images.value.splice(index, 1);
+    news.images.splice(index, 1);
+}
+
+function removeVideoFromVideos(index: number) {
+    previewVideos.value.splice(index, 1);
+    videos.value.splice(index, 1);
+    news.videos.splice(index, 1);
+}
+
+function onVideoError() {
+    // Video error handling
+}
+
+function validateField(fieldName: string) {
+    switch (fieldName) {
+        case 'title_ru':
+            if (!news.title_ru.trim()) {
+                errors.title_ru = 'Пожалуйста, введите заголовок на русском';
+            } else if (
+                news.title_ru.trim().length < 3 ||
+                news.title_ru.trim().length > 50
+            ) {
+                errors.title_ru = 'Заголовок на русском должен быть от 3 до 50 символов';
+            } else {
+                errors.title_ru = '';
+            }
+            break;
+        case 'title_en':
+            if (!news.title_en.trim()) {
+                errors.title_en = 'Пожалуйста, введите заголовок на английском';
+            } else if (
+                news.title_en.trim().length < 3 ||
+                news.title_en.trim().length > 50
+            ) {
+                errors.title_en = 'Заголовок на английском должен быть от 3 до 50 символов';
+            } else {
+                errors.title_en = '';
+            }
+            break;
+        case 'subTitle_ru':
+            if (!news.subTitle_ru.trim()) {
+                errors.subTitle_ru = 'Пожалуйста, введите подзаголовок на русском';
+            } else if (
+                news.subTitle_ru.trim().length < 3 ||
+                news.subTitle_ru.trim().length > 50
+            ) {
+                errors.subTitle_ru = 'Подзаголовок на русском должен быть от 3 до 50 символов';
+            } else {
+                errors.subTitle_ru = '';
+            }
+            break;
+        case 'subTitle_en':
+            if (!news.subTitle_en.trim()) {
+                errors.subTitle_en = 'Пожалуйста, введите подзаголовок на английском';
+            } else if (
+                news.subTitle_en.trim().length < 3 ||
+                news.subTitle_en.trim().length > 50
+            ) {
+                errors.subTitle_en = 'Подзаголовок на английском должен быть от 3 до 50 символов';
+            } else {
+                errors.subTitle_en = '';
+            }
+            break;
+        case 'img_back':
+            if (!img_back_preview.value && !news.img_back) {
+                errors.img_back = 'Пожалуйста, добавьте предварительное изображение новости';
+            } else {
+                errors.img_back = '';
+            }
+            break;
+        case 'img_backfull':
+            if (!img_backfull_preview.value && !news.img_backfull) {
+                errors.img_backfull = 'Пожалуйста, добавьте главное изображение новости';
+            } else {
+                errors.img_backfull = '';
+            }
+            break;
+        case 'images':
+            break;
+        case 'text_ru':
+            if (!news.text_ru.trim()) {
+                errors.text_ru = 'Пожалуйста, добавьте текст на русском языке';
+            } else {
+                errors.text_ru = '';
+            }
+            break;
+        case 'text_en':
+            if (!news.text_en.trim()) {
+                errors.text_en = 'Пожалуйста, добавьте текст на английском языке';
+            } else {
+                errors.text_en = '';
+            }
+            break;
+    }
+}
+
+function validateForm() {
+    validateField('title_ru');
+    validateField('title_en');
+    validateField('subTitle_ru');
+    validateField('subTitle_en');
+    validateField('img_back');
+    validateField('img_backfull');
+    validateField('images');
+    validateField('text_ru');
+    validateField('text_en');
+
+    return Object.values(errors).every((error) => error === '');
+}
+
+async function submitForm() {
+    if (isSubmitting.value) return;
+
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        isSubmitting.value = true;
+        errorMessage.value = '';
+
+        const formData = new FormData();
+
+        if (img_back_preview.value?.file) {
+            formData.append('img_back', img_back_preview.value.file);
+        }
+
+        if (img_backfull_preview.value?.file) {
+            formData.append('img_backfull', img_backfull_preview.value.file);
+        }
+
+        images.value.forEach((image) => {
+            formData.append('images', image);
+        });
+
+        videos.value.forEach((video) => {
+            formData.append('videos', video);
+        });
+
+        const newsData = {
+            ...news,
+            datetime: news.datetime || new Date().toISOString().split('T')[0],
+        };
+
+        formData.append('data', JSON.stringify(newsData));
+
+        const id = route.params.id;
+        const response = await axios.put(`${SERVER_URL}news/${id}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
+
+        if (response.status === 200) {
+            showSuccessAlert.value = true;
+            originalNews.value = { ...news };
+        } else {
+            showErrorAlert.value = true;
+            errorMessage.value = 'Не удалось обновить новость. Пожалуйста, попробуйте снова.';
+        }
+    } catch (error: any) {
+        console.error('Error submitting form:', error);
+        showErrorAlert.value = true;
+        if (error.response?.status === 413) {
+            errorMessage.value = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+        } else if (error.response?.status === 400) {
+            errorMessage.value = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+        } else {
+            errorMessage.value = 'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
+        }
+    } finally {
+        isSubmitting.value = false;
+    }
+}
+
+function resetForm() {
+    Object.assign(news, originalNews.value);
+    images.value = [];
+    videos.value = [];
+    previewImages.value = [];
+    previewVideos.value = [];
+    img_back_preview.value = null;
+    img_backfull_preview.value = null;
+
+    if (backFullInput.value) backFullInput.value.value = '';
+    if (backInput.value) backInput.value.value = '';
+    if (imagesInput.value) imagesInput.value.value = '';
+    if (videosInput.value) videosInput.value.value = '';
+
+    Object.keys(errors).forEach((key) => {
+        errors[key] = '';
+    });
+    fileError.value = null;
+}
+
 </script>
 
 <style scoped>
 select:has(option.placeholder:checked) {
-    color: red;
+    color: #999;
 }
 
 .edit-news-container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 3rem auto;
+    padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -1037,7 +1000,7 @@ select:has(option.placeholder:checked) {
 }
 
 .page-subtitle {
-    color: #666;
+    color: #333;
     font-size: 1rem;
     margin: 0;
 }
@@ -1087,13 +1050,27 @@ select:has(option.placeholder:checked) {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    min-height: 46px;
+    box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:hover {
+    border-color: #4a90e2;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.form-control::placeholder,
+.form-control input::placeholder,
+.form-control [data-placeholder],
+.form-control [data-slot='placeholder'] {
+    color: #999 !important;
+    opacity: 1;
 }
 
 .is-invalid {
@@ -1106,7 +1083,7 @@ select:has(option.placeholder:checked) {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
+    padding-right: 2.5rem;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -1274,71 +1251,6 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 1000;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
-}
-
 .error-message {
     color: #e74c3c;
     font-size: 0.875rem;
@@ -1399,12 +1311,6 @@ select:has(option.placeholder:checked) {
 
     .btn {
         width: 100%;
-    }
-
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
     }
 
     .page-title {

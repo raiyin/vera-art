@@ -202,20 +202,13 @@
                     >
                     <USelect
                         v-model="work.base_id"
+                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
+                        placeholder="Выберите основу"
                         @blur="validateField('base_id')"
-                    >
-                        <option value="" disabled>Выберите основу</option>
-                        <option v-for="base in bases" :key="base.id" :value="base.id">
-                            {{
-                                $i18n.locale === 'ru'
-                                    ? `${base.base_ru}`
-                                    : `${base.base_en}`
-                            }}
-                        </option>
-                    </USelect>
+                    />
                     <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
                     </div>
@@ -229,44 +222,18 @@
                             isMaterialsRequired ? '*' : ''
                         }}</span></label
                     >
-                    <div class="multi-select-wrapper">
-                        <div
-                            class="select-display drop-down-arrow"
-                            :class="{ 'is-invalid': errors.materials_ids }"
-                            tabindex="0"
-                            @click="materialsToggleDropdown"
-                            @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids')"
-                        >
-                            {{ selectedMaterialsDisplay || 'Выберите материалы' }}
-                        </div>
-                        <div
-                            v-if="materialsDropdownOpen"
-                            class="dropdown-options form-control"
-                        >
-                            <div
-                                v-for="material in materials"
-                                :key="material.id"
-                                class="option-item"
-                            >
-                                <UInput
-                                    :id="'material-' + material.id"
-                                    v-model="work.materials_ids"
-                                    type="checkbox"
-                                    :value="material.id"
-                                />
-                                <label :for="'material-' + material.id">
-                                    {{
-                                        $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
-                                    }}
-                                </label>
-                            </div>
-                        </div>
-                        <div v-if="errors.materials_ids" class="error-message">
-                            {{ errors.materials_ids }}
-                        </div>
+                    <USelect
+                        v-model="work.materials_ids"
+                        :items="materialOptions"
+                        multiple
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.materials_ids }"
+                        placeholder="Выберите материалы"
+                        @blur="validateField('materials_ids')"
+                    />
+                    <div v-if="errors.materials_ids" class="error-message">
+                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
@@ -276,12 +243,12 @@
                 <h2 class="section-title">Дополнительная информация</h2>
                 <div class="form-group">
                     <label class="form-label">Описание</label>
-                    <textarea
+                    <UTextarea
                         v-model="work.descr"
-                        class="form-control textarea"
+                        class="form-control"
                         placeholder="Краткое описание картины"
-                        rows="4"
-                        maxlength="500"
+                        :rows="4"
+                        :maxlength="500"
                     />
                     <div class="char-count">{{ work.descr.length }}/500</div>
                 </div>
@@ -296,15 +263,13 @@
                     >
                     <USelect
                         v-model="work.type"
+                        :items="workTypeOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.type }"
+                        placeholder="Выберите тип работы"
                         @blur="validateField('type')"
-                    >
-                        <option value="1" selected>Картина</option>
-                        <option value="2">Иллюстрация</option>
-                        <option value="3">3D</option>
-                    </USelect>
+                    />
                     <div v-if="errors.type" class="error-message">
                         {{ errors.type }}
                     </div>
@@ -329,549 +294,472 @@
                 </UButton>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-model="showSuccessAlert"
-            type="success"
-            title="Успешно!"
-            message="Работа успешно обновлена в галлерею."
-            close-button-text="Закрыть"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-model="showErrorAlert"
-            type="danger"
-            title="Ошибка!"
-            :message="
-                errorMessage ||
-                'Не удалось обновить работу в галерее. Пожалуйста, попробуйте снова.'
-            "
-            close-button-text="Закрыть"
-        />
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
-import type {
-    RequestResult,
-    UpdateWorkRequest,
-    UpdateWorkResponse,
-} from '../../types';
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import type { RequestResult, UpdateWorkRequest, UpdateWorkResponse } from '../../types';
 import { useMaterialStore } from '../../stores/MaterialStore';
 
+definePageMeta({
+    middleware: 'admin-auth',
+});
+
+const toast = useToast();
 const config = useRuntimeConfig();
+const route = useRoute();
 const SERVER_URL = config.public.serverUrl;
+
 const materialStore = useMaterialStore();
 
-export default defineComponent({
-    name: 'EditGalleryItemView',
-    data() {
-        return {
-            work: {
-                id: 0,
-                str_id: '',
-                dir: '',
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                descr: '',
-                type: 0,
-                materials_ids: [] as number[],
-                images: [] as string[],
-            } as UpdateWorkResponse,
-            // Для сброса формы
-            originalWork: {
-                id: 0,
-                str_id: '',
-                dir: '',
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                year: new Date().getFullYear(),
-                descr: '',
-                width: 0,
-                height: 0,
-                type: 0,
-                images: [] as string[],
-                materials_ids: [] as number[],
-            } as UpdateWorkResponse,
-            files: [] as File[],
-            previewImages: [] as {
-                file?: File;
-                preview: string;
-                isExisting?: boolean;
-                filename?: string;
-            }[],
-            imagesToDelete: [] as string[], // Track existing images to delete
-            isSubmitting: false,
-            isLoading: true,
-            loadError: null as string | null,
-            requestResult: 'unknown' as RequestResult,
-            materialsDropdownOpen: false,
-            basesDropdownOpen: false,
-            isDragOver: false,
-            fileError: null as string | null,
-            errors: {
-                name_ru: '',
-                name_en: '',
-                width: '',
-                height: '',
-                year: '',
-                base_id: '',
-                materials_ids: '',
-                type: '',
-            } as Record<string, string>,
-            errorMessage: '',
-            showSuccessAlert: false,
-            showErrorAlert: false,
-            successAlertTimeout: null as number | null,
-            errorAlertTimeout: null as number | null,
+// Reactive state
+const work = reactive<UpdateWorkResponse>({
+    id: 0,
+    str_id: '',
+    dir: '',
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
+    name_ru: '',
+    name_en: '',
+    base_id: 0,
+    descr: '',
+    type: 0,
+    materials_ids: [],
+    images: [],
+});
+
+// For form reset
+const originalWork = reactive<UpdateWorkResponse>({
+    id: 0,
+    str_id: '',
+    dir: '',
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
+    name_ru: '',
+    name_en: '',
+    base_id: 0,
+    descr: '',
+    type: 0,
+    materials_ids: [],
+    images: [],
+});
+
+const files = ref<File[]>([]);
+const previewImages = ref<
+    { file?: File; preview: string; isExisting?: boolean; filename?: string }[]
+>([]);
+const imagesToDelete = ref<string[]>([]);
+const isSubmitting = ref(false);
+const isLoading = ref(true);
+const isDragOver = ref(false);
+const fileError = ref<string | null>(null);
+const errorMessage = ref('');
+
+const errors = reactive<Record<string, string>>({
+    name_ru: '',
+    name_en: '',
+    width: '',
+    height: '',
+    year: '',
+    base_id: '',
+    materials_ids: '',
+    type: '',
+});
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+// Computed
+const bases = computed(() => materialStore.bases);
+const materials = computed(() => materialStore.materials);
+
+const baseOptions = computed(() => {
+    return bases.value.map((base) => ({
+        label: base.base_ru,
+        value: base.id,
+    }));
+});
+
+const workTypeOptions = computed(() => {
+    return [
+        { label: 'Картина', value: 1 },
+        { label: 'Иллюстрация', value: 2 },
+        { label: '3D', value: 3 },
+    ];
+});
+
+const materialOptions = computed(() => {
+    return materials.value.map((material) => ({
+        label: material.material_ru,
+        value: material.id,
+    }));
+});
+
+const isFormValid = computed(() => {
+    return (
+        work.name_ru.trim() !== '' &&
+        work.name_en.trim() !== '' &&
+        work.width > 0 &&
+        work.height > 0 &&
+        work.year >= 2000 &&
+        work.year <= new Date().getFullYear() &&
+        work.base_id > 0 &&
+        (work.type < 3
+            ? work.materials_ids.length > 0
+            : work.materials_ids.length === 0) &&
+        work.type > 0
+    );
+});
+
+const units = computed(() => {
+    return work.type <= 1 ? 'см' : 'px';
+});
+
+const isMaterialsRequired = computed(() => {
+    return work.type === 1 || work.type === 2;
+});
+
+// Methods
+async function loadWork() {
+    try {
+        const id = route.params.id;
+        const response = await axios.get(`${SERVER_URL}works/${id}/edit`);
+        Object.assign(work, response.data);
+        Object.assign(originalWork, { ...response.data });
+
+        // Load existing images as previews
+        loadPreviewImages();
+
+        isLoading.value = false;
+    } catch (error) {
+        console.error('Ошибка при загрузке работы:', error);
+        isLoading.value = false;
+        toast.add({
+            title: 'Ошибка!',
+            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
+    }
+}
+
+function loadPreviewImages() {
+    previewImages.value = [];
+    for (let i = 0; i < work.images.length; i++) {
+        const imageUrl = `${work.dir}${work.images[i]}`;
+        previewImages.value.push({
+            preview: imageUrl,
+            isExisting: true,
+            filename: work.images[i],
+        });
+    }
+}
+
+function handleDragOver() {
+    isDragOver.value = true;
+}
+
+function handleDragLeave() {
+    isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent) {
+    isDragOver.value = false;
+    if (event.dataTransfer && event.dataTransfer.files.length) {
+        const droppedFiles = Array.from(event.dataTransfer.files);
+        addImages(droppedFiles);
+    }
+}
+
+function triggerFileInput() {
+    fileInput.value?.click();
+}
+
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length) {
+        const selectedFiles = Array.from(target.files);
+        addImages(selectedFiles);
+    }
+}
+
+function addImages(selectedFiles: File[]) {
+    fileError.value = null;
+
+    // Check max file count
+    if (files.value.length + selectedFiles.length > 10) {
+        fileError.value = 'Можно загрузить не более 10 изображений';
+        return;
+    }
+
+    // Check file types
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+
+    if (invalidFiles.length > 0) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+
+    if (largeFiles.length > 0) {
+        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
+        return;
+    }
+
+    // Add new files
+    files.value = [...files.value, ...selectedFiles];
+
+    // Create previews for new images
+    selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+                isExisting: false,
+                filename: file.name,
+            });
         };
-    },
-    computed: {
-        bases() {
-            return materialStore.bases;
-        },
-        materials() {
-            return materialStore.materials;
-        },
-        selectedMaterialsDisplay() {
-            if (this.work.materials_ids.length === 0) return '';
-            const selectedNames = materialStore.materials
-                .filter((material) => this.work.materials_ids.includes(material.id))
-                .map((material) =>
-                    this.$i18n.locale === 'ru'
-                        ? material.material_ru
-                        : material.material_en
-                );
-            return selectedNames.join(', ');
-        },
-        isFormValid() {
-            return (
-                this.work.name_ru.trim() !== '' &&
-                this.work.name_en.trim() !== '' &&
-                this.work.width > 0 &&
-                this.work.height > 0 &&
-                this.work.year >= 2000 &&
-                this.work.year <= new Date().getFullYear() &&
-                this.work.base_id > 0 &&
-                (this.work.type < 3
-                    ? this.work.materials_ids.length > 0
-                    : this.work.materials_ids.length == 0) &&
-                this.work.type > 0
-            );
-        },
-        units(): 'см' | 'px' {
-            return this.work.type <= 1 ? 'см' : 'px';
-        },
-        isMaterialsRequired() {
-            return this.work.type === 1 || this.work.type === 2;
-        },
-    },
-    async created() {
-        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-            await materialStore.fetchAll();
+        reader.readAsDataURL(file);
+    });
+}
+
+function removeImage(index: number) {
+    const imageToRemove = previewImages.value[index];
+
+    if (imageToRemove.isExisting && imageToRemove.filename) {
+        // Mark existing image for deletion
+        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
+            imagesToDelete.value.push(imageToRemove.filename);
         }
-        await this.loadWork();
-    },
-
-    beforeUnmount() {
-        // Clear any pending timeouts when component is destroyed
-        if (this.successAlertTimeout) {
-            clearTimeout(this.successAlertTimeout);
-            this.successAlertTimeout = null;
+    } else if (imageToRemove.file) {
+        // Remove from files array if it's a newly uploaded file
+        const fileIndex = files.value.indexOf(imageToRemove.file);
+        if (fileIndex > -1) {
+            files.value.splice(fileIndex, 1);
         }
-        if (this.errorAlertTimeout) {
-            clearTimeout(this.errorAlertTimeout);
-            this.errorAlertTimeout = null;
+    }
+
+    // Remove from preview images
+    previewImages.value.splice(index, 1);
+}
+
+function validateField(fieldName: string) {
+    switch (fieldName) {
+        case 'name_ru':
+            if (!work.name_ru.trim()) {
+                errors.name_ru = 'Пожалуйста, введите название на русском';
+            } else {
+                errors.name_ru = '';
+            }
+            break;
+        case 'name_en':
+            if (!work.name_en.trim()) {
+                errors.name_en = 'Пожалуйста, введите название на английском';
+            } else {
+                errors.name_en = '';
+            }
+            break;
+        case 'width':
+            if (work.width <= 0) {
+                errors.width = 'Ширина должна быть больше 0';
+            } else {
+                errors.width = '';
+            }
+            break;
+        case 'height':
+            if (work.height <= 0) {
+                errors.height = 'Высота должна быть больше 0';
+            } else {
+                errors.height = '';
+            }
+            break;
+        case 'year':
+            if (work.year < 2000 || work.year > new Date().getFullYear()) {
+                errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+            } else {
+                errors.year = '';
+            }
+            break;
+        case 'base_id':
+            if (work.base_id <= 0) {
+                errors.base_id = 'Пожалуйста, выберите основу';
+            } else {
+                errors.base_id = '';
+            }
+            break;
+        case 'materials_ids':
+            if (work.materials_ids.length === 0) {
+                errors.materials_ids = 'Пожалуйста, выберите хотя бы один материал';
+            } else {
+                errors.materials_ids = '';
+            }
+            break;
+        case 'type':
+            if (work.type <= 0) {
+                errors.type = 'Пожалуйста, выберите тип работы';
+            } else {
+                errors.type = '';
+            }
+            break;
+    }
+}
+
+function validateForm() {
+    validateField('name_ru');
+    validateField('name_en');
+    validateField('width');
+    validateField('height');
+    validateField('year');
+    validateField('base_id');
+    validateField('materials_ids');
+    validateField('type');
+
+    // Check no errors
+    return Object.values(errors).every((error) => error === '');
+}
+
+async function submitForm() {
+    if (isSubmitting.value) return;
+
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        isSubmitting.value = true;
+        errorMessage.value = '';
+
+        // Build form data
+        const formData = new FormData();
+
+        const finalImages: string[] = [];
+
+        // Add existing images that are not marked for deletion
+        for (const imageName of work.images) {
+            if (!imagesToDelete.value.includes(imageName)) {
+                finalImages.push(imageName);
+            }
         }
-    },
-    methods: {
-        async loadWork() {
-            try {
-                const id = this.$route.params.id;
-                const response = await axios.get(`${SERVER_URL}works/${id}/edit`);
-                this.work = response.data;
-                this.originalWork = { ...response.data };
 
-                // Load existing images as previews
-                this.loadPreviewImages();
+        // Add new image filenames
+        for (const file of files.value) {
+            finalImages.push(file.name);
+        }
 
-                this.isLoading = false;
-            } catch (error) {
-                console.error('Ошибка при загрузке работы:', error);
-                this.loadError = 'Не удалось загрузить работу';
-                this.isLoading = false;
-                this.showErrorAlertWithTimeout(
-                    'Не удалось загрузить данные. Пожалуйста, попробуйте позже.'
-                );
-            }
-        },
-        loadPreviewImages() {
-            this.previewImages = [];
-            for (let i = 0; i < this.work.images.length; i++) {
-                const imageUrl = `${this.work.dir}${this.work.images[i]}`;
-                this.previewImages.push({
-                    preview: imageUrl,
-                    isExisting: true,
-                    filename: this.work.images[i],
-                });
-            }
-        },
-        handleDragOver() {
-            this.isDragOver = true;
-        },
-        handleDragLeave() {
-            this.isDragOver = false;
-        },
-        handleDrop(event: DragEvent) {
-            this.isDragOver = false;
-            if (event.dataTransfer && event.dataTransfer.files.length) {
-                const files = Array.from(event.dataTransfer.files);
-                this.addImages(files);
-            }
-        },
-        triggerFileInput() {
-            (this.$refs.fileInput as HTMLInputElement)?.click();
-        },
-        handleFileUpload(event: Event) {
-            const target = event.target as HTMLInputElement;
-            if (target.files && target.files.length) {
-                const files = Array.from(target.files);
-                this.addImages(files);
-            }
-        },
-        addImages(selectedFiles: File[]) {
-            this.fileError = null;
-
-            // Проверка на количество файлов
-            if (this.files.length + selectedFiles.length > 10) {
-                this.fileError = 'Можно загрузить не более 10 изображений';
-                return;
-            }
-
-            // Проверка типов файлов
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            const invalidFiles = selectedFiles.filter(
-                (file) => !validTypes.includes(file.type)
-            );
-
-            if (invalidFiles.length > 0) {
-                this.fileError =
-                    'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-                return;
-            }
-
-            // Проверка размера файлов (макс. 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-            if (largeFiles.length > 0) {
-                this.fileError = 'Размер каждого файла не должен превышать 5 МБ';
-                return;
-            }
-
-            // Добавляем новые файлы
-            this.files = [...this.files, ...selectedFiles];
-
-            // Создаем превью для новых изображений
-            selectedFiles.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previewImages.push({
-                        file,
-                        preview: e.target?.result as string,
-                        isExisting: false,
-                        filename: file.name,
-                    });
-                };
-                reader.readAsDataURL(file);
+        // Add files if any
+        if (files.value.length > 0) {
+            files.value.forEach((file) => {
+                formData.append('images', file);
             });
-        },
-        removeImage(index: number) {
-            const imageToRemove = this.previewImages[index];
+        }
 
-            if (imageToRemove.isExisting && imageToRemove.filename) {
-                // Mark existing image for deletion
-                if (!this.imagesToDelete.includes(imageToRemove.filename)) {
-                    this.imagesToDelete.push(imageToRemove.filename);
-                }
-            } else if (imageToRemove.file) {
-                // Remove from files array if it's a newly uploaded file
-                const fileIndex = this.files.indexOf(imageToRemove.file);
-                if (fileIndex > -1) {
-                    this.files.splice(fileIndex, 1);
-                }
-            }
+        const workDataToUpdate: UpdateWorkRequest = {
+            ...work,
+            images: finalImages,
+        };
+        workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
 
-            // Remove from preview images
-            this.previewImages.splice(index, 1);
-        },
-        validateField(fieldName: string) {
-            switch (fieldName) {
-                case 'name_ru':
-                    if (!this.work.name_ru.trim()) {
-                        this.errors.name_ru = 'Пожалуйста, введите название на русском';
-                    } else {
-                        this.errors.name_ru = '';
-                    }
-                    break;
-                case 'name_en':
-                    if (!this.work.name_en.trim()) {
-                        this.errors.name_en =
-                            'Пожалуйста, введите название на английском';
-                    } else {
-                        this.errors.name_en = '';
-                    }
-                    break;
-                case 'width':
-                    if (this.work.width <= 0) {
-                        this.errors.width = 'Ширина должна быть больше 0';
-                    } else {
-                        this.errors.width = '';
-                    }
-                    break;
-                case 'height':
-                    if (this.work.height <= 0) {
-                        this.errors.height = 'Высота должна быть больше 0';
-                    } else {
-                        this.errors.height = '';
-                    }
-                    break;
-                case 'year':
-                    if (
-                        this.work.year < 2000 ||
-                        this.work.year > new Date().getFullYear()
-                    ) {
-                        this.errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
-                    } else {
-                        this.errors.year = '';
-                    }
-                    break;
-                case 'base_id':
-                    if (this.work.base_id <= 0) {
-                        this.errors.base_id = 'Пожалуйста, выберите основу';
-                    } else {
-                        this.errors.base_id = '';
-                    }
-                    break;
-                case 'materials_ids':
-                    if (this.work.materials_ids.length === 0) {
-                        this.errors.materials_ids =
-                            'Пожалуйста, выберите хотя бы один материал';
-                    } else {
-                        this.errors.materials_ids = '';
-                    }
-                    break;
-                case 'type':
-                    if (this.work.type < 0) {
-                        this.errors.type = 'Пожалуйста, выберите тип работы';
-                    } else {
-                        this.errors.type = '';
-                    }
-                    break;
-            }
-        },
-        validateForm() {
-            this.validateField('name_ru');
-            this.validateField('name_en');
-            this.validateField('width');
-            this.validateField('height');
-            this.validateField('year');
-            this.validateField('base_id');
-            this.validateField('materials_ids');
-            this.validateField('type');
+        formData.append('data', JSON.stringify(workDataToUpdate));
 
-            // Проверка отсутствия ошибок
-            return Object.values(this.errors).every((error) => error === '');
-        },
-        async submitForm() {
-            if (this.isSubmitting) return;
+        const strId = route.params.id;
+        const response = await axios.put(SERVER_URL + 'works/' + strId, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
 
-            if (!this.validateForm()) {
-                return;
-            }
-
-            try {
-                this.isSubmitting = true;
-                this.errorMessage = '';
-
-                // Формируем данные для отправки
-                const formData = new FormData();
-
-                const finalImages: string[] = [];
-
-                // Add existing images that are not marked for deletion
-                for (const imageName of this.work.images) {
-                    if (!this.imagesToDelete.includes(imageName)) {
-                        finalImages.push(imageName);
-                    }
-                }
-
-                // Add new image filenames (sanitized)
-                for (const file of this.files) {
-                    finalImages.push(file.name);
-                }
-
-                // Добавляем файлы, если есть
-                if (this.files.length > 0) {
-                    this.files.forEach((file) => {
-                        formData.append('images', file);
-                    });
-                }
-
-                let workDataToUpdate: UpdateWorkRequest;
-                workDataToUpdate = {
-                    ...this.work,
-                    images: finalImages,
-                };
-                workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
-
-                formData.append('data', JSON.stringify(workDataToUpdate));
-
-                const strId = this.$route.params.id;
-                const response = await axios.put(
-                    SERVER_URL + 'works/' + strId,
-                    formData,
-                    {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        },
-                    }
-                );
-
-                if (response.status === 200) {
-                    this.showSuccessAlertWithTimeout();
-                    // Update work images with final list
-                    this.work.images = finalImages;
-                    // Clear deletion list and files
-                    this.imagesToDelete = [];
-                    this.files = [];
-                    // Обновляем оригинальную работу
-                    this.originalWork = { ...this.work };
-                } else {
-                    this.showErrorAlertWithTimeout(
-                        'Не удалось обновить работу. Пожалуйста, попробуйте снова.'
-                    );
-                }
-            } catch (error: any) {
-                console.error('Error submitting form:', error);
-                let errorMsg =
-                    'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-                if (error.response?.status === 413) {
-                    errorMsg =
-                        'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-                } else if (error.response?.status === 400) {
-                    errorMsg =
-                        'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-                } else {
-                    this.errorMessage =
-                        'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-                }
-                this.showErrorAlertWithTimeout(errorMsg);
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-        resetForm() {
-            this.work = { ...this.originalWork };
-            this.files = [];
-            this.previewImages = [];
-            this.imagesToDelete = [];
-            this.loadPreviewImages();
-            if (this.$refs.fileInput) {
-                (this.$refs.fileInput as HTMLInputElement).value = '';
-            }
-
-            // Сброс ошибок
-            Object.keys(this.errors).forEach((key) => {
-                this.errors[key] = '';
+        if (response.status === 200) {
+            toast.add({
+                title: 'Успешно!',
+                description: 'Работа успешно обновлена в галерее.',
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
             });
-            this.fileError = null;
-        },
-        materialsToggleDropdown() {
-            this.materialsDropdownOpen = !this.materialsDropdownOpen;
-        },
-        basesToggleDropdown() {
-            this.basesDropdownOpen = !this.basesDropdownOpen;
-        },
-        showSuccessAlertWithTimeout() {
-            // Clear any existing timeout
-            if (this.successAlertTimeout) {
-                clearTimeout(this.successAlertTimeout);
-                this.successAlertTimeout = null;
-            }
+            // Update work images with final list
+            work.images = finalImages;
+            // Clear deletion list and files
+            imagesToDelete.value = [];
+            files.value = [];
+            // Update original work
+            Object.assign(originalWork, { ...work });
+        } else {
+            toast.add({
+                title: 'Ошибка!',
+                description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
+        }
+    } catch (error: any) {
+        console.error('Error submitting form:', error);
+        let description =
+            'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+        if (error.response?.status === 413) {
+            description =
+                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+        } else if (error.response?.status === 400) {
+            description =
+                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+        }
+        toast.add({
+            title: 'Ошибка!',
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
+    } finally {
+        isSubmitting.value = false;
+    }
+}
 
-            // Show the alert
-            this.showSuccessAlert = true;
+function resetForm() {
+    Object.assign(work, { ...originalWork });
+    files.value = [];
+    previewImages.value = [];
+    imagesToDelete.value = [];
+    loadPreviewImages();
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
 
-            // Set timeout to hide after 5 seconds (5000 milliseconds)
-            this.successAlertTimeout = setTimeout(() => {
-                this.showSuccessAlert = false;
-                this.successAlertTimeout = null;
-            }, 5000);
-        },
+    // Reset errors
+    Object.keys(errors).forEach((key) => {
+        errors[key] = '';
+    });
+    fileError.value = null;
+}
 
-        showErrorAlertWithTimeout(message?: string) {
-            // Clear any existing timeout
-            if (this.errorAlertTimeout) {
-                clearTimeout(this.errorAlertTimeout);
-                this.errorAlertTimeout = null;
-            }
-
-            // Set error message if provided
-            if (message) {
-                this.errorMessage = message;
-            }
-
-            // Show the alert
-            this.showErrorAlert = true;
-
-            // Set timeout to hide after 5 seconds (5000 milliseconds)
-            this.errorAlertTimeout = setTimeout(() => {
-                this.showErrorAlert = false;
-                this.errorMessage = '';
-                this.errorAlertTimeout = null;
-            }, 5000);
-        },
-
-        closeAlert() {
-            // Clear timeouts
-            if (this.successAlertTimeout) {
-                clearTimeout(this.successAlertTimeout);
-                this.successAlertTimeout = null;
-            }
-            if (this.errorAlertTimeout) {
-                clearTimeout(this.errorAlertTimeout);
-                this.errorAlertTimeout = null;
-            }
-
-            // Hide alerts
-            this.showSuccessAlert = false;
-            this.showErrorAlert = false;
-            this.errorMessage = '';
-        },
-    },
+// Lifecycle
+onMounted(async () => {
+    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+        await materialStore.fetchAll();
+    }
+    await loadWork();
 });
 </script>
 
 <style scoped>
 select:has(option.placeholder:checked) {
-    color: red;
+    color: #999;
 }
 
 .edit-work-container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
+    margin: 3rem auto;
+    padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -939,13 +827,28 @@ select:has(option.placeholder:checked) {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    min-height: 46px;
+    box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:hover {
+    border-color: #4a90e2;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Consistent placeholder color across all input fields */
+.form-control::placeholder,
+.form-control input::placeholder,
+.form-control [data-placeholder],
+.form-control [data-slot='placeholder'] {
+    color: #999 !important;
+    opacity: 1;
 }
 
 .is-invalid {
@@ -958,7 +861,7 @@ select:has(option.placeholder:checked) {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
+    padding-right: 2.5rem;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -1077,11 +980,6 @@ select:has(option.placeholder:checked) {
     color: #666;
 }
 
-.textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
 .char-count {
     font-size: 0.875rem;
     color: #666;
@@ -1134,71 +1032,6 @@ select:has(option.placeholder:checked) {
     background-color: #e0e0e0;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 2;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
 }
 
 .error-message {
@@ -1263,12 +1096,6 @@ select:has(option.placeholder:checked) {
         width: 100%;
     }
 
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
-    }
-
     .page-title {
         font-size: 1.5rem;
     }
@@ -1276,65 +1103,5 @@ select:has(option.placeholder:checked) {
     .section-title {
         font-size: 1.2rem;
     }
-}
-
-.multi-select-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.select-display {
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    background-color: white;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
-}
-
-.select-display:hover {
-    border-color: #4a90e2;
-}
-
-.dropdown-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 2;
-    background: white;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.option-item {
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.option-item:hover {
-    background-color: #f8f9fa;
-}
-
-.option-item input {
-    margin-right: 8px;
-}
-
-.arrow {
-    float: right;
-    transition: transform 0.3s;
-}
-
-.arrow-up {
-    transform: rotate(180deg);
 }
 </style>
