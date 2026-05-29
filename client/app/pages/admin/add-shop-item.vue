@@ -9,7 +9,7 @@
 
         <!-- Загрузчик -->
         <div v-if="isLoading" class="loading-container">
-            <div class="loader"></div>
+            <div class="loader" />
             <p>{{ $t('admin_shop_form.loading') }}</p>
         </div>
 
@@ -31,13 +31,13 @@
                         @click="triggerFileInput"
                     >
                         <UInput
+                            ref="fileInput"
                             type="file"
-                            @change="handleFileUpload"
                             multiple
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="fileInput"
                             required
+                            @change="handleFileUpload"
                         />
                         <div class="file-drop-content">
                             <svg
@@ -52,11 +52,9 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path
-                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                ></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                             <p class="upload-text">
                                 {{ $t('admin_shop_form.labels.drag_drop_text') }}
@@ -69,7 +67,7 @@
                     <div v-if="fileError" class="error-message">
                         {{ fileError }}
                     </div>
-                    <div class="preview-container" v-if="previewImages.length > 0">
+                    <div v-if="previewImages.length > 0" class="preview-container">
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -82,13 +80,13 @@
                             />
                             <UButton
                                 type="button"
-                                @click="removeImage(index)"
                                 class="remove-btn"
                                 :aria-label="
                                     $t('admin_shop_form.aria_labels.remove_image', {
                                         index: index + 1,
                                     })
                                 "
+                                @click="removeImage(index)"
                             >
                                 &times;
                             </UButton>
@@ -110,8 +108,8 @@
                         <span class="required">*</span></label
                     >
                     <UInput
-                        type="text"
                         v-model="sale.name_ru"
+                        type="text"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_ru }"
@@ -129,8 +127,8 @@
                         <span class="required">*</span></label
                     >
                     <UInput
-                        type="text"
                         v-model="sale.name_en"
+                        type="text"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_en }"
@@ -151,8 +149,8 @@
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <UInput
-                                type="number"
                                 v-model.number="sale.width"
+                                type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -167,8 +165,8 @@
                         <span class="size-separator">×</span>
                         <div class="size-input-wrapper">
                             <UInput
-                                type="number"
                                 v-model.number="sale.height"
+                                type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
@@ -190,8 +188,8 @@
                         <span class="required">*</span></label
                     >
                     <UInput
-                        type="number"
                         v-model.number="sale.year"
+                        type="number"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
@@ -212,8 +210,8 @@
                         <span class="required">*</span></label
                     >
                     <UInput
-                        type="number"
                         v-model.number="sale.price"
+                        type="number"
                         required
                         min="1"
                         class="form-control"
@@ -241,22 +239,13 @@
                     >
                     <USelect
                         v-model="sale.base_id"
+                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
+                        :placeholder="$t('admin_shop_form.placeholders.select_base')"
                         @blur="validateField('base_id')"
-                    >
-                        <option value="" disabled>
-                            {{ $t('admin_shop_form.placeholders.select_base') }}
-                        </option>
-                        <option v-for="base in bases" :key="base.id" :value="base.id">
-                            {{
-                                $i18n.locale === 'ru'
-                                    ? `${base.base_ru}`
-                                    : `${base.base_en}`
-                            }}
-                        </option>
-                    </USelect>
+                    />
                     <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
                     </div>
@@ -268,52 +257,18 @@
                         >{{ $t('admin_shop_form.labels.materials') }}
                         <span class="required">*</span></label
                     >
-                    <div class="multi-select-wrapper">
-                        <div
-                            class="select-display drop-down-arrow"
-                            @click="materialsToggleDropdown"
-                            :class="{ 'is-invalid': errors.materials_ids }"
-                            tabindex="0"
-                            @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids')"
-                        >
-                            {{
-                                selectedMaterialsDisplay ||
-                                $t('admin_shop_form.placeholders.select_materials')
-                            }}
-                        </div>
-                        <div
-                            v-if="materialsDropdownOpen"
-                            class="dropdown-options form-control"
-                        >
-                            <div
-                                v-for="material in materials"
-                                :key="material.id"
-                                class="option-item"
-                            >
-                                <UInput
-                                    type="checkbox"
-                                    :id="'material-' + material.id"
-                                    :value="material.id"
-                                    :model-value="
-                                        sale.materials_ids.includes(material.id)
-                                    "
-                                    @update:model-value="
-                                        (checked) => toggleMaterial(material.id, checked)
-                                    "
-                                />
-                                <label :for="'material-' + material.id">
-                                    {{
-                                        $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
-                                    }}
-                                </label>
-                            </div>
-                        </div>
-                        <div v-if="errors.materials_ids" class="error-message">
-                            {{ errors.materials_ids }}
-                        </div>
+                    <USelect
+                        v-model="sale.materials_ids"
+                        :items="materialOptions"
+                        multiple
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.materials_ids }"
+                        :placeholder="$t('admin_shop_form.placeholders.select_materials')"
+                        @blur="validateField('materials_ids')"
+                    />
+                    <div v-if="errors.materials_ids" class="error-message">
+                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
@@ -327,20 +282,20 @@
                     <label class="form-label">{{
                         $t('admin_shop_form.labels.description')
                     }}</label>
-                    <textarea
+                    <UTextarea
                         v-model="sale.descr"
-                        class="form-control textarea"
+                        class="form-control"
                         :placeholder="$t('admin_shop_form.placeholders.description')"
-                        rows="4"
-                        maxlength="500"
-                    ></textarea>
+                        :rows="4"
+                        :maxlength="500"
+                    />
                     <div class="char-count">{{ sale.descr.length }}/500</div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" @click="resetForm" class="btn btn-secondary">
+                <UButton type="button" class="btn btn-secondary" @click="resetForm">
                     {{ $t('admin_shop_form.buttons.clear_form') }}
                 </UButton>
                 <UButton
@@ -352,7 +307,7 @@
                         $t('admin_shop_form.buttons.add_work')
                     }}</span>
                     <span v-else>
-                        <span class="spinner"></span>
+                        <span class="spinner" />
                         {{ $t('admin_shop_form.buttons.submitting') }}
                     </span>
                 </UButton>
@@ -361,405 +316,357 @@
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios';
-import { defineComponent } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import type { CreateSaleDto, RequestResult } from '../../types';
-import { useToast } from '@nuxt/ui/runtime/composables/index.js';
 import { useMaterialStore } from '../../stores/MaterialStore';
 
 definePageMeta({
     middleware: 'admin-auth',
 });
 
+const { t, locale } = useI18n();
+const toast = useToast();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+
 const materialStore = useMaterialStore();
 
-export default defineComponent({
-    name: 'AddSale',
-    data() {
-        return {
-            sale: {
-                width: 0,
-                height: 0,
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                year: new Date().getFullYear(),
-                price: 0,
-                descr: '',
-                materials_ids: [] as number[],
-                images: [] as string[],
-            } as CreateSaleDto,
-            files: [] as File[],
-            previewImages: [] as { file: File; preview: string }[],
-            isSubmitting: false,
-            isLoading: true,
-            loadError: null as string | null,
-            requestResult: 'unknown' as RequestResult,
-            materialsDropdownOpen: false,
-            basesDropdownOpen: false,
-            isDragOver: false,
-            fileError: null as string | null,
-            errors: {
-                name_ru: '',
-                name_en: '',
-                width: '',
-                height: '',
-                year: '',
-                price: '',
-                base_id: '',
-                materials_ids: '',
-            } as Record<string, string>,
-            errorMessage: '',
+// Reactive state
+const sale = reactive<CreateSaleDto>({
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
+    price: 0,
+    name_ru: '',
+    name_en: '',
+    base_id: (null as unknown) as number,
+    materials_ids: [],
+    descr: '',
+    images: [],
+});
+
+const files = ref<File[]>([]);
+const previewImages = ref<{ file: File; preview: string }[]>([]);
+const isSubmitting = ref(false);
+const isLoading = ref(true);
+const isDragOver = ref(false);
+const fileError = ref<string | null>(null);
+const errorMessage = ref('');
+
+const errors = reactive<Record<string, string>>({
+    name_ru: '',
+    name_en: '',
+    width: '',
+    height: '',
+    year: '',
+    price: '',
+    base_id: '',
+    materials_ids: '',
+});
+
+const fileInput = ref<HTMLInputElement | null>(null);
+
+// Computed
+const bases = computed(() => materialStore.bases);
+const materials = computed(() => materialStore.materials);
+
+const baseOptions = computed(() => {
+    return bases.value.map((base) => ({
+        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        value: base.id,
+    }));
+});
+
+const materialOptions = computed(() => {
+    return materials.value.map((material) => ({
+        label: locale.value === 'ru' ? material.material_ru : material.material_en,
+        value: material.id,
+    }));
+});
+
+const isFormValid = computed(() => {
+    return (
+        sale.name_ru.trim() !== '' &&
+        sale.name_en.trim() !== '' &&
+        sale.width > 0 &&
+        sale.height > 0 &&
+        sale.year >= 2000 &&
+        sale.year <= new Date().getFullYear() &&
+        sale.price > 0 &&
+        sale.base_id > 0 &&
+        sale.materials_ids.length > 0 &&
+        files.value.length > 0
+    );
+});
+
+// Methods
+function handleDragOver() {
+    isDragOver.value = true;
+}
+
+function handleDragLeave() {
+    isDragOver.value = false;
+}
+
+function handleDrop(event: DragEvent) {
+    isDragOver.value = false;
+    if (event.dataTransfer && event.dataTransfer.files.length) {
+        const droppedFiles = Array.from(event.dataTransfer.files);
+        addImages(droppedFiles);
+    }
+}
+
+function triggerFileInput() {
+    fileInput.value?.click();
+}
+
+function handleFileUpload(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files.length) {
+        const selectedFiles = Array.from(target.files);
+        addImages(selectedFiles);
+    }
+}
+
+function addImages(selectedFiles: File[]) {
+    fileError.value = null;
+
+    // Check max file count
+    if (files.value.length + selectedFiles.length > 10) {
+        fileError.value = t('admin_shop_form.errors.max_files');
+        return;
+    }
+
+    // Check file types
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+
+    if (invalidFiles.length > 0) {
+        fileError.value = t('admin_shop_form.errors.invalid_file_type');
+        return;
+    }
+
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+
+    if (largeFiles.length > 0) {
+        fileError.value = t('admin_shop_form.errors.file_size');
+        return;
+    }
+
+    // Add new files
+    files.value = [...files.value, ...selectedFiles];
+    sale.images = files.value.map((file) => file.name);
+
+    // Create previews for new images
+    selectedFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+            });
         };
-    },
-    async created() {
-        // Wait for reference data to load from the store
-        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-            await materialStore.fetchAll();
-        }
-        this.isLoading = false;
-    },
-    methods: {
-        handleDragOver() {
-            this.isDragOver = true;
-        },
-        handleDragLeave() {
-            this.isDragOver = false;
-        },
-        handleDrop(event: DragEvent) {
-            this.isDragOver = false;
-            if (event.dataTransfer && event.dataTransfer.files.length) {
-                const files = Array.from(event.dataTransfer.files);
-                this.addImages(files);
-            }
-        },
-        triggerFileInput() {
-            (this.$refs.fileInput as HTMLInputElement)?.click();
-        },
-        handleFileUpload(event: Event) {
-            const target = event.target as HTMLInputElement;
-            if (target.files && target.files.length) {
-                const files = Array.from(target.files);
-                this.addImages(files);
-            }
-        },
-        addImages(selectedFiles: File[]) {
-            this.fileError = null;
+        reader.readAsDataURL(file);
+    });
+}
 
-            // Проверка на количество файлов
-            if (this.files.length + selectedFiles.length > 10) {
-                this.fileError = this.$t('admin_shop_form.errors.max_files');
-                return;
-            }
+function removeImage(index: number) {
+    previewImages.value.splice(index, 1);
+    files.value.splice(index, 1);
+    sale.images.splice(index, 1);
+}
 
-            // Проверка типов файлов
-            const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-            const invalidFiles = selectedFiles.filter(
-                (file) => !validTypes.includes(file.type)
-            );
-
-            if (invalidFiles.length > 0) {
-                this.fileError = this.$t('admin_shop_form.errors.invalid_file_type');
-                return;
-            }
-
-            // Проверка размера файлов (макс. 5MB)
-            const maxSize = 5 * 1024 * 1024; // 5MB
-            const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-            if (largeFiles.length > 0) {
-                this.fileError = this.$t('admin_shop_form.errors.file_size');
-                return;
-            }
-
-            // Добавляем новые файлы
-            this.files = [...this.files, ...selectedFiles];
-
-            // Создаем превью для новых изображений
-            selectedFiles.forEach((file) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.previewImages.push({
-                        file,
-                        preview: e.target?.result as string,
-                    });
-                };
-                reader.readAsDataURL(file);
-            });
-        },
-        removeImage(index: number) {
-            this.previewImages.splice(index, 1);
-            this.files.splice(index, 1);
-        },
-        validateField(fieldName: string) {
-            switch (fieldName) {
-                case 'name_ru':
-                    if (!this.sale.name_ru.trim()) {
-                        this.errors.name_ru = this.$t(
-                            'admin_shop_form.errors.name_ru_required'
-                        );
-                    } else {
-                        this.errors.name_ru = '';
-                    }
-                    break;
-                case 'name_en':
-                    if (!this.sale.name_en.trim()) {
-                        this.errors.name_en = this.$t(
-                            'admin_shop_form.errors.name_en_required'
-                        );
-                    } else {
-                        this.errors.name_en = '';
-                    }
-                    break;
-                case 'width':
-                    if (this.sale.width <= 0) {
-                        this.errors.width = this.$t(
-                            'admin_shop_form.errors.width_required'
-                        );
-                    } else {
-                        this.errors.width = '';
-                    }
-                    break;
-                case 'height':
-                    if (this.sale.height <= 0) {
-                        this.errors.height = this.$t(
-                            'admin_shop_form.errors.height_required'
-                        );
-                    } else {
-                        this.errors.height = '';
-                    }
-                    break;
-                case 'year':
-                    if (
-                        this.sale.year < 2000 ||
-                        this.sale.year > new Date().getFullYear()
-                    ) {
-                        this.errors.year = this.$t('admin_shop_form.errors.year_range', {
-                            year: new Date().getFullYear(),
-                        });
-                    } else {
-                        this.errors.year = '';
-                    }
-                    break;
-                case 'price':
-                    if (this.sale.price <= 0) {
-                        this.errors.price = this.$t(
-                            'admin_shop_form.errors.price_required'
-                        );
-                    } else {
-                        this.errors.price = '';
-                    }
-                    break;
-                case 'base_id':
-                    if (this.sale.base_id <= 0) {
-                        this.errors.base_id = this.$t(
-                            'admin_shop_form.errors.base_required'
-                        );
-                    } else {
-                        this.errors.base_id = '';
-                    }
-                    break;
-                case 'materials_ids':
-                    if (this.sale.materials_ids.length === 0) {
-                        this.errors.materials_ids = this.$t(
-                            'admin_shop_form.errors.materials_required'
-                        );
-                    } else {
-                        this.errors.materials_ids = '';
-                    }
-                    break;
-            }
-        },
-        validateForm() {
-            this.validateField('name_ru');
-            this.validateField('name_en');
-            this.validateField('width');
-            this.validateField('height');
-            this.validateField('year');
-            this.validateField('price');
-            this.validateField('base_id');
-            this.validateField('materials_ids');
-
-            // Проверка наличия изображений
-            if (this.files.length === 0) {
-                this.fileError = this.$t('admin_shop_form.errors.images_required');
-                return false;
-            }
-
-            // Проверка отсутствия ошибок
-            return Object.values(this.errors).every((error) => error === '');
-        },
-        async submitForm() {
-            if (this.isSubmitting) return;
-
-            if (!this.validateForm()) {
-                return;
-            }
-
-            try {
-                this.isSubmitting = true;
-                this.errorMessage = '';
-
-                // Формируем данные для отправки
-                const formData = new FormData();
-
-                // Добавляем файлы
-                this.files.forEach((file) => {
-                    formData.append('images', file);
-                    this.sale.images.push(file.name);
-                });
-
-                // Добавляем остальные данные
-                const saleData = {
-                    ...this.sale,
-                };
-
-                formData.append('data', JSON.stringify(saleData));
-
-                const response = await axios.post(SERVER_URL + 'sales', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                });
-
-                if (response.status === 200) {
-                    const toast = useToast();
-                    toast.add({
-                        title: this.$t('toast.success.title'),
-                        description: this.$t('toast.success.description'),
-                        icon: 'i-heroicons-check-circle',
-                        color: 'success',
-                        duration: 5000,
-                    });
-                    this.resetForm();
-                } else {
-                    const toast = useToast();
-                    toast.add({
-                        title: this.$t('toast.error.title'),
-                        description: this.$t('admin_shop_form.messages.submit_failed'),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'error',
-                        duration: 5000,
-                    });
-                }
-            } catch (error: any) {
-                console.error('Error submitting form:', error);
-                const toast = useToast();
-                if (error.response?.status === 413) {
-                    toast.add({
-                        title: this.$t('toast.error.title'),
-                        description: this.$t('admin_shop_form.messages.file_too_large'),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'error',
-                        duration: 5000,
-                    });
-                } else if (error.response?.status === 400) {
-                    toast.add({
-                        title: this.$t('toast.error.title'),
-                        description: this.$t('admin_shop_form.messages.invalid_data'),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'error',
-                        duration: 5000,
-                    });
-                } else {
-                    toast.add({
-                        title: this.$t('toast.error.title'),
-                        description: this.$t('admin_shop_form.messages.general_error'),
-                        icon: 'i-heroicons-exclamation-triangle',
-                        color: 'error',
-                        duration: 5000,
-                    });
-                }
-            } finally {
-                this.isSubmitting = false;
-            }
-        },
-        resetForm() {
-            this.sale = {
-                width: 0,
-                height: 0,
-                year: new Date().getFullYear(),
-                price: 0,
-                name_ru: '',
-                name_en: '',
-                base_id: 0,
-                materials_ids: [],
-                images: [],
-                descr: '',
-            };
-            this.files = [];
-            this.previewImages = [];
-            if (this.$refs.fileInput) {
-                (this.$refs.fileInput as HTMLInputElement).value = '';
-            }
-
-            // Сброс ошибок
-            Object.keys(this.errors).forEach((key) => {
-                this.errors[key] = '';
-            });
-            this.fileError = null;
-        },
-        materialsToggleDropdown() {
-            this.materialsDropdownOpen = !this.materialsDropdownOpen;
-        },
-        toggleMaterial(materialId: number, checked: boolean) {
-            if (checked) {
-                if (!this.sale.materials_ids.includes(materialId)) {
-                    this.sale.materials_ids.push(materialId);
-                }
+function validateField(fieldName: string) {
+    switch (fieldName) {
+        case 'name_ru':
+            if (!sale.name_ru.trim()) {
+                errors.name_ru = t('admin_shop_form.errors.name_ru_required');
             } else {
-                const index = this.sale.materials_ids.indexOf(materialId);
-                if (index > -1) {
-                    this.sale.materials_ids.splice(index, 1);
-                }
+                errors.name_ru = '';
             }
-        },
-        basesToggleDropdown() {
-            this.basesDropdownOpen = !this.basesDropdownOpen;
-        },
-    },
-    computed: {
-        bases() {
-            return materialStore.bases;
-        },
-        materials() {
-            return materialStore.materials;
-        },
-        selectedMaterialsDisplay() {
-            if (this.sale.materials_ids.length === 0) return '';
-            const selectedNames = materialStore.materials
-                .filter((material) => this.sale.materials_ids.includes(material.id))
-                .map((material) =>
-                    this.$i18n.locale === 'ru'
-                        ? material.material_ru
-                        : material.material_en
-                );
-            return selectedNames.join(', ');
-        },
-        isFormValid() {
-            return (
-                this.sale.name_ru.trim() !== '' &&
-                this.sale.name_en.trim() !== '' &&
-                this.sale.width > 0 &&
-                this.sale.height > 0 &&
-                this.sale.year >= 2000 &&
-                this.sale.year <= new Date().getFullYear() &&
-                this.sale.price > 0 &&
-                this.sale.base_id > 0 &&
-                this.sale.materials_ids.length > 0 &&
-                this.files.length > 0
-            );
-        },
-    },
+            break;
+        case 'name_en':
+            if (!sale.name_en.trim()) {
+                errors.name_en = t('admin_shop_form.errors.name_en_required');
+            } else {
+                errors.name_en = '';
+            }
+            break;
+        case 'width':
+            if (sale.width <= 0) {
+                errors.width = t('admin_shop_form.errors.width_required');
+            } else {
+                errors.width = '';
+            }
+            break;
+        case 'height':
+            if (sale.height <= 0) {
+                errors.height = t('admin_shop_form.errors.height_required');
+            } else {
+                errors.height = '';
+            }
+            break;
+        case 'year':
+            if (sale.year < 2000 || sale.year > new Date().getFullYear()) {
+                errors.year = t('admin_shop_form.errors.year_range', {
+                    year: new Date().getFullYear(),
+                });
+            } else {
+                errors.year = '';
+            }
+            break;
+        case 'price':
+            if (sale.price <= 0) {
+                errors.price = t('admin_shop_form.errors.price_required');
+            } else {
+                errors.price = '';
+            }
+            break;
+        case 'base_id':
+            if (sale.base_id <= 0) {
+                errors.base_id = t('admin_shop_form.errors.base_required');
+            } else {
+                errors.base_id = '';
+            }
+            break;
+        case 'materials_ids':
+            if (sale.materials_ids.length === 0) {
+                errors.materials_ids = t('admin_shop_form.errors.materials_required');
+            } else {
+                errors.materials_ids = '';
+            }
+            break;
+    }
+}
+
+function validateForm() {
+    validateField('name_ru');
+    validateField('name_en');
+    validateField('width');
+    validateField('height');
+    validateField('year');
+    validateField('price');
+    validateField('base_id');
+    validateField('materials_ids');
+
+    // Check images
+    if (files.value.length === 0) {
+        fileError.value = t('admin_shop_form.errors.images_required');
+        return false;
+    }
+
+    // Check no errors
+    return Object.values(errors).every((error) => error === '');
+}
+
+async function submitForm() {
+    if (isSubmitting.value) return;
+
+    if (!validateForm()) {
+        return;
+    }
+
+    try {
+        isSubmitting.value = true;
+        errorMessage.value = '';
+
+        // Build form data
+        const formData = new FormData();
+
+        // Add files
+        files.value.forEach((file) => {
+            formData.append('images', file);
+        });
+
+        // Add other data
+        formData.append('data', JSON.stringify(sale));
+
+        const response = await axios.post(SERVER_URL + 'sales', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.status === 200) {
+            toast.add({
+                title: t('toast.success.title'),
+                description: t('toast.success.description'),
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
+            });
+            resetForm();
+        } else {
+            toast.add({
+                title: t('toast.error.title'),
+                description: t('admin_shop_form.messages.submit_failed'),
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
+        }
+    } catch (error: any) {
+        console.error('Error submitting form:', error);
+        let description = t('admin_shop_form.messages.general_error');
+        if (error.response?.status === 413) {
+            description = t('admin_shop_form.messages.file_too_large');
+        } else if (error.response?.status === 400) {
+            description = t('admin_shop_form.messages.invalid_data');
+        }
+        toast.add({
+            title: t('toast.error.title'),
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
+    } finally {
+        isSubmitting.value = false;
+    }
+}
+
+function resetForm() {
+    sale.width = 0;
+    sale.height = 0;
+    sale.year = new Date().getFullYear();
+    sale.price = 0;
+    sale.name_ru = '';
+    sale.name_en = '';
+    sale.base_id = 0;
+    sale.materials_ids = [];
+    sale.descr = '';
+    sale.images = [];
+
+    files.value = [];
+    previewImages.value = [];
+
+    if (fileInput.value) {
+        fileInput.value.value = '';
+    }
+
+    // Reset errors
+    Object.keys(errors).forEach((key) => {
+        errors[key] = '';
+    });
+    fileError.value = null;
+}
+
+// Lifecycle
+onMounted(async () => {
+    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+        await materialStore.fetchAll();
+    }
+    isLoading.value = false;
 });
 </script>
 
 <style scoped>
 select:has(option.placeholder:checked) {
-    color: red;
+    color: #999;
 }
 
 .add-sale-container {
@@ -783,7 +690,7 @@ select:has(option.placeholder:checked) {
 }
 
 .page-subtitle {
-    color: #666;
+    color: #333;
     font-size: 1rem;
     margin: 0;
 }
@@ -833,13 +740,28 @@ select:has(option.placeholder:checked) {
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    min-height: 46px;
+    box-sizing: border-box;
     transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:hover {
+    border-color: #4a90e2;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Consistent placeholder color across all input fields */
+.form-control::placeholder,
+.form-control input::placeholder,
+.form-control [data-placeholder],
+.form-control [data-slot='placeholder'] {
+    color: #999 !important;
+    opacity: 1;
 }
 
 .is-invalid {
@@ -852,7 +774,7 @@ select:has(option.placeholder:checked) {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
+    padding-right: 2.5rem;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -971,11 +893,6 @@ select:has(option.placeholder:checked) {
     color: #666;
 }
 
-.textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
 .char-count {
     font-size: 0.875rem;
     color: #666;
@@ -1028,71 +945,6 @@ select:has(option.placeholder:checked) {
     background-color: #e0e0e0;
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.alert {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    padding: 1rem;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    max-width: 350px;
-    z-index: 1000;
-}
-
-.alert-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-    flex: 1;
-}
-
-.alert-icon {
-    width: 1.5rem;
-    height: 1.5rem;
-    flex-shrink: 0;
-}
-
-.alert-success {
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-}
-
-.alert-success .alert-icon {
-    color: #28a745;
-}
-
-.alert-danger {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.alert-danger .alert-icon {
-    color: #dc3545;
-}
-
-.btn-close {
-    border: none;
-    font-size: 1.25rem;
-    cursor: pointer;
-    padding: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: inherit;
-    opacity: 0.7;
-}
-
-.btn-close:hover {
-    opacity: 1;
 }
 
 .error-message {
@@ -1157,12 +1009,6 @@ select:has(option.placeholder:checked) {
         width: 100%;
     }
 
-    .alert {
-        right: 0.5rem;
-        left: 0.5rem;
-        max-width: none;
-    }
-
     .page-title {
         font-size: 1.5rem;
     }
@@ -1170,65 +1016,5 @@ select:has(option.placeholder:checked) {
     .section-title {
         font-size: 1.2rem;
     }
-}
-
-.multi-select-wrapper {
-    position: relative;
-    width: 100%;
-}
-
-.select-display {
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    background-color: white;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
-}
-
-.select-display:hover {
-    border-color: #4a90e2;
-}
-
-.dropdown-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: white;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.option-item {
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
-
-.option-item:hover {
-    background-color: #f8f9fa;
-}
-
-.option-item input {
-    margin-right: 8px;
-}
-
-.arrow {
-    float: right;
-    transition: transform 0.3s;
-}
-
-.arrow-up {
-    transform: rotate(180deg);
 }
 </style>
