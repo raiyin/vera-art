@@ -67,18 +67,11 @@ const formatDate = (dateString: string) => {
         month: 'long',
         day: 'numeric',
     };
-    return date.toLocaleDateString(
-        locale.value === 'ru' ? 'ru-RU' : 'en-US',
-        options
-    );
+    return date.toLocaleDateString(locale.value === 'ru' ? 'ru-RU' : 'en-US', options);
 };
 
 const getNewsTitle = (newsItem: NewsDescDto) => {
     return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
-};
-
-const getNewsSubtitle = (newsItem: NewsDescDto) => {
-    return locale.value === 'ru' ? newsItem.subTitle_ru : newsItem.subTitle_en;
 };
 
 const getImageUrl = (newsItem: NewsDescDto) => {
@@ -108,7 +101,7 @@ const deleteNews = async (newsItem: NewsDescDto) => {
         });
 
         if (response.status === 200) {
-            news.value = news.value.filter(n => n.id !== newsItem.id);
+            news.value = news.value.filter((n) => n.id !== newsItem.id);
         }
     } catch (error) {
         console.error('Error deleting news:', error);
@@ -156,9 +149,6 @@ onUnmounted(() => {
                 >
                     {{ $t('news.title') }}
                 </h1>
-                <p class="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    {{ $t('news.subtitle') }}
-                </p>
             </div>
 
             <!-- News Grid -->
@@ -166,17 +156,14 @@ onUnmounted(() => {
                 <UCard
                     v-for="newsItem in news"
                     :key="newsItem.id"
-                    class="news-card overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                    class="news-card overflow-hidden hover:shadow-xl transition-shadow duration-300 justify-between"
                 >
                     <template #header>
                         <!-- Date -->
                         <div
                             class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2"
                         >
-                            <UIcon
-                                name="i-heroicons-calendar"
-                                class="w-4 h-4 mr-2"
-                            />
+                            <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-2" />
                             {{ formatDate(newsItem.datetime) }}
                         </div>
                         <!-- Title -->
@@ -203,21 +190,13 @@ onUnmounted(() => {
                             />
                         </div>
 
-                        <!-- Subtitle -->
-                        <p class="text-gray-600 dark:text-gray-300 line-clamp-3">
-                            {{ getNewsSubtitle(newsItem) }}
-                        </p>
-
                         <!-- Read More -->
                         <div
                             class="flex items-center text-green-600 dark:text-green-400 font-medium cursor-pointer"
                             @click="navigateToNews(newsItem.id)"
                         >
                             <span class="mr-2">{{ $t('news.readMore') }}</span>
-                            <UIcon
-                                name="i-heroicons-arrow-right"
-                                class="w-4 h-4"
-                            />
+                            <UIcon name="i-heroicons-arrow-right" class="w-4 h-4" />
                         </div>
 
                         <!-- Admin Controls -->

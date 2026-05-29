@@ -31,8 +31,7 @@ func GetNewsById(c *gin.Context) {
 	query := "SELECT * FROM news WHERE id = ?"
 	var news models.News
 	err := db.QueryRow(query, id).Scan(
-		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn,
-		&news.SubtitleRu, &news.SubtitleEn, &news.Dir, &news.ImgBack,
+		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn, &news.Dir, &news.ImgBack,
 		&news.ImgBackfull,
 		&news.TextRu, &news.TextEn, &images, &videos)
 	// &news.TextRu, &news.TextEn, &news.Images, &news.Videos)
@@ -119,8 +118,7 @@ func GetNews(c *gin.Context) {
 	for rows.Next() {
 		p := models.News{}
 		err := rows.Scan(
-			&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.SubtitleRu,
-			&p.SubtitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.TextRu, &p.TextEn, &images, &videos)
+			&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.TextRu, &p.TextEn, &images, &videos)
 
 		if images.Valid {
 			p.Images = strings.Split(images.String, ";")
@@ -208,14 +206,12 @@ func AddNews(c *gin.Context) {
 	videosStr := strings.Join(news.Videos, ";")
 
 	_, err = tx.Exec(
-		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"insert into news (id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID,
 		news.Datetime,
 		news.TitleRu,
 		news.TitleEn,
-		news.SubtitleRu,
-		news.SubtitleEn,
 		temp_db_dir,
 		news.ImgBack,
 		news.ImgBackfull,
@@ -456,11 +452,11 @@ func UpdateNews(c *gin.Context) {
 	// Update news record
 	_, err = tx.Exec(`
 		UPDATE news
-		SET datetime = ?, title_ru = ?, title_en = ?, subtitle_ru = ?, subtitle_en = ?,
+		SET datetime = ?, title_ru = ?, title_en = ?,
 		    dir = ?, img_back = ?, img_backfull = ?,
 		    text_ru = ?, text_en = ?, images = ?, videos = ?
 		WHERE id = ?`,
-		news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn,
+		news.Datetime, news.TitleRu, news.TitleEn,
 		news.Dir, news.ImgBack, news.ImgBackfull,
 		news.TextRu, news.TextEn, imagesStr, videosStr, id)
 

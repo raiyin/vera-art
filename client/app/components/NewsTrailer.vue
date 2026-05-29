@@ -14,8 +14,6 @@ const props = defineProps<{
         img_back: string;
         title_ru: string;
         title_en: string;
-        subTitle_ru: string;
-        subTitle_en: string;
         datetime: string;
     };
 }>();
@@ -104,9 +102,6 @@ const deleteNews = async () => {
         <div class="news-content">
             <div v-show="isLoaded">
                 {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}
-            </div>
-            <div v-show="isLoaded">
-                {{ locale === 'ru' ? newsObject.subTitle_ru : newsObject.subTitle_en }}
             </div>
             <div v-show="isLoaded">
                 <CalendarIcon />

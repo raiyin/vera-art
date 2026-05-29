@@ -2,9 +2,6 @@
     <div class="add-sale-container">
         <div class="header-section">
             <h1 class="page-title">{{ $t('admin_shop_form.page_title') }}</h1>
-            <p class="page-subtitle">
-                {{ $t('admin_shop_form.page_subtitle') }}
-            </p>
         </div>
 
         <!-- Загрузчик -->

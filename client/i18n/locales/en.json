@@ -389,8 +389,6 @@
             "video_gallery": "Video gallery",
             "title_ru": "Title in Russian",
             "title_en": "Title in English",
-            "subtitle_ru": "Subtitle in Russian",
-            "subtitle_en": "Subtitle in English",
             "date": "Date",
             "text_ru": "Text in Russian",
             "text_en": "Text in English",
@@ -401,8 +399,6 @@
         "placeholders": {
             "title_ru": "For example: 'Звездная ночь'",
             "title_en": "For example: 'Starry Night'",
-            "subtitle_ru": "For example: 'Звездная ночь'",
-            "subtitle_en": "For example: 'Starry Night'",
             "text_ru": "Enter news text in Russian",
             "text_en": "Enter news text in English"
         },
@@ -426,10 +422,6 @@
             "title_ru_length": "Title in Russian must be between 3 and 50 characters",
             "title_en_required": "Please enter title in English",
             "title_en_length": "Title in English must be between 3 and 50 characters",
-            "subtitle_ru_required": "Please enter subtitle in Russian",
-            "subtitle_ru_length": "Subtitle in Russian must be between 3 and 50 characters",
-            "subtitle_en_required": "Please enter subtitle in English",
-            "subtitle_en_length": "Subtitle in English must be between 3 and 50 characters",
             "main_image_required": "Please add main news image",
             "preview_image_required": "Please add preview news image",
             "images_required": "Please add at least one image",

@@ -23,8 +23,6 @@ type NewsForm = Omit<NewsDesc, 'id'>;
 const news = reactive<NewsForm>({
     title_en: '',
     title_ru: '',
-    subTitle_en: '',
-    subTitle_ru: '',
     img_back: '',
     img_backfull: '',
     images: [] as string[],
@@ -52,8 +50,6 @@ const isDragOver = ref(false);
 const errors = reactive<Record<string, string>>({
     title_ru: '',
     title_en: '',
-    subTitle_ru: '',
-    subTitle_en: '',
     img_back: '',
     img_backfull: '',
     images: '',
@@ -72,8 +68,6 @@ const isFormValid = computed(() => {
     return (
         news.title_ru.trim() !== '' &&
         news.title_en.trim() !== '' &&
-        news.subTitle_ru.trim() !== '' &&
-        news.subTitle_en.trim() !== '' &&
         img_back_preview.value !== null &&
         img_backfull_preview.value !== null &&
         previewImages.value.length > 0 &&
@@ -326,30 +320,6 @@ function validateField(fieldName: string) {
                 errors.title_en = '';
             }
             break;
-        case 'subTitle_ru':
-            if (!news.subTitle_ru.trim()) {
-                errors.subTitle_ru = t('admin_news_form.errors.subtitle_ru_required');
-            } else if (
-                news.subTitle_ru.trim().length < 3 ||
-                news.subTitle_ru.trim().length > 50
-            ) {
-                errors.subTitle_ru = t('admin_news_form.errors.subtitle_ru_length');
-            } else {
-                errors.subTitle_ru = '';
-            }
-            break;
-        case 'subTitle_en':
-            if (!news.subTitle_en.trim()) {
-                errors.subTitle_en = t('admin_news_form.errors.subtitle_en_required');
-            } else if (
-                news.subTitle_en.trim().length < 3 ||
-                news.subTitle_en.trim().length > 50
-            ) {
-                errors.subTitle_en = t('admin_news_form.errors.subtitle_en_length');
-            } else {
-                errors.subTitle_en = '';
-            }
-            break;
         case 'img_back':
             if (!img_back_preview.value || !news.img_back) {
                 errors.img_back = t('admin_news_form.errors.preview_image_required');
@@ -391,8 +361,6 @@ function validateField(fieldName: string) {
 function validateForm() {
     validateField('title_ru');
     validateField('title_en');
-    validateField('subTitle_ru');
-    validateField('subTitle_en');
     validateField('img_back');
     validateField('img_backfull');
     validateField('images');
@@ -494,8 +462,6 @@ function resetForm() {
     news.datetime = '';
     news.title_en = '';
     news.title_ru = '';
-    news.subTitle_en = '';
-    news.subTitle_ru = '';
     news.dir = '';
     news.img_back = '';
     news.img_backfull = '';
@@ -530,9 +496,6 @@ function resetForm() {
         <div class="header-section">
             <div class="header-content">
                 <h1 class="page-title">{{ $t('admin_news_form.page_title') }}</h1>
-                <p class="page-subtitle">
-                    {{ $t('admin_news_form.page_subtitle') }}
-                </p>
             </div>
         </div>
 
@@ -870,42 +833,6 @@ function resetForm() {
                         {{ errors.title_en }}
                     </div>
                 </div>
-
-                <!-- Подзаголовок -->
-                <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_news_form.labels.subtitle_ru') }}
-                        <span class="required">*</span>
-                    </label>
-                    <UInput
-                        v-model="news.subTitle_ru"
-                        @blur="validateField('subTitle_ru')"
-                        type="text"
-                        :class="['form-control', { 'is-invalid': errors.subTitle_ru }]"
-                        :placeholder="$t('admin_news_form.placeholders.subtitle_ru')"
-                    />
-                    <div class="error-message" v-if="errors.subTitle_ru">
-                        {{ errors.subTitle_ru }}
-                    </div>
-                </div>
-
-                <!-- Подзаголовок по английски-->
-                <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_news_form.labels.subtitle_en') }}
-                        <span class="required">*</span>
-                    </label>
-                    <UInput
-                        v-model="news.subTitle_en"
-                        @blur="validateField('subTitle_en')"
-                        type="text"
-                        :class="['form-control', { 'is-invalid': errors.subTitle_en }]"
-                        :placeholder="$t('admin_news_form.placeholders.subtitle_en')"
-                    />
-                    <div class="error-message" v-if="errors.subTitle_en">
-                        {{ errors.subTitle_en }}
-                    </div>
-                </div>
             </div>
 
             <!-- Дополнительная информация -->
@@ -1013,12 +940,6 @@ select:has(option.placeholder:checked) {
     color: #333;
     margin-bottom: 0.5rem;
     font-size: 1.8rem;
-}
-
-.page-subtitle {
-    color: #333;
-    font-size: 1rem;
-    margin: 0;
 }
 
 .news-form {

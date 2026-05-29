@@ -326,42 +326,6 @@
                         {{ errors.title_en }}
                     </div>
                 </div>
-
-                <!-- Подзаголовок -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Подзаголовок по-русски
-                        <span class="required">*</span>
-                    </label>
-                    <UInput
-                        v-model="news.subTitle_ru"
-                        @blur="validateField('subTitle_ru')"
-                        type="text"
-                        :class="['form-control', { 'is-invalid': errors.subTitle_ru }]"
-                        placeholder="Например: 'Звездная ночь'"
-                    />
-                    <div class="error-message" v-if="errors.subTitle_ru">
-                        {{ errors.subTitle_ru }}
-                    </div>
-                </div>
-
-                <!-- Подзаголовок по английски-->
-                <div class="form-group">
-                    <label class="form-label">
-                        Подзаголовок по-английски
-                        <span class="required">*</span>
-                    </label>
-                    <UInput
-                        v-model="news.subTitle_en"
-                        @blur="validateField('subTitle_en')"
-                        type="text"
-                        :class="['form-control', { 'is-invalid': errors.subTitle_en }]"
-                        placeholder="For example: 'Starry Night'"
-                    />
-                    <div class="error-message" v-if="errors.subTitle_en">
-                        {{ errors.subTitle_en }}
-                    </div>
-                </div>
             </div>
 
             <!-- Дополнительная информация -->
@@ -487,8 +451,6 @@ const news = reactive<NewsDescDto>({
     id: '',
     title_en: '',
     title_ru: '',
-    subTitle_en: '',
-    subTitle_ru: '',
     img_back: '',
     img_backfull: '',
     datetime: '',
@@ -520,8 +482,6 @@ const errorMessage = ref('');
 const errors = reactive<Record<string, string>>({
     title_ru: '',
     title_en: '',
-    subTitle_ru: '',
-    subTitle_en: '',
     img_back: '',
     img_backfull: '',
     images: '',
@@ -538,15 +498,15 @@ const videosInput = ref<HTMLInputElement | null>(null);
 
 const newsDate = computed({
     get: () => news.datetime.split('T')[0],
-    set: (val) => { news.datetime = val; },
+    set: (val) => {
+        news.datetime = val;
+    },
 });
 
 const isFormValid = computed(() => {
     return (
         news.title_ru.trim() !== '' &&
         news.title_en.trim() !== '' &&
-        news.subTitle_ru.trim() !== '' &&
-        news.subTitle_en.trim() !== '' &&
         (img_back_preview.value !== null || news.img_back !== '') &&
         (img_backfull_preview.value !== null || news.img_backfull !== '') &&
         news.text_ru.trim() !== '' &&
@@ -810,38 +770,16 @@ function validateField(fieldName: string) {
                 news.title_en.trim().length < 3 ||
                 news.title_en.trim().length > 50
             ) {
-                errors.title_en = 'Заголовок на английском должен быть от 3 до 50 символов';
+                errors.title_en =
+                    'Заголовок на английском должен быть от 3 до 50 символов';
             } else {
                 errors.title_en = '';
             }
             break;
-        case 'subTitle_ru':
-            if (!news.subTitle_ru.trim()) {
-                errors.subTitle_ru = 'Пожалуйста, введите подзаголовок на русском';
-            } else if (
-                news.subTitle_ru.trim().length < 3 ||
-                news.subTitle_ru.trim().length > 50
-            ) {
-                errors.subTitle_ru = 'Подзаголовок на русском должен быть от 3 до 50 символов';
-            } else {
-                errors.subTitle_ru = '';
-            }
-            break;
-        case 'subTitle_en':
-            if (!news.subTitle_en.trim()) {
-                errors.subTitle_en = 'Пожалуйста, введите подзаголовок на английском';
-            } else if (
-                news.subTitle_en.trim().length < 3 ||
-                news.subTitle_en.trim().length > 50
-            ) {
-                errors.subTitle_en = 'Подзаголовок на английском должен быть от 3 до 50 символов';
-            } else {
-                errors.subTitle_en = '';
-            }
-            break;
         case 'img_back':
             if (!img_back_preview.value && !news.img_back) {
-                errors.img_back = 'Пожалуйста, добавьте предварительное изображение новости';
+                errors.img_back =
+                    'Пожалуйста, добавьте предварительное изображение новости';
             } else {
                 errors.img_back = '';
             }
@@ -875,8 +813,6 @@ function validateField(fieldName: string) {
 function validateForm() {
     validateField('title_ru');
     validateField('title_en');
-    validateField('subTitle_ru');
-    validateField('subTitle_en');
     validateField('img_back');
     validateField('img_backfull');
     validateField('images');
@@ -935,17 +871,21 @@ async function submitForm() {
             originalNews.value = { ...news };
         } else {
             showErrorAlert.value = true;
-            errorMessage.value = 'Не удалось обновить новость. Пожалуйста, попробуйте снова.';
+            errorMessage.value =
+                'Не удалось обновить новость. Пожалуйста, попробуйте снова.';
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
         showErrorAlert.value = true;
         if (error.response?.status === 413) {
-            errorMessage.value = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+            errorMessage.value =
+                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            errorMessage.value = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+            errorMessage.value =
+                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
         } else {
-            errorMessage.value = 'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
+            errorMessage.value =
+                'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
         }
     } finally {
         isSubmitting.value = false;
@@ -971,7 +911,6 @@ function resetForm() {
     });
     fileError.value = null;
 }
-
 </script>
 
 <style scoped>

@@ -70,10 +70,6 @@ onMounted(() => {
                         locale === 'ru'
                             ? sideNewsObject.title_ru
                             : sideNewsObject.title_en
-                    }}&nbsp;{{
-                        locale === 'ru'
-                            ? sideNewsObject.subTitle_ru
-                            : sideNewsObject.subTitle_en
                     }}
                 </h6>
                 <div class="date">

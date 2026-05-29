@@ -8,9 +8,6 @@ import SideNewsTrailer from '@/components/SideNewsTrailer.vue';
 import VideoSection from '@/components/VideoSection.vue';
 import NewsDescriptionSkeleton from '@/components/NewsDescriptionSkeleton.vue';
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-
 export default {
     components: {
         SideNewsTrailer,
@@ -18,6 +15,9 @@ export default {
         NewsDescriptionSkeleton,
     },
     setup() {
+        const config = useRuntimeConfig();
+        const SERVER_URL = config.public.serverUrl;
+
         const route = useRoute();
         const router = useRouter();
         const { locale, t } = useI18n();
@@ -412,17 +412,6 @@ export default {
                             : currentNewsItem.title_en
                     }}
                 </h1>
-
-                <!-- Subtitle -->
-                <h2
-                    class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-6 font-medium"
-                >
-                    {{
-                        locale === 'ru'
-                            ? currentNewsItem.subTitle_ru
-                            : currentNewsItem.subTitle_en
-                    }}
-                </h2>
             </div>
 
             <!-- News Text -->
@@ -655,16 +644,6 @@ export default {
                             <span class="counter-total">{{
                                 currentNewsItem.images.length
                             }}</span>
-                        </div>
-
-                        <!-- Image Description -->
-                        <div class="custom-modal-caption">
-                            {{
-                                $t('news.detail.modal.caption', {
-                                    current: selectedImageIndex + 1,
-                                    total: currentNewsItem.images.length,
-                                })
-                            }}
                         </div>
                     </div>
 
@@ -1024,21 +1003,6 @@ export default {
     opacity: 0.9;
 }
 
-.custom-modal-caption {
-    position: absolute;
-    bottom: 1rem;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: white;
-    font-size: 0.875rem;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 0.75rem;
-    margin: 0 3rem;
-    border-radius: 0.5rem;
-    backdrop-filter: blur(4px);
-}
-
 .custom-modal-thumbnails {
     display: flex;
     gap: 0.5rem;
@@ -1123,12 +1087,6 @@ export default {
         top: 0.5rem;
         left: 0.5rem;
         padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .custom-modal-caption {
-        margin: 0 1rem;
-        padding: 0.5rem;
         font-size: 0.75rem;
     }
 
