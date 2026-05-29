@@ -1,5 +1,5 @@
 import { defineStore, } from 'pinia';
-import { ref, watch, computed, } from 'vue';
+import { ref, computed, } from 'vue';
 import { getRoleFromToken, getUserIdFromToken, } from '../utils/jwt';
 
 interface TokenData {
@@ -11,7 +11,6 @@ interface TokenData {
 }
 
 export const useAuthStore = defineStore('authStore', () => {
-    const theme = ref('light',);
     const isAuthenticated = ref(false,);
     const accessToken = ref<string | null>(null,);
     const refreshToken = ref<string | null>(null,);
@@ -19,32 +18,6 @@ export const useAuthStore = defineStore('authStore', () => {
     const refreshTokenExpiry = ref<Date | null>(null,);
     const userRole = ref<string | null>(null,);
     const userId = ref<number | null>(null,);
-    const DARK_CLASS_NAME = 'body_theme_dark';
-
-    // Client-side only initialization
-    if (typeof window !== 'undefined') {
-        const themeLocalStorage = localStorage.getItem('theme',);
-
-        if (themeLocalStorage) {
-            theme.value = JSON.parse(themeLocalStorage,);
-            if (theme.value === 'dark') {
-                document.body?.classList.add(DARK_CLASS_NAME,);
-            }
-        }
-    }
-
-    // Watch for theme changes
-    watch(theme, (theme,) => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('theme', JSON.stringify(theme,),);
-            const body = document.querySelector('body',);
-            if (theme === 'dark') {
-                body?.classList.add(DARK_CLASS_NAME,);
-            } else {
-                body?.classList.remove(DARK_CLASS_NAME,);
-            }
-        }
-    },);
 
     // Save tokens to localStorage
     const saveTokens = (tokenData: TokenData,) => {
@@ -145,25 +118,25 @@ export const useAuthStore = defineStore('authStore', () => {
     const initFromLocalStorage = () => {
         if (typeof window === 'undefined') return;
 
-        const storedAccessToken = localStorage.getItem('access_token');
-        const storedRefreshToken = localStorage.getItem('refresh_token');
-        const storedAccessExpiry = localStorage.getItem('access_expires');
-        const storedRefreshExpiry = localStorage.getItem('refresh_expires');
+        const storedAccessToken = localStorage.getItem('access_token',);
+        const storedRefreshToken = localStorage.getItem('refresh_token',);
+        const storedAccessExpiry = localStorage.getItem('access_expires',);
+        const storedRefreshExpiry = localStorage.getItem('refresh_expires',);
 
         if (storedAccessToken && storedRefreshToken) {
             accessToken.value = storedAccessToken;
             refreshToken.value = storedRefreshToken;
 
             if (storedAccessExpiry) {
-                accessTokenExpiry.value = new Date(storedAccessExpiry);
+                accessTokenExpiry.value = new Date(storedAccessExpiry,);
             }
 
             if (storedRefreshExpiry) {
-                refreshTokenExpiry.value = new Date(storedRefreshExpiry);
+                refreshTokenExpiry.value = new Date(storedRefreshExpiry,);
             }
 
-            const role = getRoleFromToken(storedAccessToken);
-            const id = getUserIdFromToken(storedAccessToken);
+            const role = getRoleFromToken(storedAccessToken,);
+            const id = getUserIdFromToken(storedAccessToken,);
             if (role) userRole.value = role;
             if (id) userId.value = id;
 
@@ -173,13 +146,12 @@ export const useAuthStore = defineStore('authStore', () => {
             isAuthenticated.value = !!isRefreshValid;
 
             if (!isAccessValid && isRefreshValid) {
-                console.log('Access token expired, refresh token still valid');
+                console.log('Access token expired, refresh token still valid',);
             }
         }
     };
 
     return {
-        theme,
         isAuthenticated,
         accessToken,
         refreshToken,

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
-import { useAuthStore } from '../../stores/AuthStore';
+import { useAuthStore } from '../stores/AuthStore';
 import { storeToRefs } from 'pinia';
 import { ref, computed, onMounted } from 'vue';
 import { useRouter, useI18n } from '#imports';
