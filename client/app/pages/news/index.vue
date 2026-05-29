@@ -1,137 +1,149 @@
-<script lang="ts">
+<script setup lang="ts">
 import type { NewsDescDto } from '../../types';
+import { useAuthStore } from '../../stores/AuthStore';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export default {
-    setup() {
-        const config = useRuntimeConfig();
-        const SERVER_URL = config.public.serverUrl;
-        const { locale } = useI18n();
-        const router = useRouter();
-        const news = ref<NewsDescDto[]>([]);
-        const page = ref(0);
-        const limit = ref(9); // Load 9 news items at a time as requested
-        const loading = ref(false);
-        const hasMore = ref(true);
-        const observer = ref<IntersectionObserver | null>(null);
-        const observerElement = ref<HTMLElement | null>(null);
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+const { locale } = useI18n();
+const router = useRouter();
+const authStore = useAuthStore();
 
-        const loadNews = async (initial = false) => {
-            if (loading.value || (!hasMore.value && !initial)) return;
+const news = ref<NewsDescDto[]>([]);
+const page = ref(0);
+const limit = ref(9);
+const loading = ref(false);
+const hasMore = ref(true);
+const observer = ref<IntersectionObserver | null>(null);
+const observerElement = ref<HTMLElement | null>(null);
+const deletingId = ref<string | null>(null);
 
-            try {
-                loading.value = true;
-                const response = await axios.get(SERVER_URL + 'news', {
-                    params: {
-                        offset: page.value * limit.value,
-                        limit: limit.value,
-                    },
-                });
+const loadNews = async (initial = false) => {
+    if (loading.value || (!hasMore.value && !initial)) return;
 
-                const newNews = response.data || [];
-
-                if (initial) {
-                    news.value = newNews;
-                } else {
-                    news.value = [...news.value, ...newNews];
-                }
-
-                // Check if we got fewer items than requested
-                if (newNews.length < limit.value) {
-                    hasMore.value = false;
-                }
-
-                if (!initial) {
-                    page.value += 1;
-                }
-            } catch (e) {
-                console.error('Error fetching news', e);
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const loadMoreNews = async () => {
-            if (!hasMore.value || loading.value) return;
-            await loadNews(false);
-        };
-
-        const formatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            const options: Intl.DateTimeFormatOptions = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            };
-            return date.toLocaleDateString(
-                locale.value === 'ru' ? 'ru-RU' : 'en-US',
-                options
-            );
-        };
-
-        const getNewsTitle = (newsItem: NewsDescDto) => {
-            return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
-        };
-
-        const getNewsSubtitle = (newsItem: NewsDescDto) => {
-            return locale.value === 'ru' ? newsItem.subTitle_ru : newsItem.subTitle_en;
-        };
-
-        const getImageUrl = (newsItem: NewsDescDto) => {
-            return newsItem.dir + newsItem.img_back;
-        };
-
-        const navigateToNews = (id: string) => {
-            router.push(`/news/${id}`);
-        };
-
-        onMounted(async () => {
-            // Load initial news
-            await loadNews(true);
-
-            // Setup intersection observer for infinite scroll
-            const options = {
-                root: null,
-                rootMargin: '100px',
-                threshold: 0.1,
-            };
-
-            observer.value = new IntersectionObserver((entries) => {
-                const entry = entries[0];
-                if (entry?.isIntersecting && hasMore.value && !loading.value) {
-                    loadMoreNews();
-                }
-            }, options);
-
-            // Observe the sentinel element
-            if (observerElement.value) {
-                observer.value.observe(observerElement.value);
-            }
+    try {
+        loading.value = true;
+        const response = await axios.get(SERVER_URL + 'news', {
+            params: {
+                offset: page.value * limit.value,
+                limit: limit.value,
+            },
         });
 
-        onUnmounted(() => {
-            if (observer.value) {
-                observer.value.disconnect();
-            }
-        });
+        const newNews = response.data || [];
 
-        return {
-            news,
-            loading,
-            hasMore,
-            observerElement,
-            formatDate,
-            getNewsTitle,
-            getNewsSubtitle,
-            getImageUrl,
-            navigateToNews,
-            locale,
-        };
-    },
+        if (initial) {
+            news.value = newNews;
+        } else {
+            news.value = [...news.value, ...newNews];
+        }
+
+        if (newNews.length < limit.value) {
+            hasMore.value = false;
+        }
+
+        if (!initial) {
+            page.value += 1;
+        }
+    } catch (e) {
+        console.error('Error fetching news', e);
+    } finally {
+        loading.value = false;
+    }
 };
+
+const loadMoreNews = async () => {
+    if (!hasMore.value || loading.value) return;
+    await loadNews(false);
+};
+
+const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    };
+    return date.toLocaleDateString(
+        locale.value === 'ru' ? 'ru-RU' : 'en-US',
+        options
+    );
+};
+
+const getNewsTitle = (newsItem: NewsDescDto) => {
+    return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
+};
+
+const getNewsSubtitle = (newsItem: NewsDescDto) => {
+    return locale.value === 'ru' ? newsItem.subTitle_ru : newsItem.subTitle_en;
+};
+
+const getImageUrl = (newsItem: NewsDescDto) => {
+    return newsItem.dir + newsItem.img_back;
+};
+
+const navigateToNews = (id: string) => {
+    router.push(`/news/${id}`);
+};
+
+const editNews = (id: string) => {
+    router.push(`/news/edit/${id}/`);
+};
+
+const deleteNews = async (newsItem: NewsDescDto) => {
+    if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
+        return;
+    }
+
+    deletingId.value = newsItem.id;
+
+    try {
+        const response = await axios.delete(`${SERVER_URL}news/${newsItem.id}`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
+
+        if (response.status === 200) {
+            news.value = news.value.filter(n => n.id !== newsItem.id);
+        }
+    } catch (error) {
+        console.error('Error deleting news:', error);
+        alert('Ошибка при удалении новости');
+    } finally {
+        deletingId.value = null;
+    }
+};
+
+onMounted(async () => {
+    await loadNews(true);
+
+    const options = {
+        root: null,
+        rootMargin: '100px',
+        threshold: 0.1,
+    };
+
+    observer.value = new IntersectionObserver((entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting && hasMore.value && !loading.value) {
+            loadMoreNews();
+        }
+    }, options);
+
+    if (observerElement.value) {
+        observer.value.observe(observerElement.value);
+    }
+});
+
+onUnmounted(() => {
+    if (observer.value) {
+        observer.value.disconnect();
+    }
+});
 </script>
 
 <template>
@@ -151,87 +163,100 @@ export default {
 
             <!-- News Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div
+                <UCard
                     v-for="newsItem in news"
                     :key="newsItem.id"
-                    class="news-card group cursor-pointer"
-                    @click="navigateToNews(newsItem.id)"
+                    class="news-card overflow-hidden hover:shadow-xl transition-shadow duration-300"
                 >
-                    <!-- Image Container -->
-                    <div class="news-image-container overflow-hidden rounded-t-2xl">
-                        <img
-                            :src="getImageUrl(newsItem)"
-                            :alt="getNewsTitle(newsItem)"
-                            class="news-image w-full h-64 object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy"
-                        />
-                        <div class="news-image-overlay"></div>
-                    </div>
-
-                    <!-- Content Container -->
-                    <div class="news-content p-6">
+                    <template #header>
                         <!-- Date -->
                         <div
-                            class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3"
+                            class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2"
                         >
-                            <svg
+                            <UIcon
+                                name="i-heroicons-calendar"
                                 class="w-4 h-4 mr-2"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                ></path>
-                            </svg>
+                            />
                             {{ formatDate(newsItem.datetime) }}
                         </div>
-
                         <!-- Title -->
                         <h3
-                            class="text-xl font-bold text-gray-900 dark:text-white mb-3 line-clamp-2 group-hover:text-green-600 dark:group-hover:text-green-400 transition-colors"
+                            class="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors cursor-pointer"
+                            @click="navigateToNews(newsItem.id)"
                         >
                             {{ getNewsTitle(newsItem) }}
                         </h3>
+                    </template>
 
-                        <!-- Subtitle/Description -->
-                        <p class="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                    <!-- Default slot: image + content -->
+                    <div class="space-y-4">
+                        <!-- Image -->
+                        <div
+                            class="relative overflow-hidden rounded-lg cursor-pointer"
+                            @click="navigateToNews(newsItem.id)"
+                        >
+                            <img
+                                :src="getImageUrl(newsItem)"
+                                :alt="getNewsTitle(newsItem)"
+                                class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
+                                loading="lazy"
+                            />
+                        </div>
+
+                        <!-- Subtitle -->
+                        <p class="text-gray-600 dark:text-gray-300 line-clamp-3">
                             {{ getNewsSubtitle(newsItem) }}
                         </p>
 
-                        <!-- Read More Link -->
+                        <!-- Read More -->
                         <div
-                            class="flex items-center text-green-600 dark:text-green-400 font-medium"
+                            class="flex items-center text-green-600 dark:text-green-400 font-medium cursor-pointer"
+                            @click="navigateToNews(newsItem.id)"
                         >
                             <span class="mr-2">{{ $t('news.readMore') }}</span>
-                            <svg
-                                class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                ></path>
-                            </svg>
+                            <UIcon
+                                name="i-heroicons-arrow-right"
+                                class="w-4 h-4"
+                            />
                         </div>
+
+                        <!-- Admin Controls -->
+                        <ClientOnly>
+                            <div
+                                v-if="authStore.isAuthenticated"
+                                class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+                            >
+                                <div class="flex gap-2">
+                                    <UButton
+                                        size="sm"
+                                        color="primary"
+                                        variant="outline"
+                                        @click="editNews(newsItem.id)"
+                                    >
+                                        Редактировать
+                                    </UButton>
+                                    <UButton
+                                        size="sm"
+                                        color="error"
+                                        variant="outline"
+                                        :loading="deletingId === newsItem.id"
+                                        :disabled="deletingId === newsItem.id"
+                                        @click="deleteNews(newsItem)"
+                                    >
+                                        Удалить
+                                    </UButton>
+                                </div>
+                            </div>
+                        </ClientOnly>
                     </div>
-                </div>
+                </UCard>
             </div>
 
             <!-- Loading State -->
             <div v-if="loading" class="mt-12">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div v-for="n in 3" :key="n" class="news-card-skeleton">
-                        <div class="skeleton-image h-64 rounded-t-2xl"></div>
+                        <div class="skeleton-image h-48 rounded-t-2xl"></div>
                         <div class="p-6">
                             <div class="skeleton-line h-4 w-24 mb-4"></div>
                             <div class="skeleton-line h-6 w-full mb-3"></div>
@@ -252,7 +277,6 @@ export default {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
                     >
                         <path
                             stroke-linecap="round"
@@ -277,7 +301,6 @@ export default {
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
                     >
                         <path
                             stroke-linecap="round"
@@ -316,11 +339,6 @@ export default {
 }
 
 .news-card {
-    background: white;
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
-    overflow: hidden;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -328,44 +346,6 @@ export default {
 
 .dark .news-card {
     background: #1e293b;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-}
-
-.news-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-.dark .news-card:hover {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-}
-
-.news-image-container {
-    position: relative;
-    height: 16rem;
-}
-
-.news-image {
-    height: 100%;
-    width: 100%;
-}
-
-.news-image-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.7));
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.news-card:hover .news-image-overlay {
-    opacity: 1;
-}
-
-.news-content {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
 }
 
 .line-clamp-2 {

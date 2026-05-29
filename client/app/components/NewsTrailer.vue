@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
 import { useAuthStore } from '../stores/AuthStore';
-import { storeToRefs } from 'pinia';
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter, useI18n } from '#imports';
 
 const config = useRuntimeConfig();
@@ -26,14 +25,12 @@ const emit = defineEmits<{
 }>();
 
 const authStore = useAuthStore();
-const { isAuthenticated } = storeToRefs(authStore);
 const router = useRouter();
 const { locale } = useI18n();
 
 // Reactive state
 const isLoaded = ref(false);
 const isDeleting = ref(false);
-const isMounted = ref(false);
 
 // Computed properties
 const newsId = computed(() => '/news/' + props.newsObject.id);
@@ -93,11 +90,6 @@ const deleteNews = async () => {
         isDeleting.value = false;
     }
 };
-
-// Lifecycle hooks
-onMounted(() => {
-    isMounted.value = true;
-});
 </script>
 
 <template>
@@ -138,7 +130,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="image-control" v-if="isAuthenticated && isMounted">
+        <div class="image-control" v-if="authStore.isAuthenticated">
             <UButton class="btn btn-secondary w-100" type="button" v-on:click="editNews">
                 Редактировать
             </UButton>
