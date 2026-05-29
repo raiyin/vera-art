@@ -25,44 +25,6 @@ export const useAuthStore = defineStore('authStore', () => {
     if (typeof window !== 'undefined') {
         const themeLocalStorage = localStorage.getItem('theme',);
 
-        // Load tokens from localStorage
-        const storedAccessToken = localStorage.getItem('access_token',);
-        const storedRefreshToken = localStorage.getItem('refresh_token',);
-        const storedAccessExpiry = localStorage.getItem('access_expires',);
-        const storedRefreshExpiry = localStorage.getItem('refresh_expires',);
-
-        if (storedAccessToken && storedRefreshToken) {
-            accessToken.value = storedAccessToken;
-            refreshToken.value = storedRefreshToken;
-
-            if (storedAccessExpiry) {
-                accessTokenExpiry.value = new Date(storedAccessExpiry,);
-            }
-
-            if (storedRefreshExpiry) {
-                refreshTokenExpiry.value = new Date(storedRefreshExpiry,);
-            }
-
-            // Extract role and user ID from access token
-            const role = getRoleFromToken(storedAccessToken,);
-            const id = getUserIdFromToken(storedAccessToken,);
-            if (role) userRole.value = role;
-            if (id) userId.value = id;
-
-            // Check if access token is still valid
-            const isAccessValid = accessTokenExpiry.value && accessTokenExpiry.value > new Date();
-            const isRefreshValid = refreshTokenExpiry.value && refreshTokenExpiry.value > new Date();
-
-            // User is authenticated if refresh token is still valid
-            isAuthenticated.value = !!isRefreshValid;
-
-            // If access token expired but refresh token is valid, we can refresh it later
-            if (!isAccessValid && isRefreshValid) {
-                // Access token needs refresh, but user is still considered authenticated
-                console.log('Access token expired, refresh token still valid',);
-            }
-        }
-
         if (themeLocalStorage) {
             theme.value = JSON.parse(themeLocalStorage,);
             if (theme.value === 'dark') {
@@ -179,6 +141,43 @@ export const useAuthStore = defineStore('authStore', () => {
         isAuthenticated.value = auth;
     };
 
+    // Initialize auth state from localStorage (call on client mount)
+    const initFromLocalStorage = () => {
+        if (typeof window === 'undefined') return;
+
+        const storedAccessToken = localStorage.getItem('access_token');
+        const storedRefreshToken = localStorage.getItem('refresh_token');
+        const storedAccessExpiry = localStorage.getItem('access_expires');
+        const storedRefreshExpiry = localStorage.getItem('refresh_expires');
+
+        if (storedAccessToken && storedRefreshToken) {
+            accessToken.value = storedAccessToken;
+            refreshToken.value = storedRefreshToken;
+
+            if (storedAccessExpiry) {
+                accessTokenExpiry.value = new Date(storedAccessExpiry);
+            }
+
+            if (storedRefreshExpiry) {
+                refreshTokenExpiry.value = new Date(storedRefreshExpiry);
+            }
+
+            const role = getRoleFromToken(storedAccessToken);
+            const id = getUserIdFromToken(storedAccessToken);
+            if (role) userRole.value = role;
+            if (id) userId.value = id;
+
+            const isAccessValid = accessTokenExpiry.value && accessTokenExpiry.value > new Date();
+            const isRefreshValid = refreshTokenExpiry.value && refreshTokenExpiry.value > new Date();
+
+            isAuthenticated.value = !!isRefreshValid;
+
+            if (!isAccessValid && isRefreshValid) {
+                console.log('Access token expired, refresh token still valid');
+            }
+        }
+    };
+
     return {
         theme,
         isAuthenticated,
@@ -200,5 +199,6 @@ export const useAuthStore = defineStore('authStore', () => {
         clearTokens,
         updateAccessToken,
         setAuthenticated,
+        initFromLocalStorage,
     };
 },);

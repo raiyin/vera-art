@@ -52,6 +52,9 @@ useHead({
 });
 
 onMounted(() => {
+    // Initialize auth state from localStorage (tokens only available client-side)
+    authStore.initFromLocalStorage();
+
     // Load reference data (materials, bases) on app startup
     materialStore.fetchAll();
 
