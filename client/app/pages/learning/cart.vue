@@ -51,6 +51,16 @@
                             Применить
                         </button>
                     </div>
+                    <UAlert
+                        v-if="promoError"
+                        :title="'Ошибка'"
+                        :description="promoError"
+                        icon="i-heroicons-exclamation-triangle"
+                        color="error"
+                        variant="outline"
+                        class="mt-2"
+                        @close="promoError = ''"
+                    />
                     <div class="summary-row total">
                         <span>К оплате:</span>
                         <span class="total-price">{{ formatPrice(finalPrice) }} ₽</span>
@@ -68,7 +78,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from '#app';
 import { useAuthStore } from '../../stores/AuthStore';
-import { useProductStore } from '../../../stores/ProductStore';
+import { useProductStore } from '../../stores/ProductStore';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -87,6 +97,7 @@ const cartItems = ref<CartItem[]>([]);
 const promoCode = ref('');
 const discount = ref(0);
 const promoCodeValid = ref(false);
+const promoError = ref('');
 
 onMounted(() => {
     loadCart();
@@ -116,6 +127,7 @@ function saveCart() {
 
 async function applyPromoCode() {
     if (!promoCode.value.trim()) return;
+    promoError.value = '';
     // Вызов API для проверки промокода
     try {
         const response = await $fetch('/api/promo-codes/validate', {
@@ -126,10 +138,11 @@ async function applyPromoCode() {
             discount.value = response.discount_amount || 0;
             promoCodeValid.value = true;
         } else {
-            alert('Промокод недействителен');
+            promoError.value = 'Промокод недействителен';
         }
     } catch (error) {
         console.error('Ошибка проверки промокода', error);
+        promoError.value = 'Ошибка проверки промокода';
     }
 }
 

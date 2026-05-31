@@ -80,7 +80,7 @@
                                     "
                                     @click="passwordVisible = !passwordVisible"
                                     :padded="false"
-                                    class="!p-1"
+                                    class="p-1!"
                                 />
                             </template>
                         </UInput>

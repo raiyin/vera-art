@@ -29,6 +29,7 @@ const { locale } = useI18n();
 // Reactive state
 const isLoaded = ref(false);
 const isDeleting = ref(false);
+const errorMessage = ref('');
 
 // Computed properties
 const newsId = computed(() => '/news/' + props.newsObject.id);
@@ -60,6 +61,9 @@ const deleteNews = async () => {
         return;
     }
 
+    // Reset error
+    errorMessage.value = '';
+
     // Set loading state
     isDeleting.value = true;
 
@@ -76,13 +80,11 @@ const deleteNews = async () => {
             emit('news-deleted', props.newsObject.id);
         } else {
             const errorData = await response.json();
-            alert(
-                `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`
-            );
+            errorMessage.value = `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`;
         }
     } catch (error) {
         console.error('Error deleting news:', error);
-        alert('Ошибка при удалении новости:_network_error');
+        errorMessage.value = 'Ошибка при удалении новости:_network_error';
     } finally {
         // Reset loading state
         isDeleting.value = false;
@@ -124,6 +126,17 @@ const deleteNews = async () => {
                 <span style="visibility: hidden">&nbsp;Placeholder</span>
             </div>
         </div>
+
+        <UAlert
+            v-if="errorMessage"
+            :title="'Ошибка'"
+            :description="errorMessage"
+            icon="i-heroicons-exclamation-triangle"
+            color="error"
+            variant="outline"
+            class="mt-4"
+            @close="errorMessage = ''"
+        />
 
         <div class="image-control" v-if="authStore.isAuthenticated">
             <UButton class="btn btn-secondary w-100" type="button" v-on:click="editNews">

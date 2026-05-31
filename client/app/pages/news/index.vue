@@ -6,6 +6,10 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
+const showDeleteModal = ref(false);
+const newsToDelete = ref<NewsDescDto | null>(null);
+const deleteError = ref('');
+
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 const { locale } = useI18n();
@@ -16,6 +20,7 @@ const news = ref<NewsDescDto[]>([]);
 const page = ref(0);
 const limit = ref(9);
 const loading = ref(false);
+const initialLoading = ref(true);
 const hasMore = ref(true);
 const observer = ref<IntersectionObserver | null>(null);
 const observerElement = ref<HTMLElement | null>(null);
@@ -52,6 +57,7 @@ const loadNews = async (initial = false) => {
         console.error('Error fetching news', e);
     } finally {
         loading.value = false;
+        initialLoading.value = false;
     }
 };
 
@@ -86,29 +92,52 @@ const editNews = (id: string) => {
     router.push(`/news/edit/${id}/`);
 };
 
-const deleteNews = async (newsItem: NewsDescDto) => {
-    if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
-        return;
-    }
+const confirmDelete = (newsItem: NewsDescDto) => {
+    newsToDelete.value = newsItem;
+    showDeleteModal.value = true;
+};
 
-    deletingId.value = newsItem.id;
+const deleteNews = async () => {
+    if (!newsToDelete.value) return;
+
+    deletingId.value = newsToDelete.value.id;
+    showDeleteModal.value = false;
+    deleteError.value = '';
 
     try {
-        const response = await axios.delete(`${SERVER_URL}news/${newsItem.id}`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
+        const response = await axios.delete(
+            `${SERVER_URL}news/${newsToDelete.value.id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            }
+        );
 
         if (response.status === 200) {
-            news.value = news.value.filter((n) => n.id !== newsItem.id);
+            news.value = news.value.filter((n) => n.id !== newsToDelete.value!.id);
         }
     } catch (error) {
         console.error('Error deleting news:', error);
-        alert('Ошибка при удалении новости');
+
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+            deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
+            authStore.clearTokens();
+            setTimeout(() => {
+                router.push('/auth/login');
+            }, 2000);
+        } else {
+            deleteError.value = 'Ошибка при удалении новости';
+        }
     } finally {
         deletingId.value = null;
+        newsToDelete.value = null;
     }
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    newsToDelete.value = null;
 };
 
 onMounted(async () => {
@@ -220,7 +249,7 @@ onUnmounted(() => {
                                         variant="outline"
                                         :loading="deletingId === newsItem.id"
                                         :disabled="deletingId === newsItem.id"
-                                        @click="deleteNews(newsItem)"
+                                        @click="confirmDelete(newsItem)"
                                     >
                                         Удалить
                                     </UButton>
@@ -231,8 +260,37 @@ onUnmounted(() => {
                 </UCard>
             </div>
 
-            <!-- Loading State -->
-            <div v-if="loading" class="mt-12">
+            <!-- Initial Loading State (beautiful centered loader) -->
+            <div v-if="initialLoading" class="mt-24">
+                <div class="flex flex-col items-center justify-center space-y-6">
+                    <!-- Animated spinner -->
+                    <div class="news-loader-spinner">
+                        <svg class="news-loader-circle" viewBox="0 0 50 50">
+                            <circle
+                                class="news-loader-path"
+                                cx="25"
+                                cy="25"
+                                r="20"
+                                fill="none"
+                                stroke-width="4"
+                            />
+                        </svg>
+                    </div>
+                    <div class="flex flex-col items-center space-y-2">
+                        <p class="text-lg font-medium text-gray-600 dark:text-gray-300">
+                            {{ $t('news.loading') }}
+                        </p>
+                        <div class="flex space-x-1.5">
+                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0s"></span>
+                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0.15s"></span>
+                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0.3s"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skeleton Loading State (for load more) -->
+            <div v-if="loading && !initialLoading" class="mt-12">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <div v-for="n in 3" :key="n" class="news-card-skeleton">
                         <div class="skeleton-image h-48 rounded-t-2xl"></div>
@@ -270,8 +328,8 @@ onUnmounted(() => {
                 </p>
             </div>
 
-            <!-- No News Message -->
-            <div v-if="!loading && news.length === 0" class="mt-12 text-center py-12">
+            <!-- No News Message (only after initial load is complete) -->
+            <div v-if="!initialLoading && !loading && news.length === 0" class="mt-12 text-center py-12">
                 <div
                     class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-6"
                 >
@@ -297,6 +355,18 @@ onUnmounted(() => {
                 </p>
             </div>
 
+            <!-- Delete Error Alert -->
+            <UAlert
+                v-if="deleteError"
+                :title="'Ошибка'"
+                :description="deleteError"
+                icon="i-heroicons-exclamation-triangle"
+                color="error"
+                variant="outline"
+                class="mt-6"
+                @close="deleteError = ''"
+            />
+
             <!-- Intersection Observer Sentinel -->
             <div
                 ref="observerElement"
@@ -304,6 +374,61 @@ onUnmounted(() => {
                 :class="{ 'opacity-0': !hasMore || loading }"
             ></div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <UModal
+            v-model:open="showDeleteModal"
+            :dismissible="false"
+            :close="false"
+            :transition="true"
+            class="delete-modal"
+        >
+            <template #header="{ close }">
+                <div class="delete-modal-header">
+                    <div class="delete-modal-icon-wrapper">
+                        <UIcon
+                            name="i-heroicons-exclamation-triangle"
+                            class="delete-modal-icon"
+                        />
+                    </div>
+                    <h3 class="delete-modal-title">Подтверждение удаления</h3>
+                </div>
+            </template>
+
+            <template #body>
+                <div class="delete-modal-body">
+                    <p class="delete-modal-text">
+                        Вы уверены, что хотите удалить новость
+                        <span class="delete-modal-highlight"
+                            >«{{ newsToDelete ? getNewsTitle(newsToDelete) : '' }}»</span
+                        >?
+                    </p>
+                    <p class="delete-modal-warning">Это действие нельзя отменить.</p>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="delete-modal-footer">
+                    <UButton
+                        size="md"
+                        color="neutral"
+                        variant="outline"
+                        @click="cancelDelete"
+                    >
+                        Отмена
+                    </UButton>
+                    <UButton
+                        size="md"
+                        color="error"
+                        :loading="deletingId !== null"
+                        :disabled="deletingId !== null"
+                        @click="deleteNews"
+                    >
+                        Удалить
+                    </UButton>
+                </div>
+            </template>
+        </UModal>
     </div>
 </template>
 
@@ -384,6 +509,168 @@ onUnmounted(() => {
     }
     100% {
         background-position: -200% 0;
+    }
+}
+
+/* Initial Loader Styles */
+.news-loader-spinner {
+    width: 64px;
+    height: 64px;
+}
+
+.news-loader-circle {
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    animation: news-loader-rotate 2s linear infinite;
+}
+
+.news-loader-path {
+    stroke: #22c55e;
+    stroke-linecap: round;
+    animation: news-loader-dash 1.5s ease-in-out infinite;
+}
+
+.dark .news-loader-path {
+    stroke: #4ade80;
+}
+
+@keyframes news-loader-rotate {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes news-loader-dash {
+    0% {
+        stroke-dasharray: 1, 200;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 200;
+        stroke-dashoffset: -35px;
+    }
+    100% {
+        stroke-dasharray: 90, 200;
+        stroke-dashoffset: -124px;
+    }
+}
+
+.news-loader-dot {
+    animation: news-loader-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes news-loader-bounce {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+/* Delete Confirmation Modal Styles */
+.delete-modal {
+    --modal-max-width: 420px;
+}
+
+.delete-modal :deep(.ui-modal) {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.delete-modal-header {
+    text-align: center;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.delete-modal-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    margin-bottom: 1rem;
+}
+
+.dark .delete-modal-icon-wrapper {
+    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+}
+
+.delete-modal-icon {
+    width: 32px;
+    height: 32px;
+    color: #dc2626;
+}
+
+.dark .delete-modal-icon {
+    color: #fca5a5;
+}
+
+.delete-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dark .delete-modal-title {
+    color: #f1f5f9;
+}
+
+.delete-modal-body {
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+
+.delete-modal-text {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+}
+
+.dark .delete-modal-text {
+    color: #94a3b8;
+}
+
+.delete-modal-highlight {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.dark .delete-modal-highlight {
+    color: #e2e8f0;
+}
+
+.delete-modal-warning {
+    font-size: 0.85rem;
+    color: #ef4444;
+    font-weight: 500;
+    margin: 0;
+}
+
+.dark .delete-modal-warning {
+    color: #fca5a5;
+}
+
+.delete-modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+@media (max-width: 480px) {
+    .delete-modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .delete-modal-footer .UButton {
+        width: 100%;
     }
 }
 </style>

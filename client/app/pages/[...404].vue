@@ -2,22 +2,22 @@
 export default {
     setup() {
         const { t, locale } = useI18n();
+        const searchMessage = ref('');
 
         const handleSearch = (event: KeyboardEvent) => {
             const input = event.target as HTMLInputElement;
             if (input.value.trim()) {
                 // In a real app, you would implement search functionality
                 console.log('Searching for:', input.value);
-                // For now, just show an alert
-                alert(
+                // Show search info via UAlert
+                searchMessage.value =
                     locale.value === 'ru'
                         ? `Поиск: ${input.value} (функция поиска в разработке)`
-                        : `Search: ${input.value} (search functionality in development)`
-                );
+                        : `Search: ${input.value} (search functionality in development)`;
             }
         };
 
-        return { t, locale, handleSearch };
+        return { t, locale, handleSearch, searchMessage };
     },
 };
 </script>
@@ -86,6 +86,18 @@ export default {
                     >
                         {{ $t('notfound.description') }}
                     </p>
+
+                    <!-- Search info alert -->
+                    <UAlert
+                        v-if="searchMessage"
+                        :title="locale === 'ru' ? 'Информация' : 'Information'"
+                        :description="searchMessage"
+                        icon="i-heroicons-information-circle"
+                        color="info"
+                        variant="outline"
+                        class="mb-6"
+                        @close="searchMessage = ''"
+                    />
 
                     <!-- Action buttons -->
                     <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">

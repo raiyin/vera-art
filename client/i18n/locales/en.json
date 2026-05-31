@@ -67,6 +67,7 @@
         "title": "News & Updates",
         "subtitle": "Stay up to date with the latest news, exhibitions, and creative projects",
         "readMore": "Read more",
+        "loading": "Loading news...",
         "allLoaded": "You've reached the end! All news have been loaded.",
         "noNews": "No news yet",
         "noNewsDescription": "Check back later for updates, exhibitions, and new creative projects.",
