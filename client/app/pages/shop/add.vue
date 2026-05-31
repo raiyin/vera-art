@@ -1,29 +1,22 @@
 <template>
-    <div class="add-work-container">
+    <div class="add-sale-container">
         <div class="header-section">
-            <h1 class="page-title">
-                {{ $t('admin_gallery_form.page_title') }}
-            </h1>
-            <p class="page-subtitle">
-                {{ $t('admin_gallery_form.page_subtitle') }}
-            </p>
+            <h1 class="page-title">{{ $t('admin_shop_form.page_title') }}</h1>
         </div>
 
         <!-- Загрузчик -->
         <div v-if="isLoading" class="loading-container">
             <div class="loader" />
-            <p>{{ $t('admin_gallery_form.loading') }}</p>
+            <p>{{ $t('admin_shop_form.loading') }}</p>
         </div>
 
-        <form v-else class="work-form" @submit.prevent="submitForm">
+        <form v-else @submit.prevent="submitForm" class="sale-form">
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.images') }}
-                </h2>
+                <h2 class="section-title">{{ $t('admin_shop_form.sections.images') }}</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.select_images') }}
+                        >{{ $t('admin_shop_form.labels.select_images') }}
                         <span class="required">*</span></label
                     >
                     <div
@@ -61,10 +54,10 @@
                                 <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_gallery_form.labels.drag_drop_text') }}
+                                {{ $t('admin_shop_form.labels.drag_drop_text') }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_gallery_form.labels.file_formats') }}
+                                {{ $t('admin_shop_form.labels.file_formats') }}
                             </p>
                         </div>
                     </div>
@@ -86,7 +79,7 @@
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="
-                                    $t('admin_gallery_form.aria_labels.remove_image', {
+                                    $t('admin_shop_form.aria_labels.remove_image', {
                                         index: index + 1,
                                     })
                                 "
@@ -102,22 +95,22 @@
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.main_info') }}
+                    {{ $t('admin_shop_form.sections.main_info') }}
                 </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
                     <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_ru') }}
+                        >{{ $t('admin_shop_form.labels.name_ru') }}
                         <span class="required">*</span></label
                     >
                     <UInput
-                        v-model="work.name_ru"
+                        v-model="sale.name_ru"
                         type="text"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_ru }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_ru')"
+                        :placeholder="$t('admin_shop_form.placeholders.name_ru')"
                         @blur="validateField('name_ru')"
                     />
                     <div v-if="errors.name_ru" class="error-message">
@@ -127,16 +120,16 @@
 
                 <div class="form-group">
                     <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_en') }}
+                        >{{ $t('admin_shop_form.labels.name_en') }}
                         <span class="required">*</span></label
                     >
                     <UInput
-                        v-model="work.name_en"
+                        v-model="sale.name_en"
                         type="text"
                         required
                         class="form-control"
                         :class="{ 'is-invalid': errors.name_en }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_en')"
+                        :placeholder="$t('admin_shop_form.placeholders.name_en')"
                         @blur="validateField('name_en')"
                     />
                     <div v-if="errors.name_en" class="error-message">
@@ -146,20 +139,20 @@
 
                 <!-- Размеры картины -->
                 <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.dimensions') }} ({{ units }})
-                        <span class="required">*</span>
-                    </label>
+                    <label class="form-label"
+                        >{{ $t('admin_shop_form.labels.dimensions') }}
+                        <span class="required">*</span></label
+                    >
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <UInput
-                                v-model.number="work.width"
+                                v-model.number="sale.width"
                                 type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
                                 :class="{ 'is-invalid': errors.width }"
-                                :placeholder="$t('admin_gallery_form.labels.width')"
+                                :placeholder="$t('admin_shop_form.labels.width')"
                                 @blur="validateField('width')"
                             />
                             <div v-if="errors.width" class="error-message">
@@ -169,13 +162,13 @@
                         <span class="size-separator">×</span>
                         <div class="size-input-wrapper">
                             <UInput
-                                v-model.number="work.height"
+                                v-model.number="sale.height"
                                 type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
                                 :class="{ 'is-invalid': errors.height }"
-                                :placeholder="$t('admin_gallery_form.labels.height')"
+                                :placeholder="$t('admin_shop_form.labels.height')"
                                 @blur="validateField('height')"
                             />
                             <div v-if="errors.height" class="error-message">
@@ -188,22 +181,43 @@
                 <!-- Год создания -->
                 <div class="form-group">
                     <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.year') }}
+                        >{{ $t('admin_shop_form.labels.year') }}
                         <span class="required">*</span></label
                     >
                     <UInput
-                        v-model.number="work.year"
+                        v-model.number="sale.year"
                         type="number"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
                         :class="{ 'is-invalid': errors.year }"
-                        :placeholder="$t('admin_gallery_form.placeholders.year')"
+                        :placeholder="$t('admin_shop_form.placeholders.year')"
                         @blur="validateField('year')"
                     />
                     <div v-if="errors.year" class="error-message">
                         {{ errors.year }}
+                    </div>
+                </div>
+
+                <!-- Цена -->
+                <div class="form-group">
+                    <label class="form-label"
+                        >{{ $t('admin_shop_form.labels.price') }}
+                        <span class="required">*</span></label
+                    >
+                    <UInput
+                        v-model.number="sale.price"
+                        type="number"
+                        required
+                        min="1"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.price }"
+                        :placeholder="$t('admin_shop_form.placeholders.price')"
+                        @blur="validateField('price')"
+                    />
+                    <div v-if="errors.price" class="error-message">
+                        {{ errors.price }}
                     </div>
                 </div>
             </div>
@@ -211,22 +225,22 @@
             <!-- Технические характеристики -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.tech_specs') }}
+                    {{ $t('admin_shop_form.sections.tech_specs') }}
                 </h2>
 
                 <!-- Основа -->
                 <div class="form-group">
                     <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.base') }}
+                        >{{ $t('admin_shop_form.labels.base') }}
                         <span class="required">*</span></label
                     >
                     <USelect
-                        v-model="work.base_id"
+                        v-model="sale.base_id"
                         :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id }"
-                        :placeholder="$t('admin_gallery_form.placeholders.select_base')"
+                        :placeholder="$t('admin_shop_form.placeholders.select_base')"
                         @blur="validateField('base_id')"
                     />
                     <div v-if="errors.base_id" class="error-message">
@@ -236,20 +250,18 @@
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.materials') }}
-                        <span class="required">{{ isMaterialsRequired ? '*' : '' }}</span>
-                    </label>
+                    <label class="form-label"
+                        >{{ $t('admin_shop_form.labels.materials') }}
+                        <span class="required">*</span></label
+                    >
                     <USelect
-                        v-model="work.materials_ids"
+                        v-model="sale.materials_ids"
                         :items="materialOptions"
                         multiple
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.materials_ids }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_materials')
-                        "
+                        :placeholder="$t('admin_shop_form.placeholders.select_materials')"
                         @blur="validateField('materials_ids')"
                     />
                     <div v-if="errors.materials_ids" class="error-message">
@@ -261,67 +273,27 @@
             <!-- Описание -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.additional_info') }}
+                    {{ $t('admin_shop_form.sections.additional_info') }}
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_ru')
+                        $t('admin_shop_form.labels.description')
                     }}</label>
                     <UTextarea
-                        v-model="work.descr"
+                        v-model="sale.descr"
                         class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :placeholder="$t('admin_shop_form.placeholders.description')"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr.length }}/500</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_en')
-                    }}</label>
-                    <UTextarea
-                        v-model="work.descr_en"
-                        class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
-                        :rows="4"
-                        :maxlength="500"
-                    />
-                    <div class="char-count">{{ work.descr_en.length }}/500</div>
-                </div>
-            </div>
-
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.work_type') }}
-                </h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.work_type') }}
-                        <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.type"
-                        :items="workTypeOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.work_type }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_work_type')
-                        "
-                        @blur="validateField('work_type')"
-                    />
-                    <div v-if="errors.work_type" class="error-message">
-                        {{ errors.work_type }}
-                    </div>
+                    <div class="char-count">{{ sale.descr.length }}/500</div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
                 <UButton type="button" class="btn btn-secondary" @click="resetForm">
-                    {{ $t('admin_gallery_form.buttons.clear_form') }}
+                    {{ $t('admin_shop_form.buttons.clear_form') }}
                 </UButton>
                 <UButton
                     type="submit"
@@ -329,11 +301,11 @@
                     :disabled="isSubmitting || !isFormValid"
                 >
                     <span v-if="!isSubmitting">{{
-                        $t('admin_gallery_form.buttons.add_work')
+                        $t('admin_shop_form.buttons.add_work')
                     }}</span>
                     <span v-else>
                         <span class="spinner" />
-                        {{ $t('admin_gallery_form.buttons.submitting') }}
+                        {{ $t('admin_shop_form.buttons.submitting') }}
                     </span>
                 </UButton>
             </div>
@@ -344,8 +316,12 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateWorkDto, RequestResult } from '../../types';
+import type { CreateSaleDto, RequestResult } from '../../types';
 import { useMaterialStore } from '../../stores/MaterialStore';
+
+definePageMeta({
+    middleware: 'admin-auth',
+});
 
 const { t, locale } = useI18n();
 const toast = useToast();
@@ -355,18 +331,17 @@ const SERVER_URL = config.public.serverUrl;
 const materialStore = useMaterialStore();
 
 // Reactive state
-const work = reactive<CreateWorkDto>({
+const sale = reactive<CreateSaleDto>({
     width: 0,
     height: 0,
     year: new Date().getFullYear(),
+    price: 0,
     name_ru: '',
     name_en: '',
     base_id: (null as unknown) as number,
     materials_ids: [],
     descr: '',
-    descr_en: '',
     images: [],
-    type: null,
 });
 
 const files = ref<File[]>([]);
@@ -383,9 +358,9 @@ const errors = reactive<Record<string, string>>({
     width: '',
     height: '',
     year: '',
+    price: '',
     base_id: '',
     materials_ids: '',
-    work_type: '',
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -395,19 +370,10 @@ const bases = computed(() => materialStore.bases);
 const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
-    const options = bases.value.map((base) => ({
+    return bases.value.map((base) => ({
         label: locale.value === 'ru' ? base.base_ru : base.base_en,
         value: base.id,
     }));
-    return [...options];
-});
-
-const workTypeOptions = computed(() => {
-    return [
-        { label: t('admin_gallery_form.work_types.painting'), value: 1 },
-        { label: t('admin_gallery_form.work_types.illustration'), value: 2 },
-        { label: t('admin_gallery_form.work_types.3d'), value: 3 },
-    ];
 });
 
 const materialOptions = computed(() => {
@@ -419,30 +385,17 @@ const materialOptions = computed(() => {
 
 const isFormValid = computed(() => {
     return (
-        work.name_ru.trim() !== '' &&
-        work.name_en.trim() !== '' &&
-        work.width > 0 &&
-        work.height > 0 &&
-        work.year >= 2000 &&
-        work.year <= new Date().getFullYear() &&
-        work.base_id !== null &&
-        work.base_id > 0 &&
-        (work.type < 3
-            ? work.materials_ids.length > 0
-            : work.materials_ids.length === 0) &&
-        files.value.length > 0 &&
-        work.type > 0
+        sale.name_ru.trim() !== '' &&
+        sale.name_en.trim() !== '' &&
+        sale.width > 0 &&
+        sale.height > 0 &&
+        sale.year >= 2000 &&
+        sale.year <= new Date().getFullYear() &&
+        sale.price > 0 &&
+        sale.base_id > 0 &&
+        sale.materials_ids.length > 0 &&
+        files.value.length > 0
     );
-});
-
-const units = computed(() => {
-    return work.type <= 1
-        ? t('admin_gallery_form.units.cm')
-        : t('admin_gallery_form.units.px');
-});
-
-const isMaterialsRequired = computed(() => {
-    return work.type === 1 || work.type === 2;
 });
 
 // Methods
@@ -479,7 +432,7 @@ function addImages(selectedFiles: File[]) {
 
     // Check max file count
     if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = t('admin_gallery_form.errors.max_files');
+        fileError.value = t('admin_shop_form.errors.max_files');
         return;
     }
 
@@ -488,7 +441,7 @@ function addImages(selectedFiles: File[]) {
     const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
 
     if (invalidFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.invalid_file_type');
+        fileError.value = t('admin_shop_form.errors.invalid_file_type');
         return;
     }
 
@@ -497,13 +450,13 @@ function addImages(selectedFiles: File[]) {
     const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
 
     if (largeFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.file_size');
+        fileError.value = t('admin_shop_form.errors.file_size');
         return;
     }
 
     // Add new files
     files.value = [...files.value, ...selectedFiles];
-    work.images = files.value.map((file) => file.name);
+    sale.images = files.value.map((file) => file.name);
 
     // Create previews for new images
     selectedFiles.forEach((file) => {
@@ -521,67 +474,67 @@ function addImages(selectedFiles: File[]) {
 function removeImage(index: number) {
     previewImages.value.splice(index, 1);
     files.value.splice(index, 1);
-    work.images.splice(index, 1);
+    sale.images.splice(index, 1);
 }
 
 function validateField(fieldName: string) {
     switch (fieldName) {
         case 'name_ru':
-            if (!work.name_ru.trim()) {
-                errors.name_ru = t('admin_gallery_form.errors.name_ru_required');
+            if (!sale.name_ru.trim()) {
+                errors.name_ru = t('admin_shop_form.errors.name_ru_required');
             } else {
                 errors.name_ru = '';
             }
             break;
         case 'name_en':
-            if (!work.name_en.trim()) {
-                errors.name_en = t('admin_gallery_form.errors.name_en_required');
+            if (!sale.name_en.trim()) {
+                errors.name_en = t('admin_shop_form.errors.name_en_required');
             } else {
                 errors.name_en = '';
             }
             break;
         case 'width':
-            if (work.width <= 0) {
-                errors.width = t('admin_gallery_form.errors.width_required');
+            if (sale.width <= 0) {
+                errors.width = t('admin_shop_form.errors.width_required');
             } else {
                 errors.width = '';
             }
             break;
         case 'height':
-            if (work.height <= 0) {
-                errors.height = t('admin_gallery_form.errors.height_required');
+            if (sale.height <= 0) {
+                errors.height = t('admin_shop_form.errors.height_required');
             } else {
                 errors.height = '';
             }
             break;
         case 'year':
-            if (work.year < 2000 || work.year > new Date().getFullYear()) {
-                errors.year = t('admin_gallery_form.errors.year_range', {
+            if (sale.year < 2000 || sale.year > new Date().getFullYear()) {
+                errors.year = t('admin_shop_form.errors.year_range', {
                     year: new Date().getFullYear(),
                 });
             } else {
                 errors.year = '';
             }
             break;
+        case 'price':
+            if (sale.price <= 0) {
+                errors.price = t('admin_shop_form.errors.price_required');
+            } else {
+                errors.price = '';
+            }
+            break;
         case 'base_id':
-            if (work.base_id === null || work.base_id <= 0) {
-                errors.base_id = t('admin_gallery_form.errors.base_required');
+            if (sale.base_id <= 0) {
+                errors.base_id = t('admin_shop_form.errors.base_required');
             } else {
                 errors.base_id = '';
             }
             break;
         case 'materials_ids':
-            if (work.materials_ids.length === 0) {
-                errors.materials_ids = t('admin_gallery_form.errors.materials_required');
+            if (sale.materials_ids.length === 0) {
+                errors.materials_ids = t('admin_shop_form.errors.materials_required');
             } else {
                 errors.materials_ids = '';
-            }
-            break;
-        case 'work_type':
-            if (work.type <= 0) {
-                errors.work_type = t('admin_gallery_form.errors.work_type_required');
-            } else {
-                errors.work_type = '';
             }
             break;
     }
@@ -593,13 +546,13 @@ function validateForm() {
     validateField('width');
     validateField('height');
     validateField('year');
+    validateField('price');
     validateField('base_id');
     validateField('materials_ids');
-    validateField('work_type');
 
     // Check images
     if (files.value.length === 0) {
-        fileError.value = t('admin_gallery_form.errors.images_required');
+        fileError.value = t('admin_shop_form.errors.images_required');
         return false;
     }
 
@@ -627,9 +580,9 @@ async function submitForm() {
         });
 
         // Add other data
-        formData.append('data', JSON.stringify(work));
+        formData.append('data', JSON.stringify(sale));
 
-        const response = await axios.post(SERVER_URL + 'works', formData, {
+        const response = await axios.post(SERVER_URL + 'sales', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -647,22 +600,19 @@ async function submitForm() {
         } else {
             toast.add({
                 title: t('toast.error.title'),
-                description: t('toast.error.description'),
+                description: t('admin_shop_form.messages.submit_failed'),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
-            errorMessage.value = t('admin_gallery_form.messages.submit_failed');
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
-        let description = t('toast.error.description');
+        let description = t('admin_shop_form.messages.general_error');
         if (error.response?.status === 413) {
-            description = t('admin_gallery_form.messages.file_too_large');
+            description = t('admin_shop_form.messages.file_too_large');
         } else if (error.response?.status === 400) {
-            description = t('admin_gallery_form.messages.invalid_data');
-        } else {
-            description = t('admin_gallery_form.messages.general_error');
+            description = t('admin_shop_form.messages.invalid_data');
         }
         toast.add({
             title: t('toast.error.title'),
@@ -677,17 +627,16 @@ async function submitForm() {
 }
 
 function resetForm() {
-    work.width = 0;
-    work.height = 0;
-    work.year = new Date().getFullYear();
-    work.name_ru = '';
-    work.name_en = '';
-    work.base_id = (null as unknown) as number;
-    work.materials_ids = [];
-    work.descr = '';
-    work.descr_en = '';
-    work.type = 0;
-    work.images = [];
+    sale.width = 0;
+    sale.height = 0;
+    sale.year = new Date().getFullYear();
+    sale.price = 0;
+    sale.name_ru = '';
+    sale.name_en = '';
+    sale.base_id = 0;
+    sale.materials_ids = [];
+    sale.descr = '';
+    sale.images = [];
 
     files.value = [];
     previewImages.value = [];
@@ -717,13 +666,18 @@ select:has(option.placeholder:checked) {
     color: #999;
 }
 
-.add-work-container {
+.add-sale-container {
     max-width: 800px;
     margin: 3rem auto;
     padding: 2.5rem;
     background-color: var(--color-on-surface);
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .add-sale-container {
+    background-color: #1e293b;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .header-section {
@@ -737,13 +691,21 @@ select:has(option.placeholder:checked) {
     font-size: 1.8rem;
 }
 
+:root.dark .page-title {
+    color: #f1f5f9;
+}
+
 .page-subtitle {
     color: #333;
     font-size: 1rem;
     margin: 0;
 }
 
-.work-form {
+:root.dark .page-subtitle {
+    color: #cbd5e1;
+}
+
+.sale-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -756,12 +718,22 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+:root.dark .form-section {
+    background-color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .section-title {
     font-size: 1.3rem;
     color: #333;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #4a90e2;
+}
+
+:root.dark .section-title {
+    color: #e2e8f0;
+    border-bottom-color: #3b82f6;
 }
 
 .form-group {
@@ -776,6 +748,10 @@ select:has(option.placeholder:checked) {
     color: #444;
     display: flex;
     align-items: center;
+}
+
+:root.dark .form-label {
+    color: #cbd5e1;
 }
 
 .required {
@@ -793,14 +769,29 @@ select:has(option.placeholder:checked) {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+:root.dark .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
 .form-control:hover {
     border-color: #4a90e2;
+}
+
+:root.dark .form-control:hover {
+    border-color: #3b82f6;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+:root.dark .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 /* Consistent placeholder color across all input fields */
@@ -812,9 +803,21 @@ select:has(option.placeholder:checked) {
     opacity: 1;
 }
 
+:root.dark .form-control::placeholder,
+:root.dark .form-control input::placeholder,
+:root.dark .form-control [data-placeholder],
+:root.dark .form-control [data-slot='placeholder'] {
+    color: #64748b !important;
+}
+
 .is-invalid {
     border-color: #e74c3c !important;
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+:root.dark .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
 .drop-down-arrow {
@@ -828,6 +831,10 @@ select:has(option.placeholder:checked) {
     appearance: none;
 }
 
+:root.dark .drop-down-arrow {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
 .file-drop-area {
     border: 2px dashed #ccc;
     border-radius: 6px;
@@ -838,10 +845,21 @@ select:has(option.placeholder:checked) {
     background-color: #fafafa;
 }
 
+:root.dark .file-drop-area {
+    border-color: #475569;
+    background-color: #0f172a;
+}
+
 .file-drop-area:hover,
 .file-drop-area.drag-over {
     border-color: #4a90e2;
     background-color: #f0f8ff;
+}
+
+:root.dark .file-drop-area:hover,
+:root.dark .file-drop-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #1e293b;
 }
 
 .file-drop-area.drag-over {
@@ -865,16 +883,28 @@ select:has(option.placeholder:checked) {
     height: 2rem;
 }
 
+:root.dark .upload-icon {
+    color: #60a5fa;
+}
+
 .upload-text {
     font-weight: 500;
     color: #333;
     margin: 0;
 }
 
+:root.dark .upload-text {
+    color: #e2e8f0;
+}
+
 .upload-hint {
     color: #666;
     font-size: 0.875rem;
     margin: 0;
+}
+
+:root.dark .upload-hint {
+    color: #94a3b8;
 }
 
 .preview-container {
@@ -892,6 +922,11 @@ select:has(option.placeholder:checked) {
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .image-preview {
+    border-color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .preview-image {
@@ -941,11 +976,19 @@ select:has(option.placeholder:checked) {
     color: #666;
 }
 
+:root.dark .size-separator {
+    color: #94a3b8;
+}
+
 .char-count {
     font-size: 0.875rem;
     color: #666;
     text-align: right;
     margin-top: 0.25rem;
+}
+
+:root.dark .char-count {
+    color: #94a3b8;
 }
 
 .form-actions {
@@ -983,10 +1026,21 @@ select:has(option.placeholder:checked) {
     box-shadow: none;
 }
 
+:root.dark .btn-primary:disabled {
+    background-color: #1e3a5f;
+    color: #64748b;
+}
+
 .btn-secondary {
     background-color: #f0f0f0;
     color: #333;
     border: 1px solid #ddd;
+}
+
+:root.dark .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
 }
 
 .btn-secondary:hover {
@@ -995,10 +1049,19 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+:root.dark .btn-secondary:hover {
+    background-color: #475569;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 .error-message {
     color: #e74c3c;
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+:root.dark .error-message {
+    color: #f87171;
 }
 
 .loading-container {
@@ -1010,6 +1073,10 @@ select:has(option.placeholder:checked) {
     gap: 1rem;
 }
 
+:root.dark .loading-container {
+    color: #cbd5e1;
+}
+
 .loader {
     width: 2rem;
     height: 2rem;
@@ -1017,6 +1084,11 @@ select:has(option.placeholder:checked) {
     border-top: 3px solid #4a90e2;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+}
+
+:root.dark .loader {
+    border-color: #334155;
+    border-top-color: #3b82f6;
 }
 
 @keyframes spin {
@@ -1041,7 +1113,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .add-work-container {
+    .add-sale-container {
         padding: 1rem;
     }
 

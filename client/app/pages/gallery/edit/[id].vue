@@ -1,38 +1,27 @@
 <template>
-    <div class="edit-sale-container">
+    <div class="edit-work-container">
         <div class="header-section">
-            <h1 class="page-title">
-                Редактировать работу в магазине
-            </h1>
-            <p class="page-subtitle">
-                Измените необходимые поля и сохраните изменения
-            </p>
+            <h1 class="page-title">Редактировать работу в галерее</h1>
+            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
         </div>
 
         <!-- Загрузчик -->
-        <div
-            v-if="isLoading"
-            class="loading-container"
-        >
+        <div v-if="isLoading" class="loading-container">
             <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form
-            v-else
-            class="sale-form"
-            @submit.prevent="submitForm"
-        >
+        <form v-else class="work-form" @submit.prevent="submitForm">
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">
-                    Изображения работы
-                </h2>
+                <h2 class="section-title">Изображения работы</h2>
                 <div class="form-group">
-                    <label class="form-label">Выберите новые изображения (опционально)</label>
+                    <label class="form-label"
+                        >Выберите новые изображения (опционально)</label
+                    >
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver, }"
+                        :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
@@ -59,16 +48,9 @@
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                             >
-                                <path
-                                    d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                                />
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="17 8 12 3 7 8" />
-                                <line
-                                    x1="12"
-                                    y1="3"
-                                    x2="12"
-                                    y2="15"
-                                />
+                                <line x1="12" y1="3" x2="12" y2="15" />
                             </svg>
                             <p class="upload-text">
                                 Перетащите изображения сюда или нажмите для выбора
@@ -78,16 +60,10 @@
                             </p>
                         </div>
                     </div>
-                    <div
-                        v-if="fileError"
-                        class="error-message"
-                    >
+                    <div v-if="fileError" class="error-message">
                         {{ fileError }}
                     </div>
-                    <div
-                        v-if="previewImages.length > 0"
-                        class="preview-container"
-                    >
+                    <div v-if="previewImages.length > 0" class="preview-container">
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -97,12 +73,12 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
-                            >
+                            />
                             <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="`Удалить изображение ${index + 1}`"
-                                @click="removeImage(index,)"
+                                @click="removeImage(index)"
                             >
                                 &times;
                             </UButton>
@@ -113,46 +89,42 @@
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">
-                    Основная информация
-                </h2>
+                <h2 class="section-title">Основная информация</h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label">Название картины по-русски <span class="required">*</span></label>
+                    <label class="form-label"
+                        >Название картины по-русски <span class="required">*</span></label
+                    >
                     <UInput
-                        v-model="sale.name_ru"
+                        v-model="work.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru, }"
+                        :class="{ 'is-invalid': errors.name_ru }"
                         placeholder="Например: 'Звездная ночь'"
-                        @blur="validateField('name_ru',)"
+                        @blur="validateField('name_ru')"
                     />
-                    <div
-                        v-if="errors.name_ru"
-                        class="error-message"
-                    >
+                    <div v-if="errors.name_ru" class="error-message">
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Название картины по-английски
-                        <span class="required">*</span></label>
+                    <label class="form-label"
+                        >Название картины по-английски
+                        <span class="required">*</span></label
+                    >
                     <UInput
-                        v-model="sale.name_en"
+                        v-model="work.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en, }"
+                        :class="{ 'is-invalid': errors.name_en }"
                         placeholder="Например: 'Starry Night'"
-                        @blur="validateField('name_en',)"
+                        @blur="validateField('name_en')"
                     />
-                    <div
-                        v-if="errors.name_en"
-                        class="error-message"
-                    >
+                    <div v-if="errors.name_en" class="error-message">
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -160,43 +132,37 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        Размеры (см) <span class="required">*</span>
+                        Размеры ({{ units }}) <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <UInput
-                                v-model.number="sale.width"
+                                v-model.number="work.width"
                                 type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width, }"
+                                :class="{ 'is-invalid': errors.width }"
                                 placeholder="Ширина"
-                                @blur="validateField('width',)"
+                                @blur="validateField('width')"
                             />
-                            <div
-                                v-if="errors.width"
-                                class="error-message"
-                            >
+                            <div v-if="errors.width" class="error-message">
                                 {{ errors.width }}
                             </div>
                         </div>
                         <span class="size-separator">×</span>
                         <div class="size-input-wrapper">
                             <UInput
-                                v-model.number="sale.height"
+                                v-model.number="work.height"
                                 type="number"
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height, }"
+                                :class="{ 'is-invalid': errors.height }"
                                 placeholder="Высота"
-                                @blur="validateField('height',)"
+                                @blur="validateField('height')"
                             />
-                            <div
-                                v-if="errors.height"
-                                class="error-message"
-                            >
+                            <div v-if="errors.height" class="error-message">
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -205,154 +171,114 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label">Год создания <span class="required">*</span></label>
+                    <label class="form-label"
+                        >Год создания <span class="required">*</span></label
+                    >
                     <UInput
-                        v-model.number="sale.year"
+                        v-model.number="work.year"
                         type="number"
                         required
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year, }"
+                        :class="{ 'is-invalid': errors.year }"
                         placeholder="Например: 2023"
-                        @blur="validateField('year',)"
+                        @blur="validateField('year')"
                     />
-                    <div
-                        v-if="errors.year"
-                        class="error-message"
-                    >
+                    <div v-if="errors.year" class="error-message">
                         {{ errors.year }}
-                    </div>
-                </div>
-
-                <!-- Цена -->
-                <div class="form-group">
-                    <label class="form-label">Цена <span class="required">*</span></label>
-                    <UInput
-                        v-model.number="sale.price"
-                        type="number"
-                        required
-                        min="1"
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.price, }"
-                        placeholder="Например: 1000"
-                        @blur="validateField('price',)"
-                    />
-                    <div
-                        v-if="errors.price"
-                        class="error-message"
-                    >
-                        {{ errors.price }}
                     </div>
                 </div>
             </div>
 
             <!-- Технические характеристики -->
             <div class="form-section">
-                <h2 class="section-title">
-                    Технические характеристики
-                </h2>
+                <h2 class="section-title">Технические характеристики</h2>
 
                 <!-- Основа -->
                 <div class="form-group">
-                    <label class="form-label">Основа <span class="required">*</span></label>
+                    <label class="form-label"
+                        >Основа <span class="required">*</span></label
+                    >
                     <USelect
-                        v-model="sale.base_id"
+                        v-model="work.base_id"
                         :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id, }"
+                        :class="{ 'is-invalid': errors.base_id }"
                         placeholder="Выберите основу"
                         @blur="validateField('base_id')"
                     />
-                    <div
-                        v-if="errors.base_id"
-                        class="error-message"
-                    >
+                    <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
                     </div>
                 </div>
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label">Материалы <span class="required">*</span></label>
-                    <div class="multi-select-wrapper">
-                        <div
-                            class="select-display drop-down-arrow"
-                            :class="{ 'is-invalid': errors.materials_ids, }"
-                            tabindex="0"
-                            @click="materialsToggleDropdown"
-                            @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids',)"
-                        >
-                            {{ selectedMaterialsDisplay || 'Выберите материалы' }}
-                        </div>
-                        <div
-                            v-if="materialsDropdownOpen"
-                            class="dropdown-options form-control"
-                        >
-                            <div
-                                v-for="material in materials"
-                                :key="material.id"
-                                class="option-item"
-                            >
-                                <UInput
-                                    :id="'material-' + material.id"
-                                    type="checkbox"
-                                    :value="material.id"
-                                    :model-value="
-                                        sale.materials_ids.includes(material.id,)
-                                    "
-                                    @update:model-value="
-                                        (checked,) => toggleMaterial(material.id, checked,)
-                                    "
-                                />
-                                <label :for="'material-' + material.id">
-                                    {{
-                                        $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
-                                    }}
-                                </label>
-                            </div>
-                        </div>
-                        <div
-                            v-if="errors.materials_ids"
-                            class="error-message"
-                        >
-                            {{ errors.materials_ids }}
-                        </div>
+                    <label class="form-label"
+                        >Материалы
+                        <span class="required">{{
+                            isMaterialsRequired ? '*' : ''
+                        }}</span></label
+                    >
+                    <USelect
+                        v-model="work.materials_ids"
+                        :items="materialOptions"
+                        multiple
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.materials_ids }"
+                        placeholder="Выберите материалы"
+                        @blur="validateField('materials_ids')"
+                    />
+                    <div v-if="errors.materials_ids" class="error-message">
+                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
 
             <!-- Описание -->
             <div class="form-section">
-                <h2 class="section-title">
-                    Дополнительная информация
-                </h2>
+                <h2 class="section-title">Дополнительная информация</h2>
                 <div class="form-group">
                     <label class="form-label">Описание</label>
-                    <textarea
-                        v-model="sale.descr"
-                        class="form-control textarea"
+                    <UTextarea
+                        v-model="work.descr"
+                        class="form-control"
                         placeholder="Краткое описание картины"
-                        rows="4"
-                        maxlength="500"
+                        :rows="4"
+                        :maxlength="500"
                     />
-                    <div class="char-count">
-                        {{ sale.descr.length }}/500
+                    <div class="char-count">{{ work.descr.length }}/500</div>
+                </div>
+            </div>
+
+            <!-- Тип работы -->
+            <div class="form-section">
+                <h2 class="section-title">Тип работы</h2>
+                <div class="form-group">
+                    <label class="form-label"
+                        >Тип работы <span class="required">*</span></label
+                    >
+                    <USelect
+                        v-model="work.type"
+                        :items="workTypeOptions"
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.type }"
+                        placeholder="Выберите тип работы"
+                        @blur="validateField('type')"
+                    />
+                    <div v-if="errors.type" class="error-message">
+                        {{ errors.type }}
                     </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton
-                    type="button"
-                    class="btn btn-secondary"
-                    @click="resetForm"
-                >
+                <UButton type="button" class="btn btn-secondary" @click="resetForm">
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -368,53 +294,28 @@
                 </UButton>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-if="showSuccessAlert"
-            title="Успешно!"
-            description="Работа успешно обновлена в магазине."
-            color="success"
-            icon="i-heroicons-check-circle"
-            closable
-            @close="showSuccessAlert = false"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-if="showErrorAlert"
-            title="Ошибка!"
-            :description="
-                errorMessage
-                    || 'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
-            "
-            color="error"
-            icon="i-heroicons-exclamation-triangle"
-            closable
-            @close="showErrorAlert = false"
-        />
     </div>
 </template>
 
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import type {
-    UpdateSaleRequest,
-    UpdateSaleResponse,
-    RequestResult,
-} from '../../types';
-import { useMaterialStore } from '../../stores/MaterialStore';
+import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
+import type { RequestResult, UpdateWorkRequest, UpdateWorkResponse } from '../../../types';
+import { useMaterialStore } from '../../../stores/MaterialStore';
 
-const route = useRoute();
-const { locale } = useI18n();
+definePageMeta({
+    middleware: 'admin-auth',
+});
+
+const toast = useToast();
 const config = useRuntimeConfig();
+const route = useRoute();
 const SERVER_URL = config.public.serverUrl;
+
 const materialStore = useMaterialStore();
 
 // Reactive state
-const sale = reactive<UpdateSaleResponse>({
+const work = reactive<UpdateWorkResponse>({
     id: 0,
     str_id: '',
     dir: '',
@@ -425,41 +326,38 @@ const sale = reactive<UpdateSaleResponse>({
     name_en: '',
     base_id: 0,
     descr: '',
-    price: 0,
+    type: 0,
     materials_ids: [],
     images: [],
 });
 
-const originalSale = reactive<UpdateSaleResponse>({
+// For form reset
+const originalWork = reactive<UpdateWorkResponse>({
     id: 0,
     str_id: '',
     dir: '',
+    width: 0,
+    height: 0,
+    year: new Date().getFullYear(),
     name_ru: '',
     name_en: '',
     base_id: 0,
-    year: new Date().getFullYear(),
     descr: '',
-    width: 0,
-    height: 0,
-    price: 0,
-    images: [],
+    type: 0,
     materials_ids: [],
+    images: [],
 });
 
-const addedFiles = ref<File[]>([]);
-const previewImages = ref<{ file?: File; preview: string; isExisting?: boolean; filename?: string }[]>([]);
+const files = ref<File[]>([]);
+const previewImages = ref<
+    { file?: File; preview: string; isExisting?: boolean; filename?: string }[]
+>([]);
 const imagesToDelete = ref<string[]>([]);
 const isSubmitting = ref(false);
 const isLoading = ref(true);
-const loadError = ref<string | null>(null);
-const requestResult = ref<RequestResult>('unknown');
-const materialsDropdownOpen = ref(false);
-const basesDropdownOpen = ref(false);
 const isDragOver = ref(false);
 const fileError = ref<string | null>(null);
 const errorMessage = ref('');
-const showSuccessAlert = ref(false);
-const showErrorAlert = ref(false);
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -467,9 +365,9 @@ const errors = reactive<Record<string, string>>({
     width: '',
     height: '',
     year: '',
-    price: '',
     base_id: '',
     materials_ids: '',
+    type: '',
 });
 
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -480,60 +378,83 @@ const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
     return bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        label: base.base_ru,
         value: base.id,
     }));
 });
 
-const selectedMaterialsDisplay = computed(() => {
-    if (sale.materials_ids.length === 0) return '';
-    const selectedNames = materialStore.materials
-        .filter(material => sale.materials_ids.includes(material.id))
-        .map(material =>
-            locale.value === 'ru' ? material.material_ru : material.material_en
-        );
-    return selectedNames.join(', ');
+const workTypeOptions = computed(() => {
+    return [
+        { label: 'Картина', value: 1 },
+        { label: 'Иллюстрация', value: 2 },
+        { label: '3D', value: 3 },
+    ];
+});
+
+const materialOptions = computed(() => {
+    return materials.value.map((material) => ({
+        label: material.material_ru,
+        value: material.id,
+    }));
 });
 
 const isFormValid = computed(() => {
     return (
-        sale.name_ru.trim() !== ''
-        && sale.name_en.trim() !== ''
-        && sale.width > 0
-        && sale.height > 0
-        && sale.year >= 2000
-        && sale.year <= new Date().getFullYear()
-        && sale.price > 0
-        && sale.base_id > 0
-        && sale.materials_ids.length > 0
+        work.name_ru.trim() !== '' &&
+        work.name_en.trim() !== '' &&
+        work.width > 0 &&
+        work.height > 0 &&
+        work.year >= 2000 &&
+        work.year <= new Date().getFullYear() &&
+        work.base_id > 0 &&
+        (work.type < 3
+            ? work.materials_ids.length > 0
+            : work.materials_ids.length === 0) &&
+        work.type > 0
     );
 });
 
+const units = computed(() => {
+    return work.type <= 1 ? 'см' : 'px';
+});
+
+const isMaterialsRequired = computed(() => {
+    return work.type === 1 || work.type === 2;
+});
+
 // Methods
-async function loadSale() {
+async function loadWork() {
     try {
         const id = route.params.id;
-        const response = await axios.get(`${SERVER_URL}sales/${id}/edit`);
-        Object.assign(sale, response.data);
-        Object.assign(originalSale, { ...response.data });
+        const response = await axios.get(`${SERVER_URL}works/${id}/edit`);
+        Object.assign(work, response.data);
+        Object.assign(originalWork, { ...response.data });
+
+        // Load existing images as previews
         loadPreviewImages();
+
         isLoading.value = false;
     } catch (error) {
         console.error('Ошибка при загрузке работы:', error);
-        loadError.value = 'Не удалось загрузить работу';
         isLoading.value = false;
-        showErrorAlert.value = true;
-        errorMessage.value = 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+        toast.add({
+            title: 'Ошибка!',
+            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     }
 }
 
 function loadPreviewImages() {
     previewImages.value = [];
-    for (let i = 0; i < sale.images.length; i++) {
-        const imageUrl = `${sale.dir}${sale.images[i]}`;
+    for (let i = 0; i < work.images.length; i++) {
+        const imageUrl = `${work.dir}${work.images[i]}`;
         previewImages.value.push({
             preview: imageUrl,
-            filename: sale.images[i],
+            isExisting: true,
+            filename: work.images[i],
         });
     }
 }
@@ -549,8 +470,8 @@ function handleDragLeave() {
 function handleDrop(event: DragEvent) {
     isDragOver.value = false;
     if (event.dataTransfer && event.dataTransfer.files.length) {
-        const files = Array.from(event.dataTransfer.files);
-        addImages(files);
+        const droppedFiles = Array.from(event.dataTransfer.files);
+        addImages(droppedFiles);
     }
 }
 
@@ -561,45 +482,49 @@ function triggerFileInput() {
 function handleFileUpload(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length) {
-        const files = Array.from(target.files);
-        addImages(files);
+        const selectedFiles = Array.from(target.files);
+        addImages(selectedFiles);
     }
 }
 
 function addImages(selectedFiles: File[]) {
     fileError.value = null;
 
-    if (addedFiles.value.length + selectedFiles.length > 10) {
+    // Check max file count
+    if (files.value.length + selectedFiles.length > 10) {
         fileError.value = 'Можно загрузить не более 10 изображений';
         return;
     }
 
+    // Check file types
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter(
-        (file) => !validTypes.includes(file.type)
-    );
+    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
 
     if (invalidFiles.length > 0) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
         return;
     }
 
-    const maxSize = 5 * 1024 * 1024;
-    const largeFiles = selectedFiles.filter(file => file.size > maxSize);
+    // Check file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
 
     if (largeFiles.length > 0) {
         fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
         return;
     }
 
-    addedFiles.value = [...addedFiles.value, ...selectedFiles];
+    // Add new files
+    files.value = [...files.value, ...selectedFiles];
 
+    // Create previews for new images
     selectedFiles.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
+                isExisting: false,
                 filename: file.name,
             });
         };
@@ -609,77 +534,80 @@ function addImages(selectedFiles: File[]) {
 
 function removeImage(index: number) {
     const imageToRemove = previewImages.value[index];
-    if (!imageToRemove) return;
 
-    if (imageToRemove.file) {
-        const fileIndex = addedFiles.value.indexOf(imageToRemove.file);
+    if (imageToRemove.isExisting && imageToRemove.filename) {
+        // Mark existing image for deletion
+        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
+            imagesToDelete.value.push(imageToRemove.filename);
+        }
+    } else if (imageToRemove.file) {
+        // Remove from files array if it's a newly uploaded file
+        const fileIndex = files.value.indexOf(imageToRemove.file);
         if (fileIndex > -1) {
-            addedFiles.value.splice(fileIndex, 1);
+            files.value.splice(fileIndex, 1);
         }
     }
 
+    // Remove from preview images
     previewImages.value.splice(index, 1);
 }
 
 function validateField(fieldName: string) {
     switch (fieldName) {
         case 'name_ru':
-            if (!sale.name_ru.trim()) {
+            if (!work.name_ru.trim()) {
                 errors.name_ru = 'Пожалуйста, введите название на русском';
             } else {
                 errors.name_ru = '';
             }
             break;
         case 'name_en':
-            if (!sale.name_en.trim()) {
+            if (!work.name_en.trim()) {
                 errors.name_en = 'Пожалуйста, введите название на английском';
             } else {
                 errors.name_en = '';
             }
             break;
         case 'width':
-            if (sale.width <= 0) {
+            if (work.width <= 0) {
                 errors.width = 'Ширина должна быть больше 0';
             } else {
                 errors.width = '';
             }
             break;
         case 'height':
-            if (sale.height <= 0) {
+            if (work.height <= 0) {
                 errors.height = 'Высота должна быть больше 0';
             } else {
                 errors.height = '';
             }
             break;
         case 'year':
-            if (
-                sale.year < 2000
-                || sale.year > new Date().getFullYear()
-            ) {
+            if (work.year < 2000 || work.year > new Date().getFullYear()) {
                 errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
             } else {
                 errors.year = '';
             }
             break;
-        case 'price':
-            if (sale.price <= 0) {
-                errors.price = 'Цена должна быть больше 0';
-            } else {
-                errors.price = '';
-            }
-            break;
         case 'base_id':
-            if (sale.base_id <= 0) {
+            if (work.base_id <= 0) {
                 errors.base_id = 'Пожалуйста, выберите основу';
             } else {
                 errors.base_id = '';
             }
             break;
         case 'materials_ids':
-            if (sale.materials_ids.length === 0) {
+            if (work.materials_ids.length === 0) {
                 errors.materials_ids = 'Пожалуйста, выберите хотя бы один материал';
             } else {
                 errors.materials_ids = '';
+            }
+            break;
+        case 'type':
+            if (work.type <= 0) {
+                errors.type = 'Пожалуйста, выберите тип работы';
+            } else {
+                errors.type = '';
             }
             break;
     }
@@ -693,9 +621,10 @@ function validateForm() {
     validateField('year');
     validateField('base_id');
     validateField('materials_ids');
-    validateField('price');
+    validateField('type');
 
-    return Object.values(errors).every(error => error === '');
+    // Check no errors
+    return Object.values(errors).every((error) => error === '');
 }
 
 async function submitForm() {
@@ -709,82 +638,96 @@ async function submitForm() {
         isSubmitting.value = true;
         errorMessage.value = '';
 
+        // Build form data
         const formData = new FormData();
 
         const finalImages: string[] = [];
 
-        for (const imageName of sale.images) {
-            finalImages.push(imageName);
+        // Add existing images that are not marked for deletion
+        for (const imageName of work.images) {
+            if (!imagesToDelete.value.includes(imageName)) {
+                finalImages.push(imageName);
+            }
         }
 
-        for (const file of addedFiles.value) {
+        // Add new image filenames
+        for (const file of files.value) {
             finalImages.push(file.name);
         }
 
-        if (addedFiles.value.length > 0) {
-            addedFiles.value.forEach((file) => {
+        // Add files if any
+        if (files.value.length > 0) {
+            files.value.forEach((file) => {
                 formData.append('images', file);
             });
         }
 
-        let updatedImages: string[];
-        if (previewImages.value && previewImages.value.length > 0) {
-            updatedImages = previewImages.value
-                .map(image => image.filename)
-                .filter((filename): filename is string => !!filename);
-        } else {
-            updatedImages = [];
-        }
-
-        const saleDataToUpdate: UpdateSaleRequest = {
-            ...sale,
-            images: updatedImages,
+        const workDataToUpdate: UpdateWorkRequest = {
+            ...work,
+            images: finalImages,
         };
+        workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
 
-        formData.append('data', JSON.stringify(saleDataToUpdate));
+        formData.append('data', JSON.stringify(workDataToUpdate));
 
         const strId = route.params.id;
-        const response = await axios.put(
-            SERVER_URL + 'sales/' + strId,
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            }
-        );
+        const response = await axios.put(SERVER_URL + 'works/' + strId, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
 
         if (response.status === 200) {
-            showSuccessAlert.value = true;
-            sale.images = finalImages;
+            toast.add({
+                title: 'Успешно!',
+                description: 'Работа успешно обновлена в галерее.',
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
+            });
+            // Update work images with final list
+            work.images = finalImages;
+            // Clear deletion list and files
             imagesToDelete.value = [];
-            addedFiles.value = [];
-            Object.assign(originalSale, { ...sale });
+            files.value = [];
+            // Update original work
+            Object.assign(originalWork, { ...work });
         } else {
-            showErrorAlert.value = true;
-            errorMessage.value = 'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
+            toast.add({
+                title: 'Ошибка!',
+                description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
-        let errorMsg = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-
+        let description =
+            'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
         if (error.response?.status === 413) {
-            errorMessage.value = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+            description =
+                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            errorMessage.value = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-        } else {
-            errorMessage.value = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+            description =
+                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
         }
-        showErrorAlert.value = true;
+        toast.add({
+            title: 'Ошибка!',
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     } finally {
         isSubmitting.value = false;
     }
 }
 
 function resetForm() {
-    Object.assign(sale, { ...originalSale });
-    addedFiles.value = [];
+    Object.assign(work, { ...originalWork });
+    files.value = [];
     previewImages.value = [];
     imagesToDelete.value = [];
     loadPreviewImages();
@@ -792,31 +735,11 @@ function resetForm() {
         fileInput.value.value = '';
     }
 
+    // Reset errors
     Object.keys(errors).forEach((key) => {
         errors[key] = '';
     });
     fileError.value = null;
-}
-
-function materialsToggleDropdown() {
-    materialsDropdownOpen.value = !materialsDropdownOpen.value;
-}
-
-function toggleMaterial(materialId: number, checked: boolean) {
-    if (checked) {
-        if (!sale.materials_ids.includes(materialId)) {
-            sale.materials_ids.push(materialId);
-        }
-    } else {
-        const index = sale.materials_ids.indexOf(materialId);
-        if (index > -1) {
-            sale.materials_ids.splice(index, 1);
-        }
-    }
-}
-
-function basesToggleDropdown() {
-    basesDropdownOpen.value = !basesDropdownOpen.value;
 }
 
 // Lifecycle
@@ -824,7 +747,7 @@ onMounted(async () => {
     if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
         await materialStore.fetchAll();
     }
-    await loadSale();
+    await loadWork();
 });
 </script>
 
@@ -833,7 +756,7 @@ select:has(option.placeholder:checked) {
     color: #999;
 }
 
-.edit-sale-container {
+.edit-work-container {
     max-width: 800px;
     margin: 3rem auto;
     padding: 2.5rem;
@@ -859,7 +782,7 @@ select:has(option.placeholder:checked) {
     margin: 0;
 }
 
-.sale-form {
+.work-form {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -938,7 +861,7 @@ select:has(option.placeholder:checked) {
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
+    padding-right: 2.5rem;
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -1057,11 +980,6 @@ select:has(option.placeholder:checked) {
     color: #666;
 }
 
-.textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
 .char-count {
     font-size: 0.875rem;
     color: #666;
@@ -1162,7 +1080,7 @@ select:has(option.placeholder:checked) {
 }
 
 @media (max-width: 768px) {
-    .edit-sale-container {
+    .edit-work-container {
         padding: 1rem;
     }
 
@@ -1187,63 +1105,127 @@ select:has(option.placeholder:checked) {
     }
 }
 
-.multi-select-wrapper {
-    position: relative;
-    width: 100%;
+/* ===== Dark Mode Overrides ===== */
+:root.dark .edit-work-container {
+    background-color: #1e293b;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.select-display {
-    padding: 0.75rem;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    cursor: pointer;
-    background-color: white;
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s;
+:root.dark .page-title {
+    color: #f1f5f9;
 }
 
-.select-display:hover {
-    border-color: #4a90e2;
+:root.dark .page-subtitle {
+    color: #cbd5e1;
 }
 
-.dropdown-options {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background: white;
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    max-height: 200px;
-    overflow-y: auto;
-    margin-top: 0.25rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+:root.dark .form-section {
+    background-color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
-.option-item {
-    padding: 8px 12px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+:root.dark .section-title {
+    color: #e2e8f0;
+    border-bottom-color: #3b82f6;
 }
 
-.option-item:hover {
-    background-color: #f8f9fa;
+:root.dark .form-label {
+    color: #cbd5e1;
 }
 
-.option-item input {
-    margin-right: 8px;
+:root.dark .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
 }
 
-.arrow {
-    float: right;
-    transition: transform 0.3s;
+:root.dark .form-control:hover {
+    border-color: #3b82f6;
 }
 
-.arrow-up {
-    transform: rotate(180deg);
+:root.dark .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+:root.dark .form-control::placeholder,
+:root.dark .form-control input::placeholder,
+:root.dark .form-control [data-placeholder],
+:root.dark .form-control [data-slot='placeholder'] {
+    color: #64748b !important;
+}
+
+:root.dark .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+:root.dark .drop-down-arrow {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+:root.dark .file-drop-area {
+    border-color: #475569;
+    background-color: #0f172a;
+}
+
+:root.dark .file-drop-area:hover,
+:root.dark .file-drop-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #1e293b;
+}
+
+:root.dark .upload-icon {
+    color: #60a5fa;
+}
+
+:root.dark .upload-text {
+    color: #e2e8f0;
+}
+
+:root.dark .upload-hint {
+    color: #94a3b8;
+}
+
+:root.dark .image-preview {
+    border-color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .size-separator {
+    color: #94a3b8;
+}
+
+:root.dark .char-count {
+    color: #94a3b8;
+}
+
+:root.dark .btn-primary:disabled {
+    background-color: #1e3a5f;
+    color: #64748b;
+}
+
+:root.dark .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+:root.dark .btn-secondary:hover {
+    background-color: #475569;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .error-message {
+    color: #f87171;
+}
+
+:root.dark .loading-container {
+    color: #cbd5e1;
+}
+
+:root.dark .loader {
+    border-color: #334155;
+    border-top-color: #3b82f6;
 }
 </style>

@@ -931,6 +931,11 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+:root.dark .add-news-container {
+    background-color: #1e293b;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
 .header-section {
     text-align: center;
     margin-bottom: 2rem;
@@ -940,6 +945,10 @@ select:has(option.placeholder:checked) {
     color: #333;
     margin-bottom: 0.5rem;
     font-size: 1.8rem;
+}
+
+:root.dark .page-title {
+    color: #f1f5f9;
 }
 
 .news-form {
@@ -955,12 +964,22 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
+:root.dark .form-section {
+    background-color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .section-title {
     font-size: 1.3rem;
     color: #333;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 2px solid #4a90e2;
+}
+
+:root.dark .section-title {
+    color: #e2e8f0;
+    border-bottom-color: #3b82f6;
 }
 
 .form-group {
@@ -975,6 +994,10 @@ select:has(option.placeholder:checked) {
     color: #444;
     display: flex;
     align-items: center;
+}
+
+:root.dark .form-label {
+    color: #cbd5e1;
 }
 
 .required {
@@ -992,14 +1015,29 @@ select:has(option.placeholder:checked) {
     transition: border-color 0.3s, box-shadow 0.3s;
 }
 
+:root.dark .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
 .form-control:hover {
     border-color: #4a90e2;
+}
+
+:root.dark .form-control:hover {
+    border-color: #3b82f6;
 }
 
 .form-control:focus {
     border-color: #4a90e2;
     outline: none;
     box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+:root.dark .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 /* Consistent placeholder color across all input fields */
@@ -1011,9 +1049,21 @@ select:has(option.placeholder:checked) {
     opacity: 1;
 }
 
+:root.dark .form-control::placeholder,
+:root.dark .form-control input::placeholder,
+:root.dark .form-control [data-placeholder],
+:root.dark .form-control [data-slot='placeholder'] {
+    color: #64748b !important;
+}
+
 .is-invalid {
     border-color: #e74c3c !important;
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1) !important;
+}
+
+:root.dark .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
 }
 
 .drop-down-arrow {
@@ -1027,6 +1077,10 @@ select:has(option.placeholder:checked) {
     appearance: none;
 }
 
+:root.dark .drop-down-arrow {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
 .file-drop-area {
     border: 2px dashed #ccc;
     border-radius: 6px;
@@ -1037,10 +1091,21 @@ select:has(option.placeholder:checked) {
     background-color: #fafafa;
 }
 
+:root.dark .file-drop-area {
+    border-color: #475569;
+    background-color: #0f172a;
+}
+
 .file-drop-area:hover,
 .file-drop-area.drag-over {
     border-color: #4a90e2;
     background-color: #f0f8ff;
+}
+
+:root.dark .file-drop-area:hover,
+:root.dark .file-drop-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #1e293b;
 }
 
 .file-drop-area.drag-over {
@@ -1064,16 +1129,28 @@ select:has(option.placeholder:checked) {
     height: 2rem;
 }
 
+:root.dark .upload-icon {
+    color: #60a5fa;
+}
+
 .upload-text {
     font-weight: 500;
     color: #333;
     margin: 0;
 }
 
+:root.dark .upload-text {
+    color: #e2e8f0;
+}
+
 .upload-hint {
     color: #666;
     font-size: 0.875rem;
     margin: 0;
+}
+
+:root.dark .upload-hint {
+    color: #94a3b8;
 }
 
 .preview-container {
@@ -1091,6 +1168,11 @@ select:has(option.placeholder:checked) {
     border-radius: 4px;
     overflow: hidden;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .image-preview {
+    border-color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .preview-image {
@@ -1113,6 +1195,10 @@ select:has(option.placeholder:checked) {
     border-radius: 4px;
     overflow: hidden;
     box-sizing: border-box;
+}
+
+:root.dark .video-preview {
+    border-color: #334155;
 }
 
 .remove-btn {
@@ -1177,10 +1263,21 @@ select:has(option.placeholder:checked) {
     box-shadow: none;
 }
 
+:root.dark .btn-primary:disabled {
+    background-color: #1e3a5f;
+    color: #64748b;
+}
+
 .btn-secondary {
     background-color: #f0f0f0;
     color: #333;
     border: 1px solid #ddd;
+}
+
+:root.dark .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
 }
 
 .btn-secondary:hover {
@@ -1189,10 +1286,19 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+:root.dark .btn-secondary:hover {
+    background-color: #475569;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
 .error-message {
     color: #e74c3c;
     font-size: 0.875rem;
     margin-top: 0.25rem;
+}
+
+:root.dark .error-message {
+    color: #f87171;
 }
 
 .spinner {
@@ -1259,8 +1365,18 @@ select:has(option.placeholder:checked) {
     transition: all 0.3s;
 }
 
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
 .select-display:hover {
     border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
 }
 
 .dropdown-options {
@@ -1278,6 +1394,11 @@ select:has(option.placeholder:checked) {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
 .option-item {
     padding: 8px 12px;
     display: flex;
@@ -1285,8 +1406,16 @@ select:has(option.placeholder:checked) {
     cursor: pointer;
 }
 
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
 .option-item:hover {
     background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
 }
 
 .option-item input {
@@ -1296,6 +1425,10 @@ select:has(option.placeholder:checked) {
 .arrow {
     float: right;
     transition: transform 0.3s;
+}
+
+:root.dark .arrow {
+    color: #94a3b8;
 }
 
 .arrow-up {

@@ -203,8 +203,14 @@
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
-                                    :icon="confirmPasswordVisible ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                                    @click="confirmPasswordVisible = !confirmPasswordVisible"
+                                    :icon="
+                                        confirmPasswordVisible
+                                            ? 'i-heroicons-eye-slash'
+                                            : 'i-heroicons-eye'
+                                    "
+                                    @click="
+                                        confirmPasswordVisible = !confirmPasswordVisible
+                                    "
                                     :padded="false"
                                     class="!p-1"
                                 />
@@ -336,7 +342,7 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../api/auth';
+import authApi from '../../api/auth';
 
 interface RegisterForm {
     username: string;

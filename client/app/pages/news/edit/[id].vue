@@ -436,7 +436,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { NewsDescDto } from '../../types';
+import type { NewsDescDto } from '../../../types';
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -1319,5 +1319,156 @@ select:has(option.placeholder:checked) {
 
 .arrow-up {
     transform: rotate(180deg);
+}
+
+/* ===== Dark Mode Overrides ===== */
+:root.dark .edit-news-container {
+    background-color: #1e293b;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .page-title {
+    color: #f1f5f9;
+}
+
+:root.dark .page-subtitle {
+    color: #cbd5e1;
+}
+
+:root.dark .form-section {
+    background-color: #0f172a;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .section-title {
+    color: #e2e8f0;
+    border-bottom-color: #3b82f6;
+}
+
+:root.dark .form-label {
+    color: #cbd5e1;
+}
+
+:root.dark .form-control {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+:root.dark .form-control:hover {
+    border-color: #3b82f6;
+}
+
+:root.dark .form-control:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+:root.dark .form-control::placeholder,
+:root.dark .form-control input::placeholder,
+:root.dark .form-control [data-placeholder],
+:root.dark .form-control [data-slot='placeholder'] {
+    color: #64748b !important;
+}
+
+:root.dark .is-invalid {
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+}
+
+:root.dark .drop-down-arrow {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+:root.dark .file-drop-area {
+    border-color: #475569;
+    background-color: #0f172a;
+}
+
+:root.dark .file-drop-area:hover,
+:root.dark .file-drop-area.drag-over {
+    border-color: #3b82f6;
+    background-color: #1e293b;
+}
+
+:root.dark .upload-icon {
+    color: #60a5fa;
+}
+
+:root.dark .upload-text {
+    color: #e2e8f0;
+}
+
+:root.dark .upload-hint {
+    color: #94a3b8;
+}
+
+:root.dark .image-preview {
+    border-color: #334155;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .video-preview {
+    border-color: #334155;
+}
+
+:root.dark .char-count {
+    color: #94a3b8;
+}
+
+:root.dark .btn-primary:disabled {
+    background-color: #1e3a5f;
+    color: #64748b;
+}
+
+:root.dark .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
+}
+
+:root.dark .btn-secondary:hover {
+    background-color: #475569;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+:root.dark .error-message {
+    color: #f87171;
+}
+
+:root.dark .loading-container {
+    color: #cbd5e1;
+}
+
+:root.dark .loader {
+    border-color: #334155;
+    border-top-color: #3b82f6;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+:root.dark .arrow {
+    color: #94a3b8;
 }
 </style>

@@ -35,8 +35,8 @@ const navigation = computed<NavigationMenuItem[]>(() => {
         },
         {
             label: t('header.all_works'),
-            to: '/all-works',
-            active: route.path.startsWith('/all-works'),
+            to: '/gallery',
+            active: route.path.startsWith('/gallery'),
         },
         {
             label: t('header.news'),
@@ -186,7 +186,7 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             </UTooltip>
 
             <UTooltip v-else :text="$t('auth.login')">
-                <UButton class="text-grey" variant="ghost" square to="/login">
+                <UButton class="text-grey" variant="ghost" square to="/auth/login">
                     <Icon name="i-heroicons-user-circle" class="w-5 h-5" />
                 </UButton>
             </UTooltip>
