@@ -27,10 +27,10 @@
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'backFull')"
                         @click="triggerFileInput('backFullInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleBackFullImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
@@ -92,10 +92,10 @@
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'back')"
                         @click="triggerFileInput('backInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleBackImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
@@ -157,10 +157,10 @@
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'images')"
                         @click="triggerFileInput('imagesInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleImagesSelected"
                             multiple
@@ -225,10 +225,10 @@
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'videos')"
                         @click="triggerFileInput('videosInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleVideosSelected"
                             multiple
@@ -405,42 +405,21 @@
                 </UButton>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-if="showSuccessAlert"
-            title="Успешно!"
-            description="Новость успешно обновлена."
-            color="success"
-            icon="i-heroicons-check-circle"
-            closable
-            @close="showSuccessAlert = false"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-if="showErrorAlert"
-            title="Ошибка!"
-            :description="
-                errorMessage ||
-                'Не удалось обновить новость. Пожалуйста, попробуйте снова.'
-            "
-            color="error"
-            icon="i-heroicons-exclamation-triangle"
-            closable
-            @close="showErrorAlert = false"
-        />
     </div>
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
 import type { NewsDescDto } from '../../../types';
+import authApi from '../../../api/auth';
+
+const api = authApi.getApiInstance();
 
 const route = useRoute();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
+const toast = useToast();
+const { t } = useI18n();
 
 interface PreviewItem {
     file: File;
@@ -475,9 +454,6 @@ const isSubmitting = ref(false);
 const fileError = ref<string | null>(null);
 const isDragOver = ref(false);
 const isLoading = ref(true);
-const showSuccessAlert = ref(false);
-const showErrorAlert = ref(false);
-const errorMessage = ref('');
 
 const errors = reactive<Record<string, string>>({
     title_ru: '',
@@ -497,7 +473,7 @@ const imagesInput = ref<HTMLInputElement | null>(null);
 const videosInput = ref<HTMLInputElement | null>(null);
 
 const newsDate = computed({
-    get: () => news.datetime.split('T')[0],
+    get: () => (news.datetime || '').split('T')[0],
     set: (val) => {
         news.datetime = val;
     },
@@ -521,10 +497,11 @@ onMounted(async () => {
 async function loadNews() {
     try {
         const id = route.params.id;
-        const response = await axios.get(SERVER_URL + 'news/' + id);
+        const response = await api.get(SERVER_URL + 'news/' + id);
         Object.assign(news, response.data);
         originalNews.value = { ...response.data };
 
+        // Load existing images with full server URLs
         if (news.img_back) {
             img_back_preview.value = {
                 file: new File([], news.img_back),
@@ -539,12 +516,36 @@ async function loadNews() {
             };
         }
 
+        // Load existing gallery images
+        if (news.images && news.images.length > 0) {
+            news.images.forEach((imgName) => {
+                previewImages.value.push({
+                    file: new File([], imgName),
+                    preview: `${news.dir}${imgName}`,
+                });
+            });
+        }
+
+        // Load existing videos
+        if (news.videos && news.videos.length > 0) {
+            news.videos.forEach((videoName) => {
+                const nameOnly = videoName.substring(0, videoName.lastIndexOf('.'));
+
+                previewVideos.value.push(`${news.dir}videos/${nameOnly}/${videoName}`);
+            });
+        }
+
         isLoading.value = false;
     } catch (error) {
         console.error('Ошибка при загрузке новости:', error);
         isLoading.value = false;
-        showErrorAlert.value = true;
-        errorMessage.value = 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+        toast.add({
+            title: t('toast.error.title'),
+            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     }
 }
 
@@ -556,8 +557,142 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent) {
+function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos') {
     isDragOver.value = false;
+    const files = Array.from(event.dataTransfer?.files || []);
+    if (files.length === 0) return;
+
+    switch (target) {
+        case 'backFull':
+            handleBackFullImageDrop(files[0]!);
+            break;
+        case 'back':
+            handleBackImageDrop(files[0]!);
+            break;
+        case 'images':
+            handleImagesDrop(files);
+            break;
+        case 'videos':
+            handleVideosDrop(files);
+            break;
+    }
+}
+
+function handleBackImageDrop(file: File) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        fileError.value = 'Размер файла не должен превышать 5 МБ';
+        return;
+    }
+
+    news.img_back = file.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_back_preview.value = {
+            file,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleBackFullImageDrop(file: File) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        fileError.value = 'Размер файла не должен превышать 5 МБ';
+        return;
+    }
+
+    news.img_backfull = file.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_backfull_preview.value = {
+            file,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleImagesDrop(files: File[]) {
+    if (images.value.length + files.length > 10) {
+        fileError.value = 'Можно загрузить не более 10 изображений';
+        return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = files.filter((file) => !validTypes.includes(file.type));
+    if (invalidFiles.length > 0) {
+        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    const largeFiles = files.filter((file) => file.size > maxSize);
+    if (largeFiles.length > 0) {
+        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
+        return;
+    }
+
+    fileError.value = null;
+
+    images.value = [...images.value, ...files];
+
+    files.forEach((file) => {
+        news.images.push(file.name);
+    });
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function handleVideosDrop(files: File[]) {
+    for (const file of files) {
+        if (!file.type.startsWith('video/')) {
+            fileError.value = 'Пожалуйста, выберите только видеофайлы';
+            return;
+        }
+    }
+
+    const maxSize = 100 * 1024 * 1024;
+    for (const file of files) {
+        if (file.size > maxSize) {
+            fileError.value = 'Размер файла не должен превышать 100MB';
+            return;
+        }
+    }
+
+    fileError.value = null;
+
+    for (const file of files) {
+        videos.value.push(file);
+        news.videos.push(file.name);
+        previewVideos.value.push(URL.createObjectURL(file));
+    }
 }
 
 function triggerFileInput(refName: string) {
@@ -701,8 +836,6 @@ function handleImagesSelected(event: Event) {
 async function handleVideosSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const files = target.files as FileList;
-    previewVideos.value.length = 0;
-    videos.value = [];
 
     if (!files || files.length == 0) return;
 
@@ -831,15 +964,18 @@ async function submitForm() {
 
     try {
         isSubmitting.value = true;
-        errorMessage.value = '';
 
         const formData = new FormData();
 
-        if (img_back_preview.value?.file) {
+        // Only append files that were actually selected by the user (have a real File object with size > 0)
+        if (img_back_preview.value?.file && img_back_preview.value.file.size > 0) {
             formData.append('img_back', img_back_preview.value.file);
         }
 
-        if (img_backfull_preview.value?.file) {
+        if (
+            img_backfull_preview.value?.file &&
+            img_backfull_preview.value.file.size > 0
+        ) {
             formData.append('img_backfull', img_backfull_preview.value.file);
         }
 
@@ -859,34 +995,48 @@ async function submitForm() {
         formData.append('data', JSON.stringify(newsData));
 
         const id = route.params.id;
-        const response = await axios.put(`${SERVER_URL}news/${id}`, formData, {
+        const response = await api.put(`${SERVER_URL}news/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
         });
 
         if (response.status === 200) {
-            showSuccessAlert.value = true;
+            toast.add({
+                title: t('toast.success.title'),
+                description: 'Новость успешно обновлена.',
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
+            });
             originalNews.value = { ...news };
         } else {
-            showErrorAlert.value = true;
-            errorMessage.value =
-                'Не удалось обновить новость. Пожалуйста, попробуйте снова.';
+            toast.add({
+                title: t('toast.error.title'),
+                description: 'Не удалось обновить новость. Пожалуйста, попробуйте снова.',
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
-        showErrorAlert.value = true;
+        let description =
+            'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
         if (error.response?.status === 413) {
-            errorMessage.value =
+            description =
                 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            errorMessage.value =
+            description =
                 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-        } else {
-            errorMessage.value =
-                'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
         }
+        toast.add({
+            title: t('toast.error.title'),
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     } finally {
         isSubmitting.value = false;
     }

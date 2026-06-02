@@ -263,7 +263,7 @@ func main() {
 
 	r_gin.GET("/news", GetNews)
 	r_gin.GET("/news/:id", GetNewsById)
-	r_gin.POST("/news", AddNews)
+	r_gin.POST("/news", AuthMiddleware(), AddNews)
 	r_gin.DELETE("/news/:id", AuthMiddleware(), DeleteNews)
 	r_gin.PUT("/news/:id", AuthMiddleware(), UpdateNews)
 

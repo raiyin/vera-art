@@ -16,5 +16,5 @@ directories:
   rel_works_dir: "/content/works/"
   abs_sales_dir: "/Users/raiyin/projects/mac/client/public"
   rel_sales_dir: "/content/sales/"
-  news_dir_save: "/Users/raiyin/projects/mac/client/public"
-  news_db_dir_prefix: "/content/news/"
+  abs_news_dir: "/Users/raiyin/projects/mac/client/public"
+  rel_news_dir: "/content/news/"

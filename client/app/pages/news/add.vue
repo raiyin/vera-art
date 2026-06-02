@@ -5,7 +5,9 @@ definePageMeta({
 
 import { ref, reactive, computed } from 'vue';
 import type { NewsDesc } from '../../types';
-import axios from 'axios';
+import authApi from '../../api/auth';
+
+const api = authApi.getApiInstance();
 
 const { t } = useI18n();
 const toast = useToast();
@@ -545,7 +547,7 @@ async function submitForm() {
         formData.append('data', JSON.stringify(newsData));
 
         // Send data to server
-        const response = await axios.post(`${SERVER_URL}news`, formData, {
+        const response = await api.post(`${SERVER_URL}news`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
