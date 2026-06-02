@@ -70,8 +70,8 @@ api.interceptors.response.use(
                 authStore.clearTokens();
 
                 // Redirect to login page if we're not already there
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login',)) {
-                    window.location.href = '/login';
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login',)) {
+                    window.location.href = '/auth/login';
                 }
             }
         }
@@ -140,7 +140,7 @@ export default {
 
         // Redirect to login page
         if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            window.location.href = '/auth/login';
         }
     },
 

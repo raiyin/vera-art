@@ -6,7 +6,7 @@ export default defineNuxtRouteMiddleware((_to, _from,) => {
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
-        return navigateTo('/login',);
+        return navigateTo('/auth/login',);
     }
 
     // If authenticated but not admin, redirect to home (or show forbidden)

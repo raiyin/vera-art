@@ -34,7 +34,7 @@
                         @drop.prevent="handleDrop"
                         @click="triggerFileInput"
                     >
-                        <UInput
+                        <input
                             ref="fileInput"
                             type="file"
                             multiple

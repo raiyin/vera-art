@@ -156,7 +156,7 @@ const finalPrice = computed(() => {
 
 async function checkout() {
     if (!authStore.isAuthenticated) {
-        router.push('/login?redirect=/learning/cart');
+        router.push('/auth/login?redirect=/learning/cart');
         return;
     }
 

@@ -34,7 +34,6 @@ func GetNewsById(c *gin.Context) {
 		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn, &news.Dir, &news.ImgBack,
 		&news.ImgBackfull,
 		&news.TextRu, &news.TextEn, &images, &videos)
-	// &news.TextRu, &news.TextEn, &news.Images, &news.Videos)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -281,57 +280,49 @@ func AddNews(c *gin.Context) {
 			// Determine file name based on field type
 			switch fieldName {
 			case "images":
-				// TODO make a bunch request
-				_, err = tx.Exec(
-					"insert into images (table_type_link, filename, entity_id) "+
-						"values (?, ?, ?)",
-					3,
-					safeFilename,
-					maxID)
 
+				// Create a destination file
+				dst, err := os.Create(filepath.Join(dirPath, safeFilename))
 				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
 					tx.Rollback()
-					log.Fatal(err)
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 			case "videos":
 
-				// TODO make a bunch request
-				_, err = tx.Exec(
-					"insert into videos (table_type_link, filename, entity_id) "+
-						"values (?, ?, ?)",
-					3,
-					safeFilename,
-					maxID)
-
+				// Create a destination file. Video files stored in the videos/filename directory
+				nameWithoutExt := strings.TrimSuffix(safeFilename, filepath.Ext(safeFilename))
+				dst, err := os.Create(filepath.Join(dirPath, "videos", nameWithoutExt, safeFilename))
 				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
 					tx.Rollback()
-					log.Fatal(err)
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 			default:
 				fmt.Println("Unknown field type:", safeFilename)
 			}
 
-			// Create a destination file
-			dst, err := os.Create(filepath.Join(dirPath, safeFilename))
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				return
-			}
-			defer dst.Close()
-
-			// Copy the file data
-			if _, err := io.Copy(dst, file); err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				return
-			}
-
-			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 		}
 	}
 

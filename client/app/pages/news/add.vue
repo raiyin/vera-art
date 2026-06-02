@@ -85,9 +85,142 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent) {
+function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos') {
     isDragOver.value = false;
-    // Handle drop for different file inputs
+    const files = Array.from(event.dataTransfer?.files || []);
+    if (files.length === 0) return;
+
+    switch (target) {
+        case 'backFull':
+            handleBackFullImageDrop(files[0]!);
+            break;
+        case 'back':
+            handleBackImageDrop(files[0]!);
+            break;
+        case 'images':
+            handleImagesDrop(files);
+            break;
+        case 'videos':
+            handleVideosDrop(files);
+            break;
+    }
+}
+
+function handleBackImageDrop(file: File) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type');
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        fileError.value = t('admin_news_form.errors.image_size');
+        return;
+    }
+
+    news.img_back = file.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_back_preview.value = {
+            file,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleBackFullImageDrop(file: File) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    if (!validTypes.includes(file.type)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type');
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        fileError.value = t('admin_news_form.errors.image_size');
+        return;
+    }
+
+    news.img_backfull = file.name;
+    fileError.value = null;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        img_backfull_preview.value = {
+            file,
+            preview: e.target?.result as string,
+        };
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleImagesDrop(files: File[]) {
+    if (images.value.length + files.length > 10) {
+        fileError.value = t('admin_news_form.errors.max_images');
+        return;
+    }
+
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const invalidFiles = files.filter((file) => !validTypes.includes(file.type));
+    if (invalidFiles.length > 0) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type');
+        return;
+    }
+
+    const maxSize = 5 * 1024 * 1024;
+    const largeFiles = files.filter((file) => file.size > maxSize);
+    if (largeFiles.length > 0) {
+        fileError.value = t('admin_news_form.errors.image_size');
+        return;
+    }
+
+    fileError.value = null;
+
+    images.value = [...images.value, ...files];
+
+    files.forEach((file) => {
+        news.images.push(file.name);
+    });
+
+    files.forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImages.value.push({
+                file,
+                preview: e.target?.result as string,
+            });
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function handleVideosDrop(files: File[]) {
+    for (const file of files) {
+        if (!file.type.startsWith('video/')) {
+            fileError.value = t('admin_news_form.errors.invalid_video_type');
+            return;
+        }
+    }
+
+    const maxSize = 100 * 1024 * 1024;
+    for (const file of files) {
+        if (file.size > maxSize) {
+            fileError.value = t('admin_news_form.errors.video_size');
+            return;
+        }
+    }
+
+    fileError.value = null;
+
+    for (const file of files) {
+        videos.value.push(file);
+        news.videos.push(file.name);
+        previewVideos.value.push(URL.createObjectURL(file));
+    }
 }
 
 function triggerFileInput(refName: string) {
@@ -243,8 +376,6 @@ function handleImagesSelected(event: Event) {
 async function handleVideosSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     const files = target.files as FileList;
-    previewVideos.value.length = 0;
-    videos.value = [];
 
     if (!files || files.length == 0) return;
 
@@ -517,10 +648,10 @@ function resetForm() {
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'backFull')"
                         @click="triggerFileInput('backFullInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleBackFullImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
@@ -584,10 +715,10 @@ function resetForm() {
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'back')"
                         @click="triggerFileInput('backInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleBackImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
@@ -651,10 +782,10 @@ function resetForm() {
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'images')"
                         @click="triggerFileInput('imagesInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleImagesSelected"
                             multiple
@@ -726,10 +857,10 @@ function resetForm() {
                         :class="{ 'drag-over': isDragOver }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
+                        @drop.prevent="handleDrop($event, 'videos')"
                         @click="triggerFileInput('videosInput')"
                     >
-                        <UInput
+                        <input
                             type="file"
                             @change="handleVideosSelected"
                             multiple

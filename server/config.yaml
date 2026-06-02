@@ -12,9 +12,9 @@ cors:
 
 # Directory where images will be stored
 directories:
-  abs_works_dir: "/Users/raiyin/projects/mac/client"
+  abs_works_dir: "/Users/raiyin/projects/mac/client/public"
   rel_works_dir: "/content/works/"
-  abs_sales_dir: "/Users/raiyin/projects/mac/client"
+  abs_sales_dir: "/Users/raiyin/projects/mac/client/public"
   rel_sales_dir: "/content/sales/"
-  news_dir_save: "/Users/raiyin/projects/mac/client"
+  news_dir_save: "/Users/raiyin/projects/mac/client/public"
   news_db_dir_prefix: "/content/news/"
