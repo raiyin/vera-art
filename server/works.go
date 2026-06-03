@@ -335,10 +335,10 @@ func DeleteWork(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	// Get the work directory path before deleting the record
-	var dir string
-	query := "SELECT dir FROM works WHERE id = ?"
-	err = tx.QueryRow(query, id).Scan(&dir)
+	// Get the work str_id before deleting the record
+	var strId string
+	query := "SELECT str_id FROM works WHERE id = ?"
+	err = tx.QueryRow(query, id).Scan(&strId)
 	if err != nil {
 		tx.Rollback()
 		if err == sql.ErrNoRows {
@@ -387,7 +387,8 @@ func DeleteWork(c *gin.Context) {
 	}
 
 	// Delete the directory and its contents
-	dirPath := config.AppConfigInstance.Directories.AbsWorksDir + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.RelWorksDir, "", -1)
+	dirPath := config.AppConfigInstance.Directories.AbsWorksDir +
+		config.AppConfigInstance.Directories.RelWorksDir + strId + "/"
 	if _, err := os.Stat(dirPath); err == nil {
 		err := os.RemoveAll(dirPath)
 		if err != nil {
