@@ -8,7 +8,7 @@ export interface CreateWorkDto {
     name_en: string
     base_id: number
     materials_ids: number[]
-    descr: string
+    descr_ru: string
     descr_en: string
     type: number | null
     images: string[]
@@ -22,7 +22,8 @@ export interface UpdateWorkResponse {
     name_en: string
     base_id: number
     year: number
-    descr: string
+    descr_ru: string
+    descr_en: string
     width: number
     height: number
     type: number
@@ -36,7 +37,8 @@ export interface UpdateWorkRequest {
     name_en: string
     base_id: number
     year: number
-    descr: string
+    descr_ru: string
+    descr_en: string
     width: number
     height: number
     type: number

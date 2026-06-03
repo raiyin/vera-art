@@ -145,8 +145,8 @@ func GetWorks(c *gin.Context) {
 		w := models.Work{}
 		err := rows.Scan(
 			&w.Id, &w.Width, &w.Height, &w.Year, &w.NameRu,
-			&w.NameEn, &w.BaseId, &w.StrId, &w.DescrRu, &w.DescrEn,
-			&w.Type, &w.Images)
+			&w.NameEn, &w.BaseId, &w.StrId,
+			&w.Type, &w.Images, &w.DescrRu, &w.DescrEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -204,7 +204,7 @@ func AddWork(c *gin.Context) {
 	imagesStr := strings.Join(work.Images, ";")
 
 	_, err = tx.Exec(
-		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr_ru, descr_en, type, images) "+
+		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, type, images, descr_ru, descr_en) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		work.Width,
@@ -214,10 +214,10 @@ func AddWork(c *gin.Context) {
 		work.NameEn,
 		work.BaseId,
 		strings.Replace(work.NameEn, " ", "_", -1),
-		work.DescrRu,
-		work.DescrEn,
 		work.Type,
 		imagesStr,
+		work.DescrRu,
+		work.DescrEn,
 	)
 
 	if err != nil {
@@ -413,7 +413,7 @@ func GetWorkById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.DescrRu, &work.DescrEn, &work.Type, &work.Images)
+		&work.Type, &work.Images, &work.DescrRu, &work.DescrEn)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -443,7 +443,8 @@ func GetWorkByIdForEdit(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.DescrRu, &work.DescrEn, &work.Type, &work.Images)
+		&work.Type, &work.Images,
+		&work.DescrRu, &work.DescrEn)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})

@@ -17,7 +17,7 @@
                 <h2 class="section-title">Изображения работы</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >Выберите новые изображения (опционально)</label
+                        >Изображения <span class="required">*</span></label
                     >
                     <div
                         class="file-drop-area"
@@ -27,7 +27,7 @@
                         @drop.prevent="handleDrop"
                         @click="triggerFileInput"
                     >
-                        <UInput
+                        <input
                             ref="fileInput"
                             type="file"
                             multiple
@@ -242,15 +242,26 @@
             <div class="form-section">
                 <h2 class="section-title">Дополнительная информация</h2>
                 <div class="form-group">
-                    <label class="form-label">Описание</label>
+                    <label class="form-label">Описание (русский)</label>
                     <UTextarea
-                        v-model="work.descr"
+                        v-model="work.descr_ru"
                         class="form-control"
-                        placeholder="Краткое описание картины"
+                        placeholder="Краткое описание картины на русском"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr.length }}/500</div>
+                    <div class="char-count">{{ work.descr_ru.length }}/500</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание (английский)</label>
+                    <UTextarea
+                        v-model="work.descr_en"
+                        class="form-control"
+                        placeholder="Краткое описание картины на английском"
+                        :rows="4"
+                        :maxlength="500"
+                    />
+                    <div class="char-count">{{ work.descr_en.length }}/500</div>
                 </div>
             </div>
 
@@ -300,7 +311,11 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-import type { RequestResult, UpdateWorkRequest, UpdateWorkResponse } from '../../../types';
+import type {
+    RequestResult,
+    UpdateWorkRequest,
+    UpdateWorkResponse,
+} from '../../../types';
 import { useMaterialStore } from '../../../stores/MaterialStore';
 
 definePageMeta({
@@ -325,7 +340,8 @@ const work = reactive<UpdateWorkResponse>({
     name_ru: '',
     name_en: '',
     base_id: 0,
-    descr: '',
+    descr_ru: '',
+    descr_en: '',
     type: 0,
     materials_ids: [],
     images: [],
@@ -342,7 +358,8 @@ const originalWork = reactive<UpdateWorkResponse>({
     name_ru: '',
     name_en: '',
     base_id: 0,
-    descr: '',
+    descr_ru: '',
+    descr_en: '',
     type: 0,
     materials_ids: [],
     images: [],
@@ -399,6 +416,8 @@ const materialOptions = computed(() => {
 });
 
 const isFormValid = computed(() => {
+    const hasExistingImages = work.images.length > imagesToDelete.value.length;
+    const hasNewImages = files.value.length > 0;
     return (
         work.name_ru.trim() !== '' &&
         work.name_en.trim() !== '' &&
@@ -410,7 +429,8 @@ const isFormValid = computed(() => {
         (work.type < 3
             ? work.materials_ids.length > 0
             : work.materials_ids.length === 0) &&
-        work.type > 0
+        work.type > 0 &&
+        (hasExistingImages || hasNewImages)
     );
 });
 
@@ -622,6 +642,14 @@ function validateForm() {
     validateField('base_id');
     validateField('materials_ids');
     validateField('type');
+
+    // Check at least one image exists (existing or newly uploaded)
+    const hasExistingImages = work.images.length > imagesToDelete.value.length;
+    const hasNewImages = files.value.length > 0;
+    if (!hasExistingImages && !hasNewImages) {
+        fileError.value = 'Пожалуйста, добавьте хотя бы одно изображение';
+        return false;
+    }
 
     // Check no errors
     return Object.values(errors).every((error) => error === '');
