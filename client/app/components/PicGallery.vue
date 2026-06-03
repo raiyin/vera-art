@@ -2,10 +2,12 @@
 import type { PropType } from 'vue';
 import type { CommonGetWorkDto } from '~/types';
 import { useMaterialStore } from '../stores/MaterialStore';
+import { useAuthStore } from '../stores/AuthStore';
 import type { CommonTypedGetWorkDto } from '~/types/common_work';
 import type { SelectItem } from '@nuxt/ui';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from '#imports';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     images: {
@@ -27,10 +29,14 @@ const items = ref<SelectItem[]>([
     { value: '3', label: '3D работы' },
 ]);
 const value = ref('all');
-// Modal state
+// Image modal state
 const showModal = ref(false);
 const selectedWork = ref<CommonGetWorkDto | null>(null);
 const currentImageIndex = ref(0);
+// Delete confirmation modal state
+const showDeleteModal = ref(false);
+const workToDelete = ref<CommonGetWorkDto | null>(null);
+const deletingId = ref<string | null>(null);
 
 // Computed properties
 const filteredImages = computed(() => {
@@ -50,11 +56,58 @@ const isAuthenticated = computed(() => {
 });
 
 const materialStore = useMaterialStore();
+const authStore = useAuthStore();
+const router = useRouter();
+
+const isAdmin = computed(() => {
+    return authStore.isAuthenticated && authStore.isAdmin;
+});
 
 // Methods
 const handleWorkDeleted = (id: string) => {
     // Emit event to parent component to update the list
     emit('work-deleted', id);
+};
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
+const navigateToEdit = (id: string) => {
+    router.push(`/gallery/edit/${id}`);
+};
+
+const confirmDelete = (work: CommonGetWorkDto) => {
+    workToDelete.value = work;
+    showDeleteModal.value = true;
+};
+
+const deleteWork = async () => {
+    if (!workToDelete.value) return;
+
+    const id = workToDelete.value.str_id || workToDelete.value.id.toString();
+    deletingId.value = id;
+    showDeleteModal.value = false;
+
+    try {
+        const response = await fetch(`${SERVER_URL}works/${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        handleWorkDeleted(id);
+    } catch (e) {
+        console.error('Error deleting work:', e);
+    } finally {
+        deletingId.value = null;
+        workToDelete.value = null;
+    }
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    workToDelete.value = null;
 };
 
 const getWorkName = (work: CommonGetWorkDto): string => {
@@ -240,9 +293,7 @@ onBeforeUnmount(() => {
                                 name="i-heroicons-paint-brush"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span v-for="material in getWorkMaterials(work)">
-                                {{ material }}
-                            </span>
+                            <span>{{ getWorkMaterials(work).join(', ') }}</span>
                         </div>
 
                         <div
@@ -267,8 +318,103 @@ onBeforeUnmount(() => {
                 >
                     {{ work.price }} ₽
                 </UBadge>
+
+                <!-- Admin Controls (at the bottom of the card, matching news style) -->
+                <ClientOnly>
+                    <div
+                        v-if="isAdmin"
+                        class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+                    >
+                        <div class="flex gap-2">
+                            <UButton
+                                size="sm"
+                                color="primary"
+                                variant="outline"
+                                @click.stop="
+                                    navigateToEdit(work.str_id || work.id.toString())
+                                "
+                            >
+                                {{ $t('admin.edit_work') }}
+                            </UButton>
+                            <UButton
+                                size="sm"
+                                color="error"
+                                variant="outline"
+                                :loading="
+                                    deletingId === (work.str_id || work.id.toString())
+                                "
+                                :disabled="
+                                    deletingId === (work.str_id || work.id.toString())
+                                "
+                                @click.stop="confirmDelete(work)"
+                            >
+                                {{ $t('admin.delete_work') }}
+                            </UButton>
+                        </div>
+                    </div>
+                </ClientOnly>
             </UCard>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <UModal
+            v-model:open="showDeleteModal"
+            :dismissible="false"
+            :close="false"
+            :transition="true"
+            class="delete-modal"
+        >
+            <template #header="{ close }">
+                <div class="delete-modal-header">
+                    <div class="delete-modal-icon-wrapper">
+                        <UIcon
+                            name="i-heroicons-exclamation-triangle"
+                            class="delete-modal-icon"
+                        />
+                    </div>
+                    <h3 class="delete-modal-title">
+                        {{ $t('admin.delete_work_confirm_title') }}
+                    </h3>
+                </div>
+            </template>
+
+            <template #body>
+                <div class="delete-modal-body">
+                    <p class="delete-modal-text">
+                        {{
+                            $t('admin.delete_work_confirm_text', {
+                                name: workToDelete ? getWorkName(workToDelete) : '',
+                            })
+                        }}
+                    </p>
+                    <p class="delete-modal-warning">
+                        {{ $t('admin.delete_work_confirm_warning') }}
+                    </p>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="delete-modal-footer">
+                    <UButton
+                        size="md"
+                        color="neutral"
+                        variant="outline"
+                        @click="cancelDelete"
+                    >
+                        {{ $t('admin.delete_work_cancel') }}
+                    </UButton>
+                    <UButton
+                        size="md"
+                        color="error"
+                        :loading="deletingId !== null"
+                        :disabled="deletingId !== null"
+                        @click="deleteWork"
+                    >
+                        {{ $t('admin.delete_work_confirm') }}
+                    </UButton>
+                </div>
+            </template>
+        </UModal>
 
         <!-- Custom Image Modal (matching news carousel) -->
         <transition name="modal-fade">
@@ -772,6 +918,101 @@ onBeforeUnmount(() => {
     .selector-container {
         max-width: 100%;
         padding: 0 1rem;
+    }
+}
+
+/* Delete Confirmation Modal Styles */
+.delete-modal {
+    --modal-max-width: 420px;
+}
+
+.delete-modal :deep(.ui-modal) {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.delete-modal-header {
+    text-align: center;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.delete-modal-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    margin-bottom: 1rem;
+}
+
+.dark .delete-modal-icon-wrapper {
+    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+}
+
+.delete-modal-icon {
+    width: 32px;
+    height: 32px;
+    color: #dc2626;
+}
+
+.dark .delete-modal-icon {
+    color: #fca5a5;
+}
+
+.delete-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dark .delete-modal-title {
+    color: #f1f5f9;
+}
+
+.delete-modal-body {
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+
+.delete-modal-text {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+}
+
+.dark .delete-modal-text {
+    color: #94a3b8;
+}
+
+.delete-modal-warning {
+    font-size: 0.85rem;
+    color: #ef4444;
+    font-weight: 500;
+    margin: 0;
+}
+
+.dark .delete-modal-warning {
+    color: #fca5a5;
+}
+
+.delete-modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+@media (max-width: 480px) {
+    .delete-modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .delete-modal-footer .UButton {
+        width: 100%;
     }
 }
 </style>

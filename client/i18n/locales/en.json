@@ -208,7 +208,14 @@
         "title": "admin dashboard",
         "add_news": "add news",
         "add_work_to_shop": "add shop item",
-        "add_work_to_gallery": "add gallery item"
+        "add_work_to_gallery": "add gallery item",
+        "edit_work": "Edit",
+        "delete_work": "Delete",
+        "delete_work_confirm_title": "Confirm deletion",
+        "delete_work_confirm_text": "Are you sure you want to delete the work «{name}»?",
+        "delete_work_confirm_warning": "This action cannot be undone.",
+        "delete_work_cancel": "Cancel",
+        "delete_work_confirm": "Delete"
     },
     "notfound": {
         "title": "Oops! Page Not Found",

@@ -208,7 +208,14 @@
         "title": "админ панель",
         "add_news": "добавить новость",
         "add_work_to_shop": "добавить работу в магазин",
-        "add_work_to_gallery": "добавить работу в галерею"
+        "add_work_to_gallery": "добавить работу в галерею",
+        "edit_work": "Редактировать",
+        "delete_work": "Удалить",
+        "delete_work_confirm_title": "Подтверждение удаления",
+        "delete_work_confirm_text": "Вы уверены, что хотите удалить работу «{name}»?",
+        "delete_work_confirm_warning": "Это действие нельзя отменить.",
+        "delete_work_cancel": "Отмена",
+        "delete_work_confirm": "Удалить"
     },
     "notfound": {
         "title": "Ой! Страница не найдена",
