@@ -11,7 +11,8 @@ type WorkResponse struct {
 	NameRu      string   `json:"name_ru"`
 	NameEn      string   `json:"name_en"`
 	Year        int      `json:"year"`
-	Descr       string   `json:"descr"`
+	DescrRu     string   `json:"descr_ru"`
+	DescrEn     string   `json:"descr_en"`
 	BaseRu      string   `json:"base_ru"`
 	BaseEn      string   `json:"base_en"`
 	Width       int      `json:"width"`
@@ -31,7 +32,8 @@ type UpdateWorkResponse struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Type         int      `json:"type"`
@@ -45,7 +47,8 @@ type UpdateWorkRequest struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Type         int      `json:"type"`
@@ -58,7 +61,8 @@ type CreateWorkRequest struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Type         int      `json:"type"`

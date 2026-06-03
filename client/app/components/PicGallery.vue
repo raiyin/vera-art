@@ -84,7 +84,7 @@ const confirmDelete = (work: CommonGetWorkDto) => {
 const deleteWork = async () => {
     if (!workToDelete.value) return;
 
-    const id = workToDelete.value.str_id || workToDelete.value.id.toString();
+    const id = workToDelete.value.id.toString();
     deletingId.value = id;
     showDeleteModal.value = false;
 
@@ -330,9 +330,7 @@ onBeforeUnmount(() => {
                                 size="sm"
                                 color="primary"
                                 variant="outline"
-                                @click.stop="
-                                    navigateToEdit(work.str_id || work.id.toString())
-                                "
+                                @click.stop="navigateToEdit(work.id.toString())"
                             >
                                 {{ $t('admin.edit_work') }}
                             </UButton>
@@ -340,12 +338,8 @@ onBeforeUnmount(() => {
                                 size="sm"
                                 color="error"
                                 variant="outline"
-                                :loading="
-                                    deletingId === (work.str_id || work.id.toString())
-                                "
-                                :disabled="
-                                    deletingId === (work.str_id || work.id.toString())
-                                "
+                                :loading="deletingId === work.id.toString()"
+                                :disabled="deletingId === work.id.toString()"
                                 @click.stop="confirmDelete(work)"
                             >
                                 {{ $t('admin.delete_work') }}

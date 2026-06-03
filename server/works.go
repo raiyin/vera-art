@@ -29,7 +29,8 @@ func workModelToWorkResponse(work models.Work) dtos.WorkResponse {
 		NameRu:      work.NameRu,
 		NameEn:      work.NameEn,
 		Year:        work.Year,
-		Descr:       work.Descr,
+		DescrRu:     work.DescrRu,
+		DescrEn:     work.DescrEn,
 		Width:       work.Width,
 		Height:      work.Height,
 		Type:        work.Type,
@@ -79,7 +80,8 @@ func workModelToUpdateWorkResponse(work models.Work) dtos.UpdateWorkResponse {
 		NameEn:       work.NameEn,
 		BaseId:       work.BaseId,
 		Year:         work.Year,
-		Descr:        work.Descr,
+		DescrRu:      work.DescrRu,
+		DescrEn:      work.DescrEn,
 		Width:        work.Width,
 		Height:       work.Height,
 		Type:         work.Type,
@@ -143,7 +145,7 @@ func GetWorks(c *gin.Context) {
 		w := models.Work{}
 		err := rows.Scan(
 			&w.Id, &w.Width, &w.Height, &w.Year, &w.NameRu,
-			&w.NameEn, &w.BaseId, &w.StrId, &w.Descr,
+			&w.NameEn, &w.BaseId, &w.StrId, &w.DescrRu, &w.DescrEn,
 			&w.Type, &w.Images)
 		if err != nil {
 			fmt.Println(err)
@@ -202,7 +204,7 @@ func AddWork(c *gin.Context) {
 	imagesStr := strings.Join(work.Images, ";")
 
 	_, err = tx.Exec(
-		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr, type, images) "+
+		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr_ru, descr_en, type, images) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		work.Width,
@@ -212,7 +214,8 @@ func AddWork(c *gin.Context) {
 		work.NameEn,
 		work.BaseId,
 		strings.Replace(work.NameEn, " ", "_", -1),
-		work.Descr,
+		work.DescrRu,
+		work.DescrEn,
 		work.Type,
 		imagesStr,
 	)
@@ -410,7 +413,7 @@ func GetWorkById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.Descr, &work.Type, &work.Images)
+		&work.DescrRu, &work.DescrEn, &work.Type, &work.Images)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -440,7 +443,7 @@ func GetWorkByIdForEdit(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.Descr, &work.Type, &work.Images)
+		&work.DescrRu, &work.DescrEn, &work.Type, &work.Images)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
@@ -504,11 +507,11 @@ func UpdateWork(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE works
 		SET width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, descr = ?, type = ?, images = ?
+			base_id = ?, str_id = ?, descr_ru = ?, descr_en = ?, type = ?, images = ?
 		WHERE id = ?`,
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
 		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1),
-		work.Descr, work.Type, imagesStr, id)
+		work.DescrRu, work.DescrEn, work.Type, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()
