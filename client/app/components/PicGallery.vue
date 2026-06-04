@@ -72,8 +72,13 @@ const handleWorkDeleted = (id: string) => {
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 
-const navigateToEdit = (id: string) => {
-    router.push(`/gallery/edit/${id}`);
+const navigateToEdit = (work: CommonGetWorkDto) => {
+    const id = work.id.toString();
+    if (work.__type === 'GetSaleDto') {
+        router.push(`/shop/edit/${id}`);
+    } else {
+        router.push(`/gallery/edit/${id}`);
+    }
 };
 
 const confirmDelete = (work: CommonGetWorkDto) => {
@@ -365,7 +370,7 @@ onBeforeUnmount(() => {
                                     size="sm"
                                     color="primary"
                                     variant="outline"
-                                    @click.stop="navigateToEdit(work.id.toString())"
+                                    @click.stop="navigateToEdit(work)"
                                 >
                                     {{ $t('admin.edit_work') }}
                                 </UButton>

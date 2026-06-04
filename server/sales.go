@@ -395,7 +395,7 @@ func GetSaleById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Width, &sale.Height, &sale.Year,
 		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.DescrRu, &sale.DescrEn, &sale.Images,
+		&sale.Images, &sale.DescrRu, &sale.DescrEn,
 	)
 
 	if err != nil {
@@ -425,8 +425,8 @@ func GetSaleByIdForEdit(c *gin.Context) {
 	var sale models.Sale
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Width, &sale.Height, &sale.Year, &sale.Price,
-		&sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.DescrRu, &sale.DescrEn, &sale.Images)
+		&sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId, &sale.Images,
+		&sale.DescrRu, &sale.DescrEn)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "sale not found"})

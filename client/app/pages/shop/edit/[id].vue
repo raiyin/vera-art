@@ -17,7 +17,7 @@
                 <h2 class="section-title">Изображения работы</h2>
                 <div class="form-group">
                     <label class="form-label"
-                        >Выберите новые изображения (опционально)</label
+                        >Изображения <span class="required">*</span></label
                     >
                     <div
                         class="file-drop-area"
@@ -27,7 +27,7 @@
                         @drop.prevent="handleDrop"
                         @click="triggerFileInput"
                     >
-                        <UInput
+                        <input
                             ref="fileInput"
                             type="file"
                             multiple
@@ -329,31 +329,6 @@
                 </UButton>
             </div>
         </form>
-
-        <!-- Success Alert -->
-        <UAlert
-            v-if="showSuccessAlert"
-            title="Успешно!"
-            description="Работа успешно обновлена в магазине."
-            color="success"
-            icon="i-heroicons-check-circle"
-            closable
-            @close="showSuccessAlert = false"
-        />
-
-        <!-- Danger Alert -->
-        <UAlert
-            v-if="showErrorAlert"
-            title="Ошибка!"
-            :description="
-                errorMessage ||
-                'Не удалось обновить работу в магазине. Пожалуйста, попробуйте снова.'
-            "
-            color="error"
-            icon="i-heroicons-exclamation-triangle"
-            closable
-            @close="showErrorAlert = false"
-        />
     </div>
 </template>
 
@@ -368,6 +343,7 @@ import type {
 } from '../../../types';
 import { useMaterialStore } from '../../../stores/MaterialStore';
 
+const toast = useToast();
 const route = useRoute();
 const { locale } = useI18n();
 const config = useRuntimeConfig();
@@ -422,9 +398,6 @@ const materialsDropdownOpen = ref(false);
 const basesDropdownOpen = ref(false);
 const isDragOver = ref(false);
 const fileError = ref<string | null>(null);
-const errorMessage = ref('');
-const showSuccessAlert = ref(false);
-const showErrorAlert = ref(false);
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -461,6 +434,8 @@ const selectedMaterialsDisplay = computed(() => {
 });
 
 const isFormValid = computed(() => {
+    const hasExistingImages = sale.images.length > imagesToDelete.value.length;
+    const hasNewImages = addedFiles.value.length > 0;
     return (
         sale.name_ru.trim() !== '' &&
         sale.name_en.trim() !== '' &&
@@ -470,7 +445,8 @@ const isFormValid = computed(() => {
         sale.year <= new Date().getFullYear() &&
         sale.price > 0 &&
         sale.base_id > 0 &&
-        sale.materials_ids.length > 0
+        sale.materials_ids.length > 0 &&
+        (hasExistingImages || hasNewImages)
     );
 });
 
@@ -487,8 +463,13 @@ async function loadSale() {
         console.error('Ошибка при загрузке работы:', error);
         loadError.value = 'Не удалось загрузить работу';
         isLoading.value = false;
-        showErrorAlert.value = true;
-        errorMessage.value = 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.';
+        toast.add({
+            title: 'Ошибка!',
+            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     }
 }
 
@@ -498,6 +479,7 @@ function loadPreviewImages() {
         const imageUrl = `${sale.dir}${sale.images[i]}`;
         previewImages.value.push({
             preview: imageUrl,
+            isExisting: true,
             filename: sale.images[i],
         });
     }
@@ -574,13 +556,20 @@ function removeImage(index: number) {
     const imageToRemove = previewImages.value[index];
     if (!imageToRemove) return;
 
-    if (imageToRemove.file) {
+    if (imageToRemove.isExisting && imageToRemove.filename) {
+        // Mark existing image for deletion
+        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
+            imagesToDelete.value.push(imageToRemove.filename);
+        }
+    } else if (imageToRemove.file) {
+        // Remove from files array if it's a newly uploaded file
         const fileIndex = addedFiles.value.indexOf(imageToRemove.file);
         if (fileIndex > -1) {
             addedFiles.value.splice(fileIndex, 1);
         }
     }
 
+    // Remove from preview images
     previewImages.value.splice(index, 1);
 }
 
@@ -655,6 +644,15 @@ function validateForm() {
     validateField('materials_ids');
     validateField('price');
 
+    // Check at least one image exists (existing or newly uploaded)
+    const hasExistingImages = sale.images.length > imagesToDelete.value.length;
+    const hasNewImages = addedFiles.value.length > 0;
+    if (!hasExistingImages && !hasNewImages) {
+        fileError.value = 'Пожалуйста, добавьте хотя бы одно изображение';
+        return false;
+    }
+
+    // Check no errors
     return Object.values(errors).every((error) => error === '');
 }
 
@@ -667,16 +665,19 @@ async function submitForm() {
 
     try {
         isSubmitting.value = true;
-        errorMessage.value = '';
 
         const formData = new FormData();
 
         const finalImages: string[] = [];
 
+        // Add existing images that are not marked for deletion
         for (const imageName of sale.images) {
-            finalImages.push(imageName);
+            if (!imagesToDelete.value.includes(imageName)) {
+                finalImages.push(imageName);
+            }
         }
 
+        // Add new image filenames
         for (const file of addedFiles.value) {
             finalImages.push(file.name);
         }
@@ -712,32 +713,45 @@ async function submitForm() {
         });
 
         if (response.status === 200) {
-            showSuccessAlert.value = true;
+            toast.add({
+                title: 'Успешно!',
+                description: 'Работа успешно обновлена в магазине.',
+                icon: 'i-heroicons-check-circle',
+                color: 'success',
+                duration: 5000,
+            });
             sale.images = finalImages;
             imagesToDelete.value = [];
             addedFiles.value = [];
             Object.assign(originalSale, { ...sale });
         } else {
-            showErrorAlert.value = true;
-            errorMessage.value =
-                'Не удалось обновить работу. Пожалуйста, попробуйте снова.';
+            toast.add({
+                title: 'Ошибка!',
+                description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
-        let errorMsg =
+        let description =
             'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
 
         if (error.response?.status === 413) {
-            errorMessage.value =
+            description =
                 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            errorMessage.value =
+            description =
                 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
-        } else {
-            errorMessage.value =
-                'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
         }
-        showErrorAlert.value = true;
+        toast.add({
+            title: 'Ошибка!',
+            description,
+            icon: 'i-heroicons-exclamation-triangle',
+            color: 'error',
+            duration: 5000,
+        });
     } finally {
         isSubmitting.value = false;
     }
