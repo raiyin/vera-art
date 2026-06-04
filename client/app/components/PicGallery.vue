@@ -233,7 +233,8 @@ onBeforeUnmount(() => {
             <UCard
                 v-for="work in filteredImages"
                 :key="work.id"
-                class="overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
+                :ui="{ body: 'flex-1 flex flex-col' }"
+                class="work-card flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
             >
                 <template #header>
                     <div class="flex flex-col justify-between items-start">
@@ -243,7 +244,7 @@ onBeforeUnmount(() => {
                     </div>
                 </template>
 
-                <div class="space-y-3">
+                <div class="flex flex-col grow">
                     <!-- Image -->
                     <div
                         class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
@@ -261,7 +262,7 @@ onBeforeUnmount(() => {
                     </div>
 
                     <!-- Details -->
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm my-3">
                         <div
                             v-if="getWorkDimensions(work)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
@@ -307,46 +308,46 @@ onBeforeUnmount(() => {
                             <span>{{ work.year }}</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Price badge positioned at bottom right -->
-                <UBadge
-                    v-if="work.__type === 'GetSaleDto' && work.price"
-                    color="primary"
-                    size="xl"
-                    class="absolute bottom-6 right-4 font-semibold"
-                >
-                    {{ work.price }} ₽
-                </UBadge>
-
-                <!-- Admin Controls (at the bottom of the card, matching news style) -->
-                <ClientOnly>
-                    <div
-                        v-if="isAdmin"
-                        class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+                    <!-- Price badge positioned at bottom right -->
+                    <UBadge
+                        v-if="work.__type === 'GetSaleDto' && work.price"
+                        color="primary"
+                        size="xl"
+                        class="absolute bottom-6 right-4 font-semibold"
                     >
-                        <div class="flex gap-2">
-                            <UButton
-                                size="sm"
-                                color="primary"
-                                variant="outline"
-                                @click.stop="navigateToEdit(work.id.toString())"
-                            >
-                                {{ $t('admin.edit_work') }}
-                            </UButton>
-                            <UButton
-                                size="sm"
-                                color="error"
-                                variant="outline"
-                                :loading="deletingId === work.id.toString()"
-                                :disabled="deletingId === work.id.toString()"
-                                @click.stop="confirmDelete(work)"
-                            >
-                                {{ $t('admin.delete_work') }}
-                            </UButton>
+                        {{ work.price }} ₽
+                    </UBadge>
+
+                    <!-- Admin Controls (at the bottom of the card) -->
+                    <ClientOnly>
+                        <div
+                            v-if="isAdmin"
+                            class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"
+                        >
+                            <div class="flex gap-2">
+                                <UButton
+                                    size="sm"
+                                    color="primary"
+                                    variant="outline"
+                                    @click.stop="navigateToEdit(work.id.toString())"
+                                >
+                                    {{ $t('admin.edit_work') }}
+                                </UButton>
+                                <UButton
+                                    size="sm"
+                                    color="error"
+                                    variant="outline"
+                                    :loading="deletingId === work.id.toString()"
+                                    :disabled="deletingId === work.id.toString()"
+                                    @click.stop="confirmDelete(work)"
+                                >
+                                    {{ $t('admin.delete_work') }}
+                                </UButton>
+                            </div>
                         </div>
-                    </div>
-                </ClientOnly>
+                    </ClientOnly>
+                </div>
             </UCard>
         </div>
 
@@ -548,6 +549,18 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.work-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.work-card :deep(.u-card-body) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 .work-types-selector {
     display: flex;
     padding: 1rem 1rem;
