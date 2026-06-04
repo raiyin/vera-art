@@ -64,25 +64,11 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             type: 'trigger',
             children: [
                 {
-                    label: 'Акварельная живопись',
-                    to: '/master-classes/watercolor',
-                    icon: 'i-heroicons-paint-brush',
-                    active: route.path.startsWith('/master-classes/watercolor'),
-                    value: 'watercolor',
-                },
-                {
-                    label: 'Масляная живопись',
-                    to: '/master-classes/oil',
-                    icon: 'i-heroicons-paint-brush',
-                    active: route.path.startsWith('/master-classes/oil'),
-                    value: 'oil',
-                },
-                {
-                    label: 'Рисование для начинающих',
-                    to: '/master-classes/beginners',
-                    icon: 'i-heroicons-sparkles',
-                    active: route.path.startsWith('/master-classes/beginners'),
-                    value: 'beginners',
+                    label: 'Мастер-классы',
+                    to: '/master-classes',
+                    icon: 'i-heroicons-video-camera',
+                    active: route.path.startsWith('/master-classes'),
+                    value: 'master-classes',
                 },
                 {
                     label: 'Онлайн-курсы',

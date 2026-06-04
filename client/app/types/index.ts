@@ -13,3 +13,4 @@ export type { UpdateWorkResponse, UpdateWorkRequest, } from './work';
 export type { UpdateSaleResponse, UpdateSaleRequest, } from './sale';
 export type { Review, CreateReviewDto, UpdateReviewDto, } from './review';
 export type { ChatThread, ChatMessage, CreateChatThreadDto, SendMessageDto, } from './chat';
+export type { MasterClass, MasterClassTag, } from './master-class';

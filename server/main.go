@@ -337,6 +337,12 @@ func main() {
 	r_gin.GET("/consent/policy-version", GetCookiePolicyVersion)
 	r_gin.GET("/admin/consent/audit", AuthMiddleware(), middleware.AdminMiddleware(), GetConsentAuditLog)
 
+	// Мастер-классы (публичные)
+	r_gin.GET("/master-classes", GetMasterClasses)
+	r_gin.GET("/master-classes/tags", GetMasterClassTags)
+	r_gin.GET("/master-classes/tag/:tag_slug", GetMasterClassesByTag)
+	r_gin.GET("/master-classes/:id", GetMasterClassByID)
+
 	// Чат
 	r_gin.GET("/chat/threads", AuthMiddleware(), GetChatThreads)
 	r_gin.POST("/chat/threads", AuthMiddleware(), CreateChatThread)

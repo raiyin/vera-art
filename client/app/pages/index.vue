@@ -128,19 +128,6 @@ onUnmounted(() => {
                     <div class="arrow-down"></div>
                 </div>
             </div>
-            <!-- Theme toggle button -->
-            <button
-                class="theme-toggle-btn"
-                @click="toggleTheme($event)"
-                :title="
-                    themeStore.theme === 'light'
-                        ? 'Switch to dark theme'
-                        : 'Switch to light theme'
-                "
-            >
-                <span v-if="themeStore.theme === 'light'">🌙</span>
-                <span v-else>☀️</span>
-            </button>
         </div>
         <img
             src="../assets/images/img_parallax.webp"
