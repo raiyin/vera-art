@@ -107,7 +107,6 @@ onMounted(() => {
     window.addEventListener('mousemove', handleMouseMove);
     // Initial check
     handleScroll();
-    console.log('Theme store on mount:', themeStore.theme);
 });
 
 onUnmounted(() => {

@@ -1,12 +1,16 @@
 import type { NewsDesc, } from '../types';
 import axios from 'axios';
 
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
+
 const fetchCurrentNews = async (
     path: string,
 ): Promise<NewsDesc> => {
     try {
         const newsid = path.substring(path.lastIndexOf('/',) + 1,);
-        const response = await axios.get(import.meta.env.VITE_SERVER_URL + 'news', {
+        const response = await axios.get(SERVER_URL + 'news', {
             params: { id: newsid, },
         },);
         const oneCurrentNews = response.data[0];

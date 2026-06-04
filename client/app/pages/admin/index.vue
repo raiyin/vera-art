@@ -2,7 +2,7 @@
     <div class="admin-container">
         <h1 class="title">{{ $t('admin.title') }}</h1>
         <div class="buttons-wrapper">
-            <router-link to="/admin/add-news" class="action-button news-button">
+            <router-link to="/news/add" class="action-button news-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"
@@ -22,7 +22,7 @@
                 </div>
             </router-link>
 
-            <router-link to="/admin/add-shop-item" class="action-button shop-button">
+            <router-link to="/shop/add" class="action-button shop-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"
@@ -42,10 +42,7 @@
                 </div>
             </router-link>
 
-            <router-link
-                to="/admin/add-gallery-item"
-                class="action-button gallery-button"
-            >
+            <router-link to="/gallery/add" class="action-button gallery-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"

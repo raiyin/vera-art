@@ -15,6 +15,9 @@ export default {
         NewsDescriptionSkeleton,
     },
     setup() {
+        const config = useRuntimeConfig();
+        const SERVER_URL = config.public.serverUrl;
+
         const route = useRoute();
         const router = useRouter();
         const { locale, t } = useI18n();
@@ -29,7 +32,6 @@ export default {
         const mainImageError = ref(false);
 
         const newsId = computed(() => route.params.id as string);
-        const serverUrl = computed(() => import.meta.env.VITE_SERVER as string);
 
         const getImageUrl = (path: string | undefined, dir: string) => {
             if (!path) return '';
@@ -54,13 +56,11 @@ export default {
                 loading.value = true;
                 error.value = null;
 
-                const response = await axios.get(
-                    `${serverUrl.value}news/${newsId.value}`
-                );
+                const response = await axios.get(`${SERVER_URL}news/${newsId.value}`);
                 currentNewsItem.value = response.data;
 
                 // Fetch other news for sidebar (excluding current)
-                const otherResponse = await axios.get(`${serverUrl.value}news`, {
+                const otherResponse = await axios.get(`${SERVER_URL}news`, {
                     params: {
                         offset: 0,
                         limit: 6, // Get 6 to potentially exclude current
@@ -194,7 +194,9 @@ export default {
                 </svg>
                 <h2 class="error-title">{{ $t('news.detail.error.title') }}</h2>
                 <p class="error-message">{{ error }}</p>
-                <button @click="fetchNewsDetail" class="retry-button">{{ $t('news.detail.error.retryButton') }}</button>
+                <button @click="fetchNewsDetail" class="retry-button">
+                    {{ $t('news.detail.error.retryButton') }}
+                </button>
             </div>
         </div>
 
@@ -317,7 +319,10 @@ export default {
                             {{ $t('news.detail.sidebar.title') }}
                         </h3>
 
-                        <div v-if="otherNews.length > 0" class="space-y-2 overflow-y-auto sidebar-news-list">
+                        <div
+                            v-if="otherNews.length > 0"
+                            class="space-y-2 overflow-y-auto sidebar-news-list"
+                        >
                             <div
                                 v-for="news in otherNews"
                                 :key="news.id"
@@ -407,17 +412,6 @@ export default {
                             : currentNewsItem.title_en
                     }}
                 </h1>
-
-                <!-- Subtitle -->
-                <h2
-                    class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-6 font-medium"
-                >
-                    {{
-                        locale === 'ru'
-                            ? currentNewsItem.subTitle_ru
-                            : currentNewsItem.subTitle_en
-                    }}
-                </h2>
             </div>
 
             <!-- News Text -->
@@ -440,10 +434,7 @@ export default {
                     {{ $t('news.detail.gallery.title') }}
                 </h3>
                 <div
-                    v-if="
-                        currentNewsItem.images &&
-                        currentNewsItem.images.length > 0
-                    "
+                    v-if="currentNewsItem.images && currentNewsItem.images.length > 0"
                     class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
                 >
                     <div
@@ -452,9 +443,7 @@ export default {
                         class="gallery-item cursor-pointer group"
                         @click="openImageModal(index)"
                     >
-                        <div
-                            class="aspect-square overflow-hidden rounded-lg relative"
-                        >
+                        <div class="aspect-square overflow-hidden rounded-lg relative">
                             <div
                                 v-if="imageLoadErrors.has(index)"
                                 class="image-error-placeholder w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800"
@@ -483,10 +472,7 @@ export default {
                                 @error="() => handleGalleryImageError(index)"
                             />
                         </div>
-                        <div
-                            class="gallery-overlay"
-                            v-if="!imageLoadErrors.has(index)"
-                        >
+                        <div class="gallery-overlay" v-if="!imageLoadErrors.has(index)">
                             <svg
                                 class="w-8 h-8 text-white"
                                 fill="none"
@@ -531,10 +517,7 @@ export default {
                     {{ $t('news.detail.videos.title') }}
                 </h3>
                 <div
-                    v-if="
-                        currentNewsItem.videos &&
-                        currentNewsItem.videos.length > 0
-                    "
+                    v-if="currentNewsItem.videos && currentNewsItem.videos.length > 0"
                     class="relative"
                 >
                     <VideoSection :currentNewsItem="currentNewsItem" />
@@ -661,11 +644,6 @@ export default {
                             <span class="counter-total">{{
                                 currentNewsItem.images.length
                             }}</span>
-                        </div>
-
-                        <!-- Image Description -->
-                        <div class="custom-modal-caption">
-                            {{ $t('news.detail.modal.caption', { current: selectedImageIndex + 1, total: currentNewsItem.images.length }) }}
                         </div>
                     </div>
 
@@ -1025,21 +1003,6 @@ export default {
     opacity: 0.9;
 }
 
-.custom-modal-caption {
-    position: absolute;
-    bottom: 1rem;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: white;
-    font-size: 0.875rem;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 0.75rem;
-    margin: 0 3rem;
-    border-radius: 0.5rem;
-    backdrop-filter: blur(4px);
-}
-
 .custom-modal-thumbnails {
     display: flex;
     gap: 0.5rem;
@@ -1124,12 +1087,6 @@ export default {
         top: 0.5rem;
         left: 0.5rem;
         padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .custom-modal-caption {
-        margin: 0 1rem;
-        padding: 0.5rem;
         font-size: 0.75rem;
     }
 

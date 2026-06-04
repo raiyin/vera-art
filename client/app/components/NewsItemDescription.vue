@@ -8,8 +8,6 @@ const props = defineProps<{
     newsObject: {
         title_ru: string;
         title_en: string;
-        subTitle_ru: string;
-        subTitle_en: string;
         datetime: string;
     };
 }>();
@@ -47,9 +45,7 @@ onMounted(() => {
     <div class="desc">
         <div class="title" @load="onLoad" v-show="isLoaded">
             <h2>
-                {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}&nbsp;{{
-                    locale === 'ru' ? newsObject.subTitle_ru : newsObject.subTitle_en
-                }}
+                {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}
             </h2>
             <div class="date" v-show="!!newsObject.datetime">
                 <CalendarIcon />

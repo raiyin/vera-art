@@ -31,11 +31,9 @@ func GetNewsById(c *gin.Context) {
 	query := "SELECT * FROM news WHERE id = ?"
 	var news models.News
 	err := db.QueryRow(query, id).Scan(
-		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn,
-		&news.SubtitleRu, &news.SubtitleEn, &news.Dir, &news.ImgBack,
+		&news.Id, &news.Datetime, &news.TitleRu, &news.TitleEn, &news.Dir, &news.ImgBack,
 		&news.ImgBackfull,
 		&news.TextRu, &news.TextEn, &images, &videos)
-	// &news.TextRu, &news.TextEn, &news.Images, &news.Videos)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -119,8 +117,7 @@ func GetNews(c *gin.Context) {
 	for rows.Next() {
 		p := models.News{}
 		err := rows.Scan(
-			&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.SubtitleRu,
-			&p.SubtitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.TextRu, &p.TextEn, &images, &videos)
+			&p.Id, &p.Datetime, &p.TitleRu, &p.TitleEn, &p.Dir, &p.ImgBack, &p.ImgBackfull, &p.TextRu, &p.TextEn, &images, &videos)
 
 		if images.Valid {
 			p.Images = strings.Split(images.String, ";")
@@ -182,8 +179,7 @@ func AddNews(c *gin.Context) {
 		strings.Split(news.Datetime, "-")[2])
 
 	// Update news.Dir with the actual directory path
-	//config.AppConfigInstance.Directories.NewsDirSave
-	var temp_db_dir = filepath.Join(config.AppConfigInstance.Directories.NewsDbDirPrefix, dirPostfix)
+	var temp_db_dir = filepath.Join(config.AppConfigInstance.Directories.RelNewsDir, dirPostfix)
 	if !strings.HasSuffix(temp_db_dir, string(os.PathSeparator)) {
 		temp_db_dir += string(os.PathSeparator)
 	}
@@ -192,13 +188,13 @@ func AddNews(c *gin.Context) {
 	info, err := os.Stat(temp_db_dir)
 	for err == nil && info.IsDir() {
 		dir_int_postfix++
-		temp_db_dir = filepath.Join(config.AppConfigInstance.Directories.NewsDbDirPrefix, dirPostfix+"_"+strconv.Itoa(dir_int_postfix))
+		temp_db_dir = filepath.Join(config.AppConfigInstance.Directories.RelNewsDir, dirPostfix+"_"+strconv.Itoa(dir_int_postfix))
 		if !strings.HasSuffix(temp_db_dir, string(os.PathSeparator)) {
 			temp_db_dir += string(os.PathSeparator)
 		}
 		info, err = os.Stat(temp_db_dir)
 	}
-	// news.Dir = filepath.Join(config.AppConfigInstance.Directories.NewsDirSave, temp_db_dir)
+
 	if !strings.HasSuffix(news.Dir, string(os.PathSeparator)) {
 		news.Dir += string(os.PathSeparator)
 	}
@@ -208,14 +204,12 @@ func AddNews(c *gin.Context) {
 	videosStr := strings.Join(news.Videos, ";")
 
 	_, err = tx.Exec(
-		"insert into news (id, datetime, title_ru, title_en, subtitle_ru, subtitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"insert into news (id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID,
 		news.Datetime,
 		news.TitleRu,
 		news.TitleEn,
-		news.SubtitleRu,
-		news.SubtitleEn,
 		temp_db_dir,
 		news.ImgBack,
 		news.ImgBackfull,
@@ -232,7 +226,7 @@ func AddNews(c *gin.Context) {
 	}
 
 	// Create directory for news item
-	var dirPath = filepath.Join(config.AppConfigInstance.Directories.NewsDirSave, temp_db_dir)
+	var dirPath = filepath.Join(config.AppConfigInstance.Directories.AbsNewsDir, temp_db_dir)
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
 		if err != nil {
@@ -284,58 +278,96 @@ func AddNews(c *gin.Context) {
 
 			// Determine file name based on field type
 			switch fieldName {
-			case "images":
-				// TODO make a bunch request
-				_, err = tx.Exec(
-					"insert into images (table_type_link, filename, entity_id) "+
-						"values (?, ?, ?)",
-					3,
-					safeFilename,
-					maxID)
-
+			case "img_back":
+				// Create a destination file
+				dst, err := os.Create(filepath.Join(dirPath, safeFilename))
 				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
 					tx.Rollback()
-					log.Fatal(err)
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
+			case "img_backfull":
+				// Create a destination file
+				dst, err := os.Create(filepath.Join(dirPath, safeFilename))
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
+			case "images":
+
+				// Create a destination file
+				dst, err := os.Create(filepath.Join(dirPath, safeFilename))
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 			case "videos":
 
-				// TODO make a bunch request
-				_, err = tx.Exec(
-					"insert into videos (table_type_link, filename, entity_id) "+
-						"values (?, ?, ?)",
-					3,
-					safeFilename,
-					maxID)
-
-				if err != nil {
+				// Create the videos subdirectory structure before saving
+				nameWithoutExt := strings.TrimSuffix(safeFilename, filepath.Ext(safeFilename))
+				videoDir := filepath.Join(dirPath, "videos", nameWithoutExt)
+				if err := os.MkdirAll(videoDir, 0777); err != nil {
+					c.JSON(500, gin.H{"error": fmt.Sprintf("Error creating video directory: %v", err)})
 					tx.Rollback()
-					log.Fatal(err)
-					c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 					return
 				}
+
+				// Create a destination file. Video files stored in the videos/filename directory
+				dst, err := os.Create(filepath.Join(videoDir, safeFilename))
+				if err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+				defer dst.Close()
+
+				// Copy the file data
+				if _, err := io.Copy(dst, file); err != nil {
+					c.JSON(500, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 			default:
 				fmt.Println("Unknown field type:", safeFilename)
 			}
 
-			// Create a destination file
-			dst, err := os.Create(filepath.Join(dirPath, safeFilename))
-			if err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				return
-			}
-			defer dst.Close()
-
-			// Copy the file data
-			if _, err := io.Copy(dst, file); err != nil {
-				c.JSON(500, gin.H{"error": err.Error()})
-				tx.Rollback()
-				return
-			}
-
-			log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
 		}
 	}
 
@@ -405,14 +437,12 @@ func DeleteNews(c *gin.Context) {
 		return
 	}
 
-	// Delete the directory and its contents
-	dirPath := filepath.Join(
-		config.AppConfigInstance.Directories.NewsDirSave +
-			strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.NewsDbDirPrefix, "", -1))
-	if _, err := os.Stat(dirPath); err == nil {
-		err := os.RemoveAll(dirPath)
+	fullDirPath := filepath.Join(config.AppConfigInstance.Directories.AbsNewsDir, dir)
+
+	if _, err := os.Stat(fullDirPath); err == nil {
+		err := os.RemoveAll(fullDirPath)
 		if err != nil {
-			log.Printf("Error deleting directory %s: %v", dirPath, err)
+			log.Printf("Error deleting directory %s: %v", fullDirPath, err)
 			// We don't return an error here because the database record was successfully deleted
 		}
 	}
@@ -449,19 +479,76 @@ func UpdateNews(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+	// Fetch the old directory and old file lists from the database before updating
+	var oldDir string
+	var oldImgBack, oldImgBackfull string
+	var oldImagesStr, oldVideosStr string
+	err = tx.QueryRow(
+		"SELECT dir, img_back, img_backfull, images, videos FROM news WHERE id = ?", id,
+	).Scan(&oldDir, &oldImgBack, &oldImgBackfull, &oldImagesStr, &oldVideosStr)
+	if err != nil {
+		tx.Rollback()
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{"error": "news not found"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
+		return
+	}
+
+	// Parse old file lists
+	var oldImages []string
+	if oldImagesStr != "" {
+		oldImages = strings.Split(oldImagesStr, ";")
+	}
+	var oldVideos []string
+	if oldVideosStr != "" {
+		oldVideos = strings.Split(oldVideosStr, ";")
+	}
+
+	// Build the directory path for file storage (based on new datetime)
+	var dirDatePostfix string = filepath.Join(
+		strings.Split(news.Datetime, "-")[0],
+		strings.Split(news.Datetime, "-")[1],
+		strings.Split(news.Datetime, "-")[2])
+
+	// Calculate the new temp_dir with collision handling (like AddNews does)
+	var temp_dir = filepath.Join(config.AppConfigInstance.Directories.RelNewsDir, dirDatePostfix)
+	if !strings.HasSuffix(temp_dir, string(os.PathSeparator)) {
+		temp_dir += string(os.PathSeparator)
+	}
+	dir_int_postfix := 0
+
+	// Check if the directory already exists (but skip if it's the same as the old dir)
+	fullDirPath := filepath.Join(config.AppConfigInstance.Directories.AbsNewsDir, temp_dir)
+	oldFullDirPath := filepath.Join(
+		config.AppConfigInstance.Directories.AbsNewsDir,
+		strings.TrimSuffix(oldDir, string(os.PathSeparator)))
+
+	info, err := os.Stat(fullDirPath)
+	for err == nil && info.IsDir() && fullDirPath != oldFullDirPath {
+		dir_int_postfix++
+		temp_dir = filepath.Join(config.AppConfigInstance.Directories.RelNewsDir, dirDatePostfix+"_"+strconv.Itoa(dir_int_postfix))
+		if !strings.HasSuffix(temp_dir, string(os.PathSeparator)) {
+			temp_dir += string(os.PathSeparator)
+		}
+		fullDirPath = filepath.Join(config.AppConfigInstance.Directories.AbsNewsDir, temp_dir)
+		info, err = os.Stat(fullDirPath)
+	}
+
 	// Convert images and videos slices to semicolon-separated strings
 	imagesStr := strings.Join(news.Images, ";")
 	videosStr := strings.Join(news.Videos, ";")
 
-	// Update news record
+	// Update news record with the new temp_db_dir
 	_, err = tx.Exec(`
 		UPDATE news
-		SET datetime = ?, title_ru = ?, title_en = ?, subtitle_ru = ?, subtitle_en = ?,
+		SET datetime = ?, title_ru = ?, title_en = ?,
 		    dir = ?, img_back = ?, img_backfull = ?,
 		    text_ru = ?, text_en = ?, images = ?, videos = ?
 		WHERE id = ?`,
-		news.Datetime, news.TitleRu, news.TitleEn, news.SubtitleRu, news.SubtitleEn,
-		news.Dir, news.ImgBack, news.ImgBackfull,
+		news.Datetime, news.TitleRu, news.TitleEn,
+		temp_dir, news.ImgBack, news.ImgBackfull,
 		news.TextRu, news.TextEn, imagesStr, videosStr, id)
 
 	if err != nil {
@@ -471,23 +558,15 @@ func UpdateNews(c *gin.Context) {
 		return
 	}
 
-	// Process directory and images
-	var dirPostfix string = strings.Split(news.Datetime, "-")[0] +
-		"/" +
-		strings.Split(news.Datetime, "-")[1] +
-		"/" +
-		strings.Split(news.Datetime, "-")[2] +
-		"/"
-
-	var dirPath = config.AppConfigInstance.Directories.NewsDirSave + dirPostfix
+	// Create the new directory for file storage
+	var dirPath = filepath.Join(config.AppConfigInstance.Directories.AbsNewsDir, temp_dir)
 	fmt.Printf("dirPath: %s\n", dirPath)
 
-	// Create directory if it doesn't exist
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		err := os.MkdirAll(dirPath, 0777)
 		if err != nil {
 			fmt.Printf("Error creating directory: %v\n", err)
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory: %v\n"})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error creating directory"})
 			tx.Rollback()
 			return
 		}
@@ -514,7 +593,17 @@ func UpdateNews(c *gin.Context) {
 				continue
 			}
 
-			for index, fileHeader := range fileHeaders {
+			for _, fileHeader := range fileHeaders {
+				// Validate the uploaded file
+				if err := validateUploadedFile(fileHeader); err != nil {
+					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+					tx.Rollback()
+					return
+				}
+
+				// Sanitize filename
+				safeFilename := sanitizeFilename(fileHeader.Filename)
+
 				// Open the file
 				file, err := fileHeader.Open()
 				if err != nil {
@@ -525,37 +614,95 @@ func UpdateNews(c *gin.Context) {
 				defer file.Close()
 
 				// Determine file name based on field type
-				var fileName string
 				switch fieldName {
 				case "img_back":
-					fileName = "back.jpg"
+					// Create a destination file
+					dst, err := os.Create(filepath.Join(dirPath, safeFilename))
+					if err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+					defer dst.Close()
+
+					// Copy the file data
+					if _, err := io.Copy(dst, file); err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+
+					log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 				case "img_backfull":
-					fileName = "back_full.jpg"
+					// Create a destination file
+					dst, err := os.Create(filepath.Join(dirPath, safeFilename))
+					if err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+					defer dst.Close()
+
+					// Copy the file data
+					if _, err := io.Copy(dst, file); err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+
+					log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 				case "images":
-					fileName = fmt.Sprintf("%d.jpg", index+1)
+					// Create a destination file
+					dst, err := os.Create(filepath.Join(dirPath, safeFilename))
+					if err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+					defer dst.Close()
+
+					// Copy the file data
+					if _, err := io.Copy(dst, file); err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+
+					log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 				case "videos":
-					fileName = fmt.Sprintf("%d%s", index+1, filepath.Ext(fileHeader.Filename))
+					// Create the videos subdirectory structure before saving
+					nameWithoutExt := strings.TrimSuffix(safeFilename, filepath.Ext(safeFilename))
+					videoDir := filepath.Join(dirPath, "videos", nameWithoutExt)
+					if err := os.MkdirAll(videoDir, 0777); err != nil {
+						c.JSON(500, gin.H{"error": fmt.Sprintf("Error creating video directory: %v", err)})
+						tx.Rollback()
+						return
+					}
+
+					// Create a destination file
+					dst, err := os.Create(filepath.Join(videoDir, safeFilename))
+					if err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+					defer dst.Close()
+
+					// Copy the file data
+					if _, err := io.Copy(dst, file); err != nil {
+						c.JSON(500, gin.H{"error": err.Error()})
+						tx.Rollback()
+						return
+					}
+
+					log.Printf("Saved file %s from field %s", fileHeader.Filename, fieldName)
+
 				default:
-					fileName = fmt.Sprintf("%s_%d%s", fieldName, index+1, filepath.Ext(fileHeader.Filename))
+					fmt.Println("Unknown field type:", safeFilename)
 				}
-
-				// Create a destination file
-				dst, err := os.Create(dirPath + fileName)
-				if err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-				defer dst.Close()
-
-				// Copy the file data
-				if _, err := io.Copy(dst, file); err != nil {
-					c.JSON(500, gin.H{"error": err.Error()})
-					tx.Rollback()
-					return
-				}
-
-				log.Printf("Saved file %s from field %s", fileName, fieldName)
 			}
 		}
 	}
@@ -567,7 +714,178 @@ func UpdateNews(c *gin.Context) {
 		log.Fatal(err)
 	}
 
+	// After successful commit, handle old files
+
+	// Check if old directory exists and has content
+	if _, statErr := os.Stat(oldFullDirPath); statErr == nil {
+		if oldDir == temp_dir {
+			// Same directory: delete files that the user removed
+			// Build a set of kept filenames
+			keptFiles := make(map[string]bool)
+			if news.ImgBack != "" {
+				keptFiles[news.ImgBack] = true
+			}
+			if news.ImgBackfull != "" {
+				keptFiles[news.ImgBackfull] = true
+			}
+			for _, img := range news.Images {
+				keptFiles[img] = true
+			}
+			for _, vid := range news.Videos {
+				keptFiles[vid] = true
+			}
+
+			// Delete old images that are no longer kept
+			for _, oldImg := range oldImages {
+				if !keptFiles[oldImg] {
+					oldImgPath := filepath.Join(oldFullDirPath, oldImg)
+					if err := os.Remove(oldImgPath); err != nil && !os.IsNotExist(err) {
+						log.Printf("Error deleting removed image %s: %v", oldImgPath, err)
+					} else {
+						log.Printf("Deleted removed image %s", oldImg)
+					}
+				}
+			}
+
+			// Delete old videos that are no longer kept
+			for _, oldVid := range oldVideos {
+				if !keptFiles[oldVid] {
+					nameWithoutExt := strings.TrimSuffix(oldVid, filepath.Ext(oldVid))
+					oldVidDir := filepath.Join(oldFullDirPath, "videos", nameWithoutExt)
+					if err := os.RemoveAll(oldVidDir); err != nil && !os.IsNotExist(err) {
+						log.Printf("Error deleting removed video directory %s: %v", oldVidDir, err)
+					} else {
+						log.Printf("Deleted removed video %s", oldVid)
+					}
+				}
+			}
+
+			// Also delete old img_back/img_backfull if they were replaced
+			if oldImgBack != "" && !keptFiles[oldImgBack] && oldImgBack != news.ImgBack {
+				oldImgBackPath := filepath.Join(oldFullDirPath, oldImgBack)
+				if err := os.Remove(oldImgBackPath); err != nil && !os.IsNotExist(err) {
+					log.Printf("Error deleting removed img_back %s: %v", oldImgBackPath, err)
+				}
+			}
+			if oldImgBackfull != "" && !keptFiles[oldImgBackfull] && oldImgBackfull != news.ImgBackfull {
+				oldImgBackfullPath := filepath.Join(oldFullDirPath, oldImgBackfull)
+				if err := os.Remove(oldImgBackfullPath); err != nil && !os.IsNotExist(err) {
+					log.Printf("Error deleting removed img_backfull %s: %v", oldImgBackfullPath, err)
+				}
+			}
+		} else {
+			// Different directory: copy kept files from old dir to new dir, then delete old dir
+			// Build a set of kept filenames
+			keptFiles := make(map[string]bool)
+			if news.ImgBack != "" {
+				keptFiles[news.ImgBack] = true
+			}
+			if news.ImgBackfull != "" {
+				keptFiles[news.ImgBackfull] = true
+			}
+			for _, img := range news.Images {
+				keptFiles[img] = true
+			}
+			for _, vid := range news.Videos {
+				keptFiles[vid] = true
+			}
+
+			// Copy kept images from old dir to new dir
+			for _, oldImg := range oldImages {
+				if keptFiles[oldImg] {
+					srcPath := filepath.Join(oldFullDirPath, oldImg)
+					dstPath := filepath.Join(dirPath, oldImg)
+					if err := copyFile(srcPath, dstPath); err != nil {
+						log.Printf("Error copying kept image %s: %v", oldImg, err)
+					} else {
+						log.Printf("Copied kept image %s to new directory", oldImg)
+					}
+				}
+			}
+
+			// Copy kept videos from old dir to new dir
+			for _, oldVid := range oldVideos {
+				if keptFiles[oldVid] {
+					nameWithoutExt := strings.TrimSuffix(oldVid, filepath.Ext(oldVid))
+					srcVidDir := filepath.Join(oldFullDirPath, "videos", nameWithoutExt)
+					dstVidDir := filepath.Join(dirPath, "videos", nameWithoutExt)
+					// Create the destination video directory
+					if err := os.MkdirAll(dstVidDir, 0777); err != nil {
+						log.Printf("Error creating video directory %s: %v", dstVidDir, err)
+						continue
+					}
+					// Copy all files in the video directory
+					vidEntries, readErr := os.ReadDir(srcVidDir)
+					if readErr != nil {
+						log.Printf("Error reading video directory %s: %v", srcVidDir, readErr)
+						continue
+					}
+					for _, entry := range vidEntries {
+						srcEntryPath := filepath.Join(srcVidDir, entry.Name())
+						dstEntryPath := filepath.Join(dstVidDir, entry.Name())
+						if entry.IsDir() {
+							continue
+						}
+						if err := copyFile(srcEntryPath, dstEntryPath); err != nil {
+							log.Printf("Error copying video file %s: %v", entry.Name(), err)
+						}
+					}
+					log.Printf("Copied kept video %s to new directory", oldVid)
+				}
+			}
+
+			// Copy kept img_back/img_backfull
+			if oldImgBack != "" && keptFiles[oldImgBack] {
+				srcPath := filepath.Join(oldFullDirPath, oldImgBack)
+				dstPath := filepath.Join(dirPath, oldImgBack)
+				if err := copyFile(srcPath, dstPath); err != nil {
+					log.Printf("Error copying kept img_back %s: %v", oldImgBack, err)
+				}
+			}
+			if oldImgBackfull != "" && keptFiles[oldImgBackfull] {
+				srcPath := filepath.Join(oldFullDirPath, oldImgBackfull)
+				dstPath := filepath.Join(dirPath, oldImgBackfull)
+				if err := copyFile(srcPath, dstPath); err != nil {
+					log.Printf("Error copying kept img_backfull %s: %v", oldImgBackfull, err)
+				}
+			}
+
+			// Delete the old directory after copying
+			if err := os.RemoveAll(oldFullDirPath); err != nil {
+				log.Printf("Error deleting old directory %s: %v", oldFullDirPath, err)
+			} else {
+				log.Printf("Old directory %s deleted successfully after copying files", oldFullDirPath)
+			}
+		}
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "News updated successfully"})
+}
+
+// copyFile copies a file from src to dst. If the destination file already exists, it will be overwritten.
+func copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("failed to open source file %s: %w", src, err)
+	}
+	defer srcFile.Close()
+
+	// Create destination directory if needed
+	if err := os.MkdirAll(filepath.Dir(dst), 0777); err != nil {
+		return fmt.Errorf("failed to create destination directory for %s: %w", dst, err)
+	}
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("failed to create destination file %s: %w", dst, err)
+	}
+	defer dstFile.Close()
+
+	if _, err := io.Copy(dstFile, srcFile); err != nil {
+		return fmt.Errorf("failed to copy file from %s to %s: %w", src, dst, err)
+	}
+
+	return nil
 }
 
 // validateUploadedFile checks if an uploaded file is safe to save

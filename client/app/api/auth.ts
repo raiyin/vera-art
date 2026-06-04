@@ -1,19 +1,25 @@
 import axios from 'axios';
 import { useAuthStore, } from '../stores/AuthStore';
 
-const API_URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:8000/';
+// Helper to get runtime config — must be called inside Nuxt context
+function getApiUrl(): string {
+    const config = useRuntimeConfig();
+    return config.public.serverUrl;
+}
 
-// Create axios instance with interceptors
+// Create axios instance (baseURL will be set in request interceptor to avoid module-level useRuntimeConfig)
 const api = axios.create({
-    baseURL: API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
 },);
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and set base URL
 api.interceptors.request.use(
     (config,) => {
+        // Set baseURL at request time (inside Nuxt context)
+        config.baseURL = getApiUrl();
+
         const authStore = useAuthStore();
         const token = authStore.accessToken;
 
@@ -42,7 +48,7 @@ api.interceptors.response.use(
                 const authStore = useAuthStore();
 
                 // Try to refresh the token
-                const refreshResponse = await axios.post(`${API_URL}refresh`, {
+                const refreshResponse = await axios.post(`${getApiUrl()}refresh`, {
                     refresh_token: authStore.refreshToken,
                 },);
 
@@ -64,8 +70,8 @@ api.interceptors.response.use(
                 authStore.clearTokens();
 
                 // Redirect to login page if we're not already there
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/login',)) {
-                    window.location.href = '/login';
+                if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login',)) {
+                    window.location.href = '/auth/login';
                 }
             }
         }
@@ -110,7 +116,7 @@ export default {
                 throw new Error('No refresh token available',);
             }
 
-            const response = await axios.post(`${API_URL}refresh`, {
+            const response = await axios.post(`${getApiUrl()}refresh`, {
                 refresh_token: refreshToken,
             },);
 
@@ -134,7 +140,7 @@ export default {
 
         // Redirect to login page
         if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            window.location.href = '/auth/login';
         }
     },
 

@@ -29,7 +29,8 @@ func workModelToWorkResponse(work models.Work) dtos.WorkResponse {
 		NameRu:      work.NameRu,
 		NameEn:      work.NameEn,
 		Year:        work.Year,
-		Descr:       work.Descr,
+		DescrRu:     work.DescrRu,
+		DescrEn:     work.DescrEn,
 		Width:       work.Width,
 		Height:      work.Height,
 		Type:        work.Type,
@@ -79,7 +80,8 @@ func workModelToUpdateWorkResponse(work models.Work) dtos.UpdateWorkResponse {
 		NameEn:       work.NameEn,
 		BaseId:       work.BaseId,
 		Year:         work.Year,
-		Descr:        work.Descr,
+		DescrRu:      work.DescrRu,
+		DescrEn:      work.DescrEn,
 		Width:        work.Width,
 		Height:       work.Height,
 		Type:         work.Type,
@@ -143,8 +145,8 @@ func GetWorks(c *gin.Context) {
 		w := models.Work{}
 		err := rows.Scan(
 			&w.Id, &w.Width, &w.Height, &w.Year, &w.NameRu,
-			&w.NameEn, &w.BaseId, &w.StrId, &w.Descr,
-			&w.Type, &w.Images)
+			&w.NameEn, &w.BaseId, &w.StrId,
+			&w.Type, &w.Images, &w.DescrRu, &w.DescrEn)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -202,8 +204,8 @@ func AddWork(c *gin.Context) {
 	imagesStr := strings.Join(work.Images, ";")
 
 	_, err = tx.Exec(
-		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, descr, type, images) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, type, images, descr_ru, descr_en) "+
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		work.Width,
 		work.Height,
@@ -212,9 +214,10 @@ func AddWork(c *gin.Context) {
 		work.NameEn,
 		work.BaseId,
 		strings.Replace(work.NameEn, " ", "_", -1),
-		work.Descr,
 		work.Type,
 		imagesStr,
+		work.DescrRu,
+		work.DescrEn,
 	)
 
 	if err != nil {
@@ -332,10 +335,10 @@ func DeleteWork(c *gin.Context) {
 		log.Fatal(err)
 	}
 
-	// Get the work directory path before deleting the record
-	var dir string
-	query := "SELECT dir FROM works WHERE id = ?"
-	err = tx.QueryRow(query, id).Scan(&dir)
+	// Get the work str_id before deleting the record
+	var strId string
+	query := "SELECT str_id FROM works WHERE id = ?"
+	err = tx.QueryRow(query, id).Scan(&strId)
 	if err != nil {
 		tx.Rollback()
 		if err == sql.ErrNoRows {
@@ -384,7 +387,8 @@ func DeleteWork(c *gin.Context) {
 	}
 
 	// Delete the directory and its contents
-	dirPath := config.AppConfigInstance.Directories.AbsWorksDir + strings.Replace(strings.TrimSuffix(dir, "/"), config.AppConfigInstance.Directories.RelWorksDir, "", -1)
+	dirPath := config.AppConfigInstance.Directories.AbsWorksDir +
+		config.AppConfigInstance.Directories.RelWorksDir + strId + "/"
 	if _, err := os.Stat(dirPath); err == nil {
 		err := os.RemoveAll(dirPath)
 		if err != nil {
@@ -410,7 +414,7 @@ func GetWorkById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.Descr, &work.Type, &work.Images)
+		&work.Type, &work.Images, &work.DescrRu, &work.DescrEn)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -440,7 +444,8 @@ func GetWorkByIdForEdit(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&work.Id, &work.Width, &work.Height, &work.Year,
 		&work.NameRu, &work.NameEn, &work.BaseId, &work.StrId,
-		&work.Descr, &work.Type, &work.Images)
+		&work.Type, &work.Images,
+		&work.DescrRu, &work.DescrEn)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "work not found"})
@@ -504,11 +509,11 @@ func UpdateWork(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE works
 		SET width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, descr = ?, type = ?, images = ?
+			base_id = ?, str_id = ?, descr_ru = ?, descr_en = ?, type = ?, images = ?
 		WHERE id = ?`,
 		work.Width, work.Height, work.Year, work.NameRu, work.NameEn,
 		work.BaseId, strings.Replace(work.NameEn, " ", "_", -1),
-		work.Descr, work.Type, imagesStr, id)
+		work.DescrRu, work.DescrEn, work.Type, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()

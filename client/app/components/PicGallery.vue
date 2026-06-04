@@ -2,10 +2,12 @@
 import type { PropType } from 'vue';
 import type { CommonGetWorkDto } from '~/types';
 import { useMaterialStore } from '../stores/MaterialStore';
+import { useAuthStore } from '../stores/AuthStore';
 import type { CommonTypedGetWorkDto } from '~/types/common_work';
 import type { SelectItem } from '@nuxt/ui';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useI18n } from '#imports';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     images: {
@@ -27,10 +29,14 @@ const items = ref<SelectItem[]>([
     { value: '3', label: '3D работы' },
 ]);
 const value = ref('all');
-// Modal state
+// Image modal state
 const showModal = ref(false);
 const selectedWork = ref<CommonGetWorkDto | null>(null);
 const currentImageIndex = ref(0);
+// Delete confirmation modal state
+const showDeleteModal = ref(false);
+const workToDelete = ref<CommonGetWorkDto | null>(null);
+const deletingId = ref<string | null>(null);
 
 // Computed properties
 const filteredImages = computed(() => {
@@ -50,11 +56,75 @@ const isAuthenticated = computed(() => {
 });
 
 const materialStore = useMaterialStore();
+const authStore = useAuthStore();
+const router = useRouter();
+
+const isAdmin = computed(() => {
+    return authStore.isAuthenticated && authStore.isAdmin;
+});
 
 // Methods
 const handleWorkDeleted = (id: string) => {
     // Emit event to parent component to update the list
     emit('work-deleted', id);
+};
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+
+const navigateToEdit = (work: CommonGetWorkDto) => {
+    const id = work.id.toString();
+    if (work.__type === 'GetSaleDto') {
+        router.push(`/shop/edit/${id}`);
+    } else {
+        router.push(`/gallery/edit/${id}`);
+    }
+};
+
+const confirmDelete = (work: CommonGetWorkDto) => {
+    workToDelete.value = work;
+    showDeleteModal.value = true;
+};
+
+const deleteWork = async () => {
+    if (!workToDelete.value) return;
+
+    const id = workToDelete.value.id.toString();
+    deletingId.value = id;
+    showDeleteModal.value = false;
+
+    try {
+        const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
+        const response = await fetch(`${SERVER_URL}${endpoint}/${id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        handleWorkDeleted(id);
+    } catch (e) {
+        console.error('Error deleting work:', e);
+    } finally {
+        deletingId.value = null;
+        workToDelete.value = null;
+    }
+};
+
+const cancelDelete = () => {
+    showDeleteModal.value = false;
+    workToDelete.value = null;
+};
+
+const getWorkDescription = (work: CommonGetWorkDto): string => {
+    const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
+    return descr || '';
+};
+
+const hasDescription = (work: CommonGetWorkDto): boolean => {
+    const descrRu = (work as any).descr_ru;
+    const descrEn = (work as any).descr_en;
+    return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
 };
 
 const getWorkName = (work: CommonGetWorkDto): string => {
@@ -165,13 +235,6 @@ watch(showModal, (newVal) => {
     }
 });
 
-// Lifecycle hooks
-onMounted(() => {
-    console.log('PicGallery component mounted');
-    console.log('Images count:', props.images.length);
-    console.log('Filtered images count:', filteredImages.value.length);
-});
-
 onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown);
 });
@@ -187,7 +250,8 @@ onBeforeUnmount(() => {
             <UCard
                 v-for="work in filteredImages"
                 :key="work.id"
-                class="overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
+                :ui="{ body: 'flex-1 flex flex-col' }"
+                class="work-card flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
             >
                 <template #header>
                     <div class="flex flex-col justify-between items-start">
@@ -197,7 +261,7 @@ onBeforeUnmount(() => {
                     </div>
                 </template>
 
-                <div class="space-y-3">
+                <div class="flex flex-col grow">
                     <!-- Image -->
                     <div
                         class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
@@ -212,10 +276,34 @@ onBeforeUnmount(() => {
                         <div
                             class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
                         />
+
+                        <!-- Description info icon -->
+                        <div
+                            v-if="hasDescription(work)"
+                            class="absolute top-2 right-2 z-10"
+                        >
+                            <UPopover
+                                mode="hover"
+                                :content="{ side: 'bottom', sideOffset: 8 }"
+                            >
+                                <UIcon
+                                    name="i-heroicons-information-circle"
+                                    class="w-6 h-6 text-white drop-shadow-lg cursor-pointer hover:text-primary-300 transition-colors duration-200"
+                                />
+
+                                <template #content>
+                                    <div
+                                        class="p-4 max-w-xs text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                                    >
+                                        <p>{{ getWorkDescription(work) }}</p>
+                                    </div>
+                                </template>
+                            </UPopover>
+                        </div>
                     </div>
 
                     <!-- Details -->
-                    <div class="space-y-2 text-sm">
+                    <div class="space-y-2 text-sm my-3">
                         <div
                             v-if="getWorkDimensions(work)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
@@ -247,9 +335,7 @@ onBeforeUnmount(() => {
                                 name="i-heroicons-paint-brush"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span v-for="material in getWorkMaterials(work)">
-                                {{ material }}
-                            </span>
+                            <span>{{ getWorkMaterials(work).join(', ') }}</span>
                         </div>
 
                         <div
@@ -263,19 +349,108 @@ onBeforeUnmount(() => {
                             <span>{{ work.year }}</span>
                         </div>
                     </div>
-                </div>
 
-                <!-- Price badge positioned at bottom right -->
-                <UBadge
-                    v-if="work.__type === 'GetSaleDto' && work.price"
-                    color="primary"
-                    size="xl"
-                    class="absolute bottom-6 right-4 font-semibold"
-                >
-                    {{ work.price }} ₽
-                </UBadge>
+                    <!-- Admin section (price + controls) -->
+                    <div
+                        class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"
+                    >
+                        <!-- Price badge -->
+                        <div
+                            v-if="work.__type === 'GetSaleDto' && work.price"
+                            class="flex justify-start mb-2"
+                        >
+                            <UBadge color="primary" size="xl" class="font-semibold">
+                                {{ work.price }} ₽
+                            </UBadge>
+                        </div>
+
+                        <!-- Admin Controls -->
+                        <ClientOnly>
+                            <div v-if="isAdmin" class="flex gap-2">
+                                <UButton
+                                    size="sm"
+                                    color="primary"
+                                    variant="outline"
+                                    @click.stop="navigateToEdit(work)"
+                                >
+                                    {{ $t('admin.edit_work') }}
+                                </UButton>
+                                <UButton
+                                    size="sm"
+                                    color="error"
+                                    variant="outline"
+                                    :loading="deletingId === work.id.toString()"
+                                    :disabled="deletingId === work.id.toString()"
+                                    @click.stop="confirmDelete(work)"
+                                >
+                                    {{ $t('admin.delete_work') }}
+                                </UButton>
+                            </div>
+                        </ClientOnly>
+                    </div>
+                </div>
             </UCard>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <UModal
+            v-model:open="showDeleteModal"
+            :dismissible="false"
+            :close="false"
+            :transition="true"
+            class="delete-modal"
+        >
+            <template #header="{ close }">
+                <div class="delete-modal-header">
+                    <div class="delete-modal-icon-wrapper">
+                        <UIcon
+                            name="i-heroicons-exclamation-triangle"
+                            class="delete-modal-icon"
+                        />
+                    </div>
+                    <h3 class="delete-modal-title">
+                        {{ $t('admin.delete_work_confirm_title') }}
+                    </h3>
+                </div>
+            </template>
+
+            <template #body>
+                <div class="delete-modal-body">
+                    <p class="delete-modal-text">
+                        {{
+                            $t('admin.delete_work_confirm_text', {
+                                name: workToDelete ? getWorkName(workToDelete) : '',
+                            })
+                        }}
+                    </p>
+                    <p class="delete-modal-warning">
+                        {{ $t('admin.delete_work_confirm_warning') }}
+                    </p>
+                </div>
+            </template>
+
+            <template #footer>
+                <div class="delete-modal-footer">
+                    <UButton
+                        size="md"
+                        color="neutral"
+                        variant="outline"
+                        @click="cancelDelete"
+                    >
+                        {{ $t('admin.delete_work_cancel') }}
+                    </UButton>
+                    <UButton
+                        size="md"
+                        color="error"
+                        :loading="deletingId !== null"
+                        :disabled="deletingId !== null"
+                        @click="deleteWork"
+                    >
+                        {{ $t('admin.delete_work_confirm') }}
+                    </UButton>
+                </div>
+            </template>
+        </UModal>
 
         <!-- Custom Image Modal (matching news carousel) -->
         <transition name="modal-fade">
@@ -380,13 +555,6 @@ onBeforeUnmount(() => {
                                 selectedWork.images.length
                             }}</span>
                         </div>
-
-                        <!-- Image Description -->
-                        <div class="custom-modal-caption">
-                            {{ getWorkName(selectedWork) }} - Image
-                            {{ currentImageIndex + 1 }} of
-                            {{ selectedWork.images.length }}
-                        </div>
                     </div>
 
                     <!-- Thumbnail Strip -->
@@ -415,6 +583,18 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.work-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.work-card :deep(.u-card-body) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
 .work-types-selector {
     display: flex;
     padding: 1rem 1rem;
@@ -631,21 +811,6 @@ onBeforeUnmount(() => {
     opacity: 0.9;
 }
 
-.custom-modal-caption {
-    position: absolute;
-    bottom: 1rem;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: white;
-    font-size: 0.875rem;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 0.75rem;
-    margin: 0 3rem;
-    border-radius: 0.5rem;
-    backdrop-filter: blur(4px);
-}
-
 .custom-modal-thumbnails {
     display: flex;
     gap: 0.5rem;
@@ -721,12 +886,6 @@ onBeforeUnmount(() => {
         font-size: 0.75rem;
     }
 
-    .custom-modal-caption {
-        margin: 0 1rem;
-        padding: 0.5rem;
-        font-size: 0.75rem;
-    }
-
     .custom-modal-thumbnails {
         padding: 0.75rem;
         gap: 0.375rem;
@@ -779,6 +938,101 @@ onBeforeUnmount(() => {
     .selector-container {
         max-width: 100%;
         padding: 0 1rem;
+    }
+}
+
+/* Delete Confirmation Modal Styles */
+.delete-modal {
+    --modal-max-width: 420px;
+}
+
+.delete-modal :deep(.ui-modal) {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.delete-modal-header {
+    text-align: center;
+    padding: 1.5rem 1.5rem 0;
+}
+
+.delete-modal-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    margin-bottom: 1rem;
+}
+
+.dark .delete-modal-icon-wrapper {
+    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+}
+
+.delete-modal-icon {
+    width: 32px;
+    height: 32px;
+    color: #dc2626;
+}
+
+.dark .delete-modal-icon {
+    color: #fca5a5;
+}
+
+.delete-modal-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.dark .delete-modal-title {
+    color: #f1f5f9;
+}
+
+.delete-modal-body {
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+
+.delete-modal-text {
+    font-size: 0.95rem;
+    color: #475569;
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+}
+
+.dark .delete-modal-text {
+    color: #94a3b8;
+}
+
+.delete-modal-warning {
+    font-size: 0.85rem;
+    color: #ef4444;
+    font-weight: 500;
+    margin: 0;
+}
+
+.dark .delete-modal-warning {
+    color: #fca5a5;
+}
+
+.delete-modal-footer {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+}
+
+@media (max-width: 480px) {
+    .delete-modal-footer {
+        flex-direction: column-reverse;
+    }
+
+    .delete-modal-footer .UButton {
+        width: 100%;
     }
 }
 </style>

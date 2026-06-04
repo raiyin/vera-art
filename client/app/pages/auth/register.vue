@@ -203,8 +203,14 @@
                                 <UButton
                                     variant="ghost"
                                     color="neutral"
-                                    :icon="confirmPasswordVisible ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                                    @click="confirmPasswordVisible = !confirmPasswordVisible"
+                                    :icon="
+                                        confirmPasswordVisible
+                                            ? 'i-heroicons-eye-slash'
+                                            : 'i-heroicons-eye'
+                                    "
+                                    @click="
+                                        confirmPasswordVisible = !confirmPasswordVisible
+                                    "
                                     :padded="false"
                                     class="!p-1"
                                 />
@@ -296,7 +302,7 @@
                     <p class="text-gray-600 dark:text-gray-300">
                         {{ $t('auth.haveAccount') }}
                         <NuxtLink
-                            to="/login"
+                            to="/auth/login"
                             class="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                         >
                             {{ $t('auth.login') }}
@@ -336,7 +342,7 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../api/auth';
+import authApi from '../../api/auth';
 
 interface RegisterForm {
     username: string;
@@ -498,7 +504,7 @@ export default {
 
                 // Redirect to login after 2 seconds
                 setTimeout(() => {
-                    router.push('/login');
+                    router.push('/auth/login');
                 }, 2000);
             } catch (err: any) {
                 error.value =

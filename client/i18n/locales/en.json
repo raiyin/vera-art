@@ -67,6 +67,7 @@
         "title": "News & Updates",
         "subtitle": "Stay up to date with the latest news, exhibitions, and creative projects",
         "readMore": "Read more",
+        "loading": "Loading news...",
         "allLoaded": "You've reached the end! All news have been loaded.",
         "noNews": "No news yet",
         "noNewsDescription": "Check back later for updates, exhibitions, and new creative projects.",
@@ -207,7 +208,14 @@
         "title": "admin dashboard",
         "add_news": "add news",
         "add_work_to_shop": "add shop item",
-        "add_work_to_gallery": "add gallery item"
+        "add_work_to_gallery": "add gallery item",
+        "edit_work": "Edit",
+        "delete_work": "Delete",
+        "delete_work_confirm_title": "Confirm deletion",
+        "delete_work_confirm_text": "Are you sure you want to delete the work «{name}»?",
+        "delete_work_confirm_warning": "This action cannot be undone.",
+        "delete_work_cancel": "Cancel",
+        "delete_work_confirm": "Delete"
     },
     "notfound": {
         "title": "Oops! Page Not Found",
@@ -243,7 +251,8 @@
             "year": "Year of creation",
             "base": "Base",
             "materials": "Materials",
-            "description": "Description",
+            "description_en": "Description in English",
+            "description_ru": "Description in Russian",
             "work_type": "Work type"
         },
         "placeholders": {
@@ -254,6 +263,7 @@
             "year": "For example: 2023",
             "select_base": "Select base",
             "select_materials": "Select materials",
+            "select_work_type": "Select work type",
             "description": "Brief description of the painting"
         },
         "work_types": {
@@ -321,7 +331,9 @@
             "price": "Price",
             "base": "Base",
             "materials": "Materials",
-            "description": "Description"
+            "description": "Description",
+            "description_ru": "Description in Russian",
+            "description_en": "Description in English"
         },
         "placeholders": {
             "name_ru": "For example: 'Звездная ночь'",
@@ -387,8 +399,6 @@
             "video_gallery": "Video gallery",
             "title_ru": "Title in Russian",
             "title_en": "Title in English",
-            "subtitle_ru": "Subtitle in Russian",
-            "subtitle_en": "Subtitle in English",
             "date": "Date",
             "text_ru": "Text in Russian",
             "text_en": "Text in English",
@@ -399,8 +409,6 @@
         "placeholders": {
             "title_ru": "For example: 'Звездная ночь'",
             "title_en": "For example: 'Starry Night'",
-            "subtitle_ru": "For example: 'Звездная ночь'",
-            "subtitle_en": "For example: 'Starry Night'",
             "text_ru": "Enter news text in Russian",
             "text_en": "Enter news text in English"
         },
@@ -424,10 +432,6 @@
             "title_ru_length": "Title in Russian must be between 3 and 50 characters",
             "title_en_required": "Please enter title in English",
             "title_en_length": "Title in English must be between 3 and 50 characters",
-            "subtitle_ru_required": "Please enter subtitle in Russian",
-            "subtitle_ru_length": "Subtitle in Russian must be between 3 and 50 characters",
-            "subtitle_en_required": "Please enter subtitle in English",
-            "subtitle_en_length": "Subtitle in English must be between 3 and 50 characters",
             "main_image_required": "Please add main news image",
             "preview_image_required": "Please add preview news image",
             "images_required": "Please add at least one image",

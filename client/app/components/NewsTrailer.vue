@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
-import { useAuthStore } from '../../stores/AuthStore';
-import { storeToRefs } from 'pinia';
-import { ref, computed, onMounted } from 'vue';
+import { useAuthStore } from '../stores/AuthStore';
+import { ref, computed } from 'vue';
 import { useRouter, useI18n } from '#imports';
+
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
 
 const props = defineProps<{
     newsObject: {
@@ -12,8 +14,6 @@ const props = defineProps<{
         img_back: string;
         title_ru: string;
         title_en: string;
-        subTitle_ru: string;
-        subTitle_en: string;
         datetime: string;
     };
 }>();
@@ -23,14 +23,13 @@ const emit = defineEmits<{
 }>();
 
 const authStore = useAuthStore();
-const { isAuthenticated } = storeToRefs(authStore);
 const router = useRouter();
 const { locale } = useI18n();
 
 // Reactive state
 const isLoaded = ref(false);
 const isDeleting = ref(false);
-const isMounted = ref(false);
+const errorMessage = ref('');
 
 // Computed properties
 const newsId = computed(() => '/news/' + props.newsObject.id);
@@ -62,42 +61,35 @@ const deleteNews = async () => {
         return;
     }
 
+    // Reset error
+    errorMessage.value = '';
+
     // Set loading state
     isDeleting.value = true;
 
     try {
-        const response = await fetch(
-            `${import.meta.env.VITE_SERVER_URL}news/${props.newsObject.id}`,
-            {
-                method: 'DELETE',
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            }
-        );
+        const response = await fetch(`${SERVER_URL}news/${props.newsObject.id}`, {
+            method: 'DELETE',
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+        });
 
         if (response.ok) {
             // Remove the news item from the UI
             emit('news-deleted', props.newsObject.id);
         } else {
             const errorData = await response.json();
-            alert(
-                `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`
-            );
+            errorMessage.value = `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`;
         }
     } catch (error) {
         console.error('Error deleting news:', error);
-        alert('Ошибка при удалении новости:_network_error');
+        errorMessage.value = 'Ошибка при удалении новости:_network_error';
     } finally {
         // Reset loading state
         isDeleting.value = false;
     }
 };
-
-// Lifecycle hooks
-onMounted(() => {
-    isMounted.value = true;
-});
 </script>
 
 <template>
@@ -112,9 +104,6 @@ onMounted(() => {
         <div class="news-content">
             <div v-show="isLoaded">
                 {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}
-            </div>
-            <div v-show="isLoaded">
-                {{ locale === 'ru' ? newsObject.subTitle_ru : newsObject.subTitle_en }}
             </div>
             <div v-show="isLoaded">
                 <CalendarIcon />
@@ -138,7 +127,18 @@ onMounted(() => {
             </div>
         </div>
 
-        <div class="image-control" v-if="isAuthenticated && isMounted">
+        <UAlert
+            v-if="errorMessage"
+            :title="'Ошибка'"
+            :description="errorMessage"
+            icon="i-heroicons-exclamation-triangle"
+            color="error"
+            variant="outline"
+            class="mt-4"
+            @close="errorMessage = ''"
+        />
+
+        <div class="image-control" v-if="authStore.isAuthenticated">
             <UButton class="btn btn-secondary w-100" type="button" v-on:click="editNews">
                 Редактировать
             </UButton>

@@ -3,10 +3,12 @@ import type { TypedGetWorkDto } from '~/types/work';
 import Gallery from '@/components/PicGallery.vue';
 import { ref, onMounted } from 'vue';
 
+const config = useRuntimeConfig();
+const SERVER_URL = config.public.serverUrl;
+const limit = config.public.limit;
+
 const works = ref<TypedGetWorkDto[]>([]);
 const page = ref(-1);
-const limit = ref(import.meta.env.VITE_LIMIT as number);
-const server = ref(import.meta.env.VITE_SERVER as string);
 const worksObserver = ref<Element | null>(null);
 
 const emit = defineEmits<{
@@ -17,10 +19,10 @@ const loadWorks = async () => {
     try {
         page.value += 1;
         const params = new URLSearchParams({
-            offset: (page.value * limit.value).toString(),
-            limit: limit.value.toString(),
+            offset: (page.value * +limit).toString(),
+            limit: limit,
         });
-        const response = await fetch(`${server.value}works?${params}`);
+        const response = await fetch(`${SERVER_URL}works?${params}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
 
@@ -36,13 +38,19 @@ const loadWorks = async () => {
 };
 
 const handleWorkDeleted = (id: string) => {
-    works.value = works.value.filter((work: TypedGetWorkDto) => work.id !== id);
+    works.value = works.value.filter(
+        (work: TypedGetWorkDto) => work.id !== id && String(work.id) !== id
+    );
 };
 
 onMounted(() => {
+    // Load initial data immediately
+    loadWorks();
+
+    // Set up infinite scroll observer
     const options = {
         rootMargin: '0px',
-        threshold: 1.0,
+        threshold: 0,
     };
     const worksCallback = (entries: IntersectionObserverEntry[]) => {
         if (entries[0]?.isIntersecting) {

@@ -52,8 +52,11 @@ useHead({
 });
 
 onMounted(() => {
-    // Load materials on app startup
-    materialStore.fetchMaterials();
+    // Initialize auth state from localStorage (tokens only available client-side)
+    authStore.initFromLocalStorage();
+
+    // Load reference data (materials, bases) on app startup
+    materialStore.fetchAll();
 
     // Start notification polling if user is authenticated
     if (authStore.isAuthenticated) {

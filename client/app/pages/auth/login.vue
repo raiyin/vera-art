@@ -80,7 +80,7 @@
                                     "
                                     @click="passwordVisible = !passwordVisible"
                                     :padded="false"
-                                    class="!p-1"
+                                    class="p-1!"
                                 />
                             </template>
                         </UInput>
@@ -148,7 +148,7 @@
                     <p class="text-gray-600 dark:text-gray-300">
                         {{ $t('auth.noAccount') }}
                         <NuxtLink
-                            to="/register"
+                            to="/auth/register"
                             class="font-semibold text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 transition-colors"
                         >
                             {{ $t('auth.registerNow') }}
@@ -188,7 +188,7 @@
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../api/auth';
+import authApi from '../../api/auth';
 
 interface LoginForm {
     username: string;

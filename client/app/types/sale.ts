@@ -9,7 +9,8 @@ export interface CreateSaleDto {
     name_en: string
     base_id: number
     materials_ids: number[]
-    descr: string
+    descr_ru: string
+    descr_en: string
     images: string[]
 }
 
@@ -21,7 +22,8 @@ export interface UpdateSaleResponse {
     name_en: string
     base_id: number
     year: number
-    descr: string
+    descr_ru: string
+    descr_en: string
     width: number
     height: number
     price: number
@@ -35,7 +37,8 @@ export interface UpdateSaleRequest {
     name_en: string
     base_id: number
     year: number
-    descr: string
+    descr_ru: string
+    descr_en: string
     width: number
     height: number
     price: number
