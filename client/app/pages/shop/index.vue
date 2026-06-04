@@ -36,7 +36,9 @@ const loadWorks = async () => {
 };
 
 const handleSaleDeleted = (id: string) => {
-    sales.value = sales.value.filter((work: TypedGetSaleDto) => work.id !== id);
+    sales.value = sales.value.filter(
+        (work: TypedGetSaleDto) => work.id !== id && String(work.id) !== id
+    );
 };
 
 onMounted(() => {

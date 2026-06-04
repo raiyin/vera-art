@@ -94,7 +94,8 @@ const deleteWork = async () => {
     showDeleteModal.value = false;
 
     try {
-        const response = await fetch(`${SERVER_URL}works/${id}`, {
+        const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
+        const response = await fetch(`${SERVER_URL}${endpoint}/${id}`, {
             method: 'DELETE',
             headers: {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
@@ -349,23 +350,23 @@ onBeforeUnmount(() => {
                         </div>
                     </div>
 
-                    <!-- Price badge positioned at bottom right -->
-                    <UBadge
-                        v-if="work.__type === 'GetSaleDto' && work.price"
-                        color="primary"
-                        size="xl"
-                        class="absolute bottom-6 right-4 font-semibold"
+                    <!-- Admin section (price + controls) -->
+                    <div
+                        class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"
                     >
-                        {{ work.price }} ₽
-                    </UBadge>
-
-                    <!-- Admin Controls (at the bottom of the card) -->
-                    <ClientOnly>
+                        <!-- Price badge -->
                         <div
-                            v-if="isAdmin"
-                            class="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700"
+                            v-if="work.__type === 'GetSaleDto' && work.price"
+                            class="flex justify-start mb-2"
                         >
-                            <div class="flex gap-2">
+                            <UBadge color="primary" size="xl" class="font-semibold">
+                                {{ work.price }} ₽
+                            </UBadge>
+                        </div>
+
+                        <!-- Admin Controls -->
+                        <ClientOnly>
+                            <div v-if="isAdmin" class="flex gap-2">
                                 <UButton
                                     size="sm"
                                     color="primary"
@@ -385,8 +386,8 @@ onBeforeUnmount(() => {
                                     {{ $t('admin.delete_work') }}
                                 </UButton>
                             </div>
-                        </div>
-                    </ClientOnly>
+                        </ClientOnly>
+                    </div>
                 </div>
             </UCard>
         </div>
