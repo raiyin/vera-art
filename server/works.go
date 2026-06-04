@@ -205,7 +205,7 @@ func AddWork(c *gin.Context) {
 
 	_, err = tx.Exec(
 		"insert into works (id, width, height, year, name_ru, name_en, base_id, str_id, type, images, descr_ru, descr_en) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		maxID+1,
 		work.Width,
 		work.Height,
