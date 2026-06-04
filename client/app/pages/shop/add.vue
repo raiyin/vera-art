@@ -277,16 +277,29 @@
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_shop_form.labels.description')
+                        $t('admin_shop_form.labels.description_ru')
                     }}</label>
                     <UTextarea
-                        v-model="sale.descr"
+                        v-model="sale.descr_ru"
                         class="form-control"
                         :placeholder="$t('admin_shop_form.placeholders.description')"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ sale.descr.length }}/500</div>
+                    <div class="char-count">{{ sale.descr_ru.length }}/500</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">{{
+                        $t('admin_shop_form.labels.description_en')
+                    }}</label>
+                    <UTextarea
+                        v-model="sale.descr_en"
+                        class="form-control"
+                        :placeholder="$t('admin_shop_form.placeholders.description')"
+                        :rows="4"
+                        :maxlength="500"
+                    />
+                    <div class="char-count">{{ sale.descr_en.length }}/500</div>
                 </div>
             </div>
 
@@ -340,7 +353,8 @@ const sale = reactive<CreateSaleDto>({
     name_en: '',
     base_id: (null as unknown) as number,
     materials_ids: [],
-    descr: '',
+    descr_ru: '',
+    descr_en: '',
     images: [],
 });
 
@@ -635,7 +649,8 @@ function resetForm() {
     sale.name_en = '';
     sale.base_id = 0;
     sale.materials_ids = [];
-    sale.descr = '';
+    sale.descr_ru = '';
+    sale.descr_en = '';
     sale.images = [];
 
     files.value = [];

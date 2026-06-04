@@ -331,7 +331,9 @@
             "price": "Цена",
             "base": "Основа",
             "materials": "Материалы",
-            "description": "Описание"
+            "description": "Описание",
+            "description_ru": "Описание по-русски",
+            "description_en": "Описание по-английски"
         },
         "placeholders": {
             "name_ru": "Например: 'Звездная ночь'",

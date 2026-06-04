@@ -11,7 +11,8 @@ type SaleResponse struct {
 	NameRu      string   `json:"name_ru"`
 	NameEn      string   `json:"name_en"`
 	Year        int      `json:"year"`
-	Descr       string   `json:"descr"`
+	DescrRu     string   `json:"descr_ru"`
+	DescrEn     string   `json:"descr_en"`
 	BaseRu      string   `json:"base_ru"`
 	BaseEn      string   `json:"base_en"`
 	Width       int      `json:"width"`
@@ -31,7 +32,8 @@ type UpdateSaleResponse struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Price        int      `json:"price"`
@@ -46,7 +48,8 @@ type UpdateSaleRequest struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Price        int      `json:"price"`
@@ -60,7 +63,8 @@ type CreateSaleRequest struct {
 	NameEn       string   `json:"name_en"`
 	BaseId       int      `json:"base_id"`
 	Year         int      `json:"year"`
-	Descr        string   `json:"descr"`
+	DescrRu      string   `json:"descr_ru"`
+	DescrEn      string   `json:"descr_en"`
 	Width        int      `json:"width"`
 	Height       int      `json:"height"`
 	Price        int      `json:"price"`

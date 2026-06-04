@@ -28,7 +28,8 @@ func mapSaleModelToSaleResponse(sale models.Sale) dtos.SaleResponse {
 		NameRu:      sale.NameRu,
 		NameEn:      sale.NameEn,
 		Year:        sale.Year,
-		Descr:       sale.Descr,
+		DescrRu:     sale.DescrRu,
+		DescrEn:     sale.DescrEn,
 		Width:       sale.Width,
 		Height:      sale.Height,
 		Price:       sale.Price,
@@ -78,7 +79,8 @@ func mapSaleModelToUpdateSaleResponse(sale models.Sale) dtos.UpdateSaleResponse 
 		NameEn:       sale.NameEn,
 		BaseId:       sale.BaseId,
 		Year:         sale.Year,
-		Descr:        sale.Descr,
+		DescrRu:      sale.DescrRu,
+		DescrEn:      sale.DescrEn,
 		Width:        sale.Width,
 		Height:       sale.Height,
 		Price:        sale.Price,
@@ -177,7 +179,7 @@ func GetSales(c *gin.Context) {
 			&s.Id, &s.Width,
 			&s.Height, &s.Year, &s.Price,
 			&s.NameRu, &s.NameEn, &s.BaseId, &s.StrId,
-			&s.Descr, &s.Images)
+			&s.DescrRu, &s.DescrEn, &s.Images)
 
 		if err != nil {
 			fmt.Println(err)
@@ -243,7 +245,7 @@ func CreateSale(c *gin.Context) {
 	}
 
 	_, err = tx.Exec(
-		"insert into sales (id, width, height, year, price, name_ru, name_en, base_id, str_id, descr, images) "+
+		"insert into sales (id, width, height, year, price, name_ru, name_en, base_id, str_id, descr_ru, descr_en, images) "+
 			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		newSaleId,
 		sale.Width,
@@ -254,7 +256,8 @@ func CreateSale(c *gin.Context) {
 		sale.NameEn,
 		sale.BaseId,
 		strings.Replace(sale.NameEn, " ", "_", -1),
-		sale.Descr,
+		sale.DescrRu,
+		sale.DescrEn,
 		strings.Join(sale.Images, ";"),
 	)
 
@@ -392,7 +395,7 @@ func GetSaleById(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Width, &sale.Height, &sale.Year,
 		&sale.Price, &sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.Descr, &sale.Images,
+		&sale.DescrRu, &sale.DescrEn, &sale.Images,
 	)
 
 	if err != nil {
@@ -423,7 +426,7 @@ func GetSaleByIdForEdit(c *gin.Context) {
 	err := db.QueryRow(query, id).Scan(
 		&sale.Id, &sale.Width, &sale.Height, &sale.Year, &sale.Price,
 		&sale.NameRu, &sale.NameEn, &sale.BaseId, &sale.StrId,
-		&sale.Descr, &sale.Images)
+		&sale.DescrRu, &sale.DescrEn, &sale.Images)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{"error": "sale not found"})
@@ -489,11 +492,11 @@ func UpdateSale(c *gin.Context) {
 	_, err = tx.Exec(`
 		UPDATE sales
 		SET width = ?, height = ?, year = ?, name_ru = ?, name_en = ?,
-			base_id = ?, str_id = ?, descr = ?, price = ?, images = ?
+			base_id = ?, str_id = ?, descr_ru = ?, descr_en = ?, price = ?, images = ?
 		WHERE id = ?`,
 		sale.Width, sale.Height, sale.Year, sale.NameRu, sale.NameEn,
 		sale.BaseId, newStrId,
-		sale.Descr, sale.Price, imagesStr, id)
+		sale.DescrRu, sale.DescrEn, sale.Price, imagesStr, id)
 
 	if err != nil {
 		tx.Rollback()
