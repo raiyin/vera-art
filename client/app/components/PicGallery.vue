@@ -110,6 +110,17 @@ const cancelDelete = () => {
     workToDelete.value = null;
 };
 
+const getWorkDescription = (work: CommonGetWorkDto): string => {
+    const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
+    return descr || '';
+};
+
+const hasDescription = (work: CommonGetWorkDto): boolean => {
+    const descrRu = (work as any).descr_ru;
+    const descrEn = (work as any).descr_en;
+    return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
+};
+
 const getWorkName = (work: CommonGetWorkDto): string => {
     return locale.value === 'ru' ? work.name_ru : work.name_en;
 };
@@ -259,6 +270,30 @@ onBeforeUnmount(() => {
                         <div
                             class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
                         />
+
+                        <!-- Description info icon -->
+                        <div
+                            v-if="hasDescription(work)"
+                            class="absolute top-2 right-2 z-10"
+                        >
+                            <UPopover
+                                mode="hover"
+                                :content="{ side: 'bottom', sideOffset: 8 }"
+                            >
+                                <UIcon
+                                    name="i-heroicons-information-circle"
+                                    class="w-6 h-6 text-white drop-shadow-lg cursor-pointer hover:text-primary-300 transition-colors duration-200"
+                                />
+
+                                <template #content>
+                                    <div
+                                        class="p-4 max-w-xs text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                                    >
+                                        <p>{{ getWorkDescription(work) }}</p>
+                                    </div>
+                                </template>
+                            </UPopover>
+                        </div>
                     </div>
 
                     <!-- Details -->
