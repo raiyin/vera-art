@@ -178,8 +178,8 @@ func GetSales(c *gin.Context) {
 		err := rows.Scan(
 			&s.Id, &s.Width,
 			&s.Height, &s.Year, &s.Price,
-			&s.NameRu, &s.NameEn, &s.BaseId, &s.StrId,
-			&s.DescrRu, &s.DescrEn, &s.Images)
+			&s.NameRu, &s.NameEn, &s.BaseId, &s.StrId, &s.Images,
+			&s.DescrRu, &s.DescrEn)
 
 		if err != nil {
 			fmt.Println(err)
@@ -246,7 +246,7 @@ func CreateSale(c *gin.Context) {
 
 	_, err = tx.Exec(
 		"insert into sales (id, width, height, year, price, name_ru, name_en, base_id, str_id, descr_ru, descr_en, images) "+
-			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+			"values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
 		newSaleId,
 		sale.Width,
 		sale.Height,

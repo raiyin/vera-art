@@ -549,13 +549,6 @@ onBeforeUnmount(() => {
                                 selectedWork.images.length
                             }}</span>
                         </div>
-
-                        <!-- Image Description -->
-                        <div class="custom-modal-caption">
-                            {{ getWorkName(selectedWork) }} - Image
-                            {{ currentImageIndex + 1 }} of
-                            {{ selectedWork.images.length }}
-                        </div>
                     </div>
 
                     <!-- Thumbnail Strip -->
@@ -812,21 +805,6 @@ onBeforeUnmount(() => {
     opacity: 0.9;
 }
 
-.custom-modal-caption {
-    position: absolute;
-    bottom: 1rem;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: white;
-    font-size: 0.875rem;
-    background: rgba(0, 0, 0, 0.7);
-    padding: 0.75rem;
-    margin: 0 3rem;
-    border-radius: 0.5rem;
-    backdrop-filter: blur(4px);
-}
-
 .custom-modal-thumbnails {
     display: flex;
     gap: 0.5rem;
@@ -899,12 +877,6 @@ onBeforeUnmount(() => {
         top: 0.5rem;
         left: 0.5rem;
         padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .custom-modal-caption {
-        margin: 0 1rem;
-        padding: 0.5rem;
         font-size: 0.75rem;
     }
 
