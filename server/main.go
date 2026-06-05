@@ -343,6 +343,10 @@ func main() {
 	r_gin.GET("/master-classes/tag/:tag_slug", GetMasterClassesByTag)
 	r_gin.GET("/master-classes/:id", GetMasterClassByID)
 
+	// Видео и обложки мастер-классов (с проверкой доступа)
+	r_gin.GET("/master-classes/:id/video", AuthMiddlewareOptional(), ServeMasterClassVideo)
+	r_gin.GET("/master-classes/:id/thumbnail", ServeMasterClassThumbnail)
+
 	// Чат
 	r_gin.GET("/chat/threads", AuthMiddleware(), GetChatThreads)
 	r_gin.POST("/chat/threads", AuthMiddleware(), CreateChatThread)

@@ -285,6 +285,45 @@ func Refresh(c *gin.Context) {
 	})
 }
 
+// AuthMiddlewareOptional — опциональная авторизация.
+// Если токен предоставлен и валиден, устанавливает user_id в контекст.
+// Если токена нет или он невалиден, запрос всё равно проходит дальше.
+func AuthMiddlewareOptional() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
+			c.Next()
+			return
+		}
+
+		const bearerPrefix = "Bearer "
+		if len(tokenString) <= len(bearerPrefix) || !strings.HasPrefix(tokenString, bearerPrefix) {
+			c.Next()
+			return
+		}
+		tokenString = tokenString[len(bearerPrefix):]
+
+		claims := &models.Claims{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+
+		if err != nil || !token.Valid {
+			c.Next()
+			return
+		}
+
+		if claims.TokenType != "access" {
+			c.Next()
+			return
+		}
+
+		c.Set("claims", claims)
+		c.Set("user_id", claims.UserID)
+		c.Next()
+	}
+}
+
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.GetHeader("Authorization")
