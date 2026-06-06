@@ -1,5 +1,10 @@
 <template>
     <div class="admin-page">
+        <div class="admin-page__breadcrumbs">
+            <NuxtLink to="/admin">Dashboard</NuxtLink>
+            <span class="admin-page__breadcrumbs-sep">/</span>
+            <span class="admin-page__breadcrumbs-current">Отзывы</span>
+        </div>
         <div class="admin-page__header">
             <h1 class="admin-page__title">Модерация отзывов</h1>
             <div class="admin-page__header-actions">

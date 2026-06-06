@@ -2,7 +2,7 @@
     <div class="admin-table" :class="{ 'admin-table--dark': isDark }">
         <!-- Toolbar -->
         <div
-            v-if="$slots.toolbar || showSearch || showFilters"
+            v-if="$slots.toolbar || showSearch || showFilters || showExport"
             class="admin-table__toolbar"
         >
             <div class="admin-table__toolbar-left">
@@ -10,6 +10,17 @@
             </div>
             <div class="admin-table__toolbar-right">
                 <slot name="toolbar" />
+                <UButton
+                    v-if="showExport && data.length > 0"
+                    icon="i-lucide-download"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                    :title="exportLabel"
+                    @click="exportToCSV"
+                >
+                    {{ exportLabel }}
+                </UButton>
                 <AdminSearchInput
                     v-if="showSearch"
                     v-model="internalSearch"
@@ -305,6 +316,18 @@ export interface TableFilter {
     placeholder?: string;
 }
 
+function downloadBlob(content: string, filename: string, mimeType: string) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
 const props = withDefaults(
     defineProps<{
         columns: TableColumn[];
@@ -320,6 +343,9 @@ const props = withDefaults(
         showSearch?: boolean;
         showFilters?: boolean;
         showPagination?: boolean;
+        showExport?: boolean;
+        exportLabel?: string;
+        exportFilename?: string;
         searchPlaceholder?: string;
         actionsLabel?: string;
         emptyIcon?: 'data' | 'search' | 'box' | 'info';
@@ -343,6 +369,9 @@ const props = withDefaults(
         showSearch: false,
         showFilters: false,
         showPagination: true,
+        showExport: false,
+        exportLabel: 'CSV',
+        exportFilename: 'export',
         searchPlaceholder: 'Поиск...',
         actionsLabel: 'Действия',
         emptyIcon: 'data',
@@ -460,6 +489,29 @@ function onImgError(e: Event) {
     const target = e.target as HTMLImageElement;
     target.style.display = 'none';
 }
+
+function exportToCSV() {
+    const visibleColumns = props.columns.filter(
+        (col) => col.type !== 'image' && col.key !== 'actions'
+    );
+    const headers = visibleColumns.map((col) => col.label);
+    const rows = props.data.map((row) =>
+        visibleColumns
+            .map((col) => {
+                const val = getNestedValue(row, col.key);
+                if (val == null || val === undefined) return '';
+                const str = String(val).replace(/"/g, '""');
+                return `"${str}"`;
+            })
+            .join(',')
+    );
+    const csv = [headers.join(','), ...rows].join('\n');
+    const bom = '\uFEFF';
+    const filename = `${props.exportFilename}-${new Date()
+        .toISOString()
+        .slice(0, 10)}.csv`;
+    downloadBlob(bom + csv, filename, 'text/csv;charset=utf-8;');
+}
 </script>
 
 <style scoped>
@@ -512,6 +564,20 @@ function onImgError(e: Event) {
 /* Table wrapper */
 .admin-table__wrapper {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-table__wrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.admin-table__wrapper::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-table__wrapper::-webkit-scrollbar-thumb {
+    background: var(--admin-border, #e0e0e0);
+    border-radius: 3px;
 }
 
 /* Table */
@@ -575,7 +641,50 @@ function onImgError(e: Event) {
 /* Body */
 .admin-table__body .admin-table__row {
     border-bottom: 1px solid var(--admin-border, #e0e0e0);
-    transition: background 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
+    animation: adminTableRowIn 0.3s ease-out both;
+}
+
+.admin-table__body .admin-table__row:nth-child(1) {
+    animation-delay: 0.01s;
+}
+.admin-table__body .admin-table__row:nth-child(2) {
+    animation-delay: 0.02s;
+}
+.admin-table__body .admin-table__row:nth-child(3) {
+    animation-delay: 0.03s;
+}
+.admin-table__body .admin-table__row:nth-child(4) {
+    animation-delay: 0.04s;
+}
+.admin-table__body .admin-table__row:nth-child(5) {
+    animation-delay: 0.05s;
+}
+.admin-table__body .admin-table__row:nth-child(6) {
+    animation-delay: 0.06s;
+}
+.admin-table__body .admin-table__row:nth-child(7) {
+    animation-delay: 0.07s;
+}
+.admin-table__body .admin-table__row:nth-child(8) {
+    animation-delay: 0.08s;
+}
+.admin-table__body .admin-table__row:nth-child(9) {
+    animation-delay: 0.09s;
+}
+.admin-table__body .admin-table__row:nth-child(10) {
+    animation-delay: 0.1s;
+}
+
+@keyframes adminTableRowIn {
+    from {
+        opacity: 0;
+        transform: translateX(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .admin-table--dark .admin-table__body .admin-table__row {
@@ -588,6 +697,7 @@ function onImgError(e: Event) {
 
 .admin-table__body .admin-table__row:hover {
     background: rgba(108, 92, 231, 0.03);
+    transform: translateX(2px);
 }
 
 .admin-table--dark .admin-table__body .admin-table__row:hover {
@@ -722,6 +832,14 @@ function onImgError(e: Event) {
     flex-wrap: wrap;
 }
 
+@media (max-width: 480px) {
+    .admin-table__footer {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+}
+
 .admin-table--dark .admin-table__footer {
     border-color: var(--admin-border, #2d2d3d);
 }
@@ -729,5 +847,20 @@ function onImgError(e: Event) {
 .admin-table__footer-info {
     font-size: 13px;
     color: var(--admin-text-secondary, #636e72);
+}
+
+@media (max-width: 480px) {
+    .admin-table__toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-table__toolbar-right {
+        flex-wrap: wrap;
+    }
+    .admin-table__cell--head,
+    .admin-table__cell {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
 }
 </style>

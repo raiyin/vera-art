@@ -59,7 +59,7 @@
         <!-- Dashboard Content -->
         <template v-else>
             <!-- Stats Grid -->
-            <div class="admin-dashboard__stats-grid">
+            <div class="admin-dashboard__stats-grid admin-stagger">
                 <UCard
                     v-for="stat in statCards"
                     :key="stat.key"

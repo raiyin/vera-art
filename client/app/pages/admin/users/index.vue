@@ -1,5 +1,12 @@
 <template>
     <div class="admin-page">
+        <!-- Breadcrumbs -->
+        <div class="admin-page__breadcrumbs">
+            <NuxtLink to="/admin">Dashboard</NuxtLink>
+            <span class="admin-page__breadcrumbs-sep">/</span>
+            <span class="admin-page__breadcrumbs-current">Пользователи</span>
+        </div>
+
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>

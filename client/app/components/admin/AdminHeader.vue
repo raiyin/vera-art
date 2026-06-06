@@ -269,6 +269,17 @@ function onSearch() {
     min-width: 16px;
     text-align: center;
     line-height: 1.4;
+    animation: adminNotifPulse 2s ease-in-out infinite;
+}
+
+@keyframes adminNotifPulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
 }
 
 .admin-header__profile {

@@ -26,7 +26,9 @@
 
             <!-- Page content -->
             <main class="admin-layout__content">
-                <slot />
+                <div class="admin-layout__page">
+                    <slot />
+                </div>
             </main>
         </div>
     </div>
@@ -126,6 +128,21 @@ watch(
 @media (max-width: 768px) {
     .admin-layout__content {
         padding: 16px;
+    }
+}
+
+.admin-layout__page {
+    animation: adminLayoutPageIn 0.3s ease-out;
+}
+
+@keyframes adminLayoutPageIn {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 </style>
