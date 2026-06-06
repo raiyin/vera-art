@@ -158,6 +158,7 @@ import { useAuthStore } from '../../stores/AuthStore';
 import type { Review } from '../../types';
 
 definePageMeta({
+    layout: 'admin',
     middleware: 'admin-auth',
 });
 

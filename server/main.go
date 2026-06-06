@@ -357,6 +357,10 @@ func main() {
 	r_gin.GET("/admin/chat/threads", AuthMiddleware(), middleware.AdminMiddleware(), GetAdminChatThreads)
 	r_gin.PUT("/admin/chat/threads/:id/resolve", AuthMiddleware(), middleware.AdminMiddleware(), ResolveChatThread)
 
+	// Admin dashboard
+	r_gin.GET("/api/admin/stats", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetStats)
+	r_gin.GET("/api/admin/recent-activity", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetRecentActivity)
+
 	defer db.Close()
 	if err := r_gin.Run("localhost:8000"); err != nil {
 		log.Fatal(err)
