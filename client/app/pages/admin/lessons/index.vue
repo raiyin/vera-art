@@ -3,8 +3,15 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Курсы</h1>
-                <p class="admin-page__subtitle">Управление онлайн-курсами</p>
+                <h1 class="admin-page__title">Уроки</h1>
+                <p class="admin-page__subtitle">
+                    <template v-if="productFilterValue">
+                        Уроки курса: {{ productTitle }}
+                    </template>
+                    <template v-else>
+                        Управление уроками курсов и мастер-классов
+                    </template>
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -16,8 +23,21 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" to="/admin/courses/add">
-                    Создать курс
+                <UButton
+                    v-if="productFilterValue"
+                    icon="i-lucide-plus"
+                    color="primary"
+                    :to="`/admin/lessons/add?product_id=${productFilterValue}`"
+                >
+                    Создать урок
+                </UButton>
+                <UButton
+                    v-else
+                    icon="i-lucide-plus"
+                    color="primary"
+                    to="/admin/lessons/add"
+                >
+                    Создать урок
                 </UButton>
             </div>
         </div>
@@ -28,7 +48,7 @@
                 <div class="admin-page__search">
                     <UInput
                         v-model="searchQuery"
-                        placeholder="Поиск по названию..."
+                        placeholder="Поиск по названию урока..."
                         icon="i-lucide-search"
                         color="neutral"
                         variant="outline"
@@ -37,16 +57,8 @@
                     />
                 </div>
                 <USelect
-                    v-model="statusFilter"
-                    :items="statusOptions"
-                    color="neutral"
-                    variant="outline"
-                    class="admin-page__filter-select"
-                    @change="loadData"
-                />
-                <USelect
-                    v-model="difficultyFilter"
-                    :items="difficultyOptions"
+                    v-model="contentTypeFilter"
+                    :items="contentTypeOptions"
                     color="neutral"
                     variant="outline"
                     class="admin-page__filter-select"
@@ -59,7 +71,6 @@
         <div v-if="loading && !items.length" class="admin-page__loading">
             <UCard v-for="i in 5" :key="i">
                 <div class="admin-page__skeleton-row">
-                    <div class="admin-page__skeleton-image" />
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
                         <div class="admin-page__skeleton-line w-1/3" />
@@ -82,13 +93,20 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-book-open" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Курсы не найдены</h3>
+                <UIcon name="i-lucide-book-open-check" class="admin-page__empty-icon" />
+                <h3 class="admin-page__empty-title">Уроки не найдены</h3>
                 <p class="admin-page__empty-desc">
-                    По заданным критериям ничего не найдено
+                    <template v-if="searchQuery || contentTypeFilter">
+                        По заданным критериям ничего не найдено
+                    </template>
+                    <template v-else> В этом курсе пока нет уроков </template>
                 </p>
-                <UButton color="primary" to="/admin/courses/add">
-                    Создать первый курс
+                <UButton
+                    v-if="productFilterValue"
+                    color="primary"
+                    :to="`/admin/lessons/add?product_id=${productFilterValue}`"
+                >
+                    Создать первый урок
                 </UButton>
             </div>
         </UCard>
@@ -108,13 +126,19 @@
                             </th>
                             <th class="admin-page__cell admin-page__cell--head">ID</th>
                             <th
+                                v-if="!productFilterValue"
+                                class="admin-page__cell admin-page__cell--head"
+                            >
+                                Курс
+                            </th>
+                            <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('title_ru')"
+                                @click="toggleSort('l.title_ru')"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Название</span>
                                     <UIcon
-                                        v-if="sortBy === 'title_ru'"
+                                        v-if="sortBy === 'l.title_ru'"
                                         :name="
                                             sortDir === 'asc'
                                                 ? 'i-lucide-arrow-up'
@@ -126,12 +150,29 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('price')"
+                                @click="toggleSort('l.content_type')"
                             >
                                 <div class="admin-page__head-content">
-                                    <span>Цена</span>
+                                    <span>Тип</span>
                                     <UIcon
-                                        v-if="sortBy === 'price'"
+                                        v-if="sortBy === 'l.content_type'"
+                                        :name="
+                                            sortDir === 'asc'
+                                                ? 'i-lucide-arrow-up'
+                                                : 'i-lucide-arrow-down'
+                                        "
+                                        class="size-3"
+                                    />
+                                </div>
+                            </th>
+                            <th
+                                class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
+                                @click="toggleSort('l.duration_minutes')"
+                            >
+                                <div class="admin-page__head-content">
+                                    <span>Длительность</span>
+                                    <UIcon
+                                        v-if="sortBy === 'l.duration_minutes'"
                                         :name="
                                             sortDir === 'asc'
                                                 ? 'i-lucide-arrow-up'
@@ -142,19 +183,13 @@
                                 </div>
                             </th>
                             <th class="admin-page__cell admin-page__cell--head">
-                                Статус
+                                Порядок
                             </th>
                             <th class="admin-page__cell admin-page__cell--head">
-                                Сложность
+                                Превью
                             </th>
                             <th class="admin-page__cell admin-page__cell--head">
-                                Уроков
-                            </th>
-                            <th class="admin-page__cell admin-page__cell--head">
-                                Категория
-                            </th>
-                            <th class="admin-page__cell admin-page__cell--head">
-                                Просмотры
+                                Ресурсы
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--actions"
@@ -179,6 +214,16 @@
                             <td class="admin-page__cell admin-page__cell--mono">
                                 #{{ item.id }}
                             </td>
+                            <td v-if="!productFilterValue" class="admin-page__cell">
+                                <div class="admin-page__name-cell">
+                                    <span class="admin-page__name-ru">{{
+                                        item.product_title_ru || '—'
+                                    }}</span>
+                                    <span class="admin-page__name-en">{{
+                                        item.product_title_en || '—'
+                                    }}</span>
+                                </div>
+                            </td>
                             <td class="admin-page__cell">
                                 <div class="admin-page__name-cell">
                                     <span class="admin-page__name-ru">{{
@@ -190,55 +235,43 @@
                                 </div>
                             </td>
                             <td class="admin-page__cell">
-                                <span class="admin-page__price">{{
-                                    formatPrice(item.price)
-                                }}</span>
-                            </td>
-                            <td class="admin-page__cell">
                                 <UBadge
-                                    :color="statusColor(item.status)"
-                                    variant="soft"
-                                    size="sm"
-                                >
-                                    {{ statusLabel(item.status) }}
-                                </UBadge>
-                            </td>
-                            <td class="admin-page__cell">
-                                <UBadge
-                                    :color="difficultyColor(item.difficulty)"
+                                    :color="contentTypeColor(item.content_type)"
                                     variant="subtle"
                                     size="sm"
                                 >
-                                    {{ difficultyLabel(item.difficulty) }}
+                                    {{ contentTypeLabel(item.content_type) }}
                                 </UBadge>
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
-                                {{ item.total_lessons }}
-                            </td>
-                            <td class="admin-page__cell">
-                                {{ item.category_name_ru || '—' }}
+                                {{ formatDuration(item.duration_minutes) }}
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
-                                {{ item.view_count }}
+                                {{ item.sort_order }}
+                            </td>
+                            <td class="admin-page__cell">
+                                <UBadge
+                                    v-if="item.is_preview"
+                                    color="warning"
+                                    variant="soft"
+                                    size="sm"
+                                >
+                                    Да
+                                </UBadge>
+                                <span v-else class="admin-page__text-muted">—</span>
+                            </td>
+                            <td class="admin-page__cell admin-page__cell--mono">
+                                {{ item.resources_count || '—' }}
                             </td>
                             <td class="admin-page__cell admin-page__cell--actions">
                                 <div class="admin-page__actions">
-                                    <UTooltip text="Управление уроками">
-                                        <UButton
-                                            icon="i-lucide-list-checks"
-                                            color="neutral"
-                                            variant="ghost"
-                                            size="sm"
-                                            :to="`/admin/lessons?product_id=${item.id}`"
-                                        />
-                                    </UTooltip>
                                     <UTooltip text="Редактировать">
                                         <UButton
                                             icon="i-lucide-pencil"
                                             color="neutral"
                                             variant="ghost"
                                             size="sm"
-                                            :to="`/admin/courses/edit/${item.id}`"
+                                            :to="`/admin/lessons/edit/${item.id}`"
                                         />
                                     </UTooltip>
                                     <UTooltip text="Удалить">
@@ -295,7 +328,7 @@
             <UCard>
                 <template #header>
                     <h3 class="text-lg font-semibold">
-                        {{ deletingSingle ? 'Удаление курса' : 'Удаление курсов' }}
+                        {{ deletingSingle ? 'Удаление урока' : 'Удаление уроков' }}
                     </h3>
                 </template>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -322,10 +355,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, } from 'vue';
+import { useRoute, } from 'vue-router';
 import {
-    fetchAdminProducts,
-    deleteAdminProducts,
-    type AdminProductItem,
+    fetchAdminLessons,
+    deleteAdminLessons,
+    type AdminLessonItem,
 } from '~/api/admin';
 
 definePageMeta({
@@ -333,37 +367,49 @@ definePageMeta({
     middleware: 'admin-auth',
 });
 
+const route = useRoute();
+
 // State
-const items = ref<AdminProductItem[]>([]);
+const items = ref<AdminLessonItem[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const searchQuery = ref('');
-const statusFilter = ref<string | null>(null);
-const difficultyFilter = ref<string | null>(null);
+const contentTypeFilter = ref<string | null>(null);
 const currentPage = ref(1);
 const perPage = ref(20);
 const total = ref(0);
 const totalPages = ref(0);
-const sortBy = ref('created_at');
-const sortDir = ref<'asc' | 'desc'>('desc');
+const sortBy = ref('l.sort_order');
+const sortDir = ref<'asc' | 'desc'>('asc');
 const selectedIds = ref<number[]>([]);
 const showDeleteModal = ref(false);
 const deleting = ref(false);
-const deletingSingle = ref<AdminProductItem | null>(null);
+const deletingSingle = ref<AdminLessonItem | null>(null);
+
+// Product filter from query param (when navigating from courses page)
+const productFilterValue = computed(() => {
+    const pid = route.query.product_id;
+    return pid ? Number(pid) : null;
+});
+
+const productTitle = computed(() => {
+    if (items.value.length > 0 && productFilterValue.value) {
+        const first = items.value[0];
+        if (first) {
+            return first.product_title_ru || first.product_title_en || `#${first.product_id}`;
+        }
+    }
+    return '';
+});
 
 // Filter options
-const statusOptions = [
-    { label: 'Все статусы', value: null },
-    { label: 'Опубликован', value: 'published' },
-    { label: 'Черновик', value: 'draft' },
-    { label: 'Архивный', value: 'archived' },
-];
-
-const difficultyOptions = [
-    { label: 'Любая сложность', value: null },
-    { label: 'Начальный', value: 'beginner' },
-    { label: 'Средний', value: 'intermediate' },
-    { label: 'Продвинутый', value: 'advanced' },
+const contentTypeOptions = [
+    { label: 'Все типы', value: null },
+    { label: 'Видео', value: 'video' },
+    { label: 'Текст', value: 'text' },
+    { label: 'PDF', value: 'pdf' },
+    { label: 'Тест', value: 'quiz' },
+    { label: 'Задание', value: 'assignment' },
 ];
 
 // Computed
@@ -385,56 +431,40 @@ const paginationInfo = computed(() => {
 
 const deleteConfirmMessage = computed(() => {
     if (deletingSingle.value) {
-        return `Вы уверены, что хотите удалить курс «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
+        return `Вы уверены, что хотите удалить урок «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Это действие нельзя отменить.`;
     }
-    return `Вы уверены, что хотите удалить ${selectedIds.value.length} курс(ов)? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
+    return `Вы уверены, что хотите удалить ${selectedIds.value.length} урок(ов)? Это действие нельзя отменить.`;
 });
 
 // Methods
-function formatPrice(priceKopecks: number): string {
-    const rubles = priceKopecks / 100;
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(rubles);
-}
-
-function statusColor(status: string): 'success' | 'neutral' | 'error' {
-    switch (status) {
-        case 'published': return 'success';
-        case 'draft': return 'neutral';
-        case 'archived': return 'error';
+function contentTypeColor(type: string): 'info' | 'success' | 'warning' | 'neutral' | 'error' {
+    switch (type) {
+        case 'video': return 'info';
+        case 'text': return 'success';
+        case 'pdf': return 'warning';
+        case 'quiz': return 'neutral';
+        case 'assignment': return 'error';
         default: return 'neutral';
     }
 }
 
-function statusLabel(status: string): string {
-    switch (status) {
-        case 'published': return 'Опубликован';
-        case 'draft': return 'Черновик';
-        case 'archived': return 'Архивный';
-        default: return status || '—';
+function contentTypeLabel(type: string): string {
+    switch (type) {
+        case 'video': return 'Видео';
+        case 'text': return 'Текст';
+        case 'pdf': return 'PDF';
+        case 'quiz': return 'Тест';
+        case 'assignment': return 'Задание';
+        default: return type || '—';
     }
 }
 
-function difficultyColor(difficulty: string): 'success' | 'warning' | 'error' | 'neutral' {
-    switch (difficulty) {
-        case 'beginner': return 'success';
-        case 'intermediate': return 'warning';
-        case 'advanced': return 'error';
-        default: return 'neutral';
-    }
-}
-
-function difficultyLabel(difficulty: string): string {
-    switch (difficulty) {
-        case 'beginner': return 'Начальный';
-        case 'intermediate': return 'Средний';
-        case 'advanced': return 'Продвинутый';
-        default: return difficulty || '—';
-    }
+function formatDuration(minutes: number): string {
+    if (!minutes && minutes !== 0) return '—';
+    if (minutes < 60) return `${minutes} мин`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m ? `${h}ч ${m}м` : `${h}ч`;
 }
 
 function isSelected(id: number): boolean {
@@ -477,13 +507,12 @@ async function loadData() {
     loading.value = true;
     error.value = null;
     try {
-        const result = await fetchAdminProducts({
+        const result = await fetchAdminLessons({
             page: currentPage.value,
             per_page: perPage.value,
             search: searchQuery.value || undefined,
-            type: 'course',
-            status: statusFilter.value || undefined,
-            difficulty: difficultyFilter.value || undefined,
+            product_id: productFilterValue.value || undefined,
+            content_type: contentTypeFilter.value || undefined,
             sort_by: sortBy.value,
             sort_dir: sortDir.value,
         });
@@ -498,7 +527,7 @@ async function loadData() {
     }
 }
 
-function confirmDelete(item: AdminProductItem) {
+function confirmDelete(item: AdminLessonItem) {
     deletingSingle.value = item;
     showDeleteModal.value = true;
 }
@@ -512,9 +541,9 @@ async function executeDelete() {
     deleting.value = true;
     try {
         if (deletingSingle.value) {
-            await deleteAdminProducts([deletingSingle.value.id]);
+            await deleteAdminLessons([deletingSingle.value.id]);
         } else {
-            await deleteAdminProducts(selectedIds.value);
+            await deleteAdminLessons(selectedIds.value);
         }
         showDeleteModal.value = false;
         selectedIds.value = [];
@@ -586,14 +615,6 @@ onMounted(async () => {
     display: flex;
     gap: 16px;
     align-items: center;
-}
-
-.admin-page__skeleton-image {
-    width: 48px;
-    height: 48px;
-    border-radius: 8px;
-    background: var(--admin-border, #e0e0e0);
-    animation: pulse 1.5s ease-in-out infinite;
 }
 
 .admin-page__skeleton-lines {
@@ -759,12 +780,8 @@ onMounted(async () => {
     color: var(--admin-text-secondary, #636e72);
 }
 
-.admin-page__price {
-    font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--admin-primary, #6c5ce7);
-    white-space: nowrap;
+.admin-page__text-muted {
+    color: var(--admin-text-secondary, #636e72);
 }
 
 .admin-page__actions {

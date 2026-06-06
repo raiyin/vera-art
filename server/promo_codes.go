@@ -106,6 +106,19 @@ func AdminCreatePromoCode(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"status": "success"})
 }
 
+// AdminDeletePromoCode удаляет промокод (админ)
+func AdminDeletePromoCode(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := db.Exec("DELETE FROM promo_codes WHERE id = ?", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка удаления промокода"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
 // AdminUpdatePromoCode обновляет промокод (админ)
 func AdminUpdatePromoCode(c *gin.Context) {
 	id := c.Param("id")

@@ -18,5 +18,5 @@ definePageMeta({
 </script>
 
 <style scoped>
-@import './_shared.css';
+@import '../_shared.css';
 </style>
