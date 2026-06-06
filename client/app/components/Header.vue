@@ -44,11 +44,6 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             active: route.path.startsWith('/news'),
         },
         {
-            label: t('header.shop'),
-            to: '/shop',
-            active: route.path.startsWith('/shop'),
-        },
-        {
             label: t('header.payment'),
             to: '/pay-delivery',
             icon: 'i-heroicons-credit-card',
@@ -64,25 +59,18 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             type: 'trigger',
             children: [
                 {
-                    label: 'Акварельная живопись',
-                    to: '/master-classes/watercolor',
+                    label: 'Картины',
+                    to: '/art-store',
                     icon: 'i-heroicons-paint-brush',
-                    active: route.path.startsWith('/master-classes/watercolor'),
-                    value: 'watercolor',
+                    active: route.path.startsWith('/art-store'),
+                    value: 'art-store',
                 },
                 {
-                    label: 'Масляная живопись',
-                    to: '/master-classes/oil',
-                    icon: 'i-heroicons-paint-brush',
-                    active: route.path.startsWith('/master-classes/oil'),
-                    value: 'oil',
-                },
-                {
-                    label: 'Рисование для начинающих',
-                    to: '/master-classes/beginners',
-                    icon: 'i-heroicons-sparkles',
-                    active: route.path.startsWith('/master-classes/beginners'),
-                    value: 'beginners',
+                    label: 'Мастер-классы',
+                    to: '/master-classes',
+                    icon: 'i-heroicons-video-camera',
+                    active: route.path.startsWith('/master-classes'),
+                    value: 'master-classes',
                 },
                 {
                     label: 'Онлайн-курсы',

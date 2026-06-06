@@ -124,7 +124,7 @@ export default {
                         </UButton>
 
                         <UButton
-                            to="/shop"
+                            to="/art-store"
                             icon="i-heroicons-shopping-bag"
                             size="xl"
                             color="info"

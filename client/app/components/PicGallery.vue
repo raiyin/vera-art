@@ -75,7 +75,7 @@ const SERVER_URL = config.public.serverUrl;
 const navigateToEdit = (work: CommonGetWorkDto) => {
     const id = work.id.toString();
     if (work.__type === 'GetSaleDto') {
-        router.push(`/shop/edit/${id}`);
+        router.push(`/art-store/edit/${id}`);
     } else {
         router.push(`/gallery/edit/${id}`);
     }
@@ -359,9 +359,7 @@ onBeforeUnmount(() => {
                             v-if="work.__type === 'GetSaleDto' && work.price"
                             class="flex justify-start mb-2"
                         >
-                            <UBadge color="primary" size="xl" class="font-semibold">
-                                {{ work.price }} ₽
-                            </UBadge>
+                            <PriceBadge :price="work.price" />
                         </div>
 
                         <!-- Admin Controls -->
