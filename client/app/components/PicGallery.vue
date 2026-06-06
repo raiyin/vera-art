@@ -359,9 +359,7 @@ onBeforeUnmount(() => {
                             v-if="work.__type === 'GetSaleDto' && work.price"
                             class="flex justify-start mb-2"
                         >
-                            <UBadge color="primary" size="xl" class="font-semibold">
-                                {{ work.price }} ₽
-                            </UBadge>
+                            <PriceBadge :price="work.price" />
                         </div>
 
                         <!-- Admin Controls -->
