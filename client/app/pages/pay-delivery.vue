@@ -138,7 +138,7 @@ export default {};
                     color="success"
                     variant="solid"
                     icon="i-lucide-shopping-cart"
-                    to="/shop"
+                    to="/art-store"
                 >
                     {{ $t('payment.browse_shop_button') }}
                 </UButton>

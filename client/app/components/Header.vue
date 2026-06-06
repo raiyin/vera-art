@@ -44,11 +44,6 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             active: route.path.startsWith('/news'),
         },
         {
-            label: t('header.shop'),
-            to: '/shop',
-            active: route.path.startsWith('/shop'),
-        },
-        {
             label: t('header.payment'),
             to: '/pay-delivery',
             icon: 'i-heroicons-credit-card',
@@ -63,6 +58,13 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             value: 'services',
             type: 'trigger',
             children: [
+                {
+                    label: 'Картины',
+                    to: '/art-store',
+                    icon: 'i-heroicons-paint-brush',
+                    active: route.path.startsWith('/art-store'),
+                    value: 'art-store',
+                },
                 {
                     label: 'Мастер-классы',
                     to: '/master-classes',

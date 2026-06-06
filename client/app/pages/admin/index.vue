@@ -22,7 +22,7 @@
                 </div>
             </router-link>
 
-            <router-link to="/shop/add" class="action-button shop-button">
+            <router-link to="/art-store/add" class="action-button shop-button">
                 <div class="button-content">
                     <svg
                         class="button-icon"

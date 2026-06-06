@@ -75,7 +75,7 @@ const SERVER_URL = config.public.serverUrl;
 const navigateToEdit = (work: CommonGetWorkDto) => {
     const id = work.id.toString();
     if (work.__type === 'GetSaleDto') {
-        router.push(`/shop/edit/${id}`);
+        router.push(`/art-store/edit/${id}`);
     } else {
         router.push(`/gallery/edit/${id}`);
     }
