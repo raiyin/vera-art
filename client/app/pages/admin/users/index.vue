@@ -559,97 +559,38 @@
         </UModal>
 
         <!-- Role Change Confirmation Modal -->
-        <UModal v-model="showRoleModal">
-            <UCard>
-                <template #header>
-                    <h3 class="text-lg font-semibold">
-                        {{
-                            roleTarget?.role === 'admin'
-                                ? 'Снять права администратора'
-                                : 'Назначить администратором'
-                        }}
-                    </h3>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <template v-if="roleTarget?.role === 'admin'">
-                        Вы уверены, что хотите снять права администратора с пользователя
-                        «{{ roleTarget?.username }}»?
-                    </template>
-                    <template v-else>
-                        Вы уверены, что хотите назначить пользователя «{{
-                            roleTarget?.username
-                        }}» администратором?
-                    </template>
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-3">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="showRoleModal = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            :color="roleTarget?.role === 'admin' ? 'warning' : 'primary'"
-                            :loading="updatingRole"
-                            @click="executeRoleChange"
-                        >
-                            {{
-                                roleTarget?.role === 'admin' ? 'Снять права' : 'Назначить'
-                            }}
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="showRoleModal"
+            :title="roleTarget?.role === 'admin' ? 'Снять права администратора' : 'Назначить администратором'"
+            :message="roleTarget?.role === 'admin'
+                ? `Вы уверены, что хотите снять права администратора с пользователя «${roleTarget?.username}»?`
+                : `Вы уверены, что хотите назначить пользователя «${roleTarget?.username}» администратором?`"
+            :type="roleTarget?.role === 'admin' ? 'warning' : 'info'"
+            :confirm-text="roleTarget?.role === 'admin' ? 'Снять права' : 'Назначить'"
+            cancel-text="Отмена"
+            loading-text="Выполнение..."
+            :loading="updatingRole"
+            @confirm="executeRoleChange"
+            @cancel="showRoleModal = false"
+            @update:visible="showRoleModal = $event"
+        />
 
         <!-- Block/Unblock Confirmation Modal -->
-        <UModal v-model="showBlockModal">
-            <UCard>
-                <template #header>
-                    <h3 class="text-lg font-semibold">
-                        {{
-                            blockTarget?.blocked
-                                ? 'Разблокировать пользователя'
-                                : 'Заблокировать пользователя'
-                        }}
-                    </h3>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <template v-if="blockTarget?.blocked">
-                        Вы уверены, что хотите разблокировать пользователя «{{
-                            blockTarget?.username
-                        }}»? Он снова сможет войти в систему.
-                    </template>
-                    <template v-else>
-                        Вы уверены, что хотите заблокировать пользователя «{{
-                            blockTarget?.username
-                        }}»? Он не сможет войти в систему.
-                    </template>
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-3">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="showBlockModal = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            :color="blockTarget?.blocked ? 'success' : 'error'"
-                            :loading="updatingBlock"
-                            @click="executeBlockToggle"
-                        >
-                            {{
-                                blockTarget?.blocked ? 'Разблокировать' : 'Заблокировать'
-                            }}
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="showBlockModal"
+            :title="blockTarget?.blocked ? 'Разблокировать пользователя' : 'Заблокировать пользователя'"
+            :message="blockTarget?.blocked
+                ? `Вы уверены, что хотите разблокировать пользователя «${blockTarget?.username}»? Он снова сможет войти в систему.`
+                : `Вы уверены, что хотите заблокировать пользователя «${blockTarget?.username}»? Он не сможет войти в систему.`"
+            :type="blockTarget?.blocked ? 'info' : 'danger'"
+            :confirm-text="blockTarget?.blocked ? 'Разблокировать' : 'Заблокировать'"
+            cancel-text="Отмена"
+            loading-text="Выполнение..."
+            :loading="updatingBlock"
+            @confirm="executeBlockToggle"
+            @cancel="showBlockModal = false"
+            @update:visible="showBlockModal = $event"
+        />
     </div>
 </template>
 

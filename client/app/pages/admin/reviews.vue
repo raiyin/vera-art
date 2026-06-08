@@ -337,37 +337,18 @@
         </UCard>
 
         <!-- Delete Confirmation Modal -->
-        <UModal v-model="showDeleteModal">
-            <UCard>
-                <template #header>
-                    <h3 class="text-lg font-semibold">Подтверждение удаления</h3>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Вы уверены, что хотите удалить этот отзыв? Это действие нельзя
-                    отменить.
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-3">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            size="sm"
-                            @click="showDeleteModal = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            color="error"
-                            variant="solid"
-                            size="sm"
-                            @click="deleteReview"
-                        >
-                            Удалить
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="showDeleteModal"
+            title="Подтверждение удаления"
+            message="Вы уверены, что хотите удалить этот отзыв? Это действие нельзя отменить."
+            type="danger"
+            confirm-text="Удалить"
+            cancel-text="Отмена"
+            loading-text="Удаление..."
+            @confirm="deleteReview"
+            @cancel="showDeleteModal = false"
+            @update:visible="showDeleteModal = $event"
+        />
     </div>
 </template>
 

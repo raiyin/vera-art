@@ -166,41 +166,19 @@
         </UModal>
 
         <!-- Delete Confirmation Modal -->
-        <UModal v-model="deleteModalOpen" class="max-w-sm">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Подтверждение удаления</h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="deleteModalOpen = false"
-                        />
-                    </div>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Вы уверены, что хотите удалить тег
-                    <strong>{{ deleteTarget?.name_ru }}</strong
-                    >?
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="deleteModalOpen = false"
-                        >
-                            Нет
-                        </UButton>
-                        <UButton color="error" :loading="deleting" @click="doDelete">
-                            Да, удалить
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="deleteModalOpen"
+            title="Подтверждение удаления"
+            :message="`Вы уверены, что хотите удалить тег «${deleteTarget?.name_ru}»?`"
+            type="danger"
+            confirm-text="Да, удалить"
+            cancel-text="Нет"
+            loading-text="Удаление..."
+            :loading="deleting"
+            @confirm="doDelete"
+            @cancel="deleteModalOpen = false"
+            @update:visible="deleteModalOpen = $event"
+        />
     </div>
 </template>
 

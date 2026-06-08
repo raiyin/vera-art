@@ -268,32 +268,19 @@
         </UCard>
 
         <!-- Delete Confirmation Modal -->
-        <UModal v-model="showDeleteModal">
-            <UCard>
-                <template #header>
-                    <h3 class="text-lg font-semibold">
-                        {{ deletingSingle ? 'Удаление новости' : 'Удаление новостей' }}
-                    </h3>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ deleteConfirmMessage }}
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-3">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="showDeleteModal = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton color="error" :loading="deleting" @click="executeDelete">
-                            Удалить
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="showDeleteModal"
+            title="Подтверждение удаления"
+            :message="deleteConfirmMessage"
+            type="danger"
+            confirm-text="Удалить"
+            cancel-text="Отмена"
+            loading-text="Удаление..."
+            :loading="deleting"
+            @confirm="executeDelete"
+            @cancel="showDeleteModal = false"
+            @update:visible="showDeleteModal = $event"
+        />
     </div>
 </template>
 

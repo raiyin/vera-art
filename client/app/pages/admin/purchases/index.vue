@@ -280,41 +280,21 @@
         </UModal>
 
         <!-- Cancel Confirmation Modal -->
-        <UModal v-model="cancelModalOpen" class="max-w-sm">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Подтверждение</h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="cancelModalOpen = false"
-                        />
-                    </div>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Вы уверены, что хотите отменить доступ для покупки #{{
-                        cancelTarget?.id
-                    }}?
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="cancelModalOpen = false"
-                        >
-                            Нет
-                        </UButton>
-                        <UButton color="error" :loading="cancelling" @click="doCancel">
-                            Да, отменить
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="cancelModalOpen"
+            title="Подтверждение"
+            :message="cancelTarget
+                ? `Вы уверены, что хотите отменить доступ для покупки #${cancelTarget.id}?`
+                : ''"
+            type="danger"
+            confirm-text="Да, отменить"
+            cancel-text="Нет"
+            loading-text="Выполнение..."
+            :loading="cancelling"
+            @confirm="doCancel"
+            @cancel="cancelModalOpen = false"
+            @update:visible="cancelModalOpen = $event"
+        />
     </div>
 </template>
 

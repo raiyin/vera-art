@@ -280,50 +280,21 @@
         </UModal>
 
         <!-- Refund Confirmation Modal -->
-        <UModal v-model="refundModalOpen" class="max-w-sm">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Подтверждение возврата</h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="refundModalOpen = false"
-                        />
-                    </div>
-                </template>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Вы уверены, что хотите инициировать возврат платежа #{{
-                        refundTarget?.id
-                    }}
-                    на сумму
-                    <strong
-                        >{{
-                            refundTarget
-                                ? (refundTarget.amount / 100).toLocaleString('ru-RU')
-                                : 0
-                        }}
-                        ₽</strong
-                    >? Доступ к продукту будет отменён.
-                </p>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="refundModalOpen = false"
-                        >
-                            Нет
-                        </UButton>
-                        <UButton color="error" :loading="refunding" @click="doRefund">
-                            Да, вернуть
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
-        </UModal>
+        <AdminConfirmDialog
+            :visible="refundModalOpen"
+            title="Подтверждение возврата"
+            :message="refundTarget
+                ? `Вы уверены, что хотите инициировать возврат платежа #${refundTarget.id} на сумму ${(refundTarget.amount / 100).toLocaleString('ru-RU')} ₽? Доступ к продукту будет отменён.`
+                : ''"
+            type="danger"
+            confirm-text="Да, вернуть"
+            cancel-text="Нет"
+            loading-text="Выполнение возврата..."
+            :loading="refunding"
+            @confirm="doRefund"
+            @cancel="refundModalOpen = false"
+            @update:visible="refundModalOpen = $event"
+        />
     </div>
 </template>
 
