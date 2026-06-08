@@ -4,7 +4,9 @@
         <div class="admin-dashboard__header">
             <div>
                 <h1 class="admin-dashboard__title">Dashboard</h1>
-                <p class="admin-dashboard__subtitle">Добро пожаловать в панель управления</p>
+                <p class="admin-dashboard__subtitle">
+                    Добро пожаловать в панель управления
+                </p>
             </div>
             <div class="admin-dashboard__header-actions">
                 <UButton
@@ -16,11 +18,7 @@
                 >
                     Обновить
                 </UButton>
-                <UButton
-                    icon="i-lucide-plus"
-                    color="primary"
-                    to="/admin/gallery/add"
-                >
+                <UButton icon="i-lucide-plus" color="primary" to="/admin/gallery/add">
                     Добавить работу
                 </UButton>
             </div>
@@ -47,7 +45,10 @@
         <template v-else-if="error">
             <UCard>
                 <div class="admin-dashboard__error">
-                    <UIcon name="i-lucide-alert-circle" class="admin-dashboard__error-icon" />
+                    <UIcon
+                        name="i-lucide-alert-circle"
+                        class="admin-dashboard__error-icon"
+                    />
                     <p>{{ error }}</p>
                     <UButton color="primary" variant="outline" @click="loadData">
                         Повторить загрузку
@@ -74,8 +75,12 @@
                             <UIcon :name="stat.icon" class="size-5" />
                         </div>
                         <div class="admin-dashboard__stat-info">
-                            <span class="admin-dashboard__stat-value">{{ formatStatValue(stat) }}</span>
-                            <span class="admin-dashboard__stat-label">{{ stat.label }}</span>
+                            <span class="admin-dashboard__stat-value">{{
+                                formatStatValue(stat)
+                            }}</span>
+                            <span class="admin-dashboard__stat-label">{{
+                                stat.label
+                            }}</span>
                         </div>
                     </div>
                 </UCard>
@@ -84,12 +89,12 @@
             <!-- Charts Row -->
             <div class="admin-dashboard__charts-row">
                 <!-- Sales Chart -->
-                <UCard
-                    class="admin-dashboard__chart-card"
-                >
+                <UCard class="admin-dashboard__chart-card">
                     <template #header>
                         <div class="admin-dashboard__chart-header">
-                            <h3 class="admin-dashboard__chart-title">Продажи по месяцам</h3>
+                            <h3 class="admin-dashboard__chart-title">
+                                Продажи по месяцам
+                            </h3>
                             <UBadge
                                 v-if="stats.revenue_month > 0"
                                 color="success"
@@ -100,8 +105,14 @@
                         </div>
                     </template>
                     <div class="admin-dashboard__chart-body">
-                        <div v-if="stats.sales_by_month.length === 0" class="admin-dashboard__chart-empty">
-                            <UIcon name="i-lucide-bar-chart-3" class="size-8 text-gray-400" />
+                        <div
+                            v-if="stats.sales_by_month.length === 0"
+                            class="admin-dashboard__chart-empty"
+                        >
+                            <UIcon
+                                name="i-lucide-bar-chart-3"
+                                class="size-8 text-gray-400"
+                            />
                             <p>Данных о продажах пока нет</p>
                         </div>
                         <div v-else class="admin-dashboard__bar-chart">
@@ -111,31 +122,43 @@
                                 class="admin-dashboard__bar-item"
                             >
                                 <div class="admin-dashboard__bar-tooltip">
-                                    <span class="admin-dashboard__bar-tooltip-count">{{ item.count }} шт.</span>
-                                    <span class="admin-dashboard__bar-tooltip-revenue">{{ formatPrice(item.revenue) }}</span>
+                                    <span class="admin-dashboard__bar-tooltip-count"
+                                        >{{ item.count }} шт.</span
+                                    >
+                                    <span class="admin-dashboard__bar-tooltip-revenue">{{
+                                        formatPrice(item.revenue)
+                                    }}</span>
                                 </div>
                                 <div
                                     class="admin-dashboard__bar"
                                     :style="{ height: getBarHeight(item.count) }"
                                 />
-                                <span class="admin-dashboard__bar-label">{{ formatMonth(item.month) }}</span>
+                                <span class="admin-dashboard__bar-label">{{
+                                    formatMonth(item.month)
+                                }}</span>
                             </div>
                         </div>
                     </div>
                 </UCard>
 
                 <!-- Popular Categories -->
-                <UCard
-                    class="admin-dashboard__chart-card"
-                >
+                <UCard class="admin-dashboard__chart-card">
                     <template #header>
                         <div class="admin-dashboard__chart-header">
-                            <h3 class="admin-dashboard__chart-title">Популярные категории</h3>
+                            <h3 class="admin-dashboard__chart-title">
+                                Популярные категории
+                            </h3>
                         </div>
                     </template>
                     <div class="admin-dashboard__chart-body">
-                        <div v-if="stats.popular_categories.length === 0" class="admin-dashboard__chart-empty">
-                            <UIcon name="i-lucide-pie-chart" class="size-8 text-gray-400" />
+                        <div
+                            v-if="stats.popular_categories.length === 0"
+                            class="admin-dashboard__chart-empty"
+                        >
+                            <UIcon
+                                name="i-lucide-pie-chart"
+                                class="size-8 text-gray-400"
+                            />
                             <p>Категории не найдены</p>
                         </div>
                         <div v-else class="admin-dashboard__category-list">
@@ -145,8 +168,20 @@
                                 class="admin-dashboard__category-item"
                             >
                                 <div class="admin-dashboard__category-info">
-                                    <span class="admin-dashboard__category-name">{{ cat.name }}</span>
-                                    <span class="admin-dashboard__category-count">{{ cat.count }} {{ pluralize(cat.count, 'продукт', 'продукта', 'продуктов') }}</span>
+                                    <span class="admin-dashboard__category-name">{{
+                                        cat.name
+                                    }}</span>
+                                    <span class="admin-dashboard__category-count"
+                                        >{{ cat.count }}
+                                        {{
+                                            pluralize(
+                                                cat.count,
+                                                'продукт',
+                                                'продукта',
+                                                'продуктов'
+                                            )
+                                        }}</span
+                                    >
                                 </div>
                                 <div class="admin-dashboard__category-bar-bg">
                                     <div
@@ -160,15 +195,56 @@
                 </UCard>
             </div>
 
-            <!-- Bottom Row: Recent Activity + Quick Actions -->
+            <!-- Navigation Sections -->
+            <div class="admin-dashboard__nav-section">
+                <h3 class="admin-dashboard__nav-section-title">Навигация по разделам</h3>
+                <div
+                    v-for="(section, sIdx) in navSections"
+                    :key="sIdx"
+                    class="admin-dashboard__nav-group"
+                >
+                    <span class="admin-dashboard__nav-group-label">{{
+                        section.label
+                    }}</span>
+                    <div class="admin-dashboard__nav-grid">
+                        <NuxtLink
+                            v-for="item in section.items"
+                            :key="item.to"
+                            :to="item.to"
+                            class="admin-dashboard__nav-tile"
+                        >
+                            <div
+                                class="admin-dashboard__nav-tile-icon"
+                                :class="`admin-dashboard__nav-tile-icon--${item.color}`"
+                            >
+                                <UIcon :name="item.icon" class="size-5" />
+                            </div>
+                            <div class="admin-dashboard__nav-tile-info">
+                                <span class="admin-dashboard__nav-tile-label">{{
+                                    item.label
+                                }}</span>
+                                <span class="admin-dashboard__nav-tile-desc">{{
+                                    item.desc
+                                }}</span>
+                            </div>
+                            <UIcon
+                                name="i-lucide-chevron-right"
+                                class="admin-dashboard__nav-tile-arrow size-4"
+                            />
+                        </NuxtLink>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Recent Activity -->
             <div class="admin-dashboard__bottom-row">
                 <!-- Recent Activity -->
-                <UCard
-                    class="admin-dashboard__activity-card"
-                >
+                <UCard class="admin-dashboard__activity-card">
                     <template #header>
                         <div class="admin-dashboard__section-header">
-                            <h3 class="admin-dashboard__section-title">Последняя активность</h3>
+                            <h3 class="admin-dashboard__section-title">
+                                Последняя активность
+                            </h3>
                             <UButton
                                 v-if="activities.length > 0"
                                 color="neutral"
@@ -179,7 +255,10 @@
                             />
                         </div>
                     </template>
-                    <div v-if="activities.length === 0" class="admin-dashboard__activity-empty">
+                    <div
+                        v-if="activities.length === 0"
+                        class="admin-dashboard__activity-empty"
+                    >
                         <UIcon name="i-lucide-clock" class="size-6 text-gray-400" />
                         <p>Активность пока отсутствует</p>
                     </div>
@@ -194,34 +273,14 @@
                                 :class="`admin-dashboard__activity-dot--${activity.type}`"
                             />
                             <div class="admin-dashboard__activity-content">
-                                <span class="admin-dashboard__activity-text">{{ activity.text }}</span>
-                                <span class="admin-dashboard__activity-time">{{ activity.time }}</span>
+                                <span class="admin-dashboard__activity-text">{{
+                                    activity.text
+                                }}</span>
+                                <span class="admin-dashboard__activity-time">{{
+                                    activity.time
+                                }}</span>
                             </div>
                         </div>
-                    </div>
-                </UCard>
-
-                <!-- Quick Actions -->
-                <UCard
-                    class="admin-dashboard__quick-card"
-                >
-                    <template #header>
-                        <h3 class="admin-dashboard__section-title">Быстрые действия</h3>
-                    </template>
-                    <div class="admin-dashboard__quick-actions">
-                        <UButton
-                            v-for="action in quickActions"
-                            :key="action.label"
-                            :icon="action.icon"
-                            :color="action.color"
-                            variant="soft"
-                            :to="action.to"
-                            class="admin-dashboard__quick-btn"
-                            size="lg"
-                            block
-                        >
-                            {{ action.label }}
-                        </UButton>
                     </div>
                 </UCard>
             </div>
@@ -230,9 +289,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, } from 'vue';
-import { fetchDashboardStats, fetchRecentActivity, } from '~/api/admin';
-import type { DashboardStats, RecentActivityItem, } from '~/api/admin';
+import { ref, computed, onMounted } from 'vue';
+import { fetchDashboardStats, fetchRecentActivity } from '~/api/admin';
+import type { DashboardStats, RecentActivityItem } from '~/api/admin';
 
 definePageMeta({
     layout: 'admin',
@@ -272,10 +331,25 @@ interface StatCard {
 }
 
 const statCards = computed<StatCard[]>(() => [
-    { key: 'gallery_works_count', label: 'Работ в галерее', icon: 'i-lucide-image', color: 'purple' },
-    { key: 'shop_items_count', label: 'Товаров в магазине', icon: 'i-lucide-shopping-bag', color: 'green' },
+    {
+        key: 'gallery_works_count',
+        label: 'Работ в галерее',
+        icon: 'i-lucide-image',
+        color: 'purple',
+    },
+    {
+        key: 'shop_items_count',
+        label: 'Товаров в магазине',
+        icon: 'i-lucide-shopping-bag',
+        color: 'green',
+    },
     { key: 'news_count', label: 'Новостей', icon: 'i-lucide-newspaper', color: 'blue' },
-    { key: 'users_count', label: 'Пользователей', icon: 'i-lucide-users', color: 'orange' },
+    {
+        key: 'users_count',
+        label: 'Пользователей',
+        icon: 'i-lucide-users',
+        color: 'orange',
+    },
     {
         key: 'courses_count',
         label: `Курсов / МК (${stats.value.master_classes_count} МК)`,
@@ -289,18 +363,205 @@ const statCards = computed<StatCard[]>(() => [
         icon: 'i-lucide-star',
         color: 'red',
     },
-    { key: 'purchases_total', label: 'Покупок', icon: 'i-lucide-shopping-cart', color: 'teal' },
-    { key: 'revenue_total', label: 'Выручка', icon: 'i-lucide-circle-dollar-sign', color: 'yellow', format: 'price' },
+    {
+        key: 'purchases_total',
+        label: 'Покупок',
+        icon: 'i-lucide-shopping-cart',
+        color: 'teal',
+    },
+    {
+        key: 'revenue_total',
+        label: 'Выручка',
+        icon: 'i-lucide-circle-dollar-sign',
+        color: 'yellow',
+        format: 'price',
+    },
 ]);
 
 const quickActions = [
-    { label: 'Добавить работу', icon: 'i-lucide-plus', color: 'primary' as const, to: '/admin/gallery/add' },
-    { label: 'Добавить товар', icon: 'i-lucide-plus', color: 'success' as const, to: '/admin/shop/add' },
-    { label: 'Новая новость', icon: 'i-lucide-plus', color: 'info' as const, to: '/admin/news/add' },
-    { label: 'Создать курс', icon: 'i-lucide-plus', color: 'warning' as const, to: '/admin/courses/add' },
-    { label: 'Создать МК', icon: 'i-lucide-plus', color: 'error' as const, to: '/admin/master-classes/add' },
-    { label: 'Модерация отзывов', icon: 'i-lucide-message-square', color: 'neutral' as const, to: '/admin/reviews' },
+    {
+        label: 'Добавить работу',
+        icon: 'i-lucide-plus',
+        color: 'primary' as const,
+        to: '/admin/gallery/add',
+    },
+    {
+        label: 'Добавить товар',
+        icon: 'i-lucide-plus',
+        color: 'success' as const,
+        to: '/admin/shop/add',
+    },
+    {
+        label: 'Новая новость',
+        icon: 'i-lucide-plus',
+        color: 'info' as const,
+        to: '/admin/news/add',
+    },
+    {
+        label: 'Создать курс',
+        icon: 'i-lucide-plus',
+        color: 'warning' as const,
+        to: '/admin/courses/add',
+    },
+    {
+        label: 'Создать МК',
+        icon: 'i-lucide-plus',
+        color: 'error' as const,
+        to: '/admin/master-classes/add',
+    },
+    {
+        label: 'Модерация отзывов',
+        icon: 'i-lucide-message-square',
+        color: 'neutral' as const,
+        to: '/admin/reviews',
+    },
 ];
+
+interface NavItem {
+    to: string;
+    label: string;
+    desc: string;
+    icon: string;
+    color: string;
+}
+
+interface NavSection {
+    label: string;
+    items: NavItem[];
+}
+
+const navSections = computed<NavSection[]>(() => [
+    {
+        label: 'Контент',
+        items: [
+            {
+                to: '/admin/gallery',
+                label: 'Галерея',
+                desc: 'Управление работами в галерее',
+                icon: 'i-lucide-image',
+                color: 'purple',
+            },
+            {
+                to: '/admin/shop',
+                label: 'Магазин',
+                desc: 'Управление товарами в магазине',
+                icon: 'i-lucide-shopping-bag',
+                color: 'green',
+            },
+            {
+                to: '/admin/news',
+                label: 'Новости',
+                desc: 'Управление новостями',
+                icon: 'i-lucide-newspaper',
+                color: 'blue',
+            },
+            {
+                to: '/admin/courses',
+                label: 'Курсы',
+                desc: 'Управление курсами',
+                icon: 'i-lucide-graduation-cap',
+                color: 'pink',
+            },
+            {
+                to: '/admin/master-classes',
+                label: 'Мастер-классы',
+                desc: 'Управление мастер-классами',
+                icon: 'i-lucide-video',
+                color: 'orange',
+            },
+            {
+                to: '/admin/lessons',
+                label: 'Уроки',
+                desc: 'Управление уроками курсов и МК',
+                icon: 'i-lucide-book-open',
+                color: 'teal',
+            },
+        ],
+    },
+    {
+        label: 'Пользователи',
+        items: [
+            {
+                to: '/admin/users',
+                label: 'Пользователи',
+                desc: 'Управление пользователями',
+                icon: 'i-lucide-users',
+                color: 'orange',
+            },
+            {
+                to: '/admin/reviews',
+                label: 'Отзывы',
+                desc: 'Модерация отзывов пользователей',
+                icon: 'i-lucide-star',
+                color: 'red',
+            },
+        ],
+    },
+    {
+        label: 'Финансы',
+        items: [
+            {
+                to: '/admin/purchases',
+                label: 'Покупки',
+                desc: 'Управление покупками',
+                icon: 'i-lucide-shopping-cart',
+                color: 'teal',
+            },
+            {
+                to: '/admin/payments',
+                label: 'Платежи',
+                desc: 'Управление платежами и возвратами',
+                icon: 'i-lucide-credit-card',
+                color: 'yellow',
+            },
+            {
+                to: '/admin/promo-codes',
+                label: 'Промокоды',
+                desc: 'Управление промокодами и скидками',
+                icon: 'i-lucide-ticket-percent',
+                color: 'green',
+            },
+        ],
+    },
+    {
+        label: 'Коммуникация',
+        items: [
+            {
+                to: '/admin/chats',
+                label: 'Чаты',
+                desc: 'Управление обращениями пользователей',
+                icon: 'i-lucide-message-square',
+                color: 'blue',
+            },
+        ],
+    },
+    {
+        label: 'Справочники',
+        items: [
+            {
+                to: '/admin/categories',
+                label: 'Категории',
+                desc: 'Управление категориями продуктов',
+                icon: 'i-lucide-folder-tree',
+                color: 'purple',
+            },
+            {
+                to: '/admin/tags',
+                label: 'Теги',
+                desc: 'Управление тегами продуктов',
+                icon: 'i-lucide-tags',
+                color: 'pink',
+            },
+            {
+                to: '/admin/settings',
+                label: 'Настройки',
+                desc: 'Управление справочниками',
+                icon: 'i-lucide-settings',
+                color: 'neutral',
+            },
+        ],
+    },
+]);
 
 onMounted(async () => {
     await loadData();
@@ -318,7 +579,8 @@ async function loadData() {
         activities.value = activityData;
     } catch (e) {
         console.error('Error loading dashboard data:', e);
-        error.value = 'Не удалось загрузить данные дашборда. Проверьте подключение к серверу.';
+        error.value =
+            'Не удалось загрузить данные дашборда. Проверьте подключение к серверу.';
     } finally {
         loading.value = false;
     }
@@ -367,7 +629,20 @@ function formatPrice(value: number): string {
 
 function formatMonth(month: string): string {
     const [year, m] = month.split('-');
-    const months = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+    const months = [
+        'Янв',
+        'Фев',
+        'Мар',
+        'Апр',
+        'Май',
+        'Июн',
+        'Июл',
+        'Авг',
+        'Сен',
+        'Окт',
+        'Ноя',
+        'Дек',
+    ];
     return `${months[parseInt(m || '0') - 1] || ''} ${year}`;
 }
 
@@ -686,17 +961,168 @@ function pluralize(count: number, one: string, few: string, many: string): strin
     transition: width 0.3s ease;
 }
 
+/* Navigation Section */
+.admin-dashboard__nav-section {
+    margin-bottom: 24px;
+}
+
+.admin-dashboard__nav-section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--admin-text-primary, #2d3436);
+    margin: 0 0 16px;
+}
+
+.admin-dashboard__nav-group {
+    margin-bottom: 20px;
+}
+
+.admin-dashboard__nav-group:last-child {
+    margin-bottom: 0;
+}
+
+.admin-dashboard__nav-group-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--admin-text-secondary, #636e72);
+    margin-bottom: 8px;
+    padding-left: 4px;
+}
+
+.admin-dashboard__nav-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+}
+
+.admin-dashboard__nav-tile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--admin-surface, #ffffff);
+    border: 1px solid var(--admin-border, #e0e0e0);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.admin-dashboard__nav-tile:hover {
+    border-color: var(--admin-primary, #6c5ce7);
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.1);
+    transform: translateY(-1px);
+}
+
+.admin-dashboard__nav-tile:active {
+    transform: translateY(0);
+}
+
+.admin-dashboard__nav-tile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-dashboard__nav-tile-icon--purple {
+    background: rgba(108, 92, 231, 0.1);
+    color: #6c5ce7;
+}
+
+.admin-dashboard__nav-tile-icon--green {
+    background: rgba(0, 184, 148, 0.1);
+    color: #00b894;
+}
+
+.admin-dashboard__nav-tile-icon--blue {
+    background: rgba(116, 185, 255, 0.1);
+    color: #74b9ff;
+}
+
+.admin-dashboard__nav-tile-icon--orange {
+    background: rgba(253, 203, 110, 0.15);
+    color: #e17055;
+}
+
+.admin-dashboard__nav-tile-icon--pink {
+    background: rgba(232, 67, 147, 0.1);
+    color: #e84393;
+}
+
+.admin-dashboard__nav-tile-icon--red {
+    background: rgba(225, 112, 85, 0.1);
+    color: #e17055;
+}
+
+.admin-dashboard__nav-tile-icon--teal {
+    background: rgba(0, 206, 201, 0.1);
+    color: #00cec9;
+}
+
+.admin-dashboard__nav-tile-icon--yellow {
+    background: rgba(253, 203, 110, 0.15);
+    color: #fdcb6e;
+}
+
+.admin-dashboard__nav-tile-icon--neutral {
+    background: rgba(99, 110, 114, 0.1);
+    color: #636e72;
+}
+
+.admin-dashboard__nav-tile-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.admin-dashboard__nav-tile-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--admin-text-primary, #2d3436);
+    line-height: 1.3;
+}
+
+.admin-dashboard__nav-tile-desc {
+    font-size: 12px;
+    color: var(--admin-text-secondary, #636e72);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-dashboard__nav-tile-arrow {
+    color: var(--admin-text-secondary, #636e72);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.admin-dashboard__nav-tile:hover .admin-dashboard__nav-tile-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+}
+
+@media (max-width: 640px) {
+    .admin-dashboard__nav-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Bottom Row */
 .admin-dashboard__bottom-row {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 1fr;
     gap: 16px;
-}
-
-@media (max-width: 900px) {
-    .admin-dashboard__bottom-row {
-        grid-template-columns: 1fr;
-    }
 }
 
 .admin-dashboard__section-header {
@@ -757,12 +1183,24 @@ function pluralize(count: number, one: string, few: string, many: string): strin
     flex-shrink: 0;
 }
 
-.admin-dashboard__activity-dot--gallery { background: #6c5ce7; }
-.admin-dashboard__activity-dot--shop { background: #00b894; }
-.admin-dashboard__activity-dot--news { background: #74b9ff; }
-.admin-dashboard__activity-dot--review { background: #fdcb6e; }
-.admin-dashboard__activity-dot--user { background: #e17055; }
-.admin-dashboard__activity-dot--purchase { background: #00cec9; }
+.admin-dashboard__activity-dot--gallery {
+    background: #6c5ce7;
+}
+.admin-dashboard__activity-dot--shop {
+    background: #00b894;
+}
+.admin-dashboard__activity-dot--news {
+    background: #74b9ff;
+}
+.admin-dashboard__activity-dot--review {
+    background: #fdcb6e;
+}
+.admin-dashboard__activity-dot--user {
+    background: #e17055;
+}
+.admin-dashboard__activity-dot--purchase {
+    background: #00cec9;
+}
 
 .admin-dashboard__activity-content {
     display: flex;
@@ -872,7 +1310,12 @@ function pluralize(count: number, one: string, few: string, many: string): strin
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 0.2; }
+    0%,
+    100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.2;
+    }
 }
 </style>

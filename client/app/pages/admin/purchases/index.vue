@@ -43,6 +43,7 @@
                 <USelect
                     v-model="statusFilter"
                     :items="statusOptions"
+                    placeholder="Все статусы"
                     color="neutral"
                     variant="outline"
                     class="admin-page__filter-select"
@@ -51,6 +52,7 @@
                 <USelect
                     v-model="productTypeFilter"
                     :items="productTypeOptions"
+                    placeholder="Все типы"
                     color="neutral"
                     variant="outline"
                     class="admin-page__filter-select"
@@ -337,18 +339,16 @@ const page = ref(1);
 const perPage = ref(20);
 const total = ref(0);
 const searchQuery = ref('');
-const statusFilter = ref('');
-const productTypeFilter = ref('');
+const statusFilter = ref<string | undefined>(undefined);
+const productTypeFilter = ref<string | undefined>(undefined);
 
 const statusOptions = [
-    { label: 'Все статусы', value: '' },
     { label: 'Активен', value: 'active' },
     { label: 'Истёк', value: 'expired' },
     { label: 'Отменён', value: 'cancelled' },
 ];
 
 const productTypeOptions = [
-    { label: 'Все типы', value: '' },
     { label: 'Курсы', value: 'course' },
     { label: 'Мастер-классы', value: 'masterclass' },
 ];

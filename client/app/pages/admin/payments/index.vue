@@ -41,6 +41,7 @@
                 <USelect
                     v-model="statusFilter"
                     :items="statusOptions"
+                    placeholder="Все статусы"
                     color="neutral"
                     variant="outline"
                     class="admin-page__filter-select"
@@ -346,10 +347,9 @@ const page = ref(1);
 const perPage = ref(20);
 const total = ref(0);
 const searchQuery = ref('');
-const statusFilter = ref('');
+const statusFilter = ref<string | undefined>(undefined);
 
 const statusOptions = [
-    { label: 'Все статусы', value: '' },
     { label: 'Ожидает', value: 'pending' },
     { label: 'Успешен', value: 'succeeded' },
     { label: 'Отменён', value: 'canceled' },

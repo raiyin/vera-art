@@ -24,9 +24,9 @@
                 @toggle-theme="toggleTheme"
             />
 
-            <!-- Page content -->
+            <!-- Page content — use route.fullPath as key to force re-render on navigation -->
             <main class="admin-layout__content">
-                <div class="admin-layout__page">
+                <div class="admin-layout__page" :key="route.fullPath">
                     <slot />
                 </div>
             </main>
@@ -35,10 +35,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useThemeStore } from '~/stores/ThemeStore';
 
 const themeStore = useThemeStore();
+const route = useRoute();
 const sidebarOpen = ref(false);
 
 const isDark = computed(() => themeStore.theme === 'dark');
@@ -48,7 +50,6 @@ function toggleTheme() {
 }
 
 // Close sidebar on route change (for mobile)
-const route = useRoute();
 watch(
     () => route.path,
     () => {

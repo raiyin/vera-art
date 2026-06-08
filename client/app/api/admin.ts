@@ -117,20 +117,70 @@ export interface AdminListNewsResponse {
 
 function getAuthHeaders(): Record<string, string> {
     const authStore = useAuthStore();
+
+    // Ensure auth state is initialized from localStorage
+    // This is needed because the store may not have been initialized yet
+    // if the API is called before the middleware or app.vue's onMounted runs
+    if (!authStore.accessToken && typeof window !== 'undefined') {
+        authStore.initFromLocalStorage();
+    }
+
     const token = authStore.accessToken;
     if (!token) return {};
     return { Authorization: `Bearer ${token}`, };
 }
 
+async function tryRefreshToken(): Promise<boolean> {
+    try {
+        const authStore = useAuthStore();
+        const refreshTokenValue = authStore.refreshToken;
+        if (!refreshTokenValue) return false;
+
+        const config = useRuntimeConfig();
+        const SERVER_URL = config.public.serverUrl;
+        const refreshResponse = await fetch(`${SERVER_URL}refresh`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshTokenValue }),
+        });
+
+        if (refreshResponse.ok) {
+            const data = await refreshResponse.json();
+            authStore.updateAccessToken(data.access_token, data.access_expires);
+            return true;
+        }
+
+        // Refresh failed, clear tokens
+        authStore.clearTokens();
+        return false;
+    } catch {
+        return false;
+    }
+}
+
 async function fetchApi<T>(endpoint: string): Promise<T> {
     const config = useRuntimeConfig();
     const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    let response = await fetch(`${SERVER_URL}${endpoint}`, {
         headers: {
             'Content-Type': 'application/json',
             ...getAuthHeaders(),
         },
     });
+
+    // If 401, try to refresh the token and retry
+    if (response.status === 401) {
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+            response = await fetch(`${SERVER_URL}${endpoint}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders(),
+                },
+            });
+        }
+    }
+
     if (!response.ok) {
         throw new Error(`API error: ${response.status} ${response.statusText}`,);
     }
@@ -140,7 +190,7 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
 async function postApi<T>(endpoint: string, body: unknown): Promise<T> {
     const config = useRuntimeConfig();
     const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}${endpoint}`, {
+    let response = await fetch(`${SERVER_URL}${endpoint}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -148,6 +198,22 @@ async function postApi<T>(endpoint: string, body: unknown): Promise<T> {
         },
         body: JSON.stringify(body),
     });
+
+    // If 401, try to refresh the token and retry
+    if (response.status === 401) {
+        const refreshed = await tryRefreshToken();
+        if (refreshed) {
+            response = await fetch(`${SERVER_URL}${endpoint}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...getAuthHeaders(),
+                },
+                body: JSON.stringify(body),
+            });
+        }
+    }
+
     if (!response.ok) {
         throw new Error(`API error: ${response.status} ${response.statusText}`,);
     }
