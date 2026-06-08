@@ -104,7 +104,7 @@ func AdminGetSales(c *gin.Context) {
 	// Fetch page
 	offset := (page - 1) * perPage
 	dataQuery := fmt.Sprintf(
-		"SELECT s.id, s.str_id, s.name_ru, s.name_en, s.year, s.width, s.height, s.price, s.images, s.created_at, COALESCE(b.base_ru, ''), COALESCE(b.base_en, '') %s ORDER BY s.%s %s LIMIT ? OFFSET ?",
+		"SELECT s.id, s.str_id, s.name_ru, s.name_en, s.year, s.width, s.height, s.price, s.images, COALESCE(b.base_ru, ''), COALESCE(b.base_en, '') %s ORDER BY s.%s %s LIMIT ? OFFSET ?",
 		baseQuery, sortBy, sortDir,
 	)
 	dataArgs := append(args, perPage, offset)
@@ -121,11 +121,10 @@ func AdminGetSales(c *gin.Context) {
 	for rows.Next() {
 		var item AdminSaleItem
 		var imagesStr sql.NullString
-		var createdAt sql.NullString
 		err := rows.Scan(
 			&item.ID, &item.StrID, &item.NameRu, &item.NameEn,
 			&item.Year, &item.Width, &item.Height, &item.Price,
-			&imagesStr, &createdAt, &item.BaseRu, &item.BaseEn,
+			&imagesStr, &item.BaseRu, &item.BaseEn,
 		)
 		if err != nil {
 			log.Printf("Error scanning sale row: %v", err)
@@ -139,10 +138,6 @@ func AdminGetSales(c *gin.Context) {
 			item.Images = strings.Split(imagesStr.String, ";")
 		} else {
 			item.Images = []string{}
-		}
-
-		if createdAt.Valid {
-			item.CreatedAt = createdAt.String
 		}
 
 		// Fetch materials for this sale

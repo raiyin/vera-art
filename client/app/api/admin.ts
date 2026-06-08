@@ -104,7 +104,6 @@ export interface AdminNewsItem {
     text_en: string
     images: string[]
     videos: string[]
-    created_at: string
 }
 
 export interface AdminListNewsResponse {

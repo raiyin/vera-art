@@ -35,7 +35,6 @@ type AdminNewsItem struct {
 	TextEn      string   `json:"text_en"`
 	Images      []string `json:"images"`
 	Videos      []string `json:"videos"`
-	CreatedAt   string   `json:"created_at"`
 }
 
 // AdminGetNews returns a paginated, searchable list of news for the admin panel
@@ -55,7 +54,7 @@ func AdminGetNews(c *gin.Context) {
 
 	// Validate sort fields
 	allowedSortFields := map[string]bool{
-		"id": true, "datetime": true, "title_ru": true, "title_en": true, "created_at": true,
+		"id": true, "datetime": true, "title_ru": true, "title_en": true,
 	}
 	if !allowedSortFields[sortBy] {
 		sortBy = "datetime"
@@ -92,7 +91,7 @@ func AdminGetNews(c *gin.Context) {
 	// Fetch page
 	offset := (page - 1) * perPage
 	dataQuery := fmt.Sprintf(
-		"SELECT n.id, n.datetime, n.title_ru, n.title_en, n.dir, n.img_back, n.img_backfull, n.text_ru, n.text_en, n.images, n.videos, n.created_at %s ORDER BY n.%s %s LIMIT ? OFFSET ?",
+		"SELECT n.id, n.datetime, n.title_ru, n.title_en, n.dir, n.img_back, n.img_backfull, n.text_ru, n.text_en, n.images, n.videos %s ORDER BY n.%s %s LIMIT ? OFFSET ?",
 		baseQuery, sortBy, sortDir,
 	)
 	dataArgs := append(args, perPage, offset)
@@ -109,11 +108,10 @@ func AdminGetNews(c *gin.Context) {
 	for rows.Next() {
 		var item AdminNewsItem
 		var imagesStr, videosStr sql.NullString
-		var createdAt sql.NullString
 		err := rows.Scan(
 			&item.ID, &item.Datetime, &item.TitleRu, &item.TitleEn,
 			&item.Dir, &item.ImgBack, &item.ImgBackfull,
-			&item.TextRu, &item.TextEn, &imagesStr, &videosStr, &createdAt,
+			&item.TextRu, &item.TextEn, &imagesStr, &videosStr,
 		)
 		if err != nil {
 			log.Printf("Error scanning news row: %v", err)
@@ -130,10 +128,6 @@ func AdminGetNews(c *gin.Context) {
 			item.Videos = strings.Split(videosStr.String, ";")
 		} else {
 			item.Videos = []string{}
-		}
-
-		if createdAt.Valid {
-			item.CreatedAt = createdAt.String
 		}
 
 		items = append(items, item)
