@@ -395,7 +395,7 @@ function formatPrice(priceKopecks: number): string {
 
 function getImageUrl(item: AdminSaleItem): string {
     if (item.images.length > 0) {
-        return `${SERVER_URL}${item.dir}${item.images[0]}`;
+        return `${item.dir}${item.images[0]}`;
     }
     return '';
 }

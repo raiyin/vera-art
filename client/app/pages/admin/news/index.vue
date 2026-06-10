@@ -297,9 +297,6 @@ definePageMeta({
     middleware: 'admin-auth',
 });
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-
 // State
 const items = ref<AdminNewsItem[]>([]);
 const loading = ref(false);
@@ -359,10 +356,10 @@ function formatDate(datetime: string): string {
 
 function getImageUrl(item: AdminNewsItem): string {
     if (item.img_back) {
-        return `${SERVER_URL}${item.dir}${item.img_back}`;
+        return `${item.dir}${item.img_back}`;
     }
     if (item.images.length > 0) {
-        return `${SERVER_URL}${item.dir}${item.images[0]}`;
+        return `${item.dir}${item.images[0]}`;
     }
     return '';
 }
