@@ -325,12 +325,12 @@
                         </span>
                         <UPagination
                             v-if="totalPages > 1"
-                            v-model="currentPage"
+                            v-model:page="currentPage"
                             :total="total"
-                            :page-size="perPage"
+                            :items-per-page="perPage"
                             :max="5"
                             size="sm"
-                            @update:model-value="onPageChange"
+                            @update:page="onPageChange"
                         />
                     </div>
                 </div>
@@ -561,10 +561,16 @@
         <!-- Role Change Confirmation Modal -->
         <AdminConfirmDialog
             :visible="showRoleModal"
-            :title="roleTarget?.role === 'admin' ? 'Снять права администратора' : 'Назначить администратором'"
-            :message="roleTarget?.role === 'admin'
-                ? `Вы уверены, что хотите снять права администратора с пользователя «${roleTarget?.username}»?`
-                : `Вы уверены, что хотите назначить пользователя «${roleTarget?.username}» администратором?`"
+            :title="
+                roleTarget?.role === 'admin'
+                    ? 'Снять права администратора'
+                    : 'Назначить администратором'
+            "
+            :message="
+                roleTarget?.role === 'admin'
+                    ? `Вы уверены, что хотите снять права администратора с пользователя «${roleTarget?.username}»?`
+                    : `Вы уверены, что хотите назначить пользователя «${roleTarget?.username}» администратором?`
+            "
             :type="roleTarget?.role === 'admin' ? 'warning' : 'info'"
             :confirm-text="roleTarget?.role === 'admin' ? 'Снять права' : 'Назначить'"
             cancel-text="Отмена"
@@ -578,10 +584,16 @@
         <!-- Block/Unblock Confirmation Modal -->
         <AdminConfirmDialog
             :visible="showBlockModal"
-            :title="blockTarget?.blocked ? 'Разблокировать пользователя' : 'Заблокировать пользователя'"
-            :message="blockTarget?.blocked
-                ? `Вы уверены, что хотите разблокировать пользователя «${blockTarget?.username}»? Он снова сможет войти в систему.`
-                : `Вы уверены, что хотите заблокировать пользователя «${blockTarget?.username}»? Он не сможет войти в систему.`"
+            :title="
+                blockTarget?.blocked
+                    ? 'Разблокировать пользователя'
+                    : 'Заблокировать пользователя'
+            "
+            :message="
+                blockTarget?.blocked
+                    ? `Вы уверены, что хотите разблокировать пользователя «${blockTarget?.username}»? Он снова сможет войти в систему.`
+                    : `Вы уверены, что хотите заблокировать пользователя «${blockTarget?.username}»? Он не сможет войти в систему.`
+            "
             :type="blockTarget?.blocked ? 'info' : 'danger'"
             :confirm-text="blockTarget?.blocked ? 'Разблокировать' : 'Заблокировать'"
             cancel-text="Отмена"

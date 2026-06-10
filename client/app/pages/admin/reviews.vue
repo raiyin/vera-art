@@ -325,12 +325,12 @@
                     </div>
                     <UPagination
                         v-if="totalPages > 1"
-                        v-model="page"
+                        v-model:page="page"
                         :total="total"
-                        :page-count="perPage"
+                        :items-per-page="perPage"
                         :max="5"
                         size="sm"
-                        @update:model-value="onPageChange"
+                        @update:page="onPageChange"
                     />
                 </div>
             </template>

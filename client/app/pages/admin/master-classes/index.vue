@@ -274,12 +274,12 @@
                         </span>
                         <UPagination
                             v-if="totalPages > 1"
-                            v-model="currentPage"
+                            v-model:page="currentPage"
                             :total="total"
-                            :page-size="perPage"
+                            :items-per-page="perPage"
                             :max="5"
                             size="sm"
-                            @update:model-value="onPageChange"
+                            @update:page="onPageChange"
                         />
                     </div>
                 </div>

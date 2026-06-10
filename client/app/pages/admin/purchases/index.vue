@@ -217,11 +217,11 @@
                         из {{ total }}
                     </span>
                     <UPagination
-                        v-model="page"
+                        v-model:page="page"
                         :total="total"
-                        :page-count="perPage"
+                        :items-per-page="perPage"
                         :max="5"
-                        @update:model-value="loadData"
+                        @update:page="loadData"
                     />
                 </div>
             </template>
@@ -283,9 +283,11 @@
         <AdminConfirmDialog
             :visible="cancelModalOpen"
             title="Подтверждение"
-            :message="cancelTarget
-                ? `Вы уверены, что хотите отменить доступ для покупки #${cancelTarget.id}?`
-                : ''"
+            :message="
+                cancelTarget
+                    ? `Вы уверены, что хотите отменить доступ для покупки #${cancelTarget.id}?`
+                    : ''
+            "
             type="danger"
             confirm-text="Да, отменить"
             cancel-text="Нет"

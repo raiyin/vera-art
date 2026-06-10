@@ -181,11 +181,11 @@
                         из {{ total }}
                     </span>
                     <UPagination
-                        v-model="page"
+                        v-model:page="page"
                         :total="total"
-                        :page-count="perPage"
+                        :items-per-page="perPage"
                         :max="5"
-                        @update:model-value="loadData"
+                        @update:page="loadData"
                     />
                 </div>
             </template>
@@ -283,9 +283,15 @@
         <AdminConfirmDialog
             :visible="refundModalOpen"
             title="Подтверждение возврата"
-            :message="refundTarget
-                ? `Вы уверены, что хотите инициировать возврат платежа #${refundTarget.id} на сумму ${(refundTarget.amount / 100).toLocaleString('ru-RU')} ₽? Доступ к продукту будет отменён.`
-                : ''"
+            :message="
+                refundTarget
+                    ? `Вы уверены, что хотите инициировать возврат платежа #${
+                          refundTarget.id
+                      } на сумму ${(refundTarget.amount / 100).toLocaleString(
+                          'ru-RU'
+                      )} ₽? Доступ к продукту будет отменён.`
+                    : ''
+            "
             type="danger"
             confirm-text="Да, вернуть"
             cancel-text="Нет"
