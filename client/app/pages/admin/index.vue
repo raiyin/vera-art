@@ -106,7 +106,7 @@
                     </template>
                     <div class="admin-dashboard__chart-body">
                         <div
-                            v-if="stats.sales_by_month.length === 0"
+                            v-if="(stats.sales_by_month ?? []).length === 0"
                             class="admin-dashboard__chart-empty"
                         >
                             <UIcon
@@ -117,7 +117,7 @@
                         </div>
                         <div v-else class="admin-dashboard__bar-chart">
                             <div
-                                v-for="(item, index) in stats.sales_by_month"
+                                v-for="(item, index) in stats.sales_by_month ?? []"
                                 :key="item.month"
                                 class="admin-dashboard__bar-item"
                             >
@@ -152,7 +152,7 @@
                     </template>
                     <div class="admin-dashboard__chart-body">
                         <div
-                            v-if="stats.popular_categories.length === 0"
+                            v-if="(stats.popular_categories ?? []).length === 0"
                             class="admin-dashboard__chart-empty"
                         >
                             <UIcon
@@ -163,7 +163,7 @@
                         </div>
                         <div v-else class="admin-dashboard__category-list">
                             <div
-                                v-for="cat in stats.popular_categories"
+                                v-for="cat in stats.popular_categories ?? []"
                                 :key="cat.name"
                                 class="admin-dashboard__category-item"
                             >
@@ -647,13 +647,19 @@ function formatMonth(month: string): string {
 }
 
 function getBarHeight(count: number): string {
-    const maxCount = Math.max(...stats.value.sales_by_month.map((s) => s.count), 1);
+    const maxCount = Math.max(
+        ...(stats.value.sales_by_month ?? []).map((s) => s.count),
+        1
+    );
     const percentage = (count / maxCount) * 100;
     return `${Math.max(percentage, 4)}%`;
 }
 
 function getCategoryWidth(count: number): string {
-    const maxCount = Math.max(...stats.value.popular_categories.map((c) => c.count), 1);
+    const maxCount = Math.max(
+        ...(stats.value.popular_categories ?? []).map((c) => c.count),
+        1
+    );
     return `${(count / maxCount) * 100}%`;
 }
 

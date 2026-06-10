@@ -148,48 +148,48 @@
                     </div>
                 </template>
                 <div class="space-y-4">
-                    <UFormGroup label="Название (RU)" required>
+                    <UFormField label="Название (RU)" required>
                         <UInput
                             v-model="form.name_ru"
                             placeholder="Например: Акварель"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Название (EN)" required>
+                    </UFormField>
+                    <UFormField label="Название (EN)" required>
                         <UInput
                             v-model="form.name_en"
                             placeholder="Например: Watercolor"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Slug" required>
+                    </UFormField>
+                    <UFormField label="Slug" required>
                         <UInput
                             v-model="form.slug"
                             placeholder="Например: watercolor"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Описание (RU)">
+                    </UFormField>
+                    <UFormField label="Описание (RU)">
                         <UInput
                             v-model="form.description_ru"
                             placeholder="Описание на русском"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Описание (EN)">
+                    </UFormField>
+                    <UFormField label="Описание (EN)">
                         <UInput
                             v-model="form.description_en"
                             placeholder="Description in English"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
+                    </UFormField>
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormGroup label="Порядок сортировки">
+                        <UFormField label="Порядок сортировки">
                             <UInput
                                 v-model="form.sort_order"
                                 type="number"
@@ -198,15 +198,15 @@
                                 variant="outline"
                                 min="0"
                             />
-                        </UFormGroup>
-                        <UFormGroup label="Активна">
+                        </UFormField>
+                        <UFormField label="Активна">
                             <USelect
                                 v-model="form.is_active"
                                 :items="activeOptions"
                                 color="neutral"
                                 variant="outline"
                             />
-                        </UFormGroup>
+                        </UFormField>
                     </div>
                 </div>
                 <template #footer>

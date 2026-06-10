@@ -118,30 +118,30 @@
                     </div>
                 </template>
                 <div class="space-y-4">
-                    <UFormGroup label="Название (RU)" required>
+                    <UFormField label="Название (RU)" required>
                         <UInput
                             v-model="form.name_ru"
                             placeholder="Например: Акварель"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Название (EN)" required>
+                    </UFormField>
+                    <UFormField label="Название (EN)" required>
                         <UInput
                             v-model="form.name_en"
                             placeholder="Например: Watercolor"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
-                    <UFormGroup label="Slug" required>
+                    </UFormField>
+                    <UFormField label="Slug" required>
                         <UInput
                             v-model="form.slug"
                             placeholder="Например: watercolor"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
+                    </UFormField>
                 </div>
                 <template #footer>
                     <div class="flex justify-end gap-2">

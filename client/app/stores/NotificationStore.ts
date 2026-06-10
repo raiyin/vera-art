@@ -28,8 +28,9 @@ export const useNotificationStore = defineStore('notificationStore', () => {
         try {
             // We could call a dedicated endpoint for unread count
             // For now, we'll fetch threads and count unread messages
-            const serverUrl = 'http://localhost:8000/';
-            const response = await fetch(`${serverUrl}api/chat/threads`, {
+            const config = useRuntimeConfig();
+            const serverUrl = config.public.serverUrl;
+            const response = await fetch(`${serverUrl}chat/threads`, {
                 headers: { Authorization: `Bearer ${authStore.token}`, },
             },);
 

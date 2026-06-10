@@ -111,7 +111,7 @@
                                 class="admin-promocodes__item-date"
                             >
                                 <UIcon
-                                    name="i-lucide-calendar-start"
+                                    name="i-lucide-calendar"
                                     class="admin-promocodes__item-date-icon"
                                 />
                                 <span>с {{ formatDate(item.valid_from) }}</span>
@@ -121,7 +121,7 @@
                                 class="admin-promocodes__item-date"
                             >
                                 <UIcon
-                                    name="i-lucide-calendar-end"
+                                    name="i-lucide-calendar"
                                     class="admin-promocodes__item-date-icon"
                                 />
                                 <span>до {{ formatDate(item.valid_until) }}</span>
@@ -184,24 +184,24 @@
                     </div>
                 </template>
                 <div class="space-y-4">
-                    <UFormGroup label="Код промокода" required>
+                    <UFormField label="Код промокода" required>
                         <UInput
                             v-model="form.code"
                             placeholder="Например: SUMMER2024"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
+                    </UFormField>
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormGroup label="Тип скидки" required>
+                        <UFormField label="Тип скидки" required>
                             <USelect
                                 v-model="form.discount_type"
                                 :items="discountTypeOptions"
                                 color="neutral"
                                 variant="outline"
                             />
-                        </UFormGroup>
-                        <UFormGroup label="Значение" required>
+                        </UFormField>
+                        <UFormField label="Значение" required>
                             <UInput
                                 v-model="form.discount_value"
                                 type="number"
@@ -214,9 +214,9 @@
                                 variant="outline"
                                 min="1"
                             />
-                        </UFormGroup>
+                        </UFormField>
                     </div>
-                    <UFormGroup label="Максимум использований">
+                    <UFormField label="Максимум использований">
                         <UInput
                             v-model="form.max_uses"
                             type="number"
@@ -225,33 +225,33 @@
                             variant="outline"
                             min="1"
                         />
-                    </UFormGroup>
+                    </UFormField>
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormGroup label="Дата начала">
+                        <UFormField label="Дата начала">
                             <UInput
                                 v-model="form.valid_from"
                                 type="date"
                                 color="neutral"
                                 variant="outline"
                             />
-                        </UFormGroup>
-                        <UFormGroup label="Дата окончания">
+                        </UFormField>
+                        <UFormField label="Дата окончания">
                             <UInput
                                 v-model="form.valid_until"
                                 type="date"
                                 color="neutral"
                                 variant="outline"
                             />
-                        </UFormGroup>
+                        </UFormField>
                     </div>
-                    <UFormGroup label="Активен">
+                    <UFormField label="Активен">
                         <USelect
                             v-model="form.is_active"
                             :items="activeOptions"
                             color="neutral"
                             variant="outline"
                         />
-                    </UFormGroup>
+                    </UFormField>
                 </div>
                 <template #footer>
                     <div class="flex justify-end gap-2">

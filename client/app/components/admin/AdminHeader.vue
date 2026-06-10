@@ -112,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '~/stores/AuthStore';
 
 const props = defineProps<{
@@ -127,9 +127,16 @@ defineEmits<{
 
 const authStore = useAuthStore();
 const searchQuery = ref('');
+const mounted = ref(false);
+
+onMounted(() => {
+    mounted.value = true;
+});
 
 const userName = computed(() => {
-    // Try to get from token or localStorage
+    // During SSR and before client-side mount, show generic name
+    // After mount, show user-specific name from localStorage/token
+    if (!mounted.value) return 'Admin';
     return authStore.userId ? `Admin #${authStore.userId}` : 'Admin';
 });
 

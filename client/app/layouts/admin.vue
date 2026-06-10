@@ -1,5 +1,5 @@
 <template>
-    <div class="admin-layout" :class="{ 'admin-layout--dark': isDark }">
+    <div class="admin-layout" :class="{ 'admin-layout--dark': isDark && mounted }">
         <!-- Mobile overlay -->
         <div
             v-if="sidebarOpen"
@@ -10,7 +10,7 @@
         <!-- Sidebar -->
         <AdminSidebar
             :is-open="sidebarOpen"
-            :is-dark="isDark"
+            :is-dark="isDark && mounted"
             @close="sidebarOpen = false"
         />
 
@@ -18,7 +18,7 @@
         <div class="admin-layout__main">
             <!-- Top header -->
             <AdminHeader
-                :is-dark="isDark"
+                :is-dark="isDark && mounted"
                 :sidebar-open="sidebarOpen"
                 @toggle-sidebar="sidebarOpen = !sidebarOpen"
                 @toggle-theme="toggleTheme"
@@ -35,15 +35,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useThemeStore } from '~/stores/ThemeStore';
 
 const themeStore = useThemeStore();
 const route = useRoute();
 const sidebarOpen = ref(false);
+const mounted = ref(false);
 
 const isDark = computed(() => themeStore.theme === 'dark');
+
+onMounted(() => {
+    mounted.value = true;
+});
 
 function toggleTheme() {
     themeStore.theme = isDark.value ? 'light' : 'dark';

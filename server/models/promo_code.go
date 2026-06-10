@@ -2,8 +2,52 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 )
+
+// PromoCodeResponse is a JSON-friendly representation of PromoCode
+// that properly serializes sql.Null* types as plain JSON values.
+type PromoCodeResponse struct {
+	Id            int        `json:"id"`
+	Code          string     `json:"code"`
+	DiscountType  string     `json:"discount_type"`
+	DiscountValue int        `json:"discount_value"`
+	MaxUses       *int64     `json:"max_uses"`
+	UsedCount     int        `json:"used_count"`
+	ValidFrom     *time.Time `json:"valid_from"`
+	ValidUntil    *time.Time `json:"valid_until"`
+	IsActive      bool       `json:"is_active"`
+	CreatedAt     time.Time  `json:"created_at"`
+}
+
+// ToResponse converts a PromoCode to a JSON-safe PromoCodeResponse.
+func (p *PromoCode) ToResponse() PromoCodeResponse {
+	r := PromoCodeResponse{
+		Id:            p.Id,
+		Code:          p.Code,
+		DiscountType:  p.DiscountType,
+		DiscountValue: p.DiscountValue,
+		UsedCount:     p.UsedCount,
+		IsActive:      p.IsActive,
+		CreatedAt:     p.CreatedAt,
+	}
+	if p.MaxUses.Valid {
+		r.MaxUses = &p.MaxUses.Int64
+	}
+	if p.ValidFrom.Valid {
+		r.ValidFrom = &p.ValidFrom.Time
+	}
+	if p.ValidUntil.Valid {
+		r.ValidUntil = &p.ValidUntil.Time
+	}
+	return r
+}
+
+// MarshalJSON implements json.Marshaler for PromoCode.
+func (p *PromoCode) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.ToResponse())
+}
 
 type PromoCode struct {
 	Id            int           `json:"id"`
