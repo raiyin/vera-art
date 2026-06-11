@@ -41,6 +41,19 @@ func init() {
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(25)
 	log.Println("Database connection established successfully")
+
+	// Run migrations
+	runMigrations()
+}
+
+func runMigrations() {
+	// Add avatar column to users table if it doesn't exist
+	_, err := db.Exec("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT ''")
+	if err != nil {
+		// Ignore error if column already exists
+		log.Printf("Migration (add avatar column): %v (this is normal if column already exists)", err)
+	}
+	log.Println("Database migrations completed")
 }
 
 func getMaterials(c *gin.Context) {
@@ -246,6 +259,15 @@ func main() {
 	r_gin.POST("/register", RateLimitMiddleware(), Register)
 	r_gin.POST("/login", RateLimitMiddleware(), Login)
 	r_gin.POST("/refresh", RateLimitMiddleware(), Refresh)
+
+	// User profile routes
+	r_gin.GET("/profile", AuthMiddleware(), GetProfile)
+	r_gin.PUT("/profile", AuthMiddleware(), UpdateProfile)
+
+	// Avatar routes
+	r_gin.POST("/profile/avatar", AuthMiddleware(), UploadAvatar)
+	r_gin.DELETE("/profile/avatar", AuthMiddleware(), DeleteAvatar)
+	r_gin.GET("/profile/avatar/:id", ServeAvatar)
 
 	r_gin.GET("/sales", GetSales)
 	r_gin.GET("/sales/:id", GetSaleById)

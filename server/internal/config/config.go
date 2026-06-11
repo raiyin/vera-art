@@ -18,12 +18,13 @@ type CORSConfig struct {
 }
 
 type DirectoriesConfig struct {
-	AbsWorksDir string `mapstructure:"abs_works_dir"`
-	RelWorksDir string `mapstructure:"rel_works_dir"`
-	AbsSalesDir string `mapstructure:"abs_sales_dir"`
-	RelSalesDir string `mapstructure:"rel_sales_dir"`
-	AbsNewsDir  string `mapstructure:"abs_news_dir"`
-	RelNewsDir  string `mapstructure:"rel_news_dir"`
+	AbsWorksDir   string `mapstructure:"abs_works_dir"`
+	RelWorksDir   string `mapstructure:"rel_works_dir"`
+	AbsSalesDir   string `mapstructure:"abs_sales_dir"`
+	RelSalesDir   string `mapstructure:"rel_sales_dir"`
+	AbsNewsDir    string `mapstructure:"abs_news_dir"`
+	RelNewsDir    string `mapstructure:"rel_news_dir"`
+	AbsAvatarsDir string `mapstructure:"abs_avatars_dir"`
 }
 
 type Config struct {

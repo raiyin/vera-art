@@ -645,5 +645,35 @@
             "rights": "В соответствии с GDPR и Федеральным законом № 152-ФЗ вы имеете право на отзыв согласия в любое время. Подробнее о ваших правах читайте в",
             "privacyPolicy": "Политике конфиденциальности"
         }
+    },
+    "profile": {
+        "title": "Мой профиль",
+        "subtitle": "Управление личной информацией",
+        "menu": "Профиль",
+        "fullName": "Полное имя",
+        "fullNamePlaceholder": "Введите ваше полное имя",
+        "emailPlaceholder": "Введите ваш email",
+        "role": "Роль",
+        "memberSince": "На сайте с",
+        "save": "Сохранить",
+        "reset": "Сбросить",
+        "success": "Успешно!",
+        "error": "Ошибка",
+        "loadError": "Не удалось загрузить данные профиля",
+        "updateSuccess": "Профиль успешно обновлён",
+        "updateError": "Не удалось обновить профиль",
+        "noChanges": "Нет изменений для сохранения",
+        "avatar": "Аватар",
+        "uploadAvatar": "Загрузить аватар",
+        "changeAvatar": "Сменить аватар",
+        "deleteAvatar": "Удалить аватар",
+        "avatarMaxSize": "Максимальный размер файла: 5 МБ",
+        "avatarTypes": "Допустимые форматы: JPG, PNG, GIF, WebP",
+        "avatarUploadSuccess": "Аватар успешно загружен",
+        "avatarDeleteSuccess": "Аватар успешно удалён",
+        "avatarUploadError": "Не удалось загрузить аватар",
+        "avatarDeleteError": "Не удалось удалить аватар",
+        "avatarTooLarge": "Файл слишком большой. Максимальный размер — 5 МБ.",
+        "avatarInvalidType": "Недопустимый тип файла. Разрешены: JPG, PNG, GIF, WebP."
     }
 }

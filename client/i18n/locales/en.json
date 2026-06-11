@@ -645,5 +645,35 @@
             "rights": "Under GDPR and Russian Federal Law No. 152-FZ, you have the right to withdraw consent at any time. Learn more about your rights in our",
             "privacyPolicy": "Privacy Policy"
         }
+    },
+    "profile": {
+        "title": "My Profile",
+        "subtitle": "Manage your personal information",
+        "menu": "Profile",
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter your full name",
+        "emailPlaceholder": "Enter your email",
+        "role": "Role",
+        "memberSince": "Member since",
+        "save": "Save Changes",
+        "reset": "Reset",
+        "success": "Success!",
+        "error": "Error",
+        "loadError": "Failed to load profile data",
+        "updateSuccess": "Profile updated successfully",
+        "updateError": "Failed to update profile",
+        "noChanges": "No changes to save",
+        "avatar": "Avatar",
+        "uploadAvatar": "Upload Avatar",
+        "changeAvatar": "Change Avatar",
+        "deleteAvatar": "Delete Avatar",
+        "avatarMaxSize": "Maximum file size: 5MB",
+        "avatarTypes": "Allowed formats: JPG, PNG, GIF, WebP",
+        "avatarUploadSuccess": "Avatar uploaded successfully",
+        "avatarDeleteSuccess": "Avatar deleted successfully",
+        "avatarUploadError": "Failed to upload avatar",
+        "avatarDeleteError": "Failed to delete avatar",
+        "avatarTooLarge": "File is too large. Maximum size is 5MB.",
+        "avatarInvalidType": "Invalid file type. Allowed: JPG, PNG, GIF, WebP."
     }
 }

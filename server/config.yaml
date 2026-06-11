@@ -18,3 +18,4 @@ directories:
   rel_sales_dir: "/content/sales/"
   abs_news_dir: "/Users/raiyin/projects/mac/client/public"
   rel_news_dir: "/content/news/"
+  abs_avatars_dir: "/Users/raiyin/projects/mac/server/storage/avatars/"

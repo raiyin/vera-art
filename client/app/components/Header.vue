@@ -3,7 +3,8 @@ import { useI18n } from '#imports';
 import { useAuthStore } from '../stores/AuthStore';
 import { useNotificationStore } from '../stores/NotificationStore';
 import { useThemeStore } from '../stores/ThemeStore';
-import type { NavigationMenuItem } from '@nuxt/ui';
+import type { NavigationMenuItem, DropdownMenuItem } from '@nuxt/ui';
+import authApi from '../api/auth';
 
 const { locale, setLocale, t } = useI18n();
 const authStore = useAuthStore();
@@ -11,6 +12,32 @@ const notificationStore = useNotificationStore();
 const themeStore = useThemeStore();
 
 const route = useRoute();
+
+const avatarUrl = ref('');
+
+// Fetch avatar URL when authenticated
+const fetchAvatar = async () => {
+    if (!authStore.isAuthenticated) return;
+    try {
+        const data = await authApi.getProfile();
+        avatarUrl.value = data.avatar_url || '';
+    } catch {
+        // Silently fail - avatar is optional
+    }
+};
+
+// Watch auth state to fetch avatar when user logs in
+watch(
+    () => authStore.isAuthenticated,
+    (isAuth) => {
+        if (isAuth) {
+            fetchAvatar();
+        } else {
+            avatarUrl.value = '';
+        }
+    },
+    { immediate: true }
+);
 
 const switchLocale = (newLocale: 'ru' | 'en') => {
     setLocale(newLocale);
@@ -25,6 +52,21 @@ const logout = () => {
     notificationStore.stopPolling();
     navigateTo('/');
 };
+
+// User dropdown menu items (profile, logout)
+const userMenuItems = computed<DropdownMenuItem[]>(() => [
+    {
+        label: t('profile.menu'),
+        icon: 'i-heroicons-user-circle',
+        to: '/profile',
+        avatar: avatarUrl.value ? { src: avatarUrl.value } : undefined,
+    },
+    {
+        label: t('auth.logout'),
+        icon: 'i-heroicons-arrow-right-on-rectangle',
+        onSelect: () => logout(),
+    },
+]);
 
 // Build navigation items with translations
 const navigation = computed<NavigationMenuItem[]>(() => {
@@ -136,14 +178,19 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             <!-- Theme toggle -->
             <UTooltip :text="$t('theme.title')">
                 <UButton class="text-grey" variant="ghost" square @click="toggleTheme">
-                    <Icon
-                        :name="
-                            themeStore.theme === 'light'
-                                ? 'i-heroicons-moon'
-                                : 'i-heroicons-sun'
-                        "
-                        class="w-5 h-5"
-                    />
+                    <ClientOnly>
+                        <Icon
+                            :name="
+                                themeStore.theme === 'light'
+                                    ? 'i-heroicons-moon'
+                                    : 'i-heroicons-sun'
+                            "
+                            class="w-5 h-5"
+                        />
+                        <template #fallback>
+                            <Icon name="i-heroicons-moon" class="w-5 h-5" />
+                        </template>
+                    </ClientOnly>
                 </UButton>
             </UTooltip>
 
@@ -166,12 +213,18 @@ const navigation = computed<NavigationMenuItem[]>(() => {
                 </UTooltip>
             </div>
 
-            <!-- Auth -->
-            <UTooltip v-if="authStore.isAuthenticated" text="Выйти">
-                <UButton class="text-grey" variant="ghost" square @click="logout">
-                    <Icon name="i-heroicons-user-circle" class="w-5 h-5" />
+            <!-- Auth: User dropdown when authenticated -->
+            <UDropdownMenu v-if="authStore.isAuthenticated" :items="userMenuItems">
+                <UButton class="text-grey" variant="ghost" square>
+                    <img
+                        v-if="avatarUrl"
+                        :src="avatarUrl"
+                        alt="Avatar"
+                        class="w-5 h-5 rounded-full object-cover"
+                    />
+                    <Icon v-else name="i-heroicons-user-circle" class="w-5 h-5" />
                 </UButton>
-            </UTooltip>
+            </UDropdownMenu>
 
             <UTooltip v-else :text="$t('auth.login')">
                 <UButton class="text-grey" variant="ghost" square to="/auth/login">
