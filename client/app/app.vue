@@ -6,7 +6,7 @@ import { useThemeStore } from './stores/ThemeStore';
 import { useAuthStore } from './stores/AuthStore';
 import { useNotificationStore } from './stores/NotificationStore';
 import CookieConsent from './components/CookieConsent.vue';
-import Header from './components/Header.vue';
+
 const { locale, setLocale } = useI18n();
 const materialStore = useMaterialStore();
 const themeStore = useThemeStore();
@@ -85,13 +85,9 @@ useSeoMeta({
 
 <template>
     <UApp>
-        <Header />
-
-        <UMain>
+        <NuxtLayout>
             <NuxtPage />
-        </UMain>
-
-        <AppFooter />
+        </NuxtLayout>
 
         <!-- Cookie Consent Banner -->
         <CookieConsent />

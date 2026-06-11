@@ -561,3 +561,174 @@ func PollChatMessages(c *gin.Context) {
 		}
 	}
 }
+
+// AdminGetChatMessages возвращает сообщения треда для админа
+func AdminGetChatMessages(c *gin.Context) {
+	threadID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread id"})
+		return
+	}
+
+	// Проверяем существование треда
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM chat_threads WHERE id = ?)", threadID).Scan(&exists)
+	if err != nil || !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
+		return
+	}
+
+	rows, err := db.Query(`
+		SELECT
+			cm.id, cm.thread_id, cm.sender_id, cm.message_type,
+			cm.content, cm.attachment_url, cm.attachment_size,
+			cm.is_read, cm.read_at, cm.created_at,
+			u.username, u.full_name
+		FROM chat_messages cm
+		JOIN users u ON cm.sender_id = u.id
+		WHERE cm.thread_id = ?
+		ORDER BY cm.created_at ASC
+	`, threadID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+	defer rows.Close()
+
+	messages := []models.ChatMessage{}
+	for rows.Next() {
+		var cm models.ChatMessage
+		var readAt sql.NullTime
+		var attachmentURL, attachmentSize sql.NullString
+		var username, fullName string
+		err := rows.Scan(
+			&cm.Id, &cm.ThreadId, &cm.SenderId, &cm.MessageType,
+			&cm.Content, &attachmentURL, &attachmentSize,
+			&cm.IsRead, &readAt, &cm.CreatedAt,
+			&username, &fullName,
+		)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "scan error"})
+			return
+		}
+		cm.AttachmentUrl = attachmentURL
+		if attachmentSize.Valid {
+			size, _ := strconv.ParseInt(attachmentSize.String, 10, 64)
+			cm.AttachmentSize = sql.NullInt64{Int64: size, Valid: true}
+		} else {
+			cm.AttachmentSize = sql.NullInt64{Valid: false}
+		}
+		cm.ReadAt = readAt
+		cm.Sender = &models.User{Username: username, FullName: fullName}
+		messages = append(messages, cm)
+	}
+
+	c.JSON(http.StatusOK, messages)
+}
+
+// AdminSendChatMessage отправляет сообщение в тред от имени админа
+func AdminSendChatMessage(c *gin.Context) {
+	threadID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread id"})
+		return
+	}
+
+	claimsInterface, _ := c.Get("claims")
+	claims, ok := claimsInterface.(*models.Claims)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication required"})
+		return
+	}
+
+	var req struct {
+		Content string `json:"content"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request"})
+		return
+	}
+	if req.Content == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "content is required"})
+		return
+	}
+
+	// Проверяем существование треда
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM chat_threads WHERE id = ?)", threadID).Scan(&exists)
+	if err != nil || !exists {
+		c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
+		return
+	}
+
+	// Если тред был решён, автоматически открываем его
+	_, _ = db.Exec("UPDATE chat_threads SET is_resolved = FALSE WHERE id = ? AND is_resolved = TRUE", threadID)
+
+	// Вставляем сообщение
+	result, err := db.Exec(
+		"INSERT INTO chat_messages (thread_id, sender_id, message_type, content, created_at) VALUES (?, ?, 'text', ?, CURRENT_TIMESTAMP)",
+		threadID, claims.UserID, req.Content,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+
+	// Обновляем last_message_at в треде
+	_, _ = db.Exec("UPDATE chat_threads SET last_message_at = CURRENT_TIMESTAMP WHERE id = ?", threadID)
+
+	msgID, _ := result.LastInsertId()
+
+	// Возвращаем созданное сообщение
+	var msg models.ChatMessage
+	var readAt sql.NullTime
+	var attachmentURL, attachmentSize sql.NullString
+	err = db.QueryRow(`
+		SELECT cm.id, cm.thread_id, cm.sender_id, cm.message_type,
+			cm.content, cm.attachment_url, cm.attachment_size,
+			cm.is_read, cm.read_at, cm.created_at,
+			u.username, u.full_name
+		FROM chat_messages cm
+		JOIN users u ON cm.sender_id = u.id
+		WHERE cm.id = ?
+	`, msgID).Scan(
+		&msg.Id, &msg.ThreadId, &msg.SenderId, &msg.MessageType,
+		&msg.Content, &attachmentURL, &attachmentSize,
+		&msg.IsRead, &readAt, &msg.CreatedAt,
+		&msg.Sender.Username, &msg.Sender.FullName,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read created message"})
+		return
+	}
+	msg.AttachmentUrl = attachmentURL
+	if attachmentSize.Valid {
+		size, _ := strconv.ParseInt(attachmentSize.String, 10, 64)
+		msg.AttachmentSize = sql.NullInt64{Int64: size, Valid: true}
+	}
+	msg.ReadAt = readAt
+
+	c.JSON(http.StatusCreated, msg)
+}
+
+// AdminReopenChatThread открывает закрытый тред (админ)
+func AdminReopenChatThread(c *gin.Context) {
+	threadID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid thread id"})
+		return
+	}
+
+	result, err := db.Exec("UPDATE chat_threads SET is_resolved = FALSE WHERE id = ?", threadID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
+		return
+	}
+	rowsAffected, _ := result.RowsAffected()
+	if rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "thread not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "thread reopened"})
+}

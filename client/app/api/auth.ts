@@ -166,8 +166,54 @@ export default {
         return authStore.getAuthHeader;
     },
 
+    // Get user profile
+    async getProfile() {
+    	try {
+    		const response = await api.get('profile');
+    		return response.data;
+    	} catch (error: any) {
+    		throw error.response?.data || { error: 'Failed to fetch profile' };
+    	}
+    },
+
+    // Update user profile
+    async updateProfile(data: { email?: string; full_name?: string }) {
+    	try {
+    		const response = await api.put('profile', data);
+    		return response.data;
+    	} catch (error: any) {
+    		throw error.response?.data || { error: 'Failed to update profile' };
+    	}
+    },
+
+    // Upload avatar
+    async uploadAvatar(file: File) {
+    	try {
+    		const formData = new FormData();
+    		formData.append('avatar', file);
+    		const response = await api.post('profile/avatar', formData, {
+    			headers: {
+    				'Content-Type': 'multipart/form-data',
+    			},
+    		});
+    		return response.data;
+    	} catch (error: any) {
+    		throw error.response?.data || { error: 'Failed to upload avatar' };
+    	}
+    },
+
+    // Delete avatar
+    async deleteAvatar() {
+    	try {
+    		const response = await api.delete('profile/avatar');
+    		return response.data;
+    	} catch (error: any) {
+    		throw error.response?.data || { error: 'Failed to delete avatar' };
+    	}
+    },
+
     // Get axios instance for custom requests
     getApiInstance() {
-        return api;
+    	return api;
     },
-};
+   };

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/raiyin/artserver/models"
@@ -81,25 +83,60 @@ func AdminGetPromoCodes(c *gin.Context) {
 
 // AdminCreatePromoCode создает новый промокод (админ)
 func AdminCreatePromoCode(c *gin.Context) {
-	var promo models.PromoCode
-	if err := c.ShouldBindJSON(&promo); err != nil {
+	var req struct {
+		Code          string     `json:"code" binding:"required"`
+		DiscountType  string     `json:"discount_type" binding:"required"`
+		DiscountValue int        `json:"discount_value" binding:"required"`
+		MaxUses       *int64     `json:"max_uses"`
+		ValidFrom     *time.Time `json:"valid_from"`
+		ValidUntil    *time.Time `json:"valid_until"`
+		IsActive      bool       `json:"is_active"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный запрос"})
 		return
 	}
 
 	// Проверяем обязательные поля
-	if promo.Code == "" || promo.DiscountType == "" || promo.DiscountValue <= 0 {
+	if req.Code == "" || req.DiscountType == "" || req.DiscountValue <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Не заполнены обязательные поля"})
 		return
 	}
 
+	// Convert request to sql.Null* for DB insertion
+	var maxUses sql.NullInt64
+	if req.MaxUses != nil {
+		maxUses = sql.NullInt64{Int64: *req.MaxUses, Valid: true}
+	}
+	var validFrom sql.NullTime
+	if req.ValidFrom != nil {
+		validFrom = sql.NullTime{Time: *req.ValidFrom, Valid: true}
+	}
+	var validUntil sql.NullTime
+	if req.ValidUntil != nil {
+		validUntil = sql.NullTime{Time: *req.ValidUntil, Valid: true}
+	}
+
 	_, err := db.Exec(`
 		INSERT INTO promo_codes (code, discount_type, discount_value, max_uses, used_count, valid_from, valid_until, is_active, created_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-	`, promo.Code, promo.DiscountType, promo.DiscountValue, promo.MaxUses, 0,
-		promo.ValidFrom, promo.ValidUntil, promo.IsActive, promo.CreatedAt)
+		VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)
+	`, req.Code, req.DiscountType, req.DiscountValue, maxUses,
+		validFrom, validUntil, req.IsActive, time.Now())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка создания промокода"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "success"})
+}
+
+// AdminDeletePromoCode удаляет промокод (админ)
+func AdminDeletePromoCode(c *gin.Context) {
+	id := c.Param("id")
+
+	_, err := db.Exec("DELETE FROM promo_codes WHERE id = ?", id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка удаления промокода"})
 		return
 	}
 
@@ -109,18 +146,40 @@ func AdminCreatePromoCode(c *gin.Context) {
 // AdminUpdatePromoCode обновляет промокод (админ)
 func AdminUpdatePromoCode(c *gin.Context) {
 	id := c.Param("id")
-	var promo models.PromoCode
-	if err := c.ShouldBindJSON(&promo); err != nil {
+	var req struct {
+		Code          string     `json:"code" binding:"required"`
+		DiscountType  string     `json:"discount_type" binding:"required"`
+		DiscountValue int        `json:"discount_value" binding:"required"`
+		MaxUses       *int64     `json:"max_uses"`
+		ValidFrom     *time.Time `json:"valid_from"`
+		ValidUntil    *time.Time `json:"valid_until"`
+		IsActive      bool       `json:"is_active"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Неверный запрос"})
 		return
+	}
+
+	// Convert request to sql.Null* for DB update
+	var maxUses sql.NullInt64
+	if req.MaxUses != nil {
+		maxUses = sql.NullInt64{Int64: *req.MaxUses, Valid: true}
+	}
+	var validFrom sql.NullTime
+	if req.ValidFrom != nil {
+		validFrom = sql.NullTime{Time: *req.ValidFrom, Valid: true}
+	}
+	var validUntil sql.NullTime
+	if req.ValidUntil != nil {
+		validUntil = sql.NullTime{Time: *req.ValidUntil, Valid: true}
 	}
 
 	_, err := db.Exec(`
 		UPDATE promo_codes
 		SET code = ?, discount_type = ?, discount_value = ?, max_uses = ?, valid_from = ?, valid_until = ?, is_active = ?
 		WHERE id = ?
-	`, promo.Code, promo.DiscountType, promo.DiscountValue, promo.MaxUses,
-		promo.ValidFrom, promo.ValidUntil, promo.IsActive, id)
+	`, req.Code, req.DiscountType, req.DiscountValue, maxUses,
+		validFrom, validUntil, req.IsActive, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка обновления промокода"})
 		return

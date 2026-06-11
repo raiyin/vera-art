@@ -41,6 +41,19 @@ func init() {
 	db.SetMaxOpenConns(100)
 	db.SetMaxIdleConns(25)
 	log.Println("Database connection established successfully")
+
+	// Run migrations
+	runMigrations()
+}
+
+func runMigrations() {
+	// Add avatar column to users table if it doesn't exist
+	_, err := db.Exec("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT ''")
+	if err != nil {
+		// Ignore error if column already exists
+		log.Printf("Migration (add avatar column): %v (this is normal if column already exists)", err)
+	}
+	log.Println("Database migrations completed")
 }
 
 func getMaterials(c *gin.Context) {
@@ -247,6 +260,15 @@ func main() {
 	r_gin.POST("/login", RateLimitMiddleware(), Login)
 	r_gin.POST("/refresh", RateLimitMiddleware(), Refresh)
 
+	// User profile routes
+	r_gin.GET("/profile", AuthMiddleware(), GetProfile)
+	r_gin.PUT("/profile", AuthMiddleware(), UpdateProfile)
+
+	// Avatar routes
+	r_gin.POST("/profile/avatar", AuthMiddleware(), UploadAvatar)
+	r_gin.DELETE("/profile/avatar", AuthMiddleware(), DeleteAvatar)
+	r_gin.GET("/profile/avatar/:id", ServeAvatar)
+
 	r_gin.GET("/sales", GetSales)
 	r_gin.GET("/sales/:id", GetSaleById)
 	r_gin.GET("/sales/:id/edit", GetSaleByIdForEdit)
@@ -282,6 +304,12 @@ func main() {
 	r_gin.POST("/admin/categories", AuthMiddleware(), middleware.AdminMiddleware(), AdminCreateCategory)
 	r_gin.PUT("/admin/categories/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminUpdateCategory)
 	r_gin.DELETE("/admin/categories/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteCategory)
+
+	// Админские маршруты для тегов
+	r_gin.GET("/admin/tags", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetTags)
+	r_gin.POST("/admin/tags", AuthMiddleware(), middleware.AdminMiddleware(), AdminCreateTag)
+	r_gin.PUT("/admin/tags/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminUpdateTag)
+	r_gin.DELETE("/admin/tags/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteTag)
 
 	// Продукты (публичные)
 	r_gin.GET("/products", GetProducts)
@@ -321,6 +349,7 @@ func main() {
 	r_gin.GET("/admin/promo-codes", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetPromoCodes)
 	r_gin.POST("/admin/promo-codes", AuthMiddleware(), middleware.AdminMiddleware(), AdminCreatePromoCode)
 	r_gin.PUT("/admin/promo-codes/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminUpdatePromoCode)
+	r_gin.DELETE("/admin/promo-codes/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeletePromoCode)
 
 	// Отзывы
 	r_gin.GET("/products/:id/reviews", GetProductReviews)
@@ -329,7 +358,13 @@ func main() {
 	r_gin.DELETE("/reviews/:id", AuthMiddleware(), DeleteReview)
 	r_gin.GET("/admin/reviews/pending", AuthMiddleware(), middleware.AdminMiddleware(), GetPendingReviews)
 	r_gin.PUT("/admin/reviews/:id/approve", AuthMiddleware(), middleware.AdminMiddleware(), ApproveReview)
+	r_gin.PUT("/admin/reviews/:id/reject", AuthMiddleware(), middleware.AdminMiddleware(), AdminRejectReview)
 
+	// Admin reviews management (paginated list with filters)
+	r_gin.GET("/admin/reviews/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetReviewsList)
+	r_gin.POST("/admin/reviews/bulk-approve", AuthMiddleware(), middleware.AdminMiddleware(), AdminBulkApproveReviews)
+	r_gin.POST("/admin/reviews/bulk-reject", AuthMiddleware(), middleware.AdminMiddleware(), AdminBulkRejectReviews)
+	r_gin.POST("/admin/reviews/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminBulkDeleteReviews)
 	// Согласие на использование cookie и обработку персональных данных
 	r_gin.POST("/consent", AuthMiddleware(), SaveConsent)
 	r_gin.GET("/consent/status", AuthMiddleware(), GetConsentStatus)
@@ -355,7 +390,51 @@ func main() {
 	r_gin.POST("/chat/messages/:id/read", AuthMiddleware(), MarkMessageAsRead)
 	r_gin.GET("/chat/poll", AuthMiddleware(), PollChatMessages)
 	r_gin.GET("/admin/chat/threads", AuthMiddleware(), middleware.AdminMiddleware(), GetAdminChatThreads)
+	r_gin.GET("/admin/chat/threads/:id/messages", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetChatMessages)
+	r_gin.POST("/admin/chat/threads/:id/messages", AuthMiddleware(), middleware.AdminMiddleware(), AdminSendChatMessage)
 	r_gin.PUT("/admin/chat/threads/:id/resolve", AuthMiddleware(), middleware.AdminMiddleware(), ResolveChatThread)
+	r_gin.PUT("/admin/chat/threads/:id/reopen", AuthMiddleware(), middleware.AdminMiddleware(), AdminReopenChatThread)
+
+	// Admin dashboard
+	r_gin.GET("/api/admin/stats", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetStats)
+	r_gin.GET("/api/admin/recent-activity", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetRecentActivity)
+
+	// Admin gallery management
+	r_gin.GET("/admin/works", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetWorks)
+	r_gin.POST("/admin/works/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteWorks)
+
+	// Admin shop management
+	r_gin.GET("/admin/sales", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetSales)
+	r_gin.POST("/admin/sales/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteSales)
+	// Admin news management
+	r_gin.GET("/admin/news/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetNews)
+	r_gin.POST("/admin/news/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteNews)
+
+	// Admin products management (courses & master-classes)
+	r_gin.GET("/admin/products/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetProductsList)
+	r_gin.POST("/admin/products/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteProducts)
+	r_gin.PUT("/admin/products/:id/status", AuthMiddleware(), middleware.AdminMiddleware(), AdminUpdateProductStatus)
+
+	// Admin lessons management (paginated list)
+	r_gin.GET("/admin/lessons/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetLessonsList)
+	r_gin.POST("/admin/lessons/bulk-delete", AuthMiddleware(), middleware.AdminMiddleware(), AdminDeleteLessons)
+
+	// Admin users management
+	r_gin.GET("/admin/users/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetUsersList)
+	r_gin.GET("/admin/users/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetUserDetail)
+	r_gin.PUT("/admin/users/:id/role", AuthMiddleware(), middleware.AdminMiddleware(), AdminUpdateUserRole)
+	r_gin.PUT("/admin/users/:id/block", AuthMiddleware(), middleware.AdminMiddleware(), AdminToggleUserBlock)
+
+	// Admin purchases management
+	r_gin.GET("/admin/purchases/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetPurchasesList)
+	r_gin.GET("/admin/purchases/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetPurchaseDetail)
+	r_gin.PUT("/admin/purchases/:id/extend", AuthMiddleware(), middleware.AdminMiddleware(), AdminExtendPurchaseAccess)
+	r_gin.PUT("/admin/purchases/:id/cancel", AuthMiddleware(), middleware.AdminMiddleware(), AdminCancelPurchase)
+
+	// Admin payments management
+	r_gin.GET("/admin/payments/list", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetPaymentsList)
+	r_gin.GET("/admin/payments/:id", AuthMiddleware(), middleware.AdminMiddleware(), AdminGetPaymentDetail)
+	r_gin.POST("/admin/payments/:id/refund", AuthMiddleware(), middleware.AdminMiddleware(), AdminRefundPayment)
 
 	defer db.Close()
 	if err := r_gin.Run("localhost:8000"); err != nil {

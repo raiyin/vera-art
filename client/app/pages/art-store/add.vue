@@ -330,11 +330,12 @@
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
 import type { CreateSaleDto, RequestResult } from '../../types';
-import { useMaterialStore } from '../../stores/MaterialStore';
-
 definePageMeta({
+    layout: 'admin',
     middleware: 'admin-auth',
 });
+
+import { useMaterialStore } from '../../stores/MaterialStore';
 
 const { t, locale } = useI18n();
 const toast = useToast();

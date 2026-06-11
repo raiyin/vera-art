@@ -319,6 +319,7 @@ import type {
 import { useMaterialStore } from '../../../stores/MaterialStore';
 
 definePageMeta({
+    layout: 'admin',
     middleware: 'admin-auth',
 });
 
