@@ -19,3 +19,13 @@ directories:
   abs_news_dir: "/Users/raiyin/projects/mac/client/public"
   rel_news_dir: "/content/news/"
   abs_avatars_dir: "/Users/raiyin/projects/mac/server/storage/avatars/"
+
+# SMTP configuration for email sending
+# In development, leave host empty to use console logging mode
+smtp:
+  host: ""
+  port: 587
+  username: ""
+  password: ""
+  from: "noreply@vera-art.com"
+  from_name: "Vera Art"

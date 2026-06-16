@@ -51,18 +51,19 @@
                         />
                     </UFormField>
 
-                    <!-- Email Field (Optional) -->
-                    <UFormField name="email" :label="$t('auth.email')">
+                    <!-- Email Field -->
+                    <UFormField name="email" :label="$t('auth.email')" required>
                         <UInput
                             v-model="formState.email"
                             type="email"
                             :placeholder="
-                                $t('auth.emailPlaceholder', 'Enter your email (optional)')
+                                $t('auth.emailPlaceholder', 'Enter your email address')
                             "
                             icon="i-heroicons-envelope"
                             size="lg"
                             :disabled="loading"
                             autocomplete="email"
+                            :rules="[validateEmail]"
                             class="w-full"
                         />
                     </UFormField>
@@ -450,6 +451,14 @@ export default {
             return true;
         };
 
+        const validateEmail = (value: string) => {
+            if (!value.trim()) return t('auth.emailRequired', 'Email is required');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value.trim()))
+                return t('auth.emailInvalid', 'Please enter a valid email address');
+            return true;
+        };
+
         const validateConfirmPassword = (value: string) => {
             if (!value.trim())
                 return t('auth.confirmPasswordRequired', 'Please confirm your password');
@@ -459,8 +468,12 @@ export default {
         };
 
         const isFormValid = computed(() => {
+            const emailValid =
+                formState.email.trim() &&
+                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email.trim());
             return (
                 formState.username.trim() &&
+                emailValid &&
                 formState.password.trim() &&
                 formState.confirmPassword.trim() &&
                 formState.password === formState.confirmPassword &&
@@ -487,12 +500,12 @@ export default {
                 await authApi.register({
                     username: formState.username,
                     password: formState.password,
-                    email: formState.email || undefined,
+                    email: formState.email,
                 });
 
                 success.value = t(
-                    'auth.registrationSuccess',
-                    'Registration successful! Redirecting to login...'
+                    'auth.verificationEmailSent',
+                    'Registration successful! A verification link has been sent to your email. Please check your inbox.'
                 );
 
                 // Clear form
@@ -502,10 +515,10 @@ export default {
                 formState.confirmPassword = '';
                 agreeTerms.value = false;
 
-                // Redirect to login after 2 seconds
+                // Redirect to login after 5 seconds
                 setTimeout(() => {
                     router.push('/auth/login');
-                }, 2000);
+                }, 5000);
             } catch (err: any) {
                 error.value =
                     err.message ||
@@ -530,6 +543,7 @@ export default {
             confirmPasswordVisible,
             passwordRequirements,
             validateUsername,
+            validateEmail,
             validatePassword,
             validateConfirmPassword,
             isFormValid,

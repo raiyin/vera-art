@@ -27,10 +27,20 @@ type DirectoriesConfig struct {
 	AbsAvatarsDir string `mapstructure:"abs_avatars_dir"`
 }
 
+type SMTPConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	From     string `mapstructure:"from"`
+	FromName string `mapstructure:"from_name"`
+}
+
 type Config struct {
 	App         AppConfig
 	CORS        CORSConfig
 	Directories DirectoriesConfig
+	SMTP        SMTPConfig
 }
 
 var AppConfigInstance Config
@@ -47,6 +57,12 @@ func LoadConfig(configPath string) error {
 	viper.SetDefault("app.name", "artserver")
 	viper.SetDefault("cors.allowed_origins", []string{"http://localhost:3000", "http://127.0.0.1:3000"})
 	viper.SetDefault("cors.debug", false)
+	viper.SetDefault("smtp.host", "")
+	viper.SetDefault("smtp.port", 587)
+	viper.SetDefault("smtp.username", "")
+	viper.SetDefault("smtp.password", "")
+	viper.SetDefault("smtp.from", "noreply@vera-art.com")
+	viper.SetDefault("smtp.from_name", "Vera Art")
 
 	// Read config
 	if err := viper.ReadInConfig(); err != nil {

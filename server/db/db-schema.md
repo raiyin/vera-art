@@ -181,6 +181,11 @@ Supports: master-classes (single video lessons), courses (multi-lesson programs)
 | `role` | TEXT | `'user'`, `'admin'` |
 | `email` | TEXT? | |
 | `full_name` | TEXT? | |
+| `email_verified` | INTEGER | `0` = unverified, `1` = verified. Default `0` |
+| `verification_token` | TEXT? | Cryptographically secure random token for email verification |
+| `verification_token_expires_at` | TIMESTAMP? | Token expiry (24 hours from creation) |
+| `blocked` | INTEGER | `0` = active, `1` = blocked. Default `0` |
+| `avatar` | TEXT? | Avatar filename |
 | `created_at` | TIMESTAMP | |
 | `updated_at` | TIMESTAMP | |
 

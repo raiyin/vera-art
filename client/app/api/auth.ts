@@ -91,6 +91,26 @@ export default {
         }
     },
 
+    // Verify email with token
+    async verifyEmail(token: string) {
+        try {
+            const response = await api.get('verify-email', { params: { token } });
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Email verification failed' };
+        }
+    },
+
+    // Resend verification email
+    async resendVerification(email: string) {
+        try {
+            const response = await api.post('resend-verification', { email });
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Failed to resend verification email' };
+        }
+    },
+
     // Login user
     async login(credentials: { username: string, password: string },) {
         try {

@@ -32,14 +32,32 @@ func init() {
 		log.Fatalf("Could not open database connection: %v", err)
 	}
 
+	// Enable WAL mode for better concurrent read/write performance
+	_, err = db.Exec("PRAGMA journal_mode=WAL")
+	if err != nil {
+		log.Printf("Warning: could not set WAL mode: %v", err)
+	}
+
+	// Set busy timeout to 5 seconds to avoid "database is locked" errors
+	_, err = db.Exec("PRAGMA busy_timeout=5000")
+	if err != nil {
+		log.Printf("Warning: could not set busy_timeout: %v", err)
+	}
+
+	// Enable foreign keys
+	_, err = db.Exec("PRAGMA foreign_keys=ON")
+	if err != nil {
+		log.Printf("Warning: could not enable foreign keys: %v", err)
+	}
+
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
 		log.Fatalf("Could not connect to database (ping failed): %v", err)
 	}
 
-	db.SetMaxOpenConns(100)
-	db.SetMaxIdleConns(25)
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
 	log.Println("Database connection established successfully")
 
 	// Run migrations
@@ -245,11 +263,14 @@ func main() {
 	r_gin := gin.Default()
 	// r.Run(fmt.Sprintf(":%d", appConfig.App.Port))
 
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-	corsConfig.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
-	corsConfig.AllowCredentials = true // Allow sending cookies/auth headers
-	corsConfig.AllowOrigins = appConfig.CORS.AllowedOrigins
+	// Configure CORS
+	corsConfig := cors.Config{
+		AllowOrigins:     appConfig.CORS.AllowedOrigins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
 	if appConfig.CORS.Debug {
 		log.Printf("CORS configured with allowed origins: %v", appConfig.CORS.AllowedOrigins)
 	}
@@ -259,6 +280,8 @@ func main() {
 	r_gin.POST("/register", RateLimitMiddleware(), Register)
 	r_gin.POST("/login", RateLimitMiddleware(), Login)
 	r_gin.POST("/refresh", RateLimitMiddleware(), Refresh)
+	r_gin.GET("/verify-email", VerifyEmail)
+	r_gin.POST("/resend-verification", RateLimitMiddleware(), ResendVerification)
 
 	// User profile routes
 	r_gin.GET("/profile", AuthMiddleware(), GetProfile)

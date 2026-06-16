@@ -1,3 +1,5 @@
 screenshots
 server/db/db.sqlite
 storage
+server/db/db.sqlite-shm
+server/db/db.sqlite-wal

@@ -125,6 +125,7 @@ func Register(c *gin.Context) {
 	query := "select count(*) from users where username = ?"
 	err := db.QueryRow(query, registerUserRequest.Username).Scan(&count)
 	if err != nil {
+		log.Printf("[ERROR] could not check if user exists: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not check if user exists"})
 		return
 	}
@@ -138,27 +139,37 @@ func Register(c *gin.Context) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(registerUserRequest.Password), bcrypt.DefaultCost)
 	var stringHashedPassword = string(hashedPassword)
 
-	// fmt.Println("%X ", hashedPassword)
-	// for _, num := range hashedPassword {
-	// 	fmt.Printf("%X ", num)
-	// }
 	if err != nil {
+		log.Printf("[ERROR] could not hash password for user %s: %v", registerUserRequest.Username, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not hash password"})
 		return
 	}
 
-	query = "insert into users (username, pass_hash) " +
-		"values (?, ?)"
-	_, err = db.Exec(query, registerUserRequest.Username, stringHashedPassword)
+	// Generate verification token
+	verificationToken, tokenExpiry, err := generateVerificationToken()
 	if err != nil {
-		logSecurityEvent("register_failed", registerUserRequest.Username, c.ClientIP(), "database error")
+		log.Printf("[ERROR] could not generate verification token: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
 		return
 	}
 
+	query = "insert into users (username, pass_hash, email, email_verified, verification_token, verification_token_expires_at, created_at, updated_at) " +
+		"values (?, ?, ?, 0, ?, ?, datetime('now'), datetime('now'))"
+	_, err = db.Exec(query, registerUserRequest.Username, stringHashedPassword, registerUserRequest.Email, verificationToken, tokenExpiry)
+	if err != nil {
+		logSecurityEvent("register_failed", registerUserRequest.Username, c.ClientIP(), "database error: "+err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
+		return
+	}
+
+	// Send verification email (non-blocking — log error but don't fail the request)
+	if err := SendVerificationEmail(registerUserRequest.Email, verificationToken); err != nil {
+		log.Printf("[ERROR] failed to send verification email to %s: %v", registerUserRequest.Email, err)
+	}
+
 	// Log successful registration
-	logSecurityEvent("register_success", registerUserRequest.Username, c.ClientIP(), "user created")
-	c.JSON(http.StatusOK, gin.H{"message": "user created successfully"})
+	logSecurityEvent("register_success", registerUserRequest.Username, c.ClientIP(), "user created (unverified)")
+	c.JSON(http.StatusOK, gin.H{"message": "Registration successful! A verification link has been sent to your email."})
 }
 
 func Login(c *gin.Context) {
@@ -170,9 +181,9 @@ func Login(c *gin.Context) {
 
 	var user models.User
 
-	query := "SELECT id, username, pass_hash, role, email, full_name, created_at, updated_at FROM users WHERE username = ?"
+	query := "SELECT id, username, pass_hash, role, email, full_name, email_verified, created_at, updated_at FROM users WHERE username = ?"
 	row := db.QueryRow(query, loginUserRequest.Username)
-	err := row.Scan(&user.Id, &user.Username, &user.PassHash, &user.Role, &user.Email, &user.FullName, &user.CreatedAt, &user.UpdatedAt)
+	err := row.Scan(&user.Id, &user.Username, &user.PassHash, &user.Role, &user.Email, &user.FullName, &user.EmailVerified, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -193,6 +204,17 @@ func Login(c *gin.Context) {
 		// Log failed login attempt (wrong password)
 		logSecurityEvent("login_failed", loginUserRequest.Username, c.ClientIP(), "invalid password")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+
+	// Check if email is verified
+	if !user.EmailVerified {
+		logSecurityEvent("login_failed", loginUserRequest.Username, c.ClientIP(), "email not verified")
+		c.JSON(http.StatusForbidden, gin.H{
+			"error": "Please verify your email before logging in",
+			"code":  "email_not_verified",
+			"email": user.Email,
+		})
 		return
 	}
 
@@ -220,6 +242,101 @@ func Login(c *gin.Context) {
 		"refresh_expires": refreshExp,
 		"token_type":      "Bearer",
 	})
+}
+
+// VerifyEmail handles email verification via token
+func VerifyEmail(c *gin.Context) {
+	token := c.Query("token")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification token is required"})
+		return
+	}
+
+	var userID int
+	var expiresAt time.Time
+
+	query := "SELECT id, verification_token_expires_at FROM users WHERE verification_token = ? AND email_verified = 0"
+	err := db.QueryRow(query, token).Scan(&userID, &expiresAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification token"})
+			return
+		}
+		log.Printf("[ERROR] could not look up verification token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	// Check if token has expired
+	if time.Now().After(expiresAt) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Verification token has expired. Please request a new one."})
+		return
+	}
+
+	// Mark user as verified and clear the token
+	_, err = db.Exec("UPDATE users SET email_verified = 1, verification_token = NULL, verification_token_expires_at = NULL, updated_at = datetime('now') WHERE id = ?", userID)
+	if err != nil {
+		log.Printf("[ERROR] could not verify email for user %d: %v", userID, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not verify email"})
+		return
+	}
+
+	logSecurityEvent("email_verified", "", c.ClientIP(), "user_id="+string(rune(userID))+" email verified")
+	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully! You can now log in."})
+}
+
+// ResendVerification resends the verification email
+func ResendVerification(c *gin.Context) {
+	var req dtos.ResendVerificationRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Always return success to prevent email enumeration
+	// Look up user by email
+	var user models.User
+	query := "SELECT id, username, email, email_verified, verification_token, verification_token_expires_at FROM users WHERE email = ?"
+	err := db.QueryRow(query, req.Email).Scan(&user.Id, &user.Username, &user.Email, &user.EmailVerified, &user.VerificationToken, &user.VerificationTokenExpiresAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// Return success even if email not found (anti-enumeration)
+			c.JSON(http.StatusOK, gin.H{"message": "If this email is registered, a verification link has been sent."})
+			return
+		}
+		log.Printf("[ERROR] could not look up user by email: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	// Check if already verified
+	if user.EmailVerified {
+		c.JSON(http.StatusOK, gin.H{"message": "This email is already verified. You can log in."})
+		return
+	}
+
+	// Generate new token
+	newToken, newExpiry, err := generateVerificationToken()
+	if err != nil {
+		log.Printf("[ERROR] could not generate verification token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not resend verification email"})
+		return
+	}
+
+	// Update token in database
+	_, err = db.Exec("UPDATE users SET verification_token = ?, verification_token_expires_at = ?, updated_at = datetime('now') WHERE id = ?", newToken, newExpiry, user.Id)
+	if err != nil {
+		log.Printf("[ERROR] could not update verification token: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not resend verification email"})
+		return
+	}
+
+	// Send verification email
+	if err := SendVerificationEmail(user.Email, newToken); err != nil {
+		log.Printf("[ERROR] failed to send verification email to %s: %v", user.Email, err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "If this email is registered, a verification link has been sent."})
 }
 
 // Refresh generates a new access token using a valid refresh token

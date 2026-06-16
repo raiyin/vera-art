@@ -113,6 +113,41 @@
                         class="mt-4"
                     />
 
+                    <!-- Email Not Verified Alert -->
+                    <UAlert
+                        v-if="emailNotVerified"
+                        :title="$t('auth.emailNotVerified', 'Email Not Verified')"
+                        :description="emailNotVerified"
+                        icon="i-heroicons-envelope"
+                        color="warning"
+                        variant="outline"
+                        class="mt-4"
+                    >
+                        <template #actions>
+                            <UButton
+                                color="primary"
+                                variant="solid"
+                                size="sm"
+                                :loading="resending"
+                                :disabled="resending"
+                                @click="resendVerification"
+                            >
+                                {{ $t('auth.resendVerification', 'Resend') }}
+                            </UButton>
+                        </template>
+                    </UAlert>
+
+                    <!-- Resend Success -->
+                    <UAlert
+                        v-if="resendSuccess"
+                        :title="$t('auth.emailSent', 'Email Sent')"
+                        :description="resendSuccess"
+                        icon="i-heroicons-check-circle"
+                        color="success"
+                        variant="outline"
+                        class="mt-4"
+                    />
+
                     <!-- Submit Button -->
                     <UButton
                         type="submit"
@@ -185,7 +220,7 @@
 </template>
 
 <script lang="ts">
-import { ref, reactive } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import authApi from '../../api/auth';
@@ -209,6 +244,10 @@ export default {
         const loading = ref(false);
         const error = ref('');
         const passwordVisible = ref(false);
+        const emailNotVerified = ref('');
+        const unverifiedEmail = ref('');
+        const resending = ref(false);
+        const resendSuccess = ref('');
 
         const handleLogin = async () => {
             if (!formState.username.trim() || !formState.password.trim()) {
@@ -218,6 +257,8 @@ export default {
 
             loading.value = true;
             error.value = '';
+            emailNotVerified.value = '';
+            resendSuccess.value = '';
 
             try {
                 // Use the new auth API which handles token storage automatically
@@ -240,13 +281,25 @@ export default {
                 // Redirect to admin page
                 await router.push('/admin');
             } catch (err: any) {
+                // Check if it's a 403 email not verified error
+                if (
+                    err.code === 'email_not_verified' ||
+                    err.response?.data?.code === 'email_not_verified'
+                ) {
+                    const email = err.email || err.response?.data?.email || '';
+                    unverifiedEmail.value = email;
+                    emailNotVerified.value = t(
+                        'auth.emailNotVerifiedMsg',
+                        'Please verify your email before logging in. Check your inbox for the verification link.'
+                    );
+                    error.value = '';
+                }
                 // Check if it's a 401 invalid credentials error
-                const isInvalidCredentials =
+                else if (
                     err.response?.status === 401 ||
                     err.error?.toLowerCase().includes('invalid credentials') ||
-                    err.message?.toLowerCase().includes('invalid credentials');
-
-                if (isInvalidCredentials) {
+                    err.message?.toLowerCase().includes('invalid credentials')
+                ) {
                     error.value = t(
                         'auth.invalidCredentials',
                         'Invalid username or password. Please try again.'
@@ -266,13 +319,48 @@ export default {
             }
         };
 
-        // Check for remembered user
-        const rememberedUser =
-            typeof window !== 'undefined' ? localStorage.getItem('rememberedUser') : null;
-        if (rememberedUser) {
-            formState.username = rememberedUser;
-            rememberMe.value = true;
-        }
+        const resendVerification = async () => {
+            if (!unverifiedEmail.value) {
+                emailNotVerified.value = t(
+                    'auth.noEmailForResend',
+                    'Unable to resend verification. Please register again.'
+                );
+                return;
+            }
+
+            resending.value = true;
+            resendSuccess.value = '';
+
+            try {
+                const response = await authApi.resendVerification(unverifiedEmail.value);
+                resendSuccess.value =
+                    response.message ||
+                    t(
+                        'auth.verificationResent',
+                        'If this email is registered, a new verification link has been sent.'
+                    );
+            } catch (err: any) {
+                emailNotVerified.value =
+                    err.message ||
+                    err.error ||
+                    t(
+                        'auth.resendError',
+                        'Failed to resend verification email. Please try again later.'
+                    );
+                console.error('Resend error:', err);
+            } finally {
+                resending.value = false;
+            }
+        };
+
+        // Check for remembered user (client-side only, after hydration)
+        onMounted(() => {
+            const rememberedUser = localStorage.getItem('rememberedUser');
+            if (rememberedUser) {
+                formState.username = rememberedUser;
+                rememberMe.value = true;
+            }
+        });
 
         return {
             formState,
@@ -280,7 +368,12 @@ export default {
             loading,
             error,
             passwordVisible,
+            emailNotVerified,
+            unverifiedEmail,
+            resending,
+            resendSuccess,
             handleLogin,
+            resendVerification,
         };
     },
 };
