@@ -1,0 +1,99 @@
+name: Check Sourcecraft Docs
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'sourcecraft/**'
+      - '.clinerules'
+      - 'CLAUDE.md'
+      - '.github/copilot-instructions.md'
+      - '.github/workflows/**'
+      - '**.md'
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v45
+        with:
+          separator: ','
+      - name: Analyze changes
+        id: analyze
+        run: |
+          CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+          SERVER=false CLIENT=false DB=false API=false CONFIG=false
+          IFS=',' read -ra FILES <<< "$CHANGED_FILES"
+          for file in "${FILES[@]}"; do
+            case "$file" in
+              server/internal/handler/*|server/internal/port/*|server/internal/dto/*|server/internal/router/*)
+                API=true; SERVER=true ;;
+              server/internal/domain/*)
+                SERVER=true; DB=true ;;
+              server/internal/service/*|server/cmd/*)
+                SERVER=true ;;
+              server/internal/config/*|server/config.yaml)
+                CONFIG=true; SERVER=true ;;
+              server/db/*)
+                DB=true ;;
+              client/app/stores/*|client/app/pages/*|client/app/components/*|client/app/middleware/*)
+                CLIENT=true ;;
+              client/app/api/*|client/app/types/*)
+                API=true; CLIENT=true ;;
+              client/nuxt.config.ts|client/package.json)
+                CLIENT=true ;;
+              client/i18n/*)
+                CLIENT=true ;;
+            esac
+          done
+          RULES=false; ARCH=false; REQS=false
+          [ "$SERVER" = true ] || [ "$CLIENT" = true ] && RULES=true
+          [ "$API" = true ] || [ "$DB" = true ] || [ "$CONFIG" = true ] && ARCH=true
+          [ "$API" = true ] || [ "$DB" = true ] && REQS=true
+          echo "needs_any=$([ "$RULES" = true ] || [ "$ARCH" = true ] || [ "$REQS" = true ] && echo true || echo false)" >> $GITHUB_OUTPUT
+          echo "needs_rules=$RULES" >> $GITHUB_OUTPUT
+          echo "needs_arch=$ARCH" >> $GITHUB_OUTPUT
+          echo "needs_requirements=$REQS" >> $GITHUB_OUTPUT
+          echo "server_changes=$SERVER" >> $GITHUB_OUTPUT
+          echo "client_changes=$CLIENT" >> $GITHUB_OUTPUT
+          echo "api_changes=$API" >> $GITHUB_OUTPUT
+          echo "db_changes=$DB" >> $GITHUB_OUTPUT
+          echo "config_changes=$CONFIG" >> $GITHUB_OUTPUT
+      - name: Comment PR
+        if: steps.analyze.outputs.needs_any == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const a = {
+              rules: '${{ steps.analyze.outputs.needs_rules }}' === 'true',
+              arch: '${{ steps.analyze.outputs.needs_arch }}' === 'true',
+              reqs: '${{ steps.analyze.outputs.needs_requirements }}' === 'true',
+              srv: '${{ steps.analyze.outputs.server_changes }}' === 'true',
+              cli: '${{ steps.analyze.outputs.client_changes }}' === 'true',
+              api: '${{ steps.analyze.outputs.api_changes }}' === 'true',
+              db: '${{ steps.analyze.outputs.db_changes }}' === 'true',
+              cfg: '${{ steps.analyze.outputs.config_changes }}' === 'true'
+            };
+            let files = [];
+            if (a.rules) files.push('`sourcecraft/rules.md`');
+            if (a.arch) files.push('`sourcecraft/arch.md`');
+            if (a.reqs) files.push('`sourcecraft/requirements.md`');
+            let changes = [];
+            if (a.srv) changes.push('- 🖥️ **Сервер** (Go)');
+            if (a.cli) changes.push('- 🎨 **Клиент** (Nuxt.js)');
+            if (a.api) changes.push('- 🔌 **API** (эндпоинты/DTO)');
+            if (a.db) changes.push('- 🗄️ **База данных** (схема/миграции)');
+            if (a.cfg) changes.push('- ⚙️ **Конфигурация**');
+            const body = `## 📋 Не забудьте обновить документацию!\n\nЭтот PR вносит изменения в код, которые требуют обновления файлов проекта:\n\n### Обнаруженные изменения:\n${changes.join('\n')}\n\n### Требуется обновить:\n${files.join(', ')}\n\n### Что проверить:\n${a.rules ? '- **rules.md** — стандарты кода, соглашения, процессы\n' : ''}${a.arch ? '- **arch.md** — архитектура, новые эндпоинты, потоки данных, компоненты\n' : ''}${a.reqs ? '- **requirements.md** — новые функциональные требования, изменения в существующих\n' : ''}\n\n> 💡 Запустите AI-агента с задачей: "Обнови sourcecraft/ файлы под текущий код"`;
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

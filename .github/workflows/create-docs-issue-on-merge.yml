@@ -1,0 +1,57 @@
+name: Create Docs Update Issue
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'server/**'
+      - 'client/**'
+      - '!sourcecraft/**'
+      - '!**.md'
+jobs:
+  create-issue:
+    if: github.event.commits[0].author.name != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check if sourcecraft files were updated in this commit
+        id: check-sourcecraft
+        run: |
+          SOURCRAFT_CHANGED=$(git diff --name-only HEAD~1..HEAD -- sourcecraft/ 2>/dev/null)
+          if [ -n "$SOURCRAFT_CHANGED" ]; then
+            echo "already_updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "already_updated=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Get changed files summary
+        id: changes
+        if: steps.check-sourcecraft.outputs.already_updated == 'false'
+        run: |
+          SERVER_FILES=$(git diff --name-only HEAD~1..HEAD -- server/ 2>/dev/null | head -20)
+          CLIENT_FILES=$(git diff --name-only HEAD~1..HEAD -- client/ 2>/dev/null | head -20)
+          echo "server_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$SERVER_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "client_files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CLIENT_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      - name: Create Issue
+        if: steps.check-sourcecraft.outputs.already_updated == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const serverFiles = `${{ steps.changes.outputs.server_files }}`;
+            const clientFiles = `${{ steps.changes.outputs.client_files }}`;
+            const commitMsg = `${{ github.event.head_commit.message }}`;
+            const body = `## 🔄 Требуется обновление sourcecraft-документации\n\n### Последний коммит: ${commitMsg}\n\n### Изменённые файлы сервера:\n\`\`\`\n${serverFiles || '(нет)'}\n\`\`\`\n\n### Изменённые файлы клиента:\n\`\`\`\n${clientFiles || '(нет)'}\n\`\`\`\n\n### Задача:\nПроанализируй изменения в коде и обнови следующие файлы:\n- \`sourcecraft/rules.md\` — если изменились стандарты, соглашения, процессы\n- \`sourcecraft/arch.md\` — если изменилась архитектура, эндпоинты, компоненты, БД\n- \`sourcecraft/requirements.md\` — если добавились/изменились требования\n\n### Инструкция для AI-агента:\n> Проанализируй код сервера (server/) и клиента (client/) и обнови sourcecraft/rules.md, sourcecraft/arch.md, sourcecraft/requirements.md в соответствии с актуальным состоянием кода.`;
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '📝 Обновить sourcecraft-документацию',
+              body: body,
+              labels: ['documentation', 'automated']
+            });

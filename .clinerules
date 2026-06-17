@@ -1,0 +1,42 @@
+# SourceCraft / Roo Code — Project Context
+
+## Обязательные файлы контекста
+
+Перед ответом на любой запрос прочитай следующие файлы для полного понимания проекта:
+
+1. [`sourcecraft/rules.md`](sourcecraft/rules.md) — стандарты кода, соглашения, процессы
+2. [`sourcecraft/arch.md`](sourcecraft/arch.md) — архитектура системы, слои, потоки данных
+3. [`sourcecraft/requirements.md`](sourcecraft/requirements.md) — функциональные и нефункциональные требования
+
+## Краткая справка
+
+- **Бэкенд**: Go + Gin, SQLite3 (WAL, 1 соединение), JWT (access 15min + refresh 7d), YooKassa
+- **Фронтенд**: Nuxt 4, Pinia, Axios + fetch, Tailwind CSS v4, i18n (ru/en)
+- **Пакетный менеджер**: pnpm
+- **Модуль Go**: `github.com/raiyin/artserver`
+- **Архитектура**: Handler → Service (port interface) → Repository (port interface) → SQLite/File
+- **Админ-панель**: `/admin`, роль `admin`, middleware-защита
+
+## Обновление документации
+
+При изменениях в коде (server/ или client/) необходимо обновлять файлы в sourcecraft/.
+
+### Автоматизация (GitHub Actions)
+
+- **При PR**: GitHub Action [`check-sourcecraft-docs.yml`](.github/workflows/check-sourcecraft-docs.yml) анализирует изменённые файлы и оставляет комментарий в PR, если требуется обновление sourcecraft/.
+- **При merge в main**: GitHub Action [`create-docs-issue-on-merge.yml`](.github/workflows/create-docs-issue-on-merge.yml) создаёт issue с задачей обновить документацию, если sourcecraft/ не был изменён.
+
+### Ручной запуск
+
+```bash
+make update-docs   # Показать изменения и инструкцию для AI
+make check-docs    # Проверить, нужно ли обновление
+```
+
+### Когда обновлять
+
+| Файл | Когда обновлять |
+|------|----------------|
+| [`sourcecraft/rules.md`](sourcecraft/rules.md) | Новые соглашения, стандарты, процессы, зависимости |
+| [`sourcecraft/arch.md`](sourcecraft/arch.md) | Новые эндпоинты, компоненты, таблицы БД, потоки данных |
+| [`sourcecraft/requirements.md`](sourcecraft/requirements.md) | Новые функции, изменения требований, constraints |
