@@ -1,7 +1,7 @@
 import { defineStore, } from 'pinia';
 import { ref, computed, } from 'vue';
 import { useAuthStore, } from './AuthStore';
-import api from '../api/auth';
+import { getHttpClient, } from '~/api/http-client';
 
 export interface ProductCategory {
     id: number
@@ -112,10 +112,9 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.get('categories',);
+            const { data, } = await getHttpClient().get('categories',);
 
-            categories.value = response.data;
+            categories.value = data;
             return categories.value;
         } catch (err: unknown) {
             const errorMessage = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to fetch categories';
@@ -132,10 +131,9 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.get(`categories/${slug}`,);
+            const { data, } = await getHttpClient().get(`categories/${slug}`,);
 
-            currentCategory.value = response.data;
+            currentCategory.value = data;
             return currentCategory.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch category';
@@ -151,7 +149,6 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
             const params = new URLSearchParams();
 
             // Add filter params
@@ -169,9 +166,9 @@ export const useProductStore = defineStore('productStore', () => {
             if (filters.page) params.append('page', filters.page.toString(),);
             if (filters.limit) params.append('limit', filters.limit.toString(),);
 
-            const response = await apiInstance.get(`products?${params.toString()}`,);
+            const { data, } = await getHttpClient().get(`products?${params.toString()}`,);
 
-            products.value = response.data;
+            products.value = data;
             return products.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch products';
@@ -187,10 +184,9 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.get(`product/${slug}`,);
+            const { data, } = await getHttpClient().get(`product/${slug}`,);
 
-            currentProduct.value = response.data;
+            currentProduct.value = data;
             return currentProduct.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch product';
@@ -206,10 +202,9 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.get(`products/${id}`,);
+            const { data, } = await getHttpClient().get(`products/${id}`,);
 
-            currentProduct.value = response.data;
+            currentProduct.value = data;
             return currentProduct.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch product';
@@ -225,8 +220,7 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.get('products', {
+            const { data, } = await getHttpClient().get('products', {
                 params: {
                     is_featured: true,
                     status: 'published',
@@ -234,7 +228,7 @@ export const useProductStore = defineStore('productStore', () => {
                 },
             },);
 
-            featuredProducts.value = response.data;
+            featuredProducts.value = data;
             return featuredProducts.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch featured products';
@@ -262,12 +256,11 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.post('admin/products', productData,);
+            const { data, } = await getHttpClient().post('admin/products', productData,);
 
             // Add to local state
-            products.value.push(response.data,);
-            return response.data;
+            products.value.push(data,);
+            return data;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to create product';
             console.error('Error creating product:', err,);
@@ -286,20 +279,19 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            const response = await apiInstance.put(`admin/products/${id}`, productData,);
+            const { data, } = await getHttpClient().put(`admin/products/${id}`, productData,);
 
             // Update in local state
             const index = products.value.findIndex(p => p.id === id,);
             if (index !== -1) {
-                products.value[index] = response.data;
+                products.value[index] = data;
             }
 
             if (currentProduct.value?.id === id) {
-                currentProduct.value = response.data;
+                currentProduct.value = data;
             }
 
-            return response.data;
+            return data;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to update product';
             console.error('Error updating product:', err,);
@@ -318,8 +310,7 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const apiInstance = api.getApiInstance();
-            await apiInstance.delete(`admin/products/${id}`,);
+            await getHttpClient().delete(`admin/products/${id}`,);
 
             // Remove from local state
             products.value = products.value.filter(p => p.id !== id,);

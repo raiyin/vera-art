@@ -1,5 +1,6 @@
 import { defineStore, } from 'pinia';
 import { ref, } from 'vue';
+import { getHttpClient, } from '~/api/http-client';
 import type { Material, Base, } from '~/types';
 
 export const useMaterialStore = defineStore('materialStore', () => {
@@ -8,18 +9,11 @@ export const useMaterialStore = defineStore('materialStore', () => {
     const isLoading = ref(false,);
     const error = ref<string | null>(null,);
 
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-
     async function fetchMaterials() {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`${SERVER_URL}materials`,);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
-            }
-            const data = await response.json();
+            const { data, } = await getHttpClient().get('materials',);
             materials.value = data;
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch materials';
@@ -33,11 +27,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`${SERVER_URL}bases`,);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
-            }
-            const data = await response.json();
+            const { data, } = await getHttpClient().get('bases',);
             bases.value = data;
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch bases';

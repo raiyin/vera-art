@@ -1,17 +1,19 @@
-import type { GetBaseWork, } from './base_work';
+// ─── Public Work Types ──────────────────────────────────────────────
 
 export interface CreateWorkDto {
-    width: number
-    height: number
-    year: number
+    str_id: string
+    dir: string
     name_ru: string
     name_en: string
-    base_id: number
-    materials_ids: number[]
-    descr_ru: string
-    descr_en: string
-    type: number | null
+    year: number
+    descr: string
+    base_ru: string
+    base_en: string
+    width: number
+    height: number
+    type: number
     images: string[]
+    materials_ids: number[]
 }
 
 export interface UpdateWorkResponse {
@@ -20,10 +22,10 @@ export interface UpdateWorkResponse {
     dir: string
     name_ru: string
     name_en: string
-    base_id: number
     year: number
-    descr_ru: string
-    descr_en: string
+    descr: string
+    base_ru: string
+    base_en: string
     width: number
     height: number
     type: number
@@ -32,20 +34,37 @@ export interface UpdateWorkResponse {
 }
 
 export interface UpdateWorkRequest {
-    id: number
-    name_ru: string
-    name_en: string
-    base_id: number
-    year: number
-    descr_ru: string
-    descr_en: string
-    width: number
-    height: number
-    type: number
-    images: string[]
-    materials_ids: number[]
+    str_id?: string
+    dir?: string
+    name_ru?: string
+    name_en?: string
+    year?: number
+    descr?: string
+    base_ru?: string
+    base_en?: string
+    width?: number
+    height?: number
+    type?: number
+    images?: string[]
+    materials_ids?: number[]
 }
 
-export type TypedGetWorkDto = GetBaseWork & {
+export interface TypedGetWorkDto {
     __type: 'GetWorkDto'
-};
+    id: number
+    str_id: string
+    dir: string
+    name_ru: string
+    name_en: string
+    year: number
+    descr: string
+    base_ru: string
+    base_en: string
+    width: number
+    height: number
+    type?: number
+    images: string[]
+    materials_ids: number[]
+    materials_en?: string[]
+    materials_ru?: string[]
+}

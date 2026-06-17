@@ -1,173 +1,126 @@
-<script lang="ts">
-import { inject, ref, onMounted, computed, onUnmounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import axios from 'axios';
-import type { NewsDesc } from '../../types';
-import SideNewsTrailer from '@/components/SideNewsTrailer.vue';
-import VideoSection from '@/components/VideoSection.vue';
-import NewsDescriptionSkeleton from '@/components/NewsDescriptionSkeleton.vue';
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed, } from 'vue';
+import { useI18n, } from '#imports';
+import { getHttpClient, } from '~/api/http-client';
+import { useFormatting, } from '~/composables/useFormatting';
+import type { NewsDesc, } from '~/types';
+import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
+import VideoSection from '~/components/VideoSection.vue';
+import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
 
-export default {
-    components: {
-        SideNewsTrailer,
-        VideoSection,
-        NewsDescriptionSkeleton,
-    },
-    setup() {
-        const config = useRuntimeConfig();
-        const SERVER_URL = config.public.serverUrl;
+const route = useRoute();
+const router = useRouter();
+const { locale, t, } = useI18n();
+const { formatDate, } = useFormatting();
 
-        const route = useRoute();
-        const router = useRouter();
-        const { locale, t } = useI18n();
+const currentNewsItem = ref<NewsDesc | null>(null,);
+const otherNews = ref<NewsDesc[]>([],);
+const loading = ref(true,);
+const error = ref<string | null>(null,);
+const selectedImageIndex = ref(0,);
+const showImageModal = ref(false,);
+const imageLoadErrors = ref<Set<number>>(new Set(),);
+const mainImageError = ref(false,);
 
-        const currentNewsItem = ref<NewsDesc | null>(null);
-        const otherNews = ref<NewsDesc[]>([]);
-        const loading = ref(true);
-        const error = ref<string | null>(null);
-        const selectedImageIndex = ref(0);
-        const showImageModal = ref(false);
-        const imageLoadErrors = ref<Set<number>>(new Set());
-        const mainImageError = ref(false);
+const newsId = computed(() => route.params.id as string,);
 
-        const newsId = computed(() => route.params.id as string);
-
-        const getImageUrl = (path: string | undefined, dir: string) => {
-            if (!path) return '';
-            return dir + path;
-        };
-
-        const formatDate = (dateString: string) => {
-            const date = new Date(dateString);
-            const options: Intl.DateTimeFormatOptions = {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            };
-            return date.toLocaleDateString(
-                locale.value === 'ru' ? 'ru-RU' : 'en-US',
-                options
-            );
-        };
-
-        const fetchNewsDetail = async () => {
-            try {
-                loading.value = true;
-                error.value = null;
-
-                const response = await axios.get(`${SERVER_URL}news/${newsId.value}`);
-                currentNewsItem.value = response.data;
-
-                // Fetch other news for sidebar (excluding current)
-                const otherResponse = await axios.get(`${SERVER_URL}news`, {
-                    params: {
-                        offset: 0,
-                        limit: 6, // Get 6 to potentially exclude current
-                    },
-                });
-
-                // Filter out current news and take first 5
-                otherNews.value = otherResponse.data
-                    .filter((news: NewsDesc) => news.id.toString() !== newsId.value)
-                    .slice(0, 5);
-            } catch (err) {
-                console.error('Error fetching news detail:', err);
-                error.value = t('news.detail.error.loadFailed');
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const openImageModal = (index: number) => {
-            selectedImageIndex.value = index;
-            showImageModal.value = true;
-        };
-
-        const closeImageModal = () => {
-            showImageModal.value = false;
-        };
-
-        const navigateToNews = (id: string) => {
-            router.push(`/news/${id}`);
-        };
-
-        const handleMainImageError = () => {
-            mainImageError.value = true;
-        };
-
-        const handleGalleryImageError = (index: number) => {
-            imageLoadErrors.value.add(index);
-        };
-
-        const handleModalImageError = () => {
-            // If modal image fails, we could show a placeholder
-            // For now, just log
-            console.error('Modal image failed to load');
-        };
-
-        const resetImageErrors = () => {
-            imageLoadErrors.value.clear();
-            mainImageError.value = false;
-        };
-
-        // Keyboard navigation for modal
-        const handleKeydown = (event: KeyboardEvent) => {
-            if (!showImageModal.value || !currentNewsItem.value) return;
-
-            switch (event.key) {
-                case 'Escape':
-                    closeImageModal();
-                    break;
-                case 'ArrowLeft':
-                    if (selectedImageIndex.value > 0) {
-                        selectedImageIndex.value--;
-                    }
-                    break;
-                case 'ArrowRight':
-                    if (
-                        currentNewsItem.value.images &&
-                        selectedImageIndex.value < currentNewsItem.value.images.length - 1
-                    ) {
-                        selectedImageIndex.value++;
-                    }
-                    break;
-            }
-        };
-
-        onMounted(() => {
-            fetchNewsDetail();
-            window.addEventListener('keydown', handleKeydown);
-        });
-
-        onUnmounted(() => {
-            window.removeEventListener('keydown', handleKeydown);
-        });
-
-        return {
-            currentNewsItem,
-            otherNews,
-            loading,
-            error,
-            selectedImageIndex,
-            showImageModal,
-            imageLoadErrors,
-            mainImageError,
-            newsId,
-            getImageUrl,
-            formatDate,
-            openImageModal,
-            closeImageModal,
-            navigateToNews,
-            fetchNewsDetail,
-            handleMainImageError,
-            handleGalleryImageError,
-            handleModalImageError,
-            resetImageErrors,
-            locale,
-        };
-    },
+const getImageUrl = (path: string | undefined, dir: string,): string => {
+    if (!path) return '';
+    return dir + path;
 };
+
+const fetchNewsDetail = async (): Promise<void> => {
+    try {
+        loading.value = true;
+        error.value = null;
+
+        const { data: currentData, } = await getHttpClient().get<NewsDesc>(
+            `news/${newsId.value}`,
+            );
+        currentNewsItem.value = currentData;
+
+        // Fetch other news for sidebar (excluding current)
+        const { data: otherData, } = await getHttpClient().get<NewsDesc[]>('news', {
+            params: {
+                offset: 0,
+                limit: 6, // Get 6 to potentially exclude current
+            },
+        });
+
+        // Filter out current news and take first 5
+        otherNews.value = otherData
+            .filter((news: NewsDesc,) => news.id.toString() !== newsId.value,)
+            .slice(0, 5,);
+    } catch (err) {
+        console.error('Error fetching news detail:', err,);
+        error.value = t('news.detail.error.loadFailed',);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const openImageModal = (index: number,): void => {
+    selectedImageIndex.value = index;
+    showImageModal.value = true;
+};
+
+const closeImageModal = (): void => {
+    showImageModal.value = false;
+};
+
+const navigateToNews = (id: string,): void => {
+    router.push(`/news/${id}`,);
+};
+
+const handleMainImageError = (): void => {
+    mainImageError.value = true;
+};
+
+const handleGalleryImageError = (index: number,): void => {
+    imageLoadErrors.value.add(index,);
+};
+
+const handleModalImageError = (): void => {
+    console.error('Modal image failed to load',);
+};
+
+const resetImageErrors = (): void => {
+    imageLoadErrors.value.clear();
+    mainImageError.value = false;
+};
+
+// Keyboard navigation for modal
+const handleKeydown = (event: KeyboardEvent,): void => {
+    if (!showImageModal.value || !currentNewsItem.value) return;
+
+    switch (event.key) {
+        case 'Escape':
+            closeImageModal();
+            break;
+        case 'ArrowLeft':
+            if (selectedImageIndex.value > 0) {
+                selectedImageIndex.value--;
+            }
+            break;
+        case 'ArrowRight':
+            if (
+                currentNewsItem.value.images
+            && selectedImageIndex.value < currentNewsItem.value.images.length - 1
+            ) {
+                selectedImageIndex.value++;
+            }
+            break;
+    }
+};
+
+onMounted(() => {
+    fetchNewsDetail();
+    window.addEventListener('keydown', handleKeydown,);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown,);
+});
 </script>
 
 <template>
@@ -176,7 +129,10 @@ export default {
         <NewsDescriptionSkeleton v-if="loading && !currentNewsItem" />
 
         <!-- Error State -->
-        <div v-else-if="error" class="error-container">
+        <div
+            v-else-if="error"
+            class="error-container"
+        >
             <div class="error-content">
                 <svg
                     class="error-icon"
@@ -190,18 +146,28 @@ export default {
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    ></path>
+                    />
                 </svg>
-                <h2 class="error-title">{{ $t('news.detail.error.title') }}</h2>
-                <p class="error-message">{{ error }}</p>
-                <button @click="fetchNewsDetail" class="retry-button">
-                    {{ $t('news.detail.error.retryButton') }}
+                <h2 class="error-title">
+                    {{ $t('news.detail.error.title',) }}
+                </h2>
+                <p class="error-message">
+                    {{ error }}
+                </p>
+                <button
+                    class="retry-button"
+                    @click="fetchNewsDetail"
+                >
+                    {{ $t('news.detail.error.retryButton',) }}
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div v-else-if="currentNewsItem" class="container mx-auto px-4 py-8">
+        <div
+            v-else-if="currentNewsItem"
+            class="container mx-auto px-4 py-8"
+        >
             <!-- Breadcrumb -->
             <nav class="mb-6">
                 <ol class="flex items-center space-x-2 text-sm text-gray-500">
@@ -210,7 +176,7 @@ export default {
                             to="/"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.home') }}
+                            {{ $t('breadcrumb.home',) }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -226,13 +192,13 @@ export default {
                                 stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M9 5l7 7-7 7"
-                            ></path>
+                            />
                         </svg>
                         <router-link
                             to="/news"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.news') }}
+                            {{ $t('breadcrumb.news',) }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -248,7 +214,7 @@ export default {
                                 stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M9 5l7 7-7 7"
-                            ></path>
+                            />
                         </svg>
                         <span
                             class="text-gray-900 dark:text-white font-medium truncate max-w-xs"
@@ -268,10 +234,13 @@ export default {
                 <!-- Main Image (2/3 width on large screens) -->
                 <div class="lg:w-2/3">
                     <div
-                        class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                         ref="mainImageContainer"
+                        class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                     >
-                        <div v-if="mainImageError" class="image-error-state">
+                        <div
+                            v-if="mainImageError"
+                            class="image-error-state"
+                        >
                             <svg
                                 class="w-16 h-16 text-gray-400 mx-auto mb-4"
                                 fill="none"
@@ -284,10 +253,10 @@ export default {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                ></path>
+                                />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400 text-center">
-                                {{ $t('news.detail.image.error') }}
+                                {{ $t('news.detail.image.error',) }}
                             </p>
                         </div>
                         <img
@@ -295,7 +264,7 @@ export default {
                             :src="
                                 getImageUrl(
                                     currentNewsItem.img_backfull,
-                                    currentNewsItem.dir
+                                    currentNewsItem.dir,
                                 )
                             "
                             :alt="
@@ -306,7 +275,7 @@ export default {
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
-                        />
+                        >
                     </div>
                 </div>
 
@@ -316,7 +285,7 @@ export default {
                         <h3
                             class="text-xl font-bold text-gray-900 dark:text-white mb-4 pb-1 border-b border-gray-200 dark:border-gray-700"
                         >
-                            {{ $t('news.detail.sidebar.title') }}
+                            {{ $t('news.detail.sidebar.title',) }}
                         </h3>
 
                         <div
@@ -327,13 +296,16 @@ export default {
                                 v-for="news in otherNews"
                                 :key="news.id"
                                 class="sidebar-news-item cursor-pointer group"
-                                @click="navigateToNews(news.id)"
+                                @click="navigateToNews(news.id,)"
                             >
-                                <SideNewsTrailer :sideNewsObject="news" />
+                                <SideNewsTrailer :side-news-object="news" />
                             </div>
                         </div>
 
-                        <div v-else class="text-center py-8">
+                        <div
+                            v-else
+                            class="text-center py-8"
+                        >
                             <svg
                                 class="w-12 h-12 mx-auto text-gray-400 mb-4"
                                 fill="none"
@@ -346,10 +318,10 @@ export default {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                                ></path>
+                                />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400">
-                                {{ $t('news.detail.sidebar.empty') }}
+                                {{ $t('news.detail.sidebar.empty',) }}
                             </p>
                         </div>
 
@@ -358,7 +330,7 @@ export default {
                                 to="/news"
                                 class="flex items-center justify-center w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                             >
-                                <span>{{ $t('news.viewAllNews') }}</span>
+                                <span>{{ $t('news.viewAllNews',) }}</span>
                                 <svg
                                     class="w-5 h-5 ml-2"
                                     fill="none"
@@ -371,7 +343,7 @@ export default {
                                         stroke-linejoin="round"
                                         stroke-width="2"
                                         d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                    ></path>
+                                    />
                                 </svg>
                             </router-link>
                         </div>
@@ -397,9 +369,9 @@ export default {
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path>
+                        />
                     </svg>
-                    {{ formatDate(currentNewsItem.datetime) }}
+                    {{ formatDate(currentNewsItem.datetime,) }}
                 </div>
 
                 <!-- Title -->
@@ -418,20 +390,20 @@ export default {
             <div class="news-text mb-12">
                 <div class="prose prose-lg dark:prose-invert max-w-none">
                     <div
+                        class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
                         v-html="
                             locale === 'ru'
                                 ? currentNewsItem.text_ru
                                 : currentNewsItem.text_en
                         "
-                        class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
-                    ></div>
+                    />
                 </div>
             </div>
 
             <!-- Image Gallery -->
             <div class="image-gallery mb-12">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    {{ $t('news.detail.gallery.title') }}
+                    {{ $t('news.detail.gallery.title',) }}
                 </h3>
                 <div
                     v-if="currentNewsItem.images && currentNewsItem.images.length > 0"
@@ -441,11 +413,11 @@ export default {
                         v-for="(image, index) in currentNewsItem.images"
                         :key="index"
                         class="gallery-item cursor-pointer group"
-                        @click="openImageModal(index)"
+                        @click="openImageModal(index,)"
                     >
                         <div class="aspect-square overflow-hidden rounded-lg relative">
                             <div
-                                v-if="imageLoadErrors.has(index)"
+                                v-if="imageLoadErrors.has(index,)"
                                 class="image-error-placeholder w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800"
                             >
                                 <svg
@@ -460,19 +432,22 @@ export default {
                                         stroke-linejoin="round"
                                         stroke-width="2"
                                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    ></path>
+                                    />
                                 </svg>
                             </div>
                             <img
                                 v-else
-                                :src="getImageUrl(image, currentNewsItem.dir)"
+                                :src="getImageUrl(image, currentNewsItem.dir,)"
                                 :alt="`Gallery image ${index + 1}`"
                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                 loading="lazy"
-                                @error="() => handleGalleryImageError(index)"
-                            />
+                                @error="() => handleGalleryImageError(index,)"
+                            >
                         </div>
-                        <div class="gallery-overlay" v-if="!imageLoadErrors.has(index)">
+                        <div
+                            v-if="!imageLoadErrors.has(index,)"
+                            class="gallery-overlay"
+                        >
                             <svg
                                 class="w-8 h-8 text-white"
                                 fill="none"
@@ -485,12 +460,15 @@ export default {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                                ></path>
+                                />
                             </svg>
                         </div>
                     </div>
                 </div>
-                <div v-else class="empty-state py-12 text-center">
+                <div
+                    v-else
+                    class="empty-state py-12 text-center"
+                >
                     <svg
                         class="w-16 h-16 mx-auto text-gray-400 mb-4"
                         fill="none"
@@ -503,10 +481,10 @@ export default {
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        ></path>
+                        />
                     </svg>
                     <p class="text-gray-500 dark:text-gray-400">
-                        {{ $t('news.detail.gallery.empty') }}
+                        {{ $t('news.detail.gallery.empty',) }}
                     </p>
                 </div>
             </div>
@@ -514,15 +492,18 @@ export default {
             <!-- Video Carousel -->
             <div class="video-carousel mb-12">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    {{ $t('news.detail.videos.title') }}
+                    {{ $t('news.detail.videos.title',) }}
                 </h3>
                 <div
                     v-if="currentNewsItem.videos && currentNewsItem.videos.length > 0"
                     class="relative"
                 >
-                    <VideoSection :currentNewsItem="currentNewsItem" />
+                    <VideoSection :current-news-item="currentNewsItem" />
                 </div>
-                <div v-else class="empty-state py-12 text-center">
+                <div
+                    v-else
+                    class="empty-state py-12 text-center"
+                >
                     <svg
                         class="w-16 h-16 mx-auto text-gray-400 mb-4"
                         fill="none"
@@ -535,10 +516,10 @@ export default {
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        ></path>
+                        />
                     </svg>
                     <p class="text-gray-500 dark:text-gray-400">
-                        {{ $t('news.detail.videos.empty') }}
+                        {{ $t('news.detail.videos.empty',) }}
                     </p>
                 </div>
             </div>
@@ -555,8 +536,8 @@ export default {
                     <!-- Close Button -->
                     <button
                         class="custom-modal-close"
+                        :aria-label="$t('news.detail.modal.close',)"
                         @click="closeImageModal"
-                        :aria-label="$t('news.detail.modal.close')"
                     >
                         <svg
                             class="w-6 h-6"
@@ -570,33 +551,36 @@ export default {
                                 stroke-linejoin="round"
                                 stroke-width="2"
                                 d="M6 18L18 6M6 6l12 12"
-                            ></path>
+                            />
                         </svg>
                     </button>
 
                     <!-- Image Container -->
                     <div class="custom-modal-image-container">
-                        <transition name="image-slide" mode="out-in">
+                        <transition
+                            name="image-slide"
+                            mode="out-in"
+                        >
                             <img
                                 :key="selectedImageIndex"
                                 :src="
                                     getImageUrl(
                                         currentNewsItem.images[selectedImageIndex],
-                                        currentNewsItem.dir
+                                        currentNewsItem.dir,
                                     )
                                 "
                                 :alt="`Gallery image ${selectedImageIndex + 1}`"
                                 class="custom-modal-image"
                                 @click="closeImageModal"
-                            />
+                            >
                         </transition>
 
                         <!-- Navigation Buttons -->
                         <button
                             v-if="selectedImageIndex > 0"
-                            @click="selectedImageIndex--"
                             class="custom-modal-nav-button left"
-                            :aria-label="$t('news.detail.modal.previous')"
+                            :aria-label="$t('news.detail.modal.previous',)"
+                            @click="selectedImageIndex--"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -610,14 +594,14 @@ export default {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M15 19l-7-7 7-7"
-                                ></path>
+                                />
                             </svg>
                         </button>
                         <button
                             v-if="selectedImageIndex < currentNewsItem.images.length - 1"
-                            @click="selectedImageIndex++"
                             class="custom-modal-nav-button right"
-                            :aria-label="$t('news.detail.modal.next')"
+                            :aria-label="$t('news.detail.modal.next',)"
+                            @click="selectedImageIndex++"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -631,7 +615,7 @@ export default {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M9 5l7 7-7 7"
-                                ></path>
+                                />
                             </svg>
                         </button>
 
@@ -656,14 +640,14 @@ export default {
                             v-for="(image, index) in currentNewsItem.images"
                             :key="index"
                             class="thumbnail-item"
-                            :class="{ active: index === selectedImageIndex }"
+                            :class="{ active: index === selectedImageIndex, }"
                             @click="selectedImageIndex = index"
                         >
                             <img
-                                :src="getImageUrl(image, currentNewsItem.dir)"
+                                :src="getImageUrl(image, currentNewsItem.dir,)"
                                 :alt="`Thumbnail ${index + 1}`"
                                 class="thumbnail-image"
-                            />
+                            >
                         </div>
                     </div>
                 </div>

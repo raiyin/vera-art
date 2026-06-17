@@ -1,7 +1,8 @@
 import { defineStore, } from 'pinia';
 import { ref, computed, } from 'vue';
 import { useAuthStore, } from './AuthStore';
-import type { ChatThread, } from '../types';
+import { getHttpClient, } from '~/api/http-client';
+import type { ChatThread, } from '~/types';
 
 export const useNotificationStore = defineStore('notificationStore', () => {
     const authStore = useAuthStore();
@@ -26,19 +27,9 @@ export const useNotificationStore = defineStore('notificationStore', () => {
         }
 
         try {
-            // We could call a dedicated endpoint for unread count
-            // For now, we'll fetch threads and count unread messages
-            const config = useRuntimeConfig();
-            const serverUrl = config.public.serverUrl;
-            const response = await fetch(`${serverUrl}chat/threads`, {
-                headers: { Authorization: `Bearer ${authStore.token}`, },
-            },);
+            const { data, } = await getHttpClient().get('chat/threads',);
 
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
-            }
-
-            const threads = await response.json() as ChatThread[];
+            const threads = data as ChatThread[];
 
             let totalUnread = 0;
             if (Array.isArray(threads,)) {
@@ -48,7 +39,7 @@ export const useNotificationStore = defineStore('notificationStore', () => {
                     if (thread.messages && thread.messages.length > 0) {
                         // Check if last message is from someone else and not read
                         const lastMessage = thread.messages[thread.messages.length - 1];
-                        if (lastMessage.sender_id !== authStore.userId && !lastMessage.is_read) {
+                        if (lastMessage?.sender_id !== authStore.userId && !lastMessage?.is_read) {
                             totalUnread++;
                         }
                     }

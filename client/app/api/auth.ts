@@ -1,90 +1,11 @@
-import axios from 'axios';
-import { useAuthStore, } from '../stores/AuthStore';
-
-// Helper to get runtime config — must be called inside Nuxt context
-function getApiUrl(): string {
-    const config = useRuntimeConfig();
-    return config.public.serverUrl;
-}
-
-// Create axios instance (baseURL will be set in request interceptor to avoid module-level useRuntimeConfig)
-const api = axios.create({
-    headers: {
-        'Content-Type': 'application/json',
-    },
-},);
-
-// Request interceptor to add auth token and set base URL
-api.interceptors.request.use(
-    (config,) => {
-        // Set baseURL at request time (inside Nuxt context)
-        config.baseURL = getApiUrl();
-
-        const authStore = useAuthStore();
-        const token = authStore.accessToken;
-
-        if (token && !config.url?.includes('/refresh',) && !config.url?.includes('/login',) && !config.url?.includes('/register',)) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-
-        return config;
-    },
-    (error,) => {
-        return Promise.reject(error,);
-    },
-);
-
-// Response interceptor to handle token refresh
-api.interceptors.response.use(
-    response => response,
-    async (error,) => {
-        const originalRequest = error.config;
-
-        // If error is 401 and we haven't tried refreshing yet
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-
-            try {
-                const authStore = useAuthStore();
-
-                // Try to refresh the token
-                const refreshResponse = await axios.post(`${getApiUrl()}refresh`, {
-                    refresh_token: authStore.refreshToken,
-                },);
-
-                if (refreshResponse.status === 200) {
-                    const { access_token, access_expires, } = refreshResponse.data;
-
-                    // Update the access token in the store
-                    authStore.updateAccessToken(access_token, access_expires,);
-
-                    // Update the Authorization header
-                    originalRequest.headers.Authorization = `Bearer ${access_token}`;
-
-                    // Retry the original request
-                    return api(originalRequest,);
-                }
-            } catch {
-                // Refresh failed, logout the user
-                const authStore = useAuthStore();
-                authStore.clearTokens();
-
-                // Redirect to login page if we're not already there
-                if (typeof window !== 'undefined' && !window.location.pathname.includes('/auth/login',)) {
-                    window.location.href = '/auth/login';
-                }
-            }
-        }
-
-        return Promise.reject(error,);
-    },
-);
+import { getHttpClient, } from '~/api/http-client';
+import { useAuthStore, } from '~/stores/AuthStore';
 
 export default {
     // Register new user
     async register(userData: { username: string, password: string, email?: string },) {
         try {
-            const response = await api.post('register', userData,);
+            const response = await getHttpClient().post('register', userData,);
             return response.data;
         } catch (error: any) {
             throw error.response?.data || { error: 'Registration failed', };
@@ -92,29 +13,29 @@ export default {
     },
 
     // Verify email with token
-    async verifyEmail(token: string) {
+    async verifyEmail(token: string,) {
         try {
-            const response = await api.get('verify-email', { params: { token } });
+            const response = await getHttpClient().get('verify-email', { params: { token, }, },);
             return response.data;
         } catch (error: any) {
-            throw error.response?.data || { error: 'Email verification failed' };
+            throw error.response?.data || { error: 'Email verification failed', };
         }
     },
 
     // Resend verification email
-    async resendVerification(email: string) {
+    async resendVerification(email: string,) {
         try {
-            const response = await api.post('resend-verification', { email });
+            const response = await getHttpClient().post('resend-verification', { email, },);
             return response.data;
         } catch (error: any) {
-            throw error.response?.data || { error: 'Failed to resend verification email' };
+            throw error.response?.data || { error: 'Failed to resend verification email', };
         }
     },
 
     // Login user
     async login(credentials: { username: string, password: string },) {
         try {
-            const response = await api.post('login', credentials,);
+            const response = await getHttpClient().post('login', credentials,);
             const authStore = useAuthStore();
 
             // Save tokens to store
@@ -136,7 +57,7 @@ export default {
                 throw new Error('No refresh token available',);
             }
 
-            const response = await axios.post(`${getApiUrl()}refresh`, {
+            const response = await getHttpClient().post('refresh', {
                 refresh_token: refreshToken,
             },);
 
@@ -167,7 +88,7 @@ export default {
     // Get protected content (example)
     async getProtectedContent() {
         try {
-            const response = await api.get('protected',);
+            const response = await getHttpClient().get('protected',);
             return response.data;
         } catch (error: any) {
             throw error.response?.data || { error: 'Failed to fetch protected content', };
@@ -188,52 +109,47 @@ export default {
 
     // Get user profile
     async getProfile() {
-    	try {
-    		const response = await api.get('profile');
-    		return response.data;
-    	} catch (error: any) {
-    		throw error.response?.data || { error: 'Failed to fetch profile' };
-    	}
+        try {
+            const response = await getHttpClient().get('profile',);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Failed to fetch profile', };
+        }
     },
 
     // Update user profile
-    async updateProfile(data: { email?: string; full_name?: string }) {
-    	try {
-    		const response = await api.put('profile', data);
-    		return response.data;
-    	} catch (error: any) {
-    		throw error.response?.data || { error: 'Failed to update profile' };
-    	}
+    async updateProfile(data: { email?: string, full_name?: string },) {
+        try {
+            const response = await getHttpClient().put('profile', data,);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Failed to update profile', };
+        }
     },
 
     // Upload avatar
-    async uploadAvatar(file: File) {
-    	try {
-    		const formData = new FormData();
-    		formData.append('avatar', file);
-    		const response = await api.post('profile/avatar', formData, {
-    			headers: {
-    				'Content-Type': 'multipart/form-data',
-    			},
-    		});
-    		return response.data;
-    	} catch (error: any) {
-    		throw error.response?.data || { error: 'Failed to upload avatar' };
-    	}
+    async uploadAvatar(file: File,) {
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file,);
+            const response = await getHttpClient().post('profile/avatar', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            },);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Failed to upload avatar', };
+        }
     },
 
     // Delete avatar
     async deleteAvatar() {
-    	try {
-    		const response = await api.delete('profile/avatar');
-    		return response.data;
-    	} catch (error: any) {
-    		throw error.response?.data || { error: 'Failed to delete avatar' };
-    	}
+        try {
+            const response = await getHttpClient().delete('profile/avatar',);
+            return response.data;
+        } catch (error: any) {
+            throw error.response?.data || { error: 'Failed to delete avatar', };
+        }
     },
-
-    // Get axios instance for custom requests
-    getApiInstance() {
-    	return api;
-    },
-   };
+};
