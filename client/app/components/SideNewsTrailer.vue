@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
 import SideNewsTrailerSkeleton from './SideNewsTrailerSkeleton.vue';
-import type { NewsDesc } from '../types';
+import type { NewsDesc } from '~/types';
 import type { PropType } from 'vue';
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useI18n } from '#imports';

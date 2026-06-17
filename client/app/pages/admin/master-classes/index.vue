@@ -308,8 +308,8 @@ import { ref, computed, onMounted, watch, } from 'vue';
 import {
     fetchAdminProducts,
     deleteAdminProducts,
-    type AdminProductItem,
 } from '~/api/admin';
+import type { AdminProductItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

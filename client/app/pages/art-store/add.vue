@@ -329,13 +329,13 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateSaleDto, RequestResult } from '../../types';
+import type { CreateSaleDto, RequestResult } from '~/types';
 definePageMeta({
     layout: 'admin',
     middleware: 'admin-auth',
 });
 
-import { useMaterialStore } from '../../stores/MaterialStore';
+import { useMaterialStore } from '~/stores/MaterialStore';
 
 const { t, locale } = useI18n();
 const toast = useToast();

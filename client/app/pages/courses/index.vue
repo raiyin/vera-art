@@ -150,9 +150,9 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
-import { useProductStore } from '../../stores/ProductStore';
-import ProductList from '../../components/ProductList.vue';
-import type { Product } from '../../stores/ProductStore';
+import { useProductStore } from '~/stores/ProductStore';
+import ProductList from '~/components/ProductList.vue';
+import type { Product } from '~/stores/ProductStore';
 
 const productStore = useProductStore();
 

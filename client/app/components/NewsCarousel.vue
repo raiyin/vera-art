@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NewsDesc } from '../types';
+import type { NewsDesc } from '~/types';
 import type { PropType } from 'vue';
 import { ref } from 'vue';
 import { useI18n } from '#imports';

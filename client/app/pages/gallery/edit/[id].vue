@@ -311,12 +311,8 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-import type {
-    RequestResult,
-    UpdateWorkRequest,
-    UpdateWorkResponse,
-} from '../../../types';
-import { useMaterialStore } from '../../../stores/MaterialStore';
+import type { RequestResult, UpdateWorkRequest, UpdateWorkResponse } from '~/types';
+import { useMaterialStore } from '~/stores/MaterialStore';
 
 definePageMeta({
     layout: 'admin',

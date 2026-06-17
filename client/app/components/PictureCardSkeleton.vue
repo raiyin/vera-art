@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useThemeStore } from '../stores/ThemeStore';
+import { useThemeStore } from '~/stores/ThemeStore';
 
 export default {
     setup() {

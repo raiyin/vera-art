@@ -1,9 +1,8 @@
-import type { NewsDesc, } from '../types';
+import type { NewsDesc, } from '~/types';
 import axios from 'axios';
 
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
-
 
 const fetchCurrentNews = async (
     path: string,

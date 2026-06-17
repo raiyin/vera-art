@@ -325,8 +325,8 @@ import { ref, computed, onMounted, watch, } from 'vue';
 import {
     fetchAdminSales,
     deleteAdminSales,
-    type AdminSaleItem,
 } from '~/api/admin';
+import type { AdminSaleItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

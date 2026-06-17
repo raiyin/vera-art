@@ -249,14 +249,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import {
     fetchAdminCategories,
     createAdminCategory,
     updateAdminCategory,
     deleteAdminCategory,
-    type AdminCategoryItem,
 } from '~/api/admin';
+import type { AdminCategoryItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

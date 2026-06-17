@@ -343,7 +343,7 @@
 import { ref, reactive, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../../api/auth';
+import authApi from '~/api/auth';
 
 interface RegisterForm {
     username: string;

@@ -61,10 +61,10 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { useAuthStore } from '../../stores/AuthStore';
-import { useProductStore } from '../../stores/ProductStore';
+import { useAuthStore } from '~/stores/AuthStore';
+import { useProductStore } from '~/stores/ProductStore';
 import ReviewForm from '~/components/ReviewForm.vue';
-import type { CreateReviewDto } from '../../types';
+import type { CreateReviewDto } from '~/types';
 
 const route = useRoute();
 const router = useRouter();

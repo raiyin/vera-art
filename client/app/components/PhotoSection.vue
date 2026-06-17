@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import NewsPhotoItem from './NewsPhotoItem.vue';
 import type { PropType } from 'vue';
-import type { NewsDesc } from '../types';
+import type { NewsDesc } from '~/types';
 import NewsCarousel from './NewsCarousel.vue';
 import { ref } from 'vue';
 

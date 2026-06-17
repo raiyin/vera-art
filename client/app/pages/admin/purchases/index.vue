@@ -306,8 +306,8 @@ import {
     fetchAdminPurchases,
     extendAdminPurchaseAccess,
     cancelAdminPurchase,
-    type AdminPurchaseItem,
 } from '~/api/admin';
+import type { AdminPurchaseItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

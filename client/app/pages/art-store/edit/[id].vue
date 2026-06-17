@@ -336,12 +336,8 @@
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import type {
-    UpdateSaleRequest,
-    UpdateSaleResponse,
-    RequestResult,
-} from '../../../types';
-import { useMaterialStore } from '../../../stores/MaterialStore';
+import type { UpdateSaleRequest, UpdateSaleResponse, RequestResult } from '~/types';
+import { useMaterialStore } from '~/stores/MaterialStore';
 
 const toast = useToast();
 const route = useRoute();

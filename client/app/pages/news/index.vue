@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { NewsDescDto } from '../../types';
-import { useAuthStore } from '../../stores/AuthStore';
+import type { NewsDescDto } from '~/types';
+import { useAuthStore } from '~/stores/AuthStore';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';

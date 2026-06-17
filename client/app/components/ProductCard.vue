@@ -139,7 +139,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Product } from '../../stores/ProductStore';
+import type { Product } from '~/stores/ProductStore';
 
 interface Props {
     product: Product;

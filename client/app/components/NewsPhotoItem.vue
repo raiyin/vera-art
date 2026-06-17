@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { NewsDesc } from '../types';
+import type { NewsDesc } from '~/types';
 import { ref } from 'vue';
 
 const props = defineProps({

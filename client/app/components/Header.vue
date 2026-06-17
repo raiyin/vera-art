@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from '#imports';
-import { useAuthStore } from '../stores/AuthStore';
-import { useNotificationStore } from '../stores/NotificationStore';
-import { useThemeStore } from '../stores/ThemeStore';
+import { useAuthStore } from '~/stores/AuthStore';
+import { useNotificationStore } from '~/stores/NotificationStore';
+import { useThemeStore } from '~/stores/ThemeStore';
 import type { NavigationMenuItem, DropdownMenuItem } from '@nuxt/ui';
-import authApi from '../api/auth';
+import authApi from '~/api/auth';
 
 const { locale, setLocale, t } = useI18n();
 const authStore = useAuthStore();

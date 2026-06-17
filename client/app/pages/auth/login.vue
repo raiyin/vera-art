@@ -223,7 +223,7 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../../api/auth';
+import authApi from '~/api/auth';
 
 interface LoginForm {
     username: string;

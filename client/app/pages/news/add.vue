@@ -5,8 +5,8 @@ definePageMeta({
 });
 
 import { ref, reactive, computed } from 'vue';
-import type { NewsDesc } from '../../types';
-import authApi from '../../api/auth';
+import type { NewsDesc } from '~/types';
+import authApi from '~/api/auth';
 
 const api = authApi.getApiInstance();
 

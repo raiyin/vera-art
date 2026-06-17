@@ -112,8 +112,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useAuthStore } from '../../stores/AuthStore';
-import type { ChatThread, ChatMessage } from '../../types';
+import { useAuthStore } from '~/stores/AuthStore';
+import type { ChatThread, ChatMessage } from '~/types';
 
 const route = useRoute();
 const router = useRouter();

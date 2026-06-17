@@ -344,8 +344,8 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateWorkDto, RequestResult } from '../../types';
-import { useMaterialStore } from '../../stores/MaterialStore';
+import type { CreateWorkDto, RequestResult } from '~/types';
+import { useMaterialStore } from '~/stores/MaterialStore';
 
 const { t, locale } = useI18n();
 const toast = useToast();

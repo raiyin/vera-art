@@ -183,14 +183,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, } from 'vue';
+import { ref, reactive } from 'vue';
 import {
     fetchAdminTags,
     createAdminTag,
     updateAdminTag,
     deleteAdminTag,
-    type AdminTagItem,
 } from '~/api/admin';
+import type { AdminTagItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

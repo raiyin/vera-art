@@ -97,8 +97,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import { useAuthStore } from '../stores/AuthStore';
-import type { ChatThread, ChatMessage } from '../types';
+import { useAuthStore } from '~/stores/AuthStore';
+import type { ChatThread, ChatMessage } from '~/types';
 
 interface Props {
     purchaseId?: number;

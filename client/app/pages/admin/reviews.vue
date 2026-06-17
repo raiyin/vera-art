@@ -363,7 +363,7 @@ import {
     bulkRejectAdminReviews,
     bulkDeleteAdminReviews,
 } from '~/api/admin';
-import type { AdminReviewItem, AdminReviewsStats } from '~/api/admin';
+import type { AdminReviewItem, AdminReviewsStats } from '~/types';
 
 definePageMeta({
     layout: 'admin',

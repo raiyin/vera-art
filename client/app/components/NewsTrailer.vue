@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
-import { useAuthStore } from '../stores/AuthStore';
+import { useAuthStore } from '~/stores/AuthStore';
 import { ref, computed } from 'vue';
 import { useRouter, useI18n } from '#imports';
 
@@ -80,7 +80,9 @@ const deleteNews = async () => {
             emit('news-deleted', props.newsObject.id);
         } else {
             const errorData = await response.json();
-            errorMessage.value = `Ошибка при удалении новости: ${errorData.error || 'Неизвестная ошибка'}`;
+            errorMessage.value = `Ошибка при удалении новости: ${
+                errorData.error || 'Неизвестная ошибка'
+            }`;
         }
     } catch (error) {
         console.error('Error deleting news:', error);

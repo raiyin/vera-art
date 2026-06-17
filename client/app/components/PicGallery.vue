@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import type { CommonGetWorkDto } from '~/types';
-import { useMaterialStore } from '../stores/MaterialStore';
-import { useAuthStore } from '../stores/AuthStore';
+import { useMaterialStore } from '~/stores/MaterialStore';
+import { useAuthStore } from '~/stores/AuthStore';
 import type { CommonTypedGetWorkDto } from '~/types/common_work';
 import type { SelectItem } from '@nuxt/ui';
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useI18n } from '#imports';
 import { useRouter } from 'vue-router';
+import { useApi } from '~/composables/useApi';
 
 const props = defineProps({
     images: {
@@ -50,14 +51,10 @@ const filteredImages = computed(() => {
 
 const { locale } = useI18n();
 
-const isAuthenticated = computed(() => {
-    // Simple auth check - can be enhanced with proper auth store
-    return !!localStorage.getItem('token');
-});
-
 const materialStore = useMaterialStore();
 const authStore = useAuthStore();
 const router = useRouter();
+const { del } = useApi();
 
 const isAdmin = computed(() => {
     return authStore.isAuthenticated && authStore.isAdmin;
@@ -68,9 +65,6 @@ const handleWorkDeleted = (id: string) => {
     // Emit event to parent component to update the list
     emit('work-deleted', id);
 };
-
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
 
 const navigateToEdit = (work: CommonGetWorkDto) => {
     const id = work.id.toString();
@@ -95,13 +89,7 @@ const deleteWork = async () => {
 
     try {
         const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
-        const response = await fetch(`${SERVER_URL}${endpoint}/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        await del<void>(`${endpoint}/${id}`);
         handleWorkDeleted(id);
     } catch (e) {
         console.error('Error deleting work:', e);

@@ -1,6 +1,6 @@
 import { defineStore, } from 'pinia';
 import { ref, computed, } from 'vue';
-import { getRoleFromToken, getUserIdFromToken, } from '../utils/jwt';
+import { getRoleFromToken, getUserIdFromToken, } from '~/utils/jwt';
 
 interface TokenData {
     access_token: string

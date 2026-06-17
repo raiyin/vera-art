@@ -327,9 +327,8 @@ import { ref, computed, onMounted, watch, } from 'vue';
 import {
     fetchAdminWorks,
     deleteAdminWorks,
-    type AdminWorkItem,
-    type AdminListWorksResponse,
 } from '~/api/admin';
+import type { AdminWorkItem, AdminListWorksResponse } from '~/types';
 
 definePageMeta({
     layout: 'admin',

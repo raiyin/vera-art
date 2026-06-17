@@ -1,4 +1,4 @@
-import { useAuthStore, } from '../stores/AuthStore';
+import { useAuthStore, } from '~/stores/AuthStore';
 
 export default defineNuxtRouteMiddleware(async (_to, _from,) => {
     // Skip middleware during SSR — auth depends on localStorage which is client-only

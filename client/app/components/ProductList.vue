@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ProductCard from './ProductCard.vue';
-import type { Product } from '../stores/ProductStore';
+import type { Product } from '~/stores/ProductStore';
 
 interface Props {
     products: Product[];

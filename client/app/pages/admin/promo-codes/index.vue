@@ -295,14 +295,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, } from 'vue';
+import { ref, reactive } from 'vue';
 import {
     fetchAdminPromoCodes,
     createAdminPromoCode,
     updateAdminPromoCode,
     deleteAdminPromoCode,
-    type AdminPromoCodeItem,
 } from '~/api/admin';
+import type { AdminPromoCodeItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',
@@ -345,7 +345,11 @@ const deleting = ref(false);
 
 function formatDate(dateStr: string): string {
     const d = new Date(dateStr);
-    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', });
+    return d.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+    });
 }
 
 function resetForm() {
@@ -385,7 +389,9 @@ async function savePromoCode() {
             discount_value: Number(form.discount_value),
             max_uses: form.max_uses || null,
             valid_from: form.valid_from ? new Date(form.valid_from).toISOString() : null,
-            valid_until: form.valid_until ? new Date(form.valid_until).toISOString() : null,
+            valid_until: form.valid_until
+                ? new Date(form.valid_until).toISOString()
+                : null,
             is_active: form.is_active === 'true',
         };
 

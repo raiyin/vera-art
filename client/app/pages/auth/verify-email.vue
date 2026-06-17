@@ -147,7 +147,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import authApi from '../../api/auth';
+import authApi from '~/api/auth';
 
 export default {
     setup() {

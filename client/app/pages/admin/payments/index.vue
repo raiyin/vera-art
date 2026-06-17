@@ -309,8 +309,8 @@ import { ref, watch, } from 'vue';
 import {
     fetchAdminPayments,
     refundAdminPayment,
-    type AdminPaymentItem,
 } from '~/api/admin';
+import type { AdminPaymentItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

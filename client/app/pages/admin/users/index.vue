@@ -607,15 +607,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import {
     fetchAdminUsers,
     fetchAdminUserDetail,
     updateAdminUserRole,
     toggleAdminUserBlock,
-    type AdminUserItem,
-    type AdminUserDetail,
 } from '~/api/admin';
+import type { AdminUserItem, AdminUserDetail } from '~/types';
 
 definePageMeta({
     layout: 'admin',
@@ -687,21 +686,31 @@ function formatPrice(kopecks: number): string {
     return `${(kopecks / 100).toLocaleString('ru-RU')} ₽`;
 }
 
-function purchaseStatusColor(status: string): 'success' | 'warning' | 'error' | 'neutral' {
+function purchaseStatusColor(
+    status: string
+): 'success' | 'warning' | 'error' | 'neutral' {
     switch (status) {
-        case 'active': return 'success';
-        case 'expired': return 'warning';
-        case 'cancelled': return 'error';
-        default: return 'neutral';
+        case 'active':
+            return 'success';
+        case 'expired':
+            return 'warning';
+        case 'cancelled':
+            return 'error';
+        default:
+            return 'neutral';
     }
 }
 
 function purchaseStatusLabel(status: string): string {
     switch (status) {
-        case 'active': return 'Активен';
-        case 'expired': return 'Истёк';
-        case 'cancelled': return 'Отменён';
-        default: return status || '—';
+        case 'active':
+            return 'Активен';
+        case 'expired':
+            return 'Истёк';
+        case 'cancelled':
+            return 'Отменён';
+        default:
+            return status || '—';
     }
 }
 
@@ -751,7 +760,8 @@ async function viewUser(item: AdminUserItem) {
         const detail = await fetchAdminUserDetail(item.id);
         selectedUser.value = detail;
     } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных пользователя';
+        error.value =
+            e instanceof Error ? e.message : 'Ошибка загрузки данных пользователя';
         showDetailModal.value = false;
     } finally {
         loadingDetail.value = false;

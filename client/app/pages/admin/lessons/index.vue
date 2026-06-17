@@ -351,8 +351,8 @@ import { useRoute, } from 'vue-router';
 import {
     fetchAdminLessons,
     deleteAdminLessons,
-    type AdminLessonItem,
 } from '~/api/admin';
+import type { AdminLessonItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

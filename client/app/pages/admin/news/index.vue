@@ -289,8 +289,8 @@ import { ref, computed, onMounted, watch, } from 'vue';
 import {
     fetchAdminNews,
     deleteAdminNews,
-    type AdminNewsItem,
 } from '~/api/admin';
+import type { AdminNewsItem } from '~/types';
 
 definePageMeta({
     layout: 'admin',

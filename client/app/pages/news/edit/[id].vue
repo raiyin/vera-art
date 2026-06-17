@@ -410,8 +410,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { NewsDescDto } from '../../../types';
-import authApi from '../../../api/auth';
+import type { NewsDescDto } from '~/types';
+import authApi from '~/api/auth';
 
 const api = authApi.getApiInstance();
 

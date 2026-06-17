@@ -1,7 +1,7 @@
 <script lang="ts">
 import { useI18n } from 'vue-i18n';
 import { ref, computed, type PropType, onMounted, onUnmounted, nextTick } from 'vue';
-import type { NewsDesc } from '../types';
+import type { NewsDesc } from '~/types';
 
 export default {
     props: {

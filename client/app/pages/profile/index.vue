@@ -247,8 +247,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import authApi from '../../api/auth';
-import { useAuthStore } from '../../stores/AuthStore';
+import authApi from '~/api/auth';
+import { useAuthStore } from '~/stores/AuthStore';
 
 const { t } = useI18n();
 const authStore = useAuthStore();

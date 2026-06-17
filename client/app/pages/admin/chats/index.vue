@@ -316,7 +316,7 @@ import {
     resolveAdminChatThread,
     reopenAdminChatThread,
 } from '~/api/admin';
-import type { AdminChatThread, AdminChatMessage } from '~/api/admin';
+import type { AdminChatThread, AdminChatMessage } from '~/types';
 
 definePageMeta({
     layout: 'admin',

@@ -157,8 +157,8 @@
 import { ref, onMounted, watch } from 'vue';
 import { useI18n } from '#imports';
 import { useLocalePath } from '#i18n';
-import { useAuthStore } from '../stores/AuthStore';
-import { useCookieConsentStore } from '../stores/CookieConsentStore';
+import { useAuthStore } from '~/stores/AuthStore';
+import { useCookieConsentStore } from '~/stores/CookieConsentStore';
 
 const { locale } = useI18n();
 const localePath = useLocalePath();
