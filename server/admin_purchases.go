@@ -148,7 +148,7 @@ func AdminGetPurchasesList(c *gin.Context) {
 
 		if accessEnd.Valid {
 			item.AccessEnd = accessEnd.Time.Format("2006-01-02 15:04:05")
-			remaining := accessEnd.Time.Sub(time.Now())
+			remaining := time.Until(accessEnd.Time)
 			days := int(remaining.Hours() / 24)
 			if days < 0 {
 				days = 0
@@ -275,7 +275,7 @@ func AdminGetPurchaseDetail(c *gin.Context) {
 
 	if accessEnd.Valid {
 		item.AccessEnd = accessEnd.Time.Format("2006-01-02 15:04:05")
-		remaining := accessEnd.Time.Sub(time.Now())
+		remaining := time.Until(accessEnd.Time)
 		days := int(remaining.Hours() / 24)
 		if days < 0 {
 			days = 0
