@@ -22,6 +22,7 @@ export default defineNuxtConfig({
         public: {
             serverUrl: process.env.NUXT_PUBLIC_SERVER_URL || 'http://localhost:8000/',
             limit: process.env.NUXT_PUBLIC_LIMIT || '9',
+            relWorksDir: process.env.NUXT_PUBLIC_REL_WORKS_DIR || '/content/works/',
         },
     },
 

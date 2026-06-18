@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
 import SideNewsTrailerSkeleton from './SideNewsTrailerSkeleton.vue';
-import type { NewsDesc } from '~/types';
+import type { NewsItem } from '~/api/news';
 import type { PropType } from 'vue';
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useI18n } from '#imports';
 
 const props = defineProps({
     sideNewsObject: {
-        type: Object as PropType<NewsDesc>,
+        type: Object as PropType<NewsItem>,
         required: true,
     },
 });
@@ -19,8 +19,8 @@ const { locale } = useI18n();
 const isLoaded = ref(false);
 
 // Computed property
-const background = computed(
-    () => props.sideNewsObject.dir + props.sideNewsObject.img_backfull
+const imageSrc = computed(
+    () => props.sideNewsObject.image_path
 );
 
 // Methods
@@ -58,24 +58,20 @@ onMounted(() => {
         >
             <div class="other-news-img">
                 <img
-                    :src="background"
-                    :alt="sideNewsObject.title_en"
+                    :src="imageSrc"
+                    :alt="sideNewsObject.title"
                     width="6.5rem"
                     height="5rem"
                 />
             </div>
             <div class="other-news-desc">
                 <h6>
-                    {{
-                        locale === 'ru'
-                            ? sideNewsObject.title_ru
-                            : sideNewsObject.title_en
-                    }}
+                    {{ sideNewsObject.title }}
                 </h6>
                 <div class="date">
                     <CalendarIcon />
                     <span>
-                        &nbsp;{{ getHumanDate(sideNewsObject.datetime, locale) }}
+                        &nbsp;{{ getHumanDate(sideNewsObject.created_at, locale) }}
                     </span>
                 </div>
             </div>

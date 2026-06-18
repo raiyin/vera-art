@@ -1,55 +1,46 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, } from 'vue';
+import { ref, onMounted, computed, } from 'vue';
 import { useI18n, } from '#imports';
 import { getHttpClient, } from '~/api/http-client';
 import { useFormatting, } from '~/composables/useFormatting';
-import type { NewsDesc, } from '~/types';
+import type { NewsItem, NewsListResponse, } from '~/api/news';
 import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
-import VideoSection from '~/components/VideoSection.vue';
 import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { locale, t, } = useI18n();
+const { t, } = useI18n();
 const { formatDate, } = useFormatting();
 
-const currentNewsItem = ref<NewsDesc | null>(null,);
-const otherNews = ref<NewsDesc[]>([],);
+const currentNewsItem = ref<NewsItem | null>(null,);
+const otherNews = ref<NewsItem[]>([],);
 const loading = ref(true,);
 const error = ref<string | null>(null,);
-const selectedImageIndex = ref(0,);
-const showImageModal = ref(false,);
-const imageLoadErrors = ref<Set<number>>(new Set(),);
 const mainImageError = ref(false,);
 
-const newsId = computed(() => route.params.id as string,);
-
-const getImageUrl = (path: string | undefined, dir: string,): string => {
-    if (!path) return '';
-    return dir + path;
-};
+const newsId = computed(() => Number(route.params.id),);
 
 const fetchNewsDetail = async (): Promise<void> => {
     try {
         loading.value = true;
         error.value = null;
 
-        const { data: currentData, } = await getHttpClient().get<NewsDesc>(
+        const { data: currentData, } = await getHttpClient().get<NewsItem>(
             `news/${newsId.value}`,
             );
         currentNewsItem.value = currentData;
 
         // Fetch other news for sidebar (excluding current)
-        const { data: otherData, } = await getHttpClient().get<NewsDesc[]>('news', {
+        const { data: otherData, } = await getHttpClient().get<NewsListResponse>('news', {
             params: {
-                offset: 0,
+                page: 1,
                 limit: 6, // Get 6 to potentially exclude current
             },
         });
 
         // Filter out current news and take first 5
-        otherNews.value = otherData
-            .filter((news: NewsDesc,) => news.id.toString() !== newsId.value,)
+        otherNews.value = (otherData.news || [])
+            .filter((news: NewsItem,) => news.id !== newsId.value,)
             .slice(0, 5,);
     } catch (err) {
         console.error('Error fetching news detail:', err,);
@@ -59,68 +50,13 @@ const fetchNewsDetail = async (): Promise<void> => {
     }
 };
 
-const openImageModal = (index: number,): void => {
-    selectedImageIndex.value = index;
-    showImageModal.value = true;
-};
-
-const closeImageModal = (): void => {
-    showImageModal.value = false;
-};
-
-const navigateToNews = (id: string,): void => {
+const navigateToNews = (id: number,): void => {
     router.push(`/news/${id}`,);
 };
 
 const handleMainImageError = (): void => {
     mainImageError.value = true;
 };
-
-const handleGalleryImageError = (index: number,): void => {
-    imageLoadErrors.value.add(index,);
-};
-
-const handleModalImageError = (): void => {
-    console.error('Modal image failed to load',);
-};
-
-const resetImageErrors = (): void => {
-    imageLoadErrors.value.clear();
-    mainImageError.value = false;
-};
-
-// Keyboard navigation for modal
-const handleKeydown = (event: KeyboardEvent,): void => {
-    if (!showImageModal.value || !currentNewsItem.value) return;
-
-    switch (event.key) {
-        case 'Escape':
-            closeImageModal();
-            break;
-        case 'ArrowLeft':
-            if (selectedImageIndex.value > 0) {
-                selectedImageIndex.value--;
-            }
-            break;
-        case 'ArrowRight':
-            if (
-                currentNewsItem.value.images
-            && selectedImageIndex.value < currentNewsItem.value.images.length - 1
-            ) {
-                selectedImageIndex.value++;
-            }
-            break;
-    }
-};
-
-onMounted(() => {
-    fetchNewsDetail();
-    window.addEventListener('keydown', handleKeydown,);
-});
-
-onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeydown,);
-});
 </script>
 
 <template>
@@ -219,11 +155,7 @@ onUnmounted(() => {
                         <span
                             class="text-gray-900 dark:text-white font-medium truncate max-w-xs"
                         >
-                            {{
-                                locale === 'ru'
-                                    ? currentNewsItem.title_ru
-                                    : currentNewsItem.title_en
-                            }}
+                            {{ currentNewsItem.title }}
                         </span>
                     </li>
                 </ol>
@@ -234,11 +166,10 @@ onUnmounted(() => {
                 <!-- Main Image (2/3 width on large screens) -->
                 <div class="lg:w-2/3">
                     <div
-                        ref="mainImageContainer"
                         class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                     >
                         <div
-                            v-if="mainImageError"
+                            v-if="mainImageError || !currentNewsItem.image_path"
                             class="image-error-state"
                         >
                             <svg
@@ -261,17 +192,8 @@ onUnmounted(() => {
                         </div>
                         <img
                             v-else
-                            :src="
-                                getImageUrl(
-                                    currentNewsItem.img_backfull,
-                                    currentNewsItem.dir,
-                                )
-                            "
-                            :alt="
-                                locale === 'ru'
-                                    ? currentNewsItem.title_ru
-                                    : currentNewsItem.title_en
-                            "
+                            :src="currentNewsItem.image_path"
+                            :alt="currentNewsItem.title"
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
@@ -371,288 +293,62 @@ onUnmounted(() => {
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                     </svg>
-                    {{ formatDate(currentNewsItem.datetime,) }}
+                    {{ formatDate(currentNewsItem.created_at,) }}
                 </div>
 
                 <!-- Title -->
                 <h1
                     class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
                 >
-                    {{
-                        locale === 'ru'
-                            ? currentNewsItem.title_ru
-                            : currentNewsItem.title_en
-                    }}
+                    {{ currentNewsItem.title }}
                 </h1>
             </div>
 
-            <!-- News Text -->
-            <div class="news-text mb-12">
+            <!-- News Description -->
+            <div
+                v-if="currentNewsItem.description"
+                class="news-description mb-6"
+            >
+                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {{ currentNewsItem.description }}
+                </p>
+            </div>
+
+            <!-- News Content -->
+            <div
+                v-if="currentNewsItem.content"
+                class="news-text mb-12"
+            >
                 <div class="prose prose-lg dark:prose-invert max-w-none">
                     <div
                         class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
-                        v-html="
-                            locale === 'ru'
-                                ? currentNewsItem.text_ru
-                                : currentNewsItem.text_en
-                        "
+                        v-html="currentNewsItem.content"
                     />
                 </div>
             </div>
 
-            <!-- Image Gallery -->
-            <div class="image-gallery mb-12">
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    {{ $t('news.detail.gallery.title',) }}
-                </h3>
-                <div
-                    v-if="currentNewsItem.images && currentNewsItem.images.length > 0"
-                    class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                >
-                    <div
-                        v-for="(image, index) in currentNewsItem.images"
-                        :key="index"
-                        class="gallery-item cursor-pointer group"
-                        @click="openImageModal(index,)"
-                    >
-                        <div class="aspect-square overflow-hidden rounded-lg relative">
-                            <div
-                                v-if="imageLoadErrors.has(index,)"
-                                class="image-error-placeholder w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800"
-                            >
-                                <svg
-                                    class="w-8 h-8 text-gray-400"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                                    />
-                                </svg>
-                            </div>
-                            <img
-                                v-else
-                                :src="getImageUrl(image, currentNewsItem.dir,)"
-                                :alt="`Gallery image ${index + 1}`"
-                                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                loading="lazy"
-                                @error="() => handleGalleryImageError(index,)"
-                            >
-                        </div>
-                        <div
-                            v-if="!imageLoadErrors.has(index,)"
-                            class="gallery-overlay"
-                        >
-                            <svg
-                                class="w-8 h-8 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                                />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-                <div
-                    v-else
-                    class="empty-state py-12 text-center"
-                >
-                    <svg
-                        class="w-16 h-16 mx-auto text-gray-400 mb-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
-                    <p class="text-gray-500 dark:text-gray-400">
-                        {{ $t('news.detail.gallery.empty',) }}
-                    </p>
-                </div>
-            </div>
-
-            <!-- Video Carousel -->
-            <div class="video-carousel mb-12">
+            <!-- Video Section -->
+            <div
+                v-if="currentNewsItem.video_path"
+                class="video-section mb-12"
+            >
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     {{ $t('news.detail.videos.title',) }}
                 </h3>
-                <div
-                    v-if="currentNewsItem.videos && currentNewsItem.videos.length > 0"
-                    class="relative"
-                >
-                    <VideoSection :current-news-item="currentNewsItem" />
-                </div>
-                <div
-                    v-else
-                    class="empty-state py-12 text-center"
-                >
-                    <svg
-                        class="w-16 h-16 mx-auto text-gray-400 mb-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+                <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-black">
+                    <video
+                        :src="currentNewsItem.video_path"
+                        class="w-full h-full object-contain"
+                        controls
+                        preload="metadata"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                        />
-                    </svg>
-                    <p class="text-gray-500 dark:text-gray-400">
-                        {{ $t('news.detail.videos.empty',) }}
-                    </p>
+                        <p class="text-white text-center py-8">
+                            {{ $t('news.detail.video.notSupported',) }}
+                        </p>
+                    </video>
                 </div>
             </div>
         </div>
-
-        <!-- Custom Image Modal -->
-        <transition name="modal-fade">
-            <div
-                v-if="showImageModal && currentNewsItem"
-                class="custom-modal-overlay"
-                @click.self="closeImageModal"
-            >
-                <div class="custom-modal-container">
-                    <!-- Close Button -->
-                    <button
-                        class="custom-modal-close"
-                        :aria-label="$t('news.detail.modal.close',)"
-                        @click="closeImageModal"
-                    >
-                        <svg
-                            class="w-6 h-6"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M6 18L18 6M6 6l12 12"
-                            />
-                        </svg>
-                    </button>
-
-                    <!-- Image Container -->
-                    <div class="custom-modal-image-container">
-                        <transition
-                            name="image-slide"
-                            mode="out-in"
-                        >
-                            <img
-                                :key="selectedImageIndex"
-                                :src="
-                                    getImageUrl(
-                                        currentNewsItem.images[selectedImageIndex],
-                                        currentNewsItem.dir,
-                                    )
-                                "
-                                :alt="`Gallery image ${selectedImageIndex + 1}`"
-                                class="custom-modal-image"
-                                @click="closeImageModal"
-                            >
-                        </transition>
-
-                        <!-- Navigation Buttons -->
-                        <button
-                            v-if="selectedImageIndex > 0"
-                            class="custom-modal-nav-button left"
-                            :aria-label="$t('news.detail.modal.previous',)"
-                            @click="selectedImageIndex--"
-                        >
-                            <svg
-                                class="w-8 h-8"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M15 19l-7-7 7-7"
-                                />
-                            </svg>
-                        </button>
-                        <button
-                            v-if="selectedImageIndex < currentNewsItem.images.length - 1"
-                            class="custom-modal-nav-button right"
-                            :aria-label="$t('news.detail.modal.next',)"
-                            @click="selectedImageIndex++"
-                        >
-                            <svg
-                                class="w-8 h-8"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M9 5l7 7-7 7"
-                                />
-                            </svg>
-                        </button>
-
-                        <!-- Image Counter -->
-                        <div class="custom-modal-counter">
-                            <span class="counter-current">{{
-                                selectedImageIndex + 1
-                            }}</span>
-                            <span class="counter-separator">/</span>
-                            <span class="counter-total">{{
-                                currentNewsItem.images.length
-                            }}</span>
-                        </div>
-                    </div>
-
-                    <!-- Thumbnail Strip -->
-                    <div
-                        v-if="currentNewsItem.images.length > 1"
-                        class="custom-modal-thumbnails"
-                    >
-                        <div
-                            v-for="(image, index) in currentNewsItem.images"
-                            :key="index"
-                            class="thumbnail-item"
-                            :class="{ active: index === selectedImageIndex, }"
-                            @click="selectedImageIndex = index"
-                        >
-                            <img
-                                :src="getImageUrl(image, currentNewsItem.dir,)"
-                                :alt="`Thumbnail ${index + 1}`"
-                                class="thumbnail-image"
-                            >
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </transition>
     </div>
 </template>
 
@@ -738,7 +434,7 @@ onUnmounted(() => {
 .sidebar-news-list {
     flex: 1;
     overflow-y: auto;
-    max-height: calc(100% - 120px); /* Account for title and button */
+    max-height: calc(100% - 120px);
     padding-right: 0.5rem;
 }
 
@@ -773,27 +469,6 @@ onUnmounted(() => {
     background: #6b7280;
 }
 
-.gallery-item {
-    position: relative;
-    overflow: hidden;
-    border-radius: 0.75rem;
-}
-
-.gallery-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.gallery-item:hover .gallery-overlay {
-    opacity: 1;
-}
-
 .sidebar-news-item {
     transition: transform 0.2s ease;
 }
@@ -818,213 +493,6 @@ onUnmounted(() => {
     background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
 }
 
-.image-error-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f3f4f6;
-}
-
-.dark .image-error-placeholder {
-    background: #374151;
-}
-
-/* Custom Modal Styles */
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-    transition: opacity 0.3s ease;
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-    opacity: 0;
-}
-
-.image-slide-enter-active,
-.image-slide-leave-active {
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.image-slide-enter-from {
-    transform: translateX(30px);
-    opacity: 0;
-}
-
-.image-slide-leave-to {
-    transform: translateX(-30px);
-    opacity: 0;
-}
-
-.custom-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    padding: 1rem;
-}
-
-.custom-modal-container {
-    position: relative;
-    background: var(--color-surface);
-    border-radius: 1.5rem;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-.dark .custom-modal-container {
-    background: #1e293b;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.custom-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.5);
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: white;
-    transition: all 0.2s ease;
-}
-
-.custom-modal-close:hover {
-    background: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
-}
-
-.custom-modal-image-container {
-    position: relative;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 3rem;
-    min-height: 60vh;
-}
-
-.custom-modal-image {
-    max-width: 100%;
-    max-height: 70vh;
-    object-fit: contain;
-    border-radius: 0.75rem;
-    cursor: zoom-out;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-}
-
-.custom-modal-nav-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.6);
-    border: none;
-    border-radius: 50%;
-    width: 56px;
-    height: 56px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: white;
-    transition: all 0.2s ease;
-    z-index: 5;
-}
-
-.custom-modal-nav-button:hover {
-    background: rgba(0, 0, 0, 0.9);
-    transform: translateY(-50%) scale(1.1);
-}
-
-.custom-modal-nav-button.left {
-    left: 1rem;
-}
-
-.custom-modal-nav-button.right {
-    right: 1rem;
-}
-
-.custom-modal-counter {
-    position: absolute;
-    top: 1rem;
-    left: 1rem;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-}
-
-.counter-current {
-    color: #10b981;
-}
-
-.counter-separator {
-    opacity: 0.7;
-}
-
-.counter-total {
-    opacity: 0.9;
-}
-
-.custom-modal-thumbnails {
-    display: flex;
-    gap: 0.5rem;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.3);
-    overflow-x: auto;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.thumbnail-item {
-    flex: 0 0 auto;
-    width: 80px;
-    height: 80px;
-    border-radius: 0.5rem;
-    overflow: hidden;
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: all 0.2s ease;
-    opacity: 0.7;
-}
-
-.thumbnail-item:hover {
-    opacity: 1;
-    transform: translateY(-2px);
-}
-
-.thumbnail-item.active {
-    border-color: #10b981;
-    opacity: 1;
-    transform: scale(1.05);
-}
-
-.thumbnail-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
 .prose {
     color: inherit;
 }
@@ -1035,87 +503,6 @@ onUnmounted(() => {
 
 .prose p:last-child {
     margin-bottom: 0;
-}
-
-/* Responsive Modal Styles */
-@media (max-width: 768px) {
-    .custom-modal-container {
-        max-width: 95vw;
-        max-height: 95vh;
-        border-radius: 1rem;
-    }
-
-    .custom-modal-image-container {
-        padding: 1.5rem;
-        min-height: 50vh;
-    }
-
-    .custom-modal-image {
-        max-height: 60vh;
-    }
-
-    .custom-modal-nav-button {
-        width: 44px;
-        height: 44px;
-    }
-
-    .custom-modal-nav-button.left {
-        left: 0.5rem;
-    }
-
-    .custom-modal-nav-button.right {
-        right: 0.5rem;
-    }
-
-    .custom-modal-counter {
-        top: 0.5rem;
-        left: 0.5rem;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-
-    .custom-modal-thumbnails {
-        padding: 0.75rem;
-        gap: 0.375rem;
-    }
-
-    .thumbnail-item {
-        width: 60px;
-        height: 60px;
-    }
-
-    .custom-modal-close {
-        top: 0.5rem;
-        right: 0.5rem;
-        width: 36px;
-        height: 36px;
-    }
-}
-
-@media (max-width: 480px) {
-    .custom-modal-image-container {
-        padding: 1rem;
-        min-height: 40vh;
-    }
-
-    .custom-modal-image {
-        max-height: 50vh;
-    }
-
-    .thumbnail-item {
-        width: 50px;
-        height: 50px;
-    }
-
-    .custom-modal-nav-button {
-        width: 36px;
-        height: 36px;
-    }
-
-    .custom-modal-nav-button svg {
-        width: 20px;
-        height: 20px;
-    }
 }
 
 /* Responsive layout adjustments */

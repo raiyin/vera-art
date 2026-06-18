@@ -8,6 +8,7 @@ type WorkResponse struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description,omitempty"`
 	ImagePath   string    `json:"image_path"`
+	Images      []string  `json:"images,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
 	Size        string    `json:"size,omitempty"`

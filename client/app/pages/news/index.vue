@@ -1,22 +1,34 @@
 <script setup lang="ts">
-import type { NewsDesc } from '~/types';
 import { useAuthStore } from '~/stores/AuthStore';
-import axios from 'axios';
+import { getHttpClient } from '~/api/http-client';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
+/**
+ * News item shape returned by the server's public GET /news endpoint.
+ */
+interface NewsItem {
+    id: number;
+    title: string;
+    description: string | null;
+    content: string | null;
+    image_path: string;
+    video_path: string | null;
+    status: string;
+    created_at: string;
+    updated_at: string;
+}
+
 const showDeleteModal = ref(false);
-const newsToDelete = ref<NewsDesc | null>(null);
+const newsToDelete = ref<NewsItem | null>(null);
 const deleteError = ref('');
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
 const { locale } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
 
-const news = ref<NewsDesc[]>([]);
+const news = ref<NewsItem[]>([]);
 const page = ref(0);
 const limit = ref(9);
 const loading = ref(false);
@@ -24,34 +36,36 @@ const initialLoading = ref(true);
 const hasMore = ref(true);
 const observer = ref<IntersectionObserver | null>(null);
 const observerElement = ref<HTMLElement | null>(null);
-const deletingId = ref<string | null>(null);
+const deletingId = ref<number | null>(null);
 
 const loadNews = async (initial = false) => {
     if (loading.value || (!hasMore.value && !initial)) return;
 
     try {
         loading.value = true;
-        const response = await axios.get(SERVER_URL + 'news', {
-            params: {
-                offset: page.value * limit.value,
-                limit: limit.value,
-            },
-        });
+        const currentPage = initial ? 1 : page.value;
+        const { data } = await getHttpClient().get<{ news: NewsItem[]; total: number }>(
+            'news',
+            {
+                params: {
+                    page: currentPage,
+                    limit: limit.value,
+                },
+            }
+        );
 
-        const newNews = response.data || [];
+        const newNews = data.news || [];
 
         if (initial) {
             news.value = newNews;
+            page.value = 2;
         } else {
             news.value = [...news.value, ...newNews];
+            page.value += 1;
         }
 
         if (newNews.length < limit.value) {
             hasMore.value = false;
-        }
-
-        if (!initial) {
-            page.value += 1;
         }
     } catch (e) {
         console.error('Error fetching news', e);
@@ -76,23 +90,23 @@ const formatDate = (dateString: string) => {
     return date.toLocaleDateString(locale.value === 'ru' ? 'ru-RU' : 'en-US', options);
 };
 
-const getNewsTitle = (newsItem: NewsDesc) => {
-    return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
+const getNewsTitle = (newsItem: NewsItem) => {
+    return newsItem.title;
 };
 
-const getImageUrl = (newsItem: NewsDesc) => {
-    return newsItem.dir + newsItem.img_back;
+const getImageUrl = (newsItem: NewsItem) => {
+    return newsItem.image_path;
 };
 
-const navigateToNews = (id: string) => {
+const navigateToNews = (id: number) => {
     router.push(`/news/${id}`);
 };
 
-const editNews = (id: string) => {
+const editNews = (id: number) => {
     router.push(`/news/edit/${id}/`);
 };
 
-const confirmDelete = (newsItem: NewsDesc) => {
+const confirmDelete = (newsItem: NewsItem) => {
     newsToDelete.value = newsItem;
     showDeleteModal.value = true;
 };
@@ -105,27 +119,23 @@ const deleteNews = async () => {
     deleteError.value = '';
 
     try {
-        const response = await axios.delete(
-            `${SERVER_URL}news/${newsToDelete.value.id}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            }
-        );
+        await getHttpClient().delete(`news/${newsToDelete.value.id}`);
 
-        if (response.status === 200) {
-            news.value = news.value.filter((n) => n.id !== newsToDelete.value!.id);
-        }
+        news.value = news.value.filter((n) => n.id !== newsToDelete.value!.id);
     } catch (error) {
         console.error('Error deleting news:', error);
 
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-            deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
-            authStore.clearTokens();
-            setTimeout(() => {
-                router.push('/auth/login');
-            }, 2000);
+        if (error && typeof error === 'object' && 'response' in error) {
+            const axiosError = error as { response?: { status?: number } };
+            if (axiosError.response?.status === 401) {
+                deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
+                authStore.clearTokens();
+                setTimeout(() => {
+                    router.push('/auth/login');
+                }, 2000);
+            } else {
+                deleteError.value = 'Ошибка при удалении новости';
+            }
         } else {
             deleteError.value = 'Ошибка при удалении новости';
         }
@@ -193,7 +203,7 @@ onUnmounted(() => {
                             class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2"
                         >
                             <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-2" />
-                            {{ formatDate(newsItem.datetime) }}
+                            {{ formatDate(newsItem.created_at) }}
                         </div>
                         <!-- Title -->
                         <h3
@@ -281,9 +291,18 @@ onUnmounted(() => {
                             {{ $t('news.loading') }}
                         </p>
                         <div class="flex space-x-1.5">
-                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0s"></span>
-                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0.15s"></span>
-                            <span class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce" style="animation-delay: 0.3s"></span>
+                            <span
+                                class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
+                                style="animation-delay: 0s"
+                            ></span>
+                            <span
+                                class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
+                                style="animation-delay: 0.15s"
+                            ></span>
+                            <span
+                                class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
+                                style="animation-delay: 0.3s"
+                            ></span>
                         </div>
                     </div>
                 </div>
@@ -329,7 +348,10 @@ onUnmounted(() => {
             </div>
 
             <!-- No News Message (only after initial load is complete) -->
-            <div v-if="!initialLoading && !loading && news.length === 0" class="mt-12 text-center py-12">
+            <div
+                v-if="!initialLoading && !loading && news.length === 0"
+                class="mt-12 text-center py-12"
+            >
                 <div
                     class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-100 dark:bg-gray-800 mb-6"
                 >
@@ -561,7 +583,9 @@ onUnmounted(() => {
 }
 
 @keyframes news-loader-bounce {
-    0%, 80%, 100% {
+    0%,
+    80%,
+    100% {
         transform: scale(0.6);
         opacity: 0.4;
     }

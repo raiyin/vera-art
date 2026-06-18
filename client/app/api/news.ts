@@ -28,8 +28,8 @@ export interface NewsListResponse {
  */
 export async function fetchNews(params?: {
     status?: string
+    page?: number
     limit?: number
-    offset?: number
 },): Promise<NewsListResponse> {
     try {
         const { data, } = await getHttpClient().get<NewsListResponse>('news', { params, },);

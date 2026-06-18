@@ -3,6 +3,11 @@ package handler
 import (
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 
@@ -15,11 +20,61 @@ import (
 // GalleryHandler handles gallery (works + sales) HTTP requests.
 type GalleryHandler struct {
 	galleryService port.GalleryService
+	absWorksDir    string
+	relWorksDir    string
+	absSalesDir    string
+	relSalesDir    string
 }
 
 // NewGalleryHandler creates a new GalleryHandler.
-func NewGalleryHandler(galleryService port.GalleryService) *GalleryHandler {
-	return &GalleryHandler{galleryService: galleryService}
+func NewGalleryHandler(
+	galleryService port.GalleryService,
+	absWorksDir, relWorksDir, absSalesDir, relSalesDir string,
+) *GalleryHandler {
+	return &GalleryHandler{
+		galleryService: galleryService,
+		absWorksDir:    absWorksDir,
+		relWorksDir:    relWorksDir,
+		absSalesDir:    absSalesDir,
+		relSalesDir:    relSalesDir,
+	}
+}
+
+// listImageFiles reads the image directory for a work and returns sorted filenames.
+func (h *GalleryHandler) listImageFiles(imagePath string) []string {
+	// imagePath is a directory name like "ajax/" or "gnome/"
+	dir := strings.TrimSuffix(imagePath, "/")
+	if dir == "" {
+		return nil
+	}
+	fullDir := filepath.Join(h.absWorksDir, h.relWorksDir, dir)
+	entries, err := os.ReadDir(fullDir)
+	if err != nil {
+		return nil
+	}
+
+	// Filter and sort image files
+	var images []string
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		name := strings.ToLower(entry.Name())
+		if strings.HasSuffix(name, ".jpg") || strings.HasSuffix(name, ".jpeg") ||
+			strings.HasSuffix(name, ".png") || strings.HasSuffix(name, ".webp") ||
+			strings.HasSuffix(name, ".gif") {
+			images = append(images, entry.Name())
+		}
+	}
+
+	// Sort numerically by extracting number before extension
+	sort.Slice(images, func(i, j int) bool {
+		ni, _ := strconv.Atoi(strings.TrimSuffix(images[i], filepath.Ext(images[i])))
+		nj, _ := strconv.Atoi(strings.TrimSuffix(images[j], filepath.Ext(images[j])))
+		return ni < nj
+	})
+
+	return images
 }
 
 // GetWorks returns a list of works.
@@ -49,11 +104,13 @@ func (h *GalleryHandler) GetWorks(c *gin.Context) {
 
 	responses := make([]dto.WorkResponse, len(works))
 	for i, w := range works {
+		images := h.listImageFiles(w.ImagePath)
 		responses[i] = dto.WorkResponse{
 			ID:          w.ID,
 			Title:       w.Title,
 			Description: w.Description,
 			ImagePath:   w.ImagePath,
+			Images:      images,
 			Year:        w.Year,
 			Technique:   w.Technique,
 			Size:        w.Size,
@@ -86,11 +143,13 @@ func (h *GalleryHandler) GetWorkByID(c *gin.Context) {
 		return
 	}
 
+	images := h.listImageFiles(work.ImagePath)
 	c.JSON(http.StatusOK, dto.WorkResponse{
 		ID:          work.ID,
 		Title:       work.Title,
 		Description: work.Description,
 		ImagePath:   work.ImagePath,
+		Images:      images,
 		Year:        work.Year,
 		Technique:   work.Technique,
 		Size:        work.Size,
