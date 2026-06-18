@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
-import type { CommonGetWorkDto } from '~/types';
+import type { CommonWork } from '~/types';
 import { useMaterialStore } from '~/stores/MaterialStore';
 import { useAuthStore } from '~/stores/AuthStore';
-import type { CommonTypedGetWorkDto } from '~/types/common_work';
 import type { SelectItem } from '@nuxt/ui';
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useI18n } from '#imports';
@@ -12,7 +11,7 @@ import { useApi } from '~/composables/useApi';
 
 const props = defineProps({
     images: {
-        type: [Array] as PropType<CommonTypedGetWorkDto[]>,
+        type: [Array] as PropType<CommonWork[]>,
         required: true,
     },
 });
@@ -32,11 +31,11 @@ const items = ref<SelectItem[]>([
 const value = ref('all');
 // Image modal state
 const showModal = ref(false);
-const selectedWork = ref<CommonGetWorkDto | null>(null);
+const selectedWork = ref<CommonWork | null>(null);
 const currentImageIndex = ref(0);
 // Delete confirmation modal state
 const showDeleteModal = ref(false);
-const workToDelete = ref<CommonGetWorkDto | null>(null);
+const workToDelete = ref<CommonWork | null>(null);
 const deletingId = ref<string | null>(null);
 
 // Computed properties
@@ -66,7 +65,7 @@ const handleWorkDeleted = (id: string) => {
     emit('work-deleted', id);
 };
 
-const navigateToEdit = (work: CommonGetWorkDto) => {
+const navigateToEdit = (work: CommonWork) => {
     const id = work.id.toString();
     if (work.__type === 'GetSaleDto') {
         router.push(`/art-store/edit/${id}`);
@@ -75,7 +74,7 @@ const navigateToEdit = (work: CommonGetWorkDto) => {
     }
 };
 
-const confirmDelete = (work: CommonGetWorkDto) => {
+const confirmDelete = (work: CommonWork) => {
     workToDelete.value = work;
     showDeleteModal.value = true;
 };
@@ -104,37 +103,37 @@ const cancelDelete = () => {
     workToDelete.value = null;
 };
 
-const getWorkDescription = (work: CommonGetWorkDto): string => {
+const getWorkDescription = (work: CommonWork): string => {
     const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
     return descr || '';
 };
 
-const hasDescription = (work: CommonGetWorkDto): boolean => {
+const hasDescription = (work: CommonWork): boolean => {
     const descrRu = (work as any).descr_ru;
     const descrEn = (work as any).descr_en;
     return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
 };
 
-const getWorkName = (work: CommonGetWorkDto): string => {
+const getWorkName = (work: CommonWork): string => {
     return locale.value === 'ru' ? work.name_ru : work.name_en;
 };
 
-const getWorkBase = (work: CommonGetWorkDto): string => {
+const getWorkBase = (work: CommonWork): string => {
     return locale.value === 'ru' ? work.base_ru || '' : work.base_en || '';
 };
 
-const getMainImageUrl = (work: CommonGetWorkDto): string => {
+const getMainImageUrl = (work: CommonWork): string => {
     return work.dir + (work.images?.[0] || '');
 };
 
-const getWorkDimensions = (work: CommonGetWorkDto): string => {
+const getWorkDimensions = (work: CommonWork): string => {
     if (work.width && work.width !== 0 && work.height && work.height !== 0) {
         return `${work.width}×${work.height}`;
     }
     return '';
 };
 
-const getWorkMaterials = (work: CommonGetWorkDto): string[] => {
+const getWorkMaterials = (work: CommonWork): string[] => {
     // If materials arrays are already present in the work object, use them
     if (locale.value === 'ru' && work.materials_ru && work.materials_ru.length > 0) {
         return work.materials_ru;
@@ -146,13 +145,13 @@ const getWorkMaterials = (work: CommonGetWorkDto): string[] => {
     return materialStore.getMaterialNames(work.materials_ids || [], locale.value);
 };
 
-const hasMaterials = (work: CommonGetWorkDto): boolean => {
+const hasMaterials = (work: CommonWork): boolean => {
     const materials = getWorkMaterials(work);
     return materials.length > 0;
 };
 
 // Modal methods
-const openModal = (work: CommonGetWorkDto) => {
+const openModal = (work: CommonWork) => {
     console.log('openModal called with work:', work);
     console.log('Work images:', work.images);
     console.log('Work dir:', work.dir);

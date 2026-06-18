@@ -410,7 +410,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
-import type { NewsDescDto } from '~/types';
+import type { NewsDesc } from '~/types';
 import authApi from '~/api/auth';
 
 const api = authApi.getApiInstance();
@@ -426,7 +426,7 @@ interface PreviewItem {
     preview: string;
 }
 
-const news = reactive<NewsDescDto>({
+const news = reactive<NewsDesc>({
     id: '',
     title_en: '',
     title_ru: '',
@@ -465,7 +465,7 @@ const errors = reactive<Record<string, string>>({
     text_en: '',
 });
 
-const originalNews = ref<NewsDescDto>({} as NewsDescDto);
+const originalNews = ref<NewsDesc>({} as NewsDesc);
 
 const backFullInput = ref<HTMLInputElement | null>(null);
 const backInput = ref<HTMLInputElement | null>(null);

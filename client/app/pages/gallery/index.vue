@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { TypedGetWorkDto } from '~/types/work';
+import type { Work } from '~/types/work';
 import Gallery from '~/components/PicGallery.vue';
 import { useInfiniteScroll } from '~/composables/useInfiniteScroll';
 import { getHttpClient } from '~/api/http-client';
 
-const { items: works, sentinelRef, loading } = useInfiniteScroll<TypedGetWorkDto>(
+const { items: works, sentinelRef, loading } = useInfiniteScroll<Work>(
     async (page) => {
         const limit = useRuntimeConfig().public.limit as string;
-        const { data } = await getHttpClient().get<TypedGetWorkDto[]>('works', {
+        const { data } = await getHttpClient().get<Work[]>('works', {
             params: {
                 offset: page * +limit,
                 limit,
@@ -26,7 +26,7 @@ const emit = defineEmits<{
 }>();
 
 const handleWorkDeleted = (id: string) => {
-    works.value = works.value.filter((work: TypedGetWorkDto) => String(work.id) !== id);
+    works.value = works.value.filter((work: Work) => String(work.id) !== id);
 };
 </script>
 

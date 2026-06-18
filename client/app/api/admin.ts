@@ -18,7 +18,7 @@ import type {
     AdminChatMessage,
     AdminCategoryItem,
     AdminTagItem,
-} from '~/types/admin';
+} from '~/types';
 
 // ─── Dashboard ──────────────────────────────────────────────────────
 

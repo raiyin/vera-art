@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { NewsDescDto } from '~/types';
+import type { NewsDesc } from '~/types';
 import { useAuthStore } from '~/stores/AuthStore';
 import axios from 'axios';
 import { useI18n } from 'vue-i18n';
@@ -7,7 +7,7 @@ import { useRouter } from 'vue-router';
 import { ref, onMounted, onUnmounted } from 'vue';
 
 const showDeleteModal = ref(false);
-const newsToDelete = ref<NewsDescDto | null>(null);
+const newsToDelete = ref<NewsDesc | null>(null);
 const deleteError = ref('');
 
 const config = useRuntimeConfig();
@@ -16,7 +16,7 @@ const { locale } = useI18n();
 const router = useRouter();
 const authStore = useAuthStore();
 
-const news = ref<NewsDescDto[]>([]);
+const news = ref<NewsDesc[]>([]);
 const page = ref(0);
 const limit = ref(9);
 const loading = ref(false);
@@ -76,11 +76,11 @@ const formatDate = (dateString: string) => {
     return date.toLocaleDateString(locale.value === 'ru' ? 'ru-RU' : 'en-US', options);
 };
 
-const getNewsTitle = (newsItem: NewsDescDto) => {
+const getNewsTitle = (newsItem: NewsDesc) => {
     return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
 };
 
-const getImageUrl = (newsItem: NewsDescDto) => {
+const getImageUrl = (newsItem: NewsDesc) => {
     return newsItem.dir + newsItem.img_back;
 };
 
@@ -92,7 +92,7 @@ const editNews = (id: string) => {
     router.push(`/news/edit/${id}/`);
 };
 
-const confirmDelete = (newsItem: NewsDescDto) => {
+const confirmDelete = (newsItem: NewsDesc) => {
     newsToDelete.value = newsItem;
     showDeleteModal.value = true;
 };

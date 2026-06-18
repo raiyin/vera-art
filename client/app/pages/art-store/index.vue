@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { TypedGetSaleDto } from '~/types/sale';
+import type { Sale } from '~/types/work';
 import Gallery from '~/components/PicGallery.vue';
 import { useInfiniteScroll } from '~/composables/useInfiniteScroll';
 import { getHttpClient } from '~/api/http-client';
 
-const { items: sales, sentinelRef, loading } = useInfiniteScroll<TypedGetSaleDto>(
+const { items: sales, sentinelRef, loading } = useInfiniteScroll<Sale>(
     async (page) => {
         const limit = useRuntimeConfig().public.limit as string;
-        const { data } = await getHttpClient().get<TypedGetSaleDto[]>('sales', {
+        const { data } = await getHttpClient().get<Sale[]>('sales', {
             params: {
                 offset: page * +limit,
                 limit,
@@ -26,7 +26,7 @@ const emit = defineEmits<{
 }>();
 
 const handleSaleDeleted = (id: string) => {
-    sales.value = sales.value.filter((sale: TypedGetSaleDto) => String(sale.id) !== id);
+    sales.value = sales.value.filter((sale: Sale) => String(sale.id) !== id);
 };
 </script>
 

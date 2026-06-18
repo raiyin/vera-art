@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { CommonGetWorkDto } from '~/types';
+import type { CommonWork } from '~/types';
 import type { PropType } from 'vue';
 import { ref, computed, onBeforeMount } from 'vue';
 import { useI18n } from '#imports';
 
 const props = defineProps({
     imageObject: {
-        type: Object as PropType<CommonGetWorkDto>,
-        default: {} as CommonGetWorkDto,
+        type: Object as PropType<CommonWork>,
+        default: {} as CommonWork,
     },
     imageId: {
         type: String,
