@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -195,5 +196,49 @@ func runMigrations(db *sql.DB) {
 	if err != nil {
 		log.Printf("Migration (add avatar column): %v (this is normal if column already exists)", err)
 	}
+
+	// Check if gallery schema migration is needed (old materials table has 'material_ru' column)
+	var needsMigration int
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('materials') WHERE name = 'material_ru'").Scan(&needsMigration)
+	if err == nil && needsMigration > 0 {
+		log.Println("Gallery schema migration needed, applying 003_fix_gallery_schema.sql...")
+		applyMigrationFile(db, "003_fix_gallery_schema.sql")
+	} else {
+		log.Println("Gallery schema migration already applied, skipping")
+	}
+
+	// Check if sales data migration is needed (old sales_old table still exists with data)
+	var salesOldCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales_old') WHERE name = 'name_ru'").Scan(&salesOldCount)
+	if err == nil && salesOldCount > 0 {
+		log.Println("Sales data migration needed, applying 004_fix_sales_data.sql...")
+		applyMigrationFile(db, "004_fix_sales_data.sql")
+	} else {
+		log.Println("Sales data migration already applied, skipping")
+	}
+
 	log.Println("Database migrations completed")
+}
+
+// applyMigrationFile reads and executes a SQL migration file from the migrations directory.
+func applyMigrationFile(db *sql.DB, filename string) {
+	migrationPath := "./db/migrations/" + filename
+	migrationSQL, err := os.ReadFile(migrationPath)
+	if err != nil {
+		log.Printf("Migration %s: could not read file: %v (skipping)", filename, err)
+		return
+	}
+
+	// Split by semicolons and execute each statement
+	statements := strings.Split(string(migrationSQL), ";")
+	for _, stmt := range statements {
+		stmt = strings.TrimSpace(stmt)
+		if stmt == "" {
+			continue
+		}
+		if _, err := db.Exec(stmt); err != nil {
+			log.Printf("Migration %s: statement error: %v\nStatement: %.100s", filename, err, stmt)
+		}
+	}
+	log.Printf("Migration %s applied successfully", filename)
 }
