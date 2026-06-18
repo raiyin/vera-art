@@ -218,6 +218,8 @@ func runMigrations(db *sql.DB) {
 				content TEXT,
 				image_path TEXT NOT NULL DEFAULT '',
 				video_path TEXT,
+				video_paths TEXT,
+				image_paths TEXT,
 				status TEXT NOT NULL DEFAULT 'draft',
 				created_at TIMESTAMP NOT NULL,
 				updated_at TIMESTAMP NOT NULL
@@ -243,6 +245,8 @@ func runMigrations(db *sql.DB) {
 					content TEXT,
 					image_path TEXT NOT NULL DEFAULT '',
 					video_path TEXT,
+					video_paths TEXT,
+					image_paths TEXT,
 					status TEXT NOT NULL DEFAULT 'draft',
 					created_at TIMESTAMP NOT NULL,
 					updated_at TIMESTAMP NOT NULL
@@ -259,11 +263,12 @@ func runMigrations(db *sql.DB) {
 				//   content     ← COALESCE(text_ru, text_en)
 				//   image_path  ← dir || img_back
 				//   video_path  ← dir || first video from videos list
+				//   video_paths ← semicolon-separated list of dir || video filename for each video
 				//   status      ← 'published'
 				//   created_at  ← datetime
 				//   updated_at  ← datetime
 				_, err = db.Exec(`
-					INSERT INTO news (title, description, content, image_path, video_path, status, created_at, updated_at)
+					INSERT INTO news (title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at)
 					SELECT
 						COALESCE(NULLIF(title_ru, ''), title_en, ''),
 						COALESCE(NULLIF(subTitle_ru, ''), NULLIF(subTitle_en, ''), SUBSTR(COALESCE(NULLIF(text_ru, ''), text_en, ''), 1, 200), ''),
@@ -276,10 +281,16 @@ func runMigrations(db *sql.DB) {
 							WHEN videos IS NOT NULL AND videos != '' THEN dir || SUBSTR(videos, 1, INSTR(videos || ';', ';') - 1)
 							ELSE NULL
 						END,
+						NULL,
+						CASE
+							WHEN images IS NOT NULL AND images != '' THEN
+								(SELECT group_concat(nl2.dir || TRIM(value), ';') FROM json_each('["' || replace(replace(nl2.images, CHAR(13), ''), ';', '","') || '"]') WHERE TRIM(value) != '')
+							ELSE NULL
+						END,
 						'published',
 						datetime,
 						datetime
-					FROM news_legacy
+					FROM news_legacy nl2
 					ORDER BY rowid
 				`)
 				if err != nil {
@@ -296,6 +307,80 @@ func runMigrations(db *sql.DB) {
 		log.Println("Migration (news table): already has correct schema, skipping")
 	}
 
+	// Add video_paths column if it doesn't exist (for existing installations)
+	_, err = db.Exec("ALTER TABLE news ADD COLUMN video_paths TEXT")
+	if err != nil {
+		log.Printf("Migration (add video_paths column): %v (this is normal if column already exists)", err)
+	}
+
+	// Add image_paths column if it doesn't exist (for existing installations)
+	_, err = db.Exec("ALTER TABLE news ADD COLUMN image_paths TEXT")
+	if err != nil {
+		log.Printf("Migration (add image_paths column): %v (this is normal if column already exists)", err)
+	}
+
+	// Populate video_paths from legacy data if it's empty and news_legacy exists.
+	// We match by dir prefix: news.image_path starts with news_legacy.dir.
+	// Uses json_each to split semicolon-separated video names and construct full paths.
+	var emptyVideoPathsCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM news WHERE (video_paths IS NULL OR video_paths = '') AND EXISTS (SELECT 1 FROM news_legacy)").Scan(&emptyVideoPathsCount)
+	if emptyVideoPathsCount > 0 {
+		log.Printf("Migration: populating video_paths for %d records from legacy data...", emptyVideoPathsCount)
+
+		_, err = db.Exec(`
+			UPDATE news SET video_paths = (
+				SELECT group_concat(nl.dir || TRIM(value), ';')
+				FROM news_legacy nl
+				JOIN json_each('["' || replace(replace(nl.videos, CHAR(13), ''), ';', '","') || '"]')
+				WHERE nl.videos IS NOT NULL AND nl.videos != ''
+				  AND TRIM(value) != ''
+				  AND news.image_path LIKE nl.dir || '%'
+			)
+			WHERE EXISTS (
+				SELECT 1 FROM news_legacy nl
+				WHERE nl.videos IS NOT NULL AND nl.videos != ''
+				  AND news.image_path LIKE nl.dir || '%'
+			)
+		`)
+		if err != nil {
+			log.Printf("Migration (populate video_paths): %v", err)
+		} else {
+			var updated int
+			_ = db.QueryRow("SELECT changes()").Scan(&updated)
+			log.Printf("Migration (populate video_paths): updated %d records successfully", updated)
+		}
+	}
+
+	// Populate image_paths from legacy data if it's empty and news_legacy exists.
+	var emptyImagePathsCount int
+	_ = db.QueryRow("SELECT COUNT(*) FROM news WHERE (image_paths IS NULL OR image_paths = '') AND EXISTS (SELECT 1 FROM news_legacy)").Scan(&emptyImagePathsCount)
+	if emptyImagePathsCount > 0 {
+		log.Printf("Migration: populating image_paths for %d records from legacy data...", emptyImagePathsCount)
+
+		_, err = db.Exec(`
+			UPDATE news SET image_paths = (
+				SELECT group_concat(nl.dir || TRIM(value), ';')
+				FROM news_legacy nl
+				JOIN json_each('["' || replace(replace(nl.images, CHAR(13), ''), ';', '","') || '"]')
+				WHERE nl.images IS NOT NULL AND nl.images != ''
+				  AND TRIM(value) != ''
+				  AND news.image_path LIKE nl.dir || '%'
+			)
+			WHERE EXISTS (
+				SELECT 1 FROM news_legacy nl
+				WHERE nl.images IS NOT NULL AND nl.images != ''
+				  AND news.image_path LIKE nl.dir || '%'
+			)
+		`)
+		if err != nil {
+			log.Printf("Migration (populate image_paths): %v", err)
+		} else {
+			var updated int
+			_ = db.QueryRow("SELECT changes()").Scan(&updated)
+			log.Printf("Migration (populate image_paths): updated %d records successfully", updated)
+		}
+	}
+
 	// Check if legacy news data needs to be migrated (news_legacy exists but news table is empty)
 	var legacyCount int
 	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('news_legacy') WHERE name = 'id'").Scan(&legacyCount)
@@ -305,7 +390,7 @@ func runMigrations(db *sql.DB) {
 		if newsCount == 0 {
 			log.Println("Migration: detected news_legacy table with data, migrating to new schema...")
 			_, err = db.Exec(`
-				INSERT INTO news (title, description, content, image_path, video_path, status, created_at, updated_at)
+				INSERT INTO news (title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at)
 				SELECT
 					COALESCE(NULLIF(title_ru, ''), title_en, ''),
 					COALESCE(NULLIF(subTitle_ru, ''), NULLIF(subTitle_en, ''), SUBSTR(COALESCE(NULLIF(text_ru, ''), text_en, ''), 1, 200), ''),
@@ -316,6 +401,12 @@ func runMigrations(db *sql.DB) {
 					END,
 					CASE
 						WHEN videos IS NOT NULL AND videos != '' THEN dir || SUBSTR(videos, 1, INSTR(videos || ';', ';') - 1)
+						ELSE NULL
+					END,
+					NULL,
+					CASE
+						WHEN images IS NOT NULL AND images != '' THEN
+							(SELECT group_concat(nl2.dir || TRIM(value), ';') FROM json_each('["' || replace(replace(nl2.images, CHAR(13), ''), ';', '","') || '"]') WHERE TRIM(value) != '')
 						ELSE NULL
 					END,
 					'published',

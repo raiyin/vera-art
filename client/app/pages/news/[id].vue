@@ -1,62 +1,225 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, } from 'vue';
-import { useI18n, } from '#imports';
-import { getHttpClient, } from '~/api/http-client';
-import { useFormatting, } from '~/composables/useFormatting';
-import type { NewsItem, NewsListResponse, } from '~/api/news';
+import { ref, onMounted, computed } from 'vue';
+import { useI18n } from '#imports';
+import { getHttpClient } from '~/api/http-client';
+import { useFormatting } from '~/composables/useFormatting';
+import type { NewsItem, NewsListResponse } from '~/api/news';
 import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
 import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { t, } = useI18n();
-const { formatDate, } = useFormatting();
+const { t } = useI18n();
+const { formatDate } = useFormatting();
 
-const currentNewsItem = ref<NewsItem | null>(null,);
-const otherNews = ref<NewsItem[]>([],);
-const loading = ref(true,);
-const error = ref<string | null>(null,);
-const mainImageError = ref(false,);
+const currentNewsItem = ref<NewsItem | null>(null);
+const otherNews = ref<NewsItem[]>([]);
+const loading = ref(true);
+const error = ref<string | null>(null);
+const mainImageError = ref(false);
 
-const newsId = computed(() => Number(route.params.id),);
+// Video carousel state
+const currentVideoIndex = ref(0);
+const videoErrors = ref<Set<number>>(new Set());
+
+// Gallery modal state
+const selectedGalleryIndex = ref<number | null>(null);
+const galleryImageErrors = ref<Set<number>>(new Set());
+
+const openGalleryModal = (index: number): void => {
+    selectedGalleryIndex.value = index;
+};
+
+const closeGalleryModal = (): void => {
+    selectedGalleryIndex.value = null;
+};
+
+const goToPreviousGalleryImage = (): void => {
+    if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
+    selectedGalleryIndex.value =
+        (selectedGalleryIndex.value - 1 + galleryImages.value.length) %
+        galleryImages.value.length;
+};
+
+const goToNextGalleryImage = (): void => {
+    if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
+    selectedGalleryIndex.value =
+        (selectedGalleryIndex.value + 1) % galleryImages.value.length;
+};
+
+const handleGalleryImageError = (index: number): void => {
+    galleryImageErrors.value.add(index);
+};
+
+const newsId = computed(() => Number(route.params.id));
+
+/**
+ * Normalize file paths by replacing backslashes with forward slashes.
+ * The legacy system stored paths with OS-specific separators.
+ */
+const normalizePath = (path: string | null | undefined): string | undefined => {
+    if (!path) return undefined;
+    return path.replace(/\\/g, '/');
+};
+
+/**
+ * Resolve a single video path to its actual file URL.
+ * The legacy system stores the video directory name, while the actual
+ * video file is located at `videos/{dirname}/{dirname}.mp4`.
+ */
+const resolveVideoPath = (videoPath: string): string | undefined => {
+    const normalizedPath = normalizePath(videoPath);
+    if (!normalizedPath) return undefined;
+
+    // Check if the path already points to a file with extension
+    if (/\.\w+$/.test(normalizedPath)) {
+        return normalizedPath;
+    }
+
+    // The path points to a directory — construct the actual video file path
+    // Pattern: /content/news/YYYY/MM/DD/videoplayback
+    // Actual file: /content/news/YYYY/MM/DD/videos/videoplayback/videoplayback.mp4
+    const dirName = normalizedPath.split('/').pop() || '';
+    const basePath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'));
+    return `${basePath}/videos/${dirName}/${dirName}.mp4`;
+};
+
+/**
+ * All resolved video URLs for the carousel.
+ * Combines the single video_path (legacy) with the video_paths array.
+ */
+const allVideoUrls = computed<string[]>(() => {
+    const item = currentNewsItem.value;
+    if (!item) return [];
+
+    const urls: string[] = [];
+
+    // Add from video_paths array (new system with multiple videos)
+    if (item.video_paths && item.video_paths.length > 0) {
+        for (const vp of item.video_paths) {
+            const resolved = resolveVideoPath(vp);
+            if (resolved) urls.push(resolved);
+        }
+    }
+
+    // Add from single video_path if not already included (legacy fallback)
+    if (item.video_path) {
+        const resolved = resolveVideoPath(item.video_path);
+        if (resolved && !urls.includes(resolved)) {
+            urls.push(resolved);
+        }
+    }
+
+    return urls;
+});
+
+const hasMultipleVideos = computed(() => allVideoUrls.value.length > 1);
+
+const currentVideoUrl = computed(() => {
+    if (allVideoUrls.value.length === 0) return undefined;
+    return allVideoUrls.value[currentVideoIndex.value];
+});
+
+const isCurrentVideoError = computed(() =>
+    videoErrors.value.has(currentVideoIndex.value)
+);
+
+/**
+ * Resolve the actual image file URL from the stored image_path.
+ */
+const resolvedImagePath = computed<string | undefined>(() => {
+    if (!currentNewsItem.value?.image_path) return undefined;
+    return normalizePath(currentNewsItem.value.image_path);
+});
+
+/**
+ * Extract the directory from image_path to construct gallery image URLs.
+ * image_path example: /content/news/2024/11/22/back.jpg
+ * image_paths example: ["1.jpg", "2.jpg", "3.jpg"]
+ * Result: ["/content/news/2024/11/22/1.jpg", "/content/news/2024/11/22/2.jpg", ...]
+ */
+const imageDir = computed<string>(() => {
+    const path = normalizePath(currentNewsItem.value?.image_path);
+    if (!path) return '';
+    const lastSlash = path.lastIndexOf('/');
+    if (lastSlash === -1) return '';
+    return path.substring(0, lastSlash + 1);
+});
+
+const galleryImages = computed<string[]>(() => {
+    const item = currentNewsItem.value;
+    if (!item?.image_paths || item.image_paths.length === 0) return [];
+    const dir = imageDir.value;
+    if (!dir) return [];
+    return item.image_paths
+        .map((name: string) => `${dir}${name}`)
+        .map((p: string) => normalizePath(p) || p);
+});
+
+// Video carousel navigation
+const goToPreviousVideo = (): void => {
+    if (allVideoUrls.value.length === 0) return;
+    currentVideoIndex.value =
+        (currentVideoIndex.value - 1 + allVideoUrls.value.length) %
+        allVideoUrls.value.length;
+};
+
+const goToNextVideo = (): void => {
+    if (allVideoUrls.value.length === 0) return;
+    currentVideoIndex.value = (currentVideoIndex.value + 1) % allVideoUrls.value.length;
+};
+
+const goToVideo = (index: number): void => {
+    if (index >= 0 && index < allVideoUrls.value.length) {
+        currentVideoIndex.value = index;
+    }
+};
+
+const handleVideoError = (index: number): void => {
+    videoErrors.value.add(index);
+};
+
+const handleMainImageError = (): void => {
+    mainImageError.value = true;
+};
 
 const fetchNewsDetail = async (): Promise<void> => {
     try {
         loading.value = true;
         error.value = null;
 
-        const { data: currentData, } = await getHttpClient().get<NewsItem>(
-            `news/${newsId.value}`,
-            );
+        const { data: currentData } = await getHttpClient().get<NewsItem>(
+            `news/${newsId.value}`
+        );
         currentNewsItem.value = currentData;
 
         // Fetch other news for sidebar (excluding current)
-        const { data: otherData, } = await getHttpClient().get<NewsListResponse>('news', {
+        const { data: otherData } = await getHttpClient().get<NewsListResponse>('news', {
             params: {
                 page: 1,
-                limit: 6, // Get 6 to potentially exclude current
+                limit: 6,
             },
         });
 
         // Filter out current news and take first 5
         otherNews.value = (otherData.news || [])
-            .filter((news: NewsItem,) => news.id !== newsId.value,)
-            .slice(0, 5,);
+            .filter((news: NewsItem) => news.id !== newsId.value)
+            .slice(0, 5);
     } catch (err) {
-        console.error('Error fetching news detail:', err,);
-        error.value = t('news.detail.error.loadFailed',);
+        console.error('Error fetching news detail:', err);
+        error.value = t('news.detail.error.loadFailed');
     } finally {
         loading.value = false;
     }
 };
 
-const navigateToNews = (id: number,): void => {
-    router.push(`/news/${id}`,);
+const navigateToNews = (id: number): void => {
+    router.push(`/news/${id}`);
 };
 
-const handleMainImageError = (): void => {
-    mainImageError.value = true;
-};
+onMounted(() => {
+    fetchNewsDetail();
+});
 </script>
 
 <template>
@@ -65,10 +228,7 @@ const handleMainImageError = (): void => {
         <NewsDescriptionSkeleton v-if="loading && !currentNewsItem" />
 
         <!-- Error State -->
-        <div
-            v-else-if="error"
-            class="error-container"
-        >
+        <div v-else-if="error" class="error-container">
             <div class="error-content">
                 <svg
                     class="error-icon"
@@ -85,25 +245,19 @@ const handleMainImageError = (): void => {
                     />
                 </svg>
                 <h2 class="error-title">
-                    {{ $t('news.detail.error.title',) }}
+                    {{ $t('news.detail.error.title') }}
                 </h2>
                 <p class="error-message">
                     {{ error }}
                 </p>
-                <button
-                    class="retry-button"
-                    @click="fetchNewsDetail"
-                >
-                    {{ $t('news.detail.error.retryButton',) }}
+                <button class="retry-button" @click="fetchNewsDetail">
+                    {{ $t('news.detail.error.retryButton') }}
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div
-            v-else-if="currentNewsItem"
-            class="container mx-auto px-4 py-8"
-        >
+        <div v-else-if="currentNewsItem" class="container mx-auto px-4 py-8">
             <!-- Breadcrumb -->
             <nav class="mb-6">
                 <ol class="flex items-center space-x-2 text-sm text-gray-500">
@@ -112,7 +266,7 @@ const handleMainImageError = (): void => {
                             to="/"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.home',) }}
+                            {{ $t('breadcrumb.home') }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -134,7 +288,7 @@ const handleMainImageError = (): void => {
                             to="/news"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.news',) }}
+                            {{ $t('breadcrumb.news') }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -187,17 +341,17 @@ const handleMainImageError = (): void => {
                                 />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400 text-center">
-                                {{ $t('news.detail.image.error',) }}
+                                {{ $t('news.detail.image.error') }}
                             </p>
                         </div>
                         <img
                             v-else
-                            :src="currentNewsItem.image_path"
+                            :src="resolvedImagePath"
                             :alt="currentNewsItem.title"
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
-                        >
+                        />
                     </div>
                 </div>
 
@@ -207,7 +361,7 @@ const handleMainImageError = (): void => {
                         <h3
                             class="text-xl font-bold text-gray-900 dark:text-white mb-4 pb-1 border-b border-gray-200 dark:border-gray-700"
                         >
-                            {{ $t('news.detail.sidebar.title',) }}
+                            {{ $t('news.detail.sidebar.title') }}
                         </h3>
 
                         <div
@@ -218,16 +372,13 @@ const handleMainImageError = (): void => {
                                 v-for="news in otherNews"
                                 :key="news.id"
                                 class="sidebar-news-item cursor-pointer group"
-                                @click="navigateToNews(news.id,)"
+                                @click="navigateToNews(news.id)"
                             >
                                 <SideNewsTrailer :side-news-object="news" />
                             </div>
                         </div>
 
-                        <div
-                            v-else
-                            class="text-center py-8"
-                        >
+                        <div v-else class="text-center py-8">
                             <svg
                                 class="w-12 h-12 mx-auto text-gray-400 mb-4"
                                 fill="none"
@@ -243,7 +394,7 @@ const handleMainImageError = (): void => {
                                 />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400">
-                                {{ $t('news.detail.sidebar.empty',) }}
+                                {{ $t('news.detail.sidebar.empty') }}
                             </p>
                         </div>
 
@@ -252,7 +403,7 @@ const handleMainImageError = (): void => {
                                 to="/news"
                                 class="flex items-center justify-center w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                             >
-                                <span>{{ $t('news.viewAllNews',) }}</span>
+                                <span>{{ $t('news.viewAllNews') }}</span>
                                 <svg
                                     class="w-5 h-5 ml-2"
                                     fill="none"
@@ -293,7 +444,7 @@ const handleMainImageError = (): void => {
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                     </svg>
-                    {{ formatDate(currentNewsItem.created_at,) }}
+                    {{ formatDate(currentNewsItem.created_at) }}
                 </div>
 
                 <!-- Title -->
@@ -305,20 +456,14 @@ const handleMainImageError = (): void => {
             </div>
 
             <!-- News Description -->
-            <div
-                v-if="currentNewsItem.description"
-                class="news-description mb-6"
-            >
+            <div v-if="currentNewsItem.description" class="news-description mb-6">
                 <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
                     {{ currentNewsItem.description }}
                 </p>
             </div>
 
             <!-- News Content -->
-            <div
-                v-if="currentNewsItem.content"
-                class="news-text mb-12"
-            >
+            <div v-if="currentNewsItem.content" class="news-text mb-12">
                 <div class="prose prose-lg dark:prose-invert max-w-none">
                     <div
                         class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
@@ -327,26 +472,306 @@ const handleMainImageError = (): void => {
                 </div>
             </div>
 
-            <!-- Video Section -->
-            <div
-                v-if="currentNewsItem.video_path"
-                class="video-section mb-12"
-            >
+            <!-- Video Carousel Section -->
+            <div v-if="allVideoUrls.length > 0" class="video-section mb-12">
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    {{ $t('news.detail.videos.title',) }}
-                </h3>
-                <div class="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-black">
-                    <video
-                        :src="currentNewsItem.video_path"
-                        class="w-full h-full object-contain"
-                        controls
-                        preload="metadata"
+                    {{ $t('news.detail.videos.title') }}
+                    <span
+                        v-if="hasMultipleVideos"
+                        class="text-lg font-normal text-gray-500 dark:text-gray-400 ml-2"
                     >
-                        <p class="text-white text-center py-8">
-                            {{ $t('news.detail.video.notSupported',) }}
-                        </p>
-                    </video>
+                        ({{ currentVideoIndex + 1 }} / {{ allVideoUrls.length }})
+                    </span>
+                </h3>
+
+                <div class="video-carousel-container">
+                    <!-- Video Player -->
+                    <div
+                        class="relative aspect-video rounded-xl overflow-hidden shadow-lg bg-black"
+                    >
+                        <!-- Current Video -->
+                        <video
+                            v-if="currentVideoUrl && !isCurrentVideoError"
+                            :key="currentVideoIndex"
+                            :src="currentVideoUrl"
+                            class="w-full h-full object-contain"
+                            controls
+                            preload="metadata"
+                            @error="handleVideoError(currentVideoIndex)"
+                        >
+                            <p class="text-white text-center py-8">
+                                {{ $t('news.detail.videos.notSupported') }}
+                            </p>
+                        </video>
+
+                        <!-- Video Error Fallback -->
+                        <div
+                            v-else
+                            class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 min-h-48"
+                        >
+                            <div class="text-center p-8">
+                                <svg
+                                    class="w-16 h-16 text-gray-400 mx-auto mb-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+                                    />
+                                </svg>
+                                <p class="text-gray-500 dark:text-gray-400">
+                                    {{ $t('news.detail.videos.notSupported') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Navigation Arrows (only if multiple videos) -->
+                        <button
+                            v-if="hasMultipleVideos"
+                            class="carousel-arrow carousel-arrow-left"
+                            aria-label="Previous video"
+                            @click="goToPreviousVideo"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M15 19l-7-7 7-7"
+                                />
+                            </svg>
+                        </button>
+
+                        <button
+                            v-if="hasMultipleVideos"
+                            class="carousel-arrow carousel-arrow-right"
+                            aria-label="Next video"
+                            @click="goToNextVideo"
+                        >
+                            <svg
+                                class="w-6 h-6"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 5l7 7-7 7"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Carousel Indicators (only if multiple videos) -->
+                    <div
+                        v-if="hasMultipleVideos"
+                        class="flex items-center justify-center gap-2 mt-4"
+                    >
+                        <button
+                            v-for="(_, index) in allVideoUrls"
+                            :key="index"
+                            class="carousel-dot"
+                            :class="{
+                                'carousel-dot-active': index === currentVideoIndex,
+                            }"
+                            :aria-label="`Go to video ${index + 1}`"
+                            @click="goToVideo(index)"
+                        />
+                    </div>
                 </div>
+
+                <!-- Gallery Section -->
+                <div v-if="galleryImages.length > 0" class="gallery-section mb-12">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                        {{ $t('news.detail.gallery.title') }}
+                    </h3>
+
+                    <div class="gallery-grid">
+                        <div
+                            v-for="(imgUrl, index) in galleryImages"
+                            :key="index"
+                            class="gallery-item"
+                            @click="openGalleryModal(index)"
+                        >
+                            <div
+                                v-if="galleryImageErrors.has(index)"
+                                class="gallery-item-error"
+                            >
+                                <svg
+                                    class="w-10 h-10 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                    />
+                                </svg>
+                            </div>
+                            <img
+                                v-else
+                                :src="imgUrl"
+                                :alt="`${$t('news.detail.gallery.title')} ${index + 1}`"
+                                class="gallery-image"
+                                loading="lazy"
+                                @error="handleGalleryImageError(index)"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div
+                        v-if="galleryImages.length === 0"
+                        class="text-center py-12 bg-gray-50 dark:bg-gray-800 rounded-xl"
+                    >
+                        <svg
+                            class="w-16 h-16 text-gray-400 mx-auto mb-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                        </svg>
+                        <p class="text-gray-500 dark:text-gray-400">
+                            {{ $t('news.detail.gallery.empty') }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Gallery Modal -->
+                <Teleport to="body">
+                    <div
+                        v-if="selectedGalleryIndex !== null"
+                        class="gallery-modal-overlay"
+                        @click.self="closeGalleryModal"
+                    >
+                        <div class="gallery-modal-container">
+                            <!-- Close button -->
+                            <button
+                                class="gallery-modal-close"
+                                :aria-label="$t('news.detail.modal.close')"
+                                @click="closeGalleryModal"
+                            >
+                                <svg
+                                    class="w-8 h-8"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12"
+                                    />
+                                </svg>
+                            </button>
+
+                            <!-- Previous button -->
+                            <button
+                                v-if="galleryImages.length > 1"
+                                class="gallery-modal-nav gallery-modal-prev"
+                                :aria-label="$t('news.detail.modal.previous')"
+                                @click="goToPreviousGalleryImage"
+                            >
+                                <svg
+                                    class="w-8 h-8"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M15 19l-7-7 7-7"
+                                    />
+                                </svg>
+                            </button>
+
+                            <!-- Image -->
+                            <div class="gallery-modal-image-wrapper">
+                                <img
+                                    v-if="!galleryImageErrors.has(selectedGalleryIndex)"
+                                    :key="selectedGalleryIndex"
+                                    :src="galleryImages[selectedGalleryIndex]"
+                                    :alt="`${$t('news.detail.gallery.title')} ${
+                                        selectedGalleryIndex + 1
+                                    }`"
+                                    class="gallery-modal-image"
+                                    @error="handleGalleryImageError(selectedGalleryIndex)"
+                                />
+                                <div v-else class="gallery-modal-error">
+                                    <svg
+                                        class="w-16 h-16 text-gray-400"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <!-- Next button -->
+                            <button
+                                v-if="galleryImages.length > 1"
+                                class="gallery-modal-nav gallery-modal-next"
+                                :aria-label="$t('news.detail.modal.next')"
+                                @click="goToNextGalleryImage"
+                            >
+                                <svg
+                                    class="w-8 h-8"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M9 5l7 7-7 7"
+                                    />
+                                </svg>
+                            </button>
+
+                            <!-- Caption -->
+                            <div class="gallery-modal-caption">
+                                {{
+                                    $t('news.detail.modal.caption', {
+                                        current: selectedGalleryIndex + 1,
+                                        total: galleryImages.length,
+                                    })
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                </Teleport>
             </div>
         </div>
     </div>
@@ -505,6 +930,244 @@ const handleMainImageError = (): void => {
     margin-bottom: 0;
 }
 
+/* Video Carousel Styles */
+.video-carousel-container {
+    position: relative;
+    width: 100%;
+}
+
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0;
+}
+
+.video-carousel-container:hover .carousel-arrow {
+    opacity: 1;
+}
+
+.carousel-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-arrow-left {
+    left: 12px;
+}
+
+.carousel-arrow-right {
+    right: 12px;
+}
+
+.carousel-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #d1d5db;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.dark .carousel-dot {
+    background-color: #4b5563;
+}
+
+.carousel-dot:hover {
+    background-color: #9ca3af;
+    transform: scale(1.2);
+}
+
+.dark .carousel-dot:hover {
+    background-color: #6b7280;
+}
+
+.carousel-dot-active {
+    background-color: #10b981;
+    transform: scale(1.3);
+}
+
+.dark .carousel-dot-active {
+    background-color: #34d399;
+}
+
+.carousel-dot-active:hover {
+    background-color: #059669;
+    transform: scale(1.3);
+}
+
+.dark .carousel-dot-active:hover {
+    background-color: #10b981;
+}
+
+/* Gallery Section Styles */
+.gallery-section {
+    scroll-margin-top: 2rem;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark .gallery-item {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+}
+
+.gallery-item:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.gallery-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .gallery-image {
+    transform: scale(1.08);
+}
+
+.gallery-item-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 200px;
+}
+
+/* Gallery Modal Styles */
+.gallery-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(4px);
+    padding: 1rem;
+}
+
+.gallery-modal-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+.gallery-modal-image-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    max-height: 80vh;
+}
+
+.gallery-modal-image {
+    max-width: 100%;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.gallery-modal-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 400px;
+    height: 300px;
+    background: #1f2937;
+    border-radius: 0.5rem;
+}
+
+.gallery-modal-close {
+    position: absolute;
+    top: -2.5rem;
+    right: -0.5rem;
+    z-index: 10;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    transition: transform 0.2s ease;
+}
+
+.gallery-modal-close:hover {
+    transform: scale(1.15);
+}
+
+.gallery-modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.gallery-modal-nav:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.gallery-modal-prev {
+    left: -3.5rem;
+}
+
+.gallery-modal-next {
+    right: -3.5rem;
+}
+
+.gallery-modal-caption {
+    margin-top: 1rem;
+    color: #d1d5db;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
 /* Responsive layout adjustments */
 @media (max-width: 1024px) {
     .flex-col.lg\:flex-row {
@@ -523,6 +1186,20 @@ const handleMainImageError = (): void => {
 
     .sidebar-news-list {
         max-height: 400px;
+    }
+}
+
+@media (max-width: 640px) {
+    .carousel-arrow {
+        width: 36px;
+        height: 36px;
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .carousel-arrow svg {
+        width: 18px;
+        height: 18px;
     }
 }
 </style>

@@ -20,17 +20,17 @@ func NewNewsRepository(db *sql.DB) *NewsRepository {
 	return &NewsRepository{db: db}
 }
 
-const newsColumns = `id, title, description, content, image_path, video_path, status, created_at, updated_at`
+const newsColumns = `id, title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at`
 
 func (r *NewsRepository) scanNews(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.News, error) {
 	n := &domain.News{}
-	var description, content, videoPath sql.NullString
+	var description, content, videoPath, videoPaths, imagePaths sql.NullString
 
 	err := scanner.Scan(
 		&n.ID, &n.Title, &description, &content,
-		&n.ImagePath, &videoPath, &n.Status,
+		&n.ImagePath, &videoPath, &videoPaths, &imagePaths, &n.Status,
 		&n.CreatedAt, &n.UpdatedAt,
 	)
 	if err != nil {
@@ -46,14 +46,20 @@ func (r *NewsRepository) scanNews(scanner interface {
 	if videoPath.Valid {
 		n.VideoPath = videoPath.String
 	}
+	if videoPaths.Valid && videoPaths.String != "" {
+		n.VideoPaths = strings.Split(videoPaths.String, ";")
+	}
+	if imagePaths.Valid && imagePaths.String != "" {
+		n.ImagePaths = strings.Split(imagePaths.String, ";")
+	}
 
 	return n, nil
 }
 
 // Create inserts a new news entry.
 func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
-	query := `INSERT INTO news (title, description, content, image_path, video_path, status, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO news (title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if news.CreatedAt.IsZero() {
@@ -66,9 +72,12 @@ func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
 		news.Status = "draft"
 	}
 
+	videoPathsStr := strings.Join(news.VideoPaths, ";")
+	imagePathsStr := strings.Join(news.ImagePaths, ";")
+
 	result, err := r.db.ExecContext(ctx, query,
 		news.Title, nullString(news.Description), nullString(news.Content),
-		news.ImagePath, nullString(news.VideoPath), news.Status,
+		news.ImagePath, nullString(news.VideoPath), nullString(videoPathsStr), nullString(imagePathsStr), news.Status,
 		news.CreatedAt, news.UpdatedAt,
 	)
 	if err != nil {
@@ -157,13 +166,16 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 // Update updates a news entry.
 func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
 	query := `UPDATE news SET title = ?, description = ?, content = ?, image_path = ?,
-		video_path = ?, status = ?, updated_at = ? WHERE id = ?`
+		video_path = ?, video_paths = ?, image_paths = ?, status = ?, updated_at = ? WHERE id = ?`
 
 	news.UpdatedAt = time.Now()
 
+	videoPathsStr := strings.Join(news.VideoPaths, ";")
+	imagePathsStr := strings.Join(news.ImagePaths, ";")
+
 	_, err := r.db.ExecContext(ctx, query,
 		news.Title, nullString(news.Description), nullString(news.Content),
-		news.ImagePath, nullString(news.VideoPath), news.Status,
+		news.ImagePath, nullString(news.VideoPath), nullString(videoPathsStr), nullString(imagePathsStr), news.Status,
 		news.UpdatedAt, news.ID,
 	)
 	if err != nil {

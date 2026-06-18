@@ -10,6 +10,8 @@ export interface NewsItem {
     content: string | null
     image_path: string
     video_path: string | null
+    video_paths: string[] | null
+    image_paths: string[] | null
     status: string
     created_at: string
     updated_at: string

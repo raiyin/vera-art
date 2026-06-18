@@ -10,6 +10,8 @@ type NewsResponse struct {
 	Content     string    `json:"content,omitempty"`
 	ImagePath   string    `json:"image_path"`
 	VideoPath   string    `json:"video_path,omitempty"`
+	VideoPaths  []string  `json:"video_paths,omitempty"`
+	ImagePaths  []string  `json:"image_paths,omitempty"`
 	Status      string    `json:"status"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`

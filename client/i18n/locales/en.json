@@ -87,7 +87,8 @@
             },
             "videos": {
                 "title": "Videos",
-                "empty": "No videos available for this news"
+                "empty": "No videos available for this news",
+                "notSupported": "Your browser does not support the video tag."
             },
             "sidebar": {
                 "title": "Other News",
