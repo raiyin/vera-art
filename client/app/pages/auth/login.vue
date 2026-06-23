@@ -353,7 +353,7 @@ export default {
             }
         };
 
-        // Check for remembered user (client-side only, after hydration)
+        // Check for remembered username (client-side only, after hydration)
         onMounted(() => {
             const rememberedUser = localStorage.getItem('rememberedUser');
             if (rememberedUser) {
