@@ -475,6 +475,24 @@ func runMigrations(db *sql.DB) {
 		slog.Info("Sales data migration already applied, skipping")
 	}
 
+	// Add email_verified column to users table if it doesn't exist
+	_, err = db.Exec("ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0")
+	if err != nil {
+		slog.Warn("Migration (add email_verified column) — this is normal if column already exists", "error", err)
+	}
+
+	// Add verification_token column to users table if it doesn't exist
+	_, err = db.Exec("ALTER TABLE users ADD COLUMN verification_token TEXT")
+	if err != nil {
+		slog.Warn("Migration (add verification_token column) — this is normal if column already exists", "error", err)
+	}
+
+	// Add verification_sent_at column to users table if it doesn't exist
+	_, err = db.Exec("ALTER TABLE users ADD COLUMN verification_sent_at TIMESTAMP")
+	if err != nil {
+		slog.Warn("Migration (add verification_sent_at column) — this is normal if column already exists", "error", err)
+	}
+
 	slog.Info("Database migrations completed")
 }
 

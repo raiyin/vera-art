@@ -1,13 +1,13 @@
 import { defineStore, } from 'pinia';
 import { ref, computed, } from 'vue';
-import { getRoleFromToken, getUserIdFromToken, } from '~/utils/jwt';
+import { getRoleFromToken, getUserIdFromToken, getTokenExpiry, } from '~/utils/jwt';
 
 interface TokenData {
     access_token: string
     refresh_token: string
-    access_expires: string
-    refresh_expires: string
-    token_type: string
+    access_expires?: string
+    refresh_expires?: string
+    token_type?: string
 }
 
 export const useAuthStore = defineStore('authStore', () => {
@@ -25,8 +25,14 @@ export const useAuthStore = defineStore('authStore', () => {
 
         accessToken.value = tokenData.access_token;
         refreshToken.value = tokenData.refresh_token;
-        accessTokenExpiry.value = new Date(tokenData.access_expires,);
-        refreshTokenExpiry.value = new Date(tokenData.refresh_expires,);
+
+        // Derive expiry from JWT token claims if server doesn't send explicit expiry fields
+        accessTokenExpiry.value = tokenData.access_expires
+            ? new Date(tokenData.access_expires,)
+            : getTokenExpiry(tokenData.access_token,);
+        refreshTokenExpiry.value = tokenData.refresh_expires
+            ? new Date(tokenData.refresh_expires,)
+            : getTokenExpiry(tokenData.refresh_token,);
 
         // Extract role and user ID from access token
         const role = getRoleFromToken(tokenData.access_token,);
@@ -36,8 +42,12 @@ export const useAuthStore = defineStore('authStore', () => {
 
         localStorage.setItem('access_token', tokenData.access_token,);
         localStorage.setItem('refresh_token', tokenData.refresh_token,);
-        localStorage.setItem('access_expires', tokenData.access_expires,);
-        localStorage.setItem('refresh_expires', tokenData.refresh_expires,);
+        if (tokenData.access_expires) {
+            localStorage.setItem('access_expires', tokenData.access_expires,);
+        }
+        if (tokenData.refresh_expires) {
+            localStorage.setItem('refresh_expires', tokenData.refresh_expires,);
+        }
         // Also store as 'token' for backward compatibility with existing code
         localStorage.setItem('token', tokenData.access_token,);
 

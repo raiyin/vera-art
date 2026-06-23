@@ -94,7 +94,7 @@
 
 | Файл | Сущности |
 |------|----------|
-| [`user.go`](server/internal/domain/user.go) | `User` (ID, Username, Password, Email, FullName, Role, EmailVerified, AvatarPath, CreatedAt) |
+| [`user.go`](server/internal/domain/user.go) | `User` (ID, Username, Email, PasswordHash, Name, Role, AvatarPath, EmailVerified, VerificationToken, VerificationSentAt, CreatedAt, UpdatedAt) |
 | [`work.go`](server/internal/domain/work.go) | `Work` (ID, Title, Description, ImagePath, Materials, Bases, CreatedAt) |
 | [`sale.go`](server/internal/domain/sale.go) | `Sale` (ID, WorkID, Price, IsSold, SoldAt) |
 | [`product.go`](server/internal/domain/product.go) | `Product` (ID, Title, Slug, Description, FullDescription, Price, OldPrice, ImagePath, CategoryID, Status, IsDigital, IsMasterClass, SortOrder, Tags) |
@@ -451,7 +451,7 @@ Polling (Client):
 
 | Таблица | Назначение |
 |---------|------------|
-| `users` | Пользователи (username, pass_hash, email, role, email_verified) |
+| `users` | Пользователи (username, password_hash, email, name, role, avatar_path, email_verified, verification_token, verification_sent_at) |
 | `refresh_tokens` | Refresh-токены (user_id, token_hash, expires_at) |
 | `works` | Работы галереи (title, description, image_path) |
 | `sales` | Продажи работ (work_id, price, is_sold) |

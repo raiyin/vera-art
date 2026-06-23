@@ -175,19 +175,18 @@ Supports: master-classes (single video lessons), courses (multi-lesson programs)
 
 | Column | Type | Description |
 |--------|------|-------------|
-| `id` | INTEGER PK | |
-| `username` | TEXT | |
-| `pass_hash` | TEXT | |
-| `role` | TEXT | `'user'`, `'admin'` |
-| `email` | TEXT? | |
-| `full_name` | TEXT? | |
-| `email_verified` | INTEGER | `0` = unverified, `1` = verified. Default `0` |
+| `id` | INTEGER PK | Auto-increment ID |
+| `username` | TEXT NOT NULL UNIQUE | Login username |
+| `password_hash` | TEXT NOT NULL | bcrypt hash of password |
+| `role` | TEXT NOT NULL | `'user'`, `'admin'`. Default `'user'` |
+| `email` | TEXT? | Email address |
+| `name` | TEXT? | Display name (defaults to username on registration) |
+| `avatar_path` | TEXT | Avatar file path. Default `''` |
+| `email_verified` | INTEGER NOT NULL | `0` = unverified, `1` = verified. Default `0` |
 | `verification_token` | TEXT? | Cryptographically secure random token for email verification |
-| `verification_token_expires_at` | TIMESTAMP? | Token expiry (24 hours from creation) |
-| `blocked` | INTEGER | `0` = active, `1` = blocked. Default `0` |
-| `avatar` | TEXT? | Avatar filename |
-| `created_at` | TIMESTAMP | |
-| `updated_at` | TIMESTAMP | |
+| `verification_sent_at` | TIMESTAMP? | When the verification email was last sent |
+| `created_at` | TIMESTAMP | Record creation timestamp |
+| `updated_at` | TIMESTAMP | Record last update timestamp |
 
 ---
 
