@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -35,6 +36,10 @@ func (h *ShopHandler) GetProducts(c *gin.Context) {
 
 	products, total, err := h.shopService.GetProducts(c.Request.Context(), filter)
 	if err != nil {
+		slog.Error("GetProducts: failed to list products",
+			"error", err,
+			"filter", filter,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -71,10 +76,14 @@ func (h *ShopHandler) GetProducts(c *gin.Context) {
 
 // GetProductBySlug returns a product by slug.
 func (h *ShopHandler) GetProductBySlug(c *gin.Context) {
-	slug := c.Param("slug")
+	slug := c.Param("product_slug")
 
 	product, err := h.shopService.GetProductBySlug(c.Request.Context(), slug)
 	if err != nil {
+		slog.Error("GetProductBySlug: failed to get product",
+			"slug", slug,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -110,6 +119,10 @@ func (h *ShopHandler) GetProductByID(c *gin.Context) {
 
 	product, err := h.shopService.GetProductByID(c.Request.Context(), id)
 	if err != nil {
+		slog.Error("GetProductByID: failed to get product",
+			"product_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -160,11 +173,20 @@ func (h *ShopHandler) CreateProduct(c *gin.Context) {
 	}
 
 	if err := h.shopService.CreateProduct(c.Request.Context(), product); err != nil {
+		slog.Error("CreateProduct: failed to create product",
+			"title", req.Title,
+			"slug", req.Slug,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Product created successfully",
+		"product_id", product.ID,
+		"title", product.Title,
+	)
 	c.JSON(http.StatusCreated, dto.ProductResponse{
 		ID:              product.ID,
 		Title:           product.Title,
@@ -216,11 +238,18 @@ func (h *ShopHandler) UpdateProduct(c *gin.Context) {
 	}
 
 	if err := h.shopService.UpdateProduct(c.Request.Context(), product); err != nil {
+		slog.Error("UpdateProduct: failed to update product",
+			"product_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Product updated successfully",
+		"product_id", id,
+	)
 	c.JSON(http.StatusOK, dto.ProductResponse{
 		ID:              product.ID,
 		Title:           product.Title,
@@ -250,11 +279,18 @@ func (h *ShopHandler) DeleteProduct(c *gin.Context) {
 	}
 
 	if err := h.shopService.DeleteProduct(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteProduct: failed to delete product",
+			"product_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Product deleted successfully",
+		"product_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully"})
 }
 
@@ -262,6 +298,9 @@ func (h *ShopHandler) DeleteProduct(c *gin.Context) {
 func (h *ShopHandler) GetCategories(c *gin.Context) {
 	categories, err := h.shopService.GetCategories(c.Request.Context())
 	if err != nil {
+		slog.Error("GetCategories: failed to list categories",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -295,11 +334,19 @@ func (h *ShopHandler) CreateCategory(c *gin.Context) {
 	}
 
 	if err := h.shopService.CreateCategory(c.Request.Context(), category); err != nil {
+		slog.Error("CreateCategory: failed to create category",
+			"name", req.Name,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Category created successfully",
+		"category_id", category.ID,
+		"name", category.Name,
+	)
 	c.JSON(http.StatusCreated, dto.CategoryResponse{
 		ID:        category.ID,
 		Name:      category.Name,
@@ -333,11 +380,18 @@ func (h *ShopHandler) UpdateCategory(c *gin.Context) {
 	}
 
 	if err := h.shopService.UpdateCategory(c.Request.Context(), category); err != nil {
+		slog.Error("UpdateCategory: failed to update category",
+			"category_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Category updated successfully",
+		"category_id", id,
+	)
 	c.JSON(http.StatusOK, dto.CategoryResponse{
 		ID:        category.ID,
 		Name:      category.Name,
@@ -355,11 +409,18 @@ func (h *ShopHandler) DeleteCategory(c *gin.Context) {
 	}
 
 	if err := h.shopService.DeleteCategory(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteCategory: failed to delete category",
+			"category_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Category deleted successfully",
+		"category_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Category deleted successfully"})
 }
 
@@ -367,6 +428,9 @@ func (h *ShopHandler) DeleteCategory(c *gin.Context) {
 func (h *ShopHandler) GetPromoCodes(c *gin.Context) {
 	codes, total, err := h.shopService.GetPromoCodes(c.Request.Context())
 	if err != nil {
+		slog.Error("GetPromoCodes: failed to list promo codes",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -408,11 +472,19 @@ func (h *ShopHandler) CreatePromoCode(c *gin.Context) {
 	}
 
 	if err := h.shopService.CreatePromoCode(c.Request.Context(), code); err != nil {
+		slog.Error("CreatePromoCode: failed to create promo code",
+			"code", req.Code,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Promo code created successfully",
+		"promo_code_id", code.ID,
+		"code", code.Code,
+	)
 	c.JSON(http.StatusCreated, dto.PromoCodeResponse{
 		ID:              code.ID,
 		Code:            code.Code,
@@ -461,11 +533,18 @@ func (h *ShopHandler) UpdatePromoCode(c *gin.Context) {
 	}
 
 	if err := h.shopService.UpdatePromoCode(c.Request.Context(), code); err != nil {
+		slog.Error("UpdatePromoCode: failed to update promo code",
+			"promo_code_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Promo code updated successfully",
+		"promo_code_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Promo code updated successfully"})
 }
 
@@ -477,11 +556,18 @@ func (h *ShopHandler) DeletePromoCode(c *gin.Context) {
 	}
 
 	if err := h.shopService.DeletePromoCode(c.Request.Context(), id); err != nil {
+		slog.Error("DeletePromoCode: failed to delete promo code",
+			"promo_code_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Promo code deleted successfully",
+		"promo_code_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Promo code deleted successfully"})
 }
 
@@ -489,6 +575,7 @@ func (h *ShopHandler) DeletePromoCode(c *gin.Context) {
 func (h *ShopHandler) ValidatePromoCode(c *gin.Context) {
 	code := c.Query("code")
 	if code == "" {
+		slog.Warn("ValidatePromoCode: code is required")
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -499,6 +586,10 @@ func (h *ShopHandler) ValidatePromoCode(c *gin.Context) {
 
 	promo, err := h.shopService.ValidatePromoCode(c.Request.Context(), code)
 	if err != nil {
+		slog.Warn("ValidatePromoCode: validation failed",
+			"code", code,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -520,6 +611,9 @@ func (h *ShopHandler) ValidatePromoCode(c *gin.Context) {
 func (h *ShopHandler) GetReviews(c *gin.Context) {
 	reviews, total, err := h.shopService.GetReviews(c.Request.Context())
 	if err != nil {
+		slog.Error("GetReviews: failed to list reviews",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -554,6 +648,10 @@ func (h *ShopHandler) GetReviewsByProduct(c *gin.Context) {
 
 	reviews, err := h.shopService.GetReviewsByProduct(c.Request.Context(), productID)
 	if err != nil {
+		slog.Error("GetReviewsByProduct: failed to get reviews",
+			"product_id", productID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -594,11 +692,20 @@ func (h *ShopHandler) CreateReview(c *gin.Context) {
 	}
 
 	if err := h.shopService.CreateReview(c.Request.Context(), review); err != nil {
+		slog.Error("CreateReview: failed to create review",
+			"user_id", userID,
+			"product_id", req.ProductID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Review created successfully",
+		"review_id", review.ID,
+		"user_id", userID,
+	)
 	c.JSON(http.StatusCreated, dto.ReviewResponse{
 		ID:        review.ID,
 		UserID:    review.UserID,
@@ -635,11 +742,18 @@ func (h *ShopHandler) UpdateReview(c *gin.Context) {
 	}
 
 	if err := h.shopService.UpdateReview(c.Request.Context(), review); err != nil {
+		slog.Error("UpdateReview: failed to update review",
+			"review_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Review updated successfully",
+		"review_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Review updated successfully"})
 }
 
@@ -651,11 +765,18 @@ func (h *ShopHandler) DeleteReview(c *gin.Context) {
 	}
 
 	if err := h.shopService.DeleteReview(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteReview: failed to delete review",
+			"review_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Review deleted successfully",
+		"review_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Review deleted successfully"})
 }
 

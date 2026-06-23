@@ -2,6 +2,7 @@ package handler
 
 import (
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -50,6 +51,10 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 	fullDir := filepath.Join(h.absWorksDir, h.relWorksDir, dir)
 	entries, err := os.ReadDir(fullDir)
 	if err != nil {
+		slog.Debug("listImageFiles: could not read directory",
+			"dir", fullDir,
+			"error", err,
+		)
 		return nil
 	}
 
@@ -97,6 +102,10 @@ func (h *GalleryHandler) GetWorks(c *gin.Context) {
 
 	works, total, err := h.galleryService.GetWorks(c.Request.Context(), filter)
 	if err != nil {
+		slog.Error("GetWorks: failed to list works",
+			"error", err,
+			"filter", filter,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -138,6 +147,10 @@ func (h *GalleryHandler) GetWorkByID(c *gin.Context) {
 
 	work, err := h.galleryService.GetWorkByID(c.Request.Context(), id)
 	if err != nil {
+		slog.Error("GetWorkByID: failed to get work",
+			"work_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -166,6 +179,9 @@ func (h *GalleryHandler) GetWorkByID(c *gin.Context) {
 func (h *GalleryHandler) CreateWork(c *gin.Context) {
 	var req dto.CreateWorkRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("CreateWork: invalid request",
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -197,11 +213,19 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 	}
 
 	if err := h.galleryService.CreateWork(c.Request.Context(), work, filename, reader); err != nil {
+		slog.Error("CreateWork: failed to create work",
+			"title", req.Title,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Work created successfully",
+		"work_id", work.ID,
+		"title", work.Title,
+	)
 	c.JSON(http.StatusCreated, dto.WorkResponse{
 		ID:          work.ID,
 		Title:       work.Title,
@@ -228,6 +252,10 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 
 	var req dto.UpdateWorkRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("UpdateWork: invalid request",
+			"work_id", id,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -260,11 +288,18 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 	}
 
 	if err := h.galleryService.UpdateWork(c.Request.Context(), work, filename, reader); err != nil {
+		slog.Error("UpdateWork: failed to update work",
+			"work_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Work updated successfully",
+		"work_id", id,
+	)
 	c.JSON(http.StatusOK, dto.UpdateWorkResponse{
 		ID:          work.ID,
 		Title:       work.Title,
@@ -290,11 +325,18 @@ func (h *GalleryHandler) DeleteWork(c *gin.Context) {
 	}
 
 	if err := h.galleryService.DeleteWork(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteWork: failed to delete work",
+			"work_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Work deleted successfully",
+		"work_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Work deleted successfully"})
 }
 
@@ -318,6 +360,10 @@ func (h *GalleryHandler) GetSales(c *gin.Context) {
 
 	sales, total, err := h.galleryService.GetSales(c.Request.Context(), filter)
 	if err != nil {
+		slog.Error("GetSales: failed to list sales",
+			"error", err,
+			"filter", filter,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -360,6 +406,10 @@ func (h *GalleryHandler) GetSaleByID(c *gin.Context) {
 
 	sale, err := h.galleryService.GetSaleByID(c.Request.Context(), id)
 	if err != nil {
+		slog.Error("GetSaleByID: failed to get sale",
+			"sale_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -389,6 +439,9 @@ func (h *GalleryHandler) GetSaleByID(c *gin.Context) {
 func (h *GalleryHandler) CreateSale(c *gin.Context) {
 	var req dto.CreateSaleRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("CreateSale: invalid request",
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -423,11 +476,19 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 	}
 
 	if err := h.galleryService.CreateSale(c.Request.Context(), sale, filename, reader); err != nil {
+		slog.Error("CreateSale: failed to create sale",
+			"title", req.Title,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Sale created successfully",
+		"sale_id", sale.ID,
+		"title", sale.Title,
+	)
 	c.JSON(http.StatusCreated, dto.SaleResponse{
 		ID:          sale.ID,
 		Title:       sale.Title,
@@ -457,6 +518,10 @@ func (h *GalleryHandler) UpdateSale(c *gin.Context) {
 
 	var req dto.UpdateSaleRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("UpdateSale: invalid request",
+			"sale_id", id,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -492,11 +557,18 @@ func (h *GalleryHandler) UpdateSale(c *gin.Context) {
 	}
 
 	if err := h.galleryService.UpdateSale(c.Request.Context(), sale, filename, reader); err != nil {
+		slog.Error("UpdateSale: failed to update sale",
+			"sale_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Sale updated successfully",
+		"sale_id", id,
+	)
 	c.JSON(http.StatusOK, dto.UpdateSaleResponse{
 		ID:          sale.ID,
 		Title:       sale.Title,
@@ -525,10 +597,17 @@ func (h *GalleryHandler) DeleteSale(c *gin.Context) {
 	}
 
 	if err := h.galleryService.DeleteSale(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteSale: failed to delete sale",
+			"sale_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Sale deleted successfully",
+		"sale_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Sale deleted successfully"})
 }

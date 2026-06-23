@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -31,11 +32,21 @@ func (h *PaymentHandler) CreatePayment(c *gin.Context) {
 
 	payment, confirmationURL, err := h.paymentService.CreatePayment(c.Request.Context(), userID, req.ProductID, req.PromoCode)
 	if err != nil {
+		slog.Error("CreatePayment: failed to create payment",
+			"user_id", userID,
+			"product_id", req.ProductID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Payment created",
+		"payment_id", payment.ID,
+		"user_id", userID,
+		"amount", payment.Amount,
+	)
 	c.JSON(http.StatusOK, dto.CreatePaymentResponse{
 		PaymentID:       payment.ID,
 		Amount:          payment.Amount,
@@ -55,6 +66,10 @@ func (h *PaymentHandler) GetPaymentStatus(c *gin.Context) {
 
 	payment, err := h.paymentService.GetPaymentStatus(c.Request.Context(), paymentID)
 	if err != nil {
+		slog.Error("GetPaymentStatus: failed to get payment status",
+			"payment_id", paymentID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -77,6 +92,9 @@ func (h *PaymentHandler) GetPaymentStatus(c *gin.Context) {
 func (h *PaymentHandler) HandleWebhook(c *gin.Context) {
 	payload, err := c.GetRawData()
 	if err != nil {
+		slog.Error("HandleWebhook: failed to read webhook payload",
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -86,11 +104,15 @@ func (h *PaymentHandler) HandleWebhook(c *gin.Context) {
 	}
 
 	if err := h.paymentService.HandleWebhook(c.Request.Context(), payload); err != nil {
+		slog.Error("HandleWebhook: webhook processing failed",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Webhook processed successfully")
 	c.Status(http.StatusOK)
 }
 
@@ -98,6 +120,9 @@ func (h *PaymentHandler) HandleWebhook(c *gin.Context) {
 func (h *PaymentHandler) GetPayments(c *gin.Context) {
 	payments, total, err := h.paymentService.GetPayments(c.Request.Context())
 	if err != nil {
+		slog.Error("GetPayments: failed to list payments",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -128,6 +153,9 @@ func (h *PaymentHandler) GetPayments(c *gin.Context) {
 func (h *PaymentHandler) GetPurchases(c *gin.Context) {
 	purchases, total, err := h.paymentService.GetPurchases(c.Request.Context())
 	if err != nil {
+		slog.Error("GetPurchases: failed to list purchases",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -158,6 +186,10 @@ func (h *PaymentHandler) GetUserPurchases(c *gin.Context) {
 
 	purchases, err := h.paymentService.GetUserPurchases(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("GetUserPurchases: failed to list user purchases",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -189,6 +221,11 @@ func (h *PaymentHandler) HasUserPurchasedProduct(c *gin.Context) {
 
 	hasPurchased, err := h.paymentService.HasUserPurchasedProduct(c.Request.Context(), userID, productID)
 	if err != nil {
+		slog.Error("HasUserPurchasedProduct: failed to check purchase",
+			"user_id", userID,
+			"product_id", productID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return

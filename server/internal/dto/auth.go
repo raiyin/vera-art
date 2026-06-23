@@ -2,14 +2,14 @@ package dto
 
 // RegisterUserRequest represents a registration request.
 type RegisterUserRequest struct {
+	Username string `json:"username" binding:"required,min=3"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=8"`
-	Name     string `json:"name" binding:"required"`
 }
 
 // LoginUserRequest represents a login request.
 type LoginUserRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
@@ -33,6 +33,7 @@ type AuthResponse struct {
 // UserDTO represents a user in API responses.
 type UserDTO struct {
 	ID            int64  `json:"id"`
+	Username      string `json:"username"`
 	Email         string `json:"email"`
 	Name          string `json:"name"`
 	Role          string `json:"role"`

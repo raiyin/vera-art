@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"path/filepath"
 	"time"
 
@@ -61,7 +62,13 @@ func (s *UserService) UploadAvatar(ctx context.Context, userID int64, filename s
 
 	// Delete old avatar if exists
 	if user.AvatarPath != "" {
-		_ = s.fileRepo.Delete(ctx, user.AvatarPath)
+		if err := s.fileRepo.Delete(ctx, user.AvatarPath); err != nil {
+			slog.Warn("UserService.UploadAvatar: failed to delete old avatar",
+				"user_id", userID,
+				"avatar_path", user.AvatarPath,
+				"error", err,
+			)
+		}
 	}
 
 	ext := filepath.Ext(filename)
@@ -88,7 +95,13 @@ func (s *UserService) DeleteAvatar(ctx context.Context, userID int64) error {
 	}
 
 	if user.AvatarPath != "" {
-		_ = s.fileRepo.Delete(ctx, user.AvatarPath)
+		if err := s.fileRepo.Delete(ctx, user.AvatarPath); err != nil {
+			slog.Warn("UserService.DeleteAvatar: failed to delete avatar file",
+				"user_id", userID,
+				"avatar_path", user.AvatarPath,
+				"error", err,
+			)
+		}
 		user.AvatarPath = ""
 		return s.userRepo.Update(ctx, user)
 	}
@@ -172,7 +185,13 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 	if reader != nil {
 		// Delete old image
 		if existing.ImagePath != "" {
-			_ = s.fileRepo.Delete(ctx, existing.ImagePath)
+			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
+				slog.Warn("GalleryService.UpdateWork: failed to delete old image",
+					"work_id", work.ID,
+					"image_path", existing.ImagePath,
+					"error", err,
+				)
+			}
 		}
 		imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("work_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
 		if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
@@ -194,7 +213,13 @@ func (s *GalleryService) DeleteWork(ctx context.Context, id int64) error {
 	}
 
 	if work.ImagePath != "" {
-		_ = s.fileRepo.Delete(ctx, work.ImagePath)
+		if err := s.fileRepo.Delete(ctx, work.ImagePath); err != nil {
+			slog.Warn("GalleryService.DeleteWork: failed to delete work image",
+				"work_id", id,
+				"image_path", work.ImagePath,
+				"error", err,
+			)
+		}
 	}
 
 	return s.workRepo.Delete(ctx, id)
@@ -234,7 +259,13 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 
 	if reader != nil {
 		if existing.ImagePath != "" {
-			_ = s.fileRepo.Delete(ctx, existing.ImagePath)
+			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
+				slog.Warn("GalleryService.UpdateSale: failed to delete old sale image",
+					"sale_id", sale.ID,
+					"image_path", existing.ImagePath,
+					"error", err,
+				)
+			}
 		}
 		imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("sale_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
 		if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
@@ -256,7 +287,13 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 	}
 
 	if sale.ImagePath != "" {
-		_ = s.fileRepo.Delete(ctx, sale.ImagePath)
+		if err := s.fileRepo.Delete(ctx, sale.ImagePath); err != nil {
+			slog.Warn("GalleryService.DeleteSale: failed to delete sale image",
+				"sale_id", id,
+				"image_path", sale.ImagePath,
+				"error", err,
+			)
+		}
 	}
 
 	return s.saleRepo.Delete(ctx, id)

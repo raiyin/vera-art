@@ -20,9 +20,11 @@ func NewRouter(
 	miscHandler *handler.MiscHandler,
 	jwtManager *jwt.Manager,
 ) *gin.Engine {
-	r := gin.Default()
+	r := gin.New()
 
-	// Global CORS middleware
+	// Global middlewares
+	r.Use(handler.RecoveryMiddleware())
+	r.Use(handler.RequestLoggerMiddleware())
 	r.Use(handler.CORSMiddleware())
 
 	// Pre-create middleware instances

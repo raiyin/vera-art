@@ -22,6 +22,7 @@ type UserRepository interface {
 	Create(ctx context.Context, user *domain.User) error
 	GetByID(ctx context.Context, id int64) (*domain.User, error)
 	GetByEmail(ctx context.Context, email string) (*domain.User, error)
+	GetByUsername(ctx context.Context, username string) (*domain.User, error)
 	GetByVerificationToken(ctx context.Context, token string) (*domain.User, error)
 	List(ctx context.Context, filter domain.UserFilter) ([]domain.User, int, error)
 	Update(ctx context.Context, user *domain.User) error

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -33,6 +34,10 @@ func (h *NewsHandler) GetNews(c *gin.Context) {
 
 	newsList, total, err := h.newsService.GetNews(c.Request.Context(), filter)
 	if err != nil {
+		slog.Error("GetNews: failed to list news",
+			"error", err,
+			"filter", filter,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -70,6 +75,10 @@ func (h *NewsHandler) GetNewsByID(c *gin.Context) {
 
 	news, err := h.newsService.GetNewsByID(c.Request.Context(), id)
 	if err != nil {
+		slog.Error("GetNewsByID: failed to get news",
+			"news_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -94,6 +103,9 @@ func (h *NewsHandler) GetNewsByID(c *gin.Context) {
 func (h *NewsHandler) CreateNews(c *gin.Context) {
 	var req dto.CreateNewsRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("CreateNews: invalid request",
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -129,11 +141,19 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 	}
 
 	if err := h.newsService.CreateNews(c.Request.Context(), news, imageFile, videoFile); err != nil {
+		slog.Error("CreateNews: failed to create news",
+			"title", req.Title,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("News created successfully",
+		"news_id", news.ID,
+		"title", news.Title,
+	)
 	c.JSON(http.StatusCreated, dto.NewsResponse{
 		ID:          news.ID,
 		Title:       news.Title,
@@ -158,6 +178,10 @@ func (h *NewsHandler) UpdateNews(c *gin.Context) {
 
 	var req dto.UpdateNewsRequest
 	if err := c.ShouldBind(&req); err != nil {
+		slog.Warn("UpdateNews: invalid request",
+			"news_id", id,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -194,11 +218,18 @@ func (h *NewsHandler) UpdateNews(c *gin.Context) {
 	}
 
 	if err := h.newsService.UpdateNews(c.Request.Context(), news, imageFile, videoFile); err != nil {
+		slog.Error("UpdateNews: failed to update news",
+			"news_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("News updated successfully",
+		"news_id", id,
+	)
 	c.JSON(http.StatusOK, dto.NewsResponse{
 		ID:          news.ID,
 		Title:       news.Title,
@@ -222,11 +253,18 @@ func (h *NewsHandler) DeleteNews(c *gin.Context) {
 	}
 
 	if err := h.newsService.DeleteNews(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteNews: failed to delete news",
+			"news_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("News deleted successfully",
+		"news_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
 }
 

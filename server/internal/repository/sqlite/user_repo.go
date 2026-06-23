@@ -22,8 +22,8 @@ func NewUserRepository(db *sql.DB) *UserRepository {
 
 // Create inserts a new user.
 func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
-	query := `INSERT INTO users (email, password_hash, name, role, email_verified, verification_token, verification_sent_at, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO users (username, email, password_hash, name, role, email_verified, verification_token, verification_sent_at, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if user.CreatedAt.IsZero() {
@@ -37,7 +37,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	}
 
 	result, err := r.db.ExecContext(ctx, query,
-		user.Email, user.PasswordHash, user.Name, user.Role,
+		user.Username, user.Email, user.PasswordHash, user.Name, user.Role,
 		user.EmailVerified, user.VerificationToken, user.VerificationSentAt,
 		user.CreatedAt, user.UpdatedAt,
 	)
@@ -58,7 +58,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User) error {
 
 // GetByID retrieves a user by ID.
 func (r *UserRepository) GetByID(ctx context.Context, id int64) (*domain.User, error) {
-	query := `SELECT id, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
+	query := `SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
 		FROM users WHERE id = ?`
 
 	user := &domain.User{}
@@ -66,7 +66,7 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64) (*domain.User, e
 	var verificationSentAt sql.NullTime
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
+		&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
 		&avatarPath, &user.EmailVerified, &verificationToken, &verificationSentAt,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
@@ -90,9 +90,43 @@ func (r *UserRepository) GetByID(ctx context.Context, id int64) (*domain.User, e
 	return user, nil
 }
 
+// GetByUsername retrieves a user by username.
+func (r *UserRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
+	query := `SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
+		FROM users WHERE username = ?`
+
+	user := &domain.User{}
+	var avatarPath, verificationToken sql.NullString
+	var verificationSentAt sql.NullTime
+
+	err := r.db.QueryRowContext(ctx, query, username).Scan(
+		&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
+		&avatarPath, &user.EmailVerified, &verificationToken, &verificationSentAt,
+		&user.CreatedAt, &user.UpdatedAt,
+	)
+	if err == sql.ErrNoRows {
+		return nil, domain.ErrNotFound
+	}
+	if err != nil {
+		return nil, fmt.Errorf("get user by username: %w", err)
+	}
+
+	if avatarPath.Valid {
+		user.AvatarPath = avatarPath.String
+	}
+	if verificationToken.Valid {
+		user.VerificationToken = verificationToken.String
+	}
+	if verificationSentAt.Valid {
+		user.VerificationSentAt = &verificationSentAt.Time
+	}
+
+	return user, nil
+}
+
 // GetByEmail retrieves a user by email.
 func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
-	query := `SELECT id, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
+	query := `SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
 		FROM users WHERE email = ?`
 
 	user := &domain.User{}
@@ -100,7 +134,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 	var verificationSentAt sql.NullTime
 
 	err := r.db.QueryRowContext(ctx, query, email).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
+		&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
 		&avatarPath, &user.EmailVerified, &verificationToken, &verificationSentAt,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
@@ -126,7 +160,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.
 
 // GetByVerificationToken retrieves a user by verification token.
 func (r *UserRepository) GetByVerificationToken(ctx context.Context, token string) (*domain.User, error) {
-	query := `SELECT id, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
+	query := `SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
 		FROM users WHERE verification_token = ?`
 
 	user := &domain.User{}
@@ -134,7 +168,7 @@ func (r *UserRepository) GetByVerificationToken(ctx context.Context, token strin
 	var verificationSentAt sql.NullTime
 
 	err := r.db.QueryRowContext(ctx, query, token).Scan(
-		&user.ID, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
+		&user.ID, &user.Username, &user.Email, &user.PasswordHash, &user.Name, &user.Role,
 		&avatarPath, &user.EmailVerified, &verificationToken, &verificationSentAt,
 		&user.CreatedAt, &user.UpdatedAt,
 	)
@@ -168,9 +202,9 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 		args = append(args, filter.Role)
 	}
 	if filter.Query != "" {
-		conditions = append(conditions, "(email LIKE ? OR name LIKE ?)")
+		conditions = append(conditions, "(username LIKE ? OR email LIKE ? OR name LIKE ?)")
 		q := "%" + filter.Query + "%"
-		args = append(args, q, q)
+		args = append(args, q, q, q)
 	}
 
 	whereClause := ""
@@ -186,7 +220,7 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 	}
 
 	// List
-	listQuery := fmt.Sprintf(`SELECT id, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
+	listQuery := fmt.Sprintf(`SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
 		FROM users %s ORDER BY created_at DESC`, whereClause)
 
 	rows, err := r.db.QueryContext(ctx, listQuery, args...)
@@ -202,7 +236,7 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 		var verificationSentAt sql.NullTime
 
 		if err := rows.Scan(
-			&u.ID, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
+			&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
 			&avatarPath, &u.EmailVerified, &verificationToken, &verificationSentAt,
 			&u.CreatedAt, &u.UpdatedAt,
 		); err != nil {
@@ -227,13 +261,13 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 
 // Update updates a user.
 func (r *UserRepository) Update(ctx context.Context, user *domain.User) error {
-	query := `UPDATE users SET email = ?, password_hash = ?, name = ?, role = ?, avatar_path = ?,
+	query := `UPDATE users SET username = ?, email = ?, password_hash = ?, name = ?, role = ?, avatar_path = ?,
 		email_verified = ?, verification_token = ?, verification_sent_at = ?, updated_at = ? WHERE id = ?`
 
 	user.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
-		user.Email, user.PasswordHash, user.Name, user.Role, nullString(user.AvatarPath),
+		user.Username, user.Email, user.PasswordHash, user.Name, user.Role, nullString(user.AvatarPath),
 		user.EmailVerified, nullString(user.VerificationToken), nullTime(user.VerificationSentAt),
 		user.UpdatedAt, user.ID,
 	)

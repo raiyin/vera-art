@@ -147,6 +147,7 @@ type ConsentAuditLogEntry struct {
 // UserListResponse represents a user in admin user list.
 type UserListResponse struct {
 	ID            int64     `json:"id"`
+	Username      string    `json:"username"`
 	Email         string    `json:"email"`
 	Name          string    `json:"name"`
 	Role          string    `json:"role"`

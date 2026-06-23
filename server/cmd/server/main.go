@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 	"time"
@@ -21,55 +21,64 @@ import (
 )
 
 func main() {
+	// Setup structured logger
+	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     slog.LevelDebug,
+		AddSource: true,
+	})))
+
 	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file, assuming environment variables are set externally")
+		slog.Warn("Error loading .env file, assuming environment variables are set externally", "error", err)
 	}
 
 	// Load config
 	if err := config.LoadConfig("."); err != nil {
-		log.Fatalf("Error loading config: %v", err)
+		slog.Error("Error loading config", "error", err)
+		os.Exit(1)
 	}
 	appConfig := config.AppConfigInstance
-	log.Printf("Starting %s on port %d", appConfig.App.Name, appConfig.App.Port)
+	slog.Info("Starting server", "name", appConfig.App.Name, "port", appConfig.App.Port)
 
 	// -------------------------------------------------------------------------
 	// Database
 	// -------------------------------------------------------------------------
 	db, err := sql.Open("sqlite3", "./db/db.sqlite")
 	if err != nil {
-		log.Fatalf("Could not open database connection: %v", err)
+		slog.Error("Could not open database connection", "error", err)
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	// Enable WAL mode for better concurrent read/write performance
 	_, err = db.Exec("PRAGMA journal_mode=WAL")
 	if err != nil {
-		log.Printf("Warning: could not set WAL mode: %v", err)
+		slog.Warn("Could not set WAL mode", "error", err)
 	}
 
 	// Set busy timeout to 5 seconds to avoid "database is locked" errors
 	_, err = db.Exec("PRAGMA busy_timeout=5000")
 	if err != nil {
-		log.Printf("Warning: could not set busy_timeout: %v", err)
+		slog.Warn("Could not set busy_timeout", "error", err)
 	}
 
 	// Enable foreign keys
 	_, err = db.Exec("PRAGMA foreign_keys=ON")
 	if err != nil {
-		log.Printf("Warning: could not enable foreign keys: %v", err)
+		slog.Warn("Could not enable foreign keys", "error", err)
 	}
 
 	// Test the connection
 	err = db.Ping()
 	if err != nil {
-		log.Fatalf("Could not connect to database (ping failed): %v", err)
+		slog.Error("Could not connect to database (ping failed)", "error", err)
+		os.Exit(1)
 	}
 
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
-	log.Println("Database connection established successfully")
+	slog.Info("Database connection established successfully")
 
 	// Run migrations
 	runMigrations(db)
@@ -80,7 +89,7 @@ func main() {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
 		secret = "mydevsecret" // fallback for development
-		log.Println("WARNING: Using default JWT secret. Set JWT_SECRET environment variable in production.")
+		slog.Warn("Using default JWT secret. Set JWT_SECRET environment variable in production.")
 	}
 	jwtManager := jwt.NewManager(
 		[]byte(secret),
@@ -189,9 +198,10 @@ func main() {
 	// Start server
 	// -------------------------------------------------------------------------
 	addr := "localhost:8000"
-	log.Printf("Server starting on %s", addr)
+	slog.Info("Server starting", "address", addr)
 	if err := r.Run(addr); err != nil {
-		log.Fatal(err)
+		slog.Error("Server failed to start", "error", err)
+		os.Exit(1)
 	}
 }
 
@@ -200,7 +210,25 @@ func runMigrations(db *sql.DB) {
 	// Add avatar column to users table if it doesn't exist
 	_, err := db.Exec("ALTER TABLE users ADD COLUMN avatar TEXT DEFAULT ''")
 	if err != nil {
-		log.Printf("Migration (add avatar column): %v (this is normal if column already exists)", err)
+		slog.Warn("Migration (add avatar column) — this is normal if column already exists", "error", err)
+	}
+
+	// Add username column to users table if it doesn't exist
+	_, err = db.Exec("ALTER TABLE users ADD COLUMN username TEXT DEFAULT ''")
+	if err != nil {
+		slog.Warn("Migration (add username column) — this is normal if column already exists", "error", err)
+	}
+
+	// Populate username from email for existing users where username is empty
+	_, err = db.Exec("UPDATE users SET username = email WHERE username IS NULL OR username = ''")
+	if err != nil {
+		slog.Warn("Migration (populate username)", "error", err)
+	}
+
+	// Add unique index on username
+	_, err = db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username)")
+	if err != nil {
+		slog.Warn("Migration (create username unique index)", "error", err)
 	}
 
 	// Create news table with the new schema.
@@ -226,16 +254,16 @@ func runMigrations(db *sql.DB) {
 			)
 		`)
 		if err != nil {
-			log.Printf("Migration (create news table): %v", err)
+			slog.Error("Migration (create news table)", "error", err)
 		} else {
-			log.Println("Migration (create news table): applied successfully")
+			slog.Info("Migration (create news table): applied successfully")
 		}
 	} else if strings.EqualFold(newsIDType, "text") {
 		// Legacy table exists (id is TEXT) — rename it and create new one
-		log.Println("Migration: detected legacy news table, renaming to news_legacy and creating new schema")
+		slog.Info("Migration: detected legacy news table, renaming to news_legacy and creating new schema")
 		_, err = db.Exec("ALTER TABLE news RENAME TO news_legacy")
 		if err != nil {
-			log.Printf("Migration (rename legacy news table): %v", err)
+			slog.Error("Migration (rename legacy news table)", "error", err)
 		} else {
 			_, err = db.Exec(`
 				CREATE TABLE news (
@@ -253,9 +281,9 @@ func runMigrations(db *sql.DB) {
 				)
 			`)
 			if err != nil {
-				log.Printf("Migration (create new news table): %v", err)
+				slog.Error("Migration (create new news table)", "error", err)
 			} else {
-				log.Println("Migration (news table): created new schema, migrating data...")
+				slog.Info("Migration (news table): created new schema, migrating data...")
 				// Migrate data from legacy table to new schema.
 				// Mapping:
 				//   title       ← COALESCE(title_ru, title_en)
@@ -294,29 +322,29 @@ func runMigrations(db *sql.DB) {
 					ORDER BY rowid
 				`)
 				if err != nil {
-					log.Printf("Migration (migrate news data): %v", err)
+					slog.Error("Migration (migrate news data)", "error", err)
 				} else {
 					// Get count of migrated rows
 					var count int
 					_ = db.QueryRow("SELECT COUNT(*) FROM news").Scan(&count)
-					log.Printf("Migration (news table): migrated %d records from legacy → new schema successfully", count)
+					slog.Info("Migration (news table): migrated records from legacy to new schema", "count", count)
 				}
 			}
 		}
 	} else {
-		log.Println("Migration (news table): already has correct schema, skipping")
+		slog.Info("Migration (news table): already has correct schema, skipping")
 	}
 
 	// Add video_paths column if it doesn't exist (for existing installations)
 	_, err = db.Exec("ALTER TABLE news ADD COLUMN video_paths TEXT")
 	if err != nil {
-		log.Printf("Migration (add video_paths column): %v (this is normal if column already exists)", err)
+		slog.Warn("Migration (add video_paths column) — this is normal if column already exists", "error", err)
 	}
 
 	// Add image_paths column if it doesn't exist (for existing installations)
 	_, err = db.Exec("ALTER TABLE news ADD COLUMN image_paths TEXT")
 	if err != nil {
-		log.Printf("Migration (add image_paths column): %v (this is normal if column already exists)", err)
+		slog.Warn("Migration (add image_paths column) — this is normal if column already exists", "error", err)
 	}
 
 	// Populate video_paths from legacy data if it's empty and news_legacy exists.
@@ -325,7 +353,7 @@ func runMigrations(db *sql.DB) {
 	var emptyVideoPathsCount int
 	_ = db.QueryRow("SELECT COUNT(*) FROM news WHERE (video_paths IS NULL OR video_paths = '') AND EXISTS (SELECT 1 FROM news_legacy)").Scan(&emptyVideoPathsCount)
 	if emptyVideoPathsCount > 0 {
-		log.Printf("Migration: populating video_paths for %d records from legacy data...", emptyVideoPathsCount)
+		slog.Info("Migration: populating video_paths from legacy data", "count", emptyVideoPathsCount)
 
 		_, err = db.Exec(`
 			UPDATE news SET video_paths = (
@@ -343,11 +371,11 @@ func runMigrations(db *sql.DB) {
 			)
 		`)
 		if err != nil {
-			log.Printf("Migration (populate video_paths): %v", err)
+			slog.Error("Migration (populate video_paths)", "error", err)
 		} else {
 			var updated int
 			_ = db.QueryRow("SELECT changes()").Scan(&updated)
-			log.Printf("Migration (populate video_paths): updated %d records successfully", updated)
+			slog.Info("Migration (populate video_paths): updated records", "count", updated)
 		}
 	}
 
@@ -355,7 +383,7 @@ func runMigrations(db *sql.DB) {
 	var emptyImagePathsCount int
 	_ = db.QueryRow("SELECT COUNT(*) FROM news WHERE (image_paths IS NULL OR image_paths = '') AND EXISTS (SELECT 1 FROM news_legacy)").Scan(&emptyImagePathsCount)
 	if emptyImagePathsCount > 0 {
-		log.Printf("Migration: populating image_paths for %d records from legacy data...", emptyImagePathsCount)
+		slog.Info("Migration: populating image_paths from legacy data", "count", emptyImagePathsCount)
 
 		_, err = db.Exec(`
 			UPDATE news SET image_paths = (
@@ -373,11 +401,11 @@ func runMigrations(db *sql.DB) {
 			)
 		`)
 		if err != nil {
-			log.Printf("Migration (populate image_paths): %v", err)
+			slog.Error("Migration (populate image_paths)", "error", err)
 		} else {
 			var updated int
 			_ = db.QueryRow("SELECT changes()").Scan(&updated)
-			log.Printf("Migration (populate image_paths): updated %d records successfully", updated)
+			slog.Info("Migration (populate image_paths): updated records", "count", updated)
 		}
 	}
 
@@ -388,7 +416,7 @@ func runMigrations(db *sql.DB) {
 		var newsCount int
 		_ = db.QueryRow("SELECT COUNT(*) FROM news").Scan(&newsCount)
 		if newsCount == 0 {
-			log.Println("Migration: detected news_legacy table with data, migrating to new schema...")
+			slog.Info("Migration: detected news_legacy table with data, migrating to new schema...")
 			_, err = db.Exec(`
 				INSERT INTO news (title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at)
 				SELECT
@@ -416,14 +444,14 @@ func runMigrations(db *sql.DB) {
 				ORDER BY rowid
 			`)
 			if err != nil {
-				log.Printf("Migration (migrate legacy news data): %v", err)
+				slog.Error("Migration (migrate legacy news data)", "error", err)
 			} else {
 				var count int
 				_ = db.QueryRow("SELECT COUNT(*) FROM news").Scan(&count)
-				log.Printf("Migration (news data): migrated %d records from news_legacy successfully", count)
+				slog.Info("Migration (news data): migrated records from news_legacy", "count", count)
 			}
 		} else {
-			log.Printf("Migration (news data): news table already has %d records, skipping legacy migration", newsCount)
+			slog.Info("Migration (news data): news table already has records, skipping legacy migration", "count", newsCount)
 		}
 	}
 
@@ -431,23 +459,23 @@ func runMigrations(db *sql.DB) {
 	var needsMigration int
 	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('materials') WHERE name = 'material_ru'").Scan(&needsMigration)
 	if err == nil && needsMigration > 0 {
-		log.Println("Gallery schema migration needed, applying 003_fix_gallery_schema.sql...")
+		slog.Info("Gallery schema migration needed, applying 003_fix_gallery_schema.sql...")
 		applyMigrationFile(db, "003_fix_gallery_schema.sql")
 	} else {
-		log.Println("Gallery schema migration already applied, skipping")
+		slog.Info("Gallery schema migration already applied, skipping")
 	}
 
 	// Check if sales data migration is needed (old sales_old table still exists with data)
 	var salesOldCount int
 	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales_old') WHERE name = 'name_ru'").Scan(&salesOldCount)
 	if err == nil && salesOldCount > 0 {
-		log.Println("Sales data migration needed, applying 004_fix_sales_data.sql...")
+		slog.Info("Sales data migration needed, applying 004_fix_sales_data.sql...")
 		applyMigrationFile(db, "004_fix_sales_data.sql")
 	} else {
-		log.Println("Sales data migration already applied, skipping")
+		slog.Info("Sales data migration already applied, skipping")
 	}
 
-	log.Println("Database migrations completed")
+	slog.Info("Database migrations completed")
 }
 
 // applyMigrationFile reads and executes a SQL migration file from the migrations directory.
@@ -455,7 +483,7 @@ func applyMigrationFile(db *sql.DB, filename string) {
 	migrationPath := "./db/migrations/" + filename
 	migrationSQL, err := os.ReadFile(migrationPath)
 	if err != nil {
-		log.Printf("Migration %s: could not read file: %v (skipping)", filename, err)
+		slog.Warn("Migration: could not read file, skipping", "filename", filename, "error", err)
 		return
 	}
 
@@ -467,8 +495,8 @@ func applyMigrationFile(db *sql.DB, filename string) {
 			continue
 		}
 		if _, err := db.Exec(stmt); err != nil {
-			log.Printf("Migration %s: statement error: %v\nStatement: %.100s", filename, err, stmt)
+			slog.Error("Migration: statement error", "filename", filename, "error", err, "statement", stmt[:min(len(stmt), 100)])
 		}
 	}
-	log.Printf("Migration %s applied successfully", filename)
+	slog.Info("Migration applied successfully", "filename", filename)
 }

@@ -2,6 +2,7 @@ package handler
 
 import (
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -28,6 +29,10 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 
 	user, err := h.userService.GetProfile(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("GetProfile: failed to get profile",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -40,6 +45,7 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 
 	c.JSON(http.StatusOK, dto.ProfileResponse{
 		ID:        user.ID,
+		Username:  user.Username,
 		Email:     user.Email,
 		Name:      user.Name,
 		Role:      user.Role,
@@ -55,6 +61,10 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 
 	var req dto.UpdateProfileRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
+		slog.Warn("UpdateProfile: invalid request body",
+			"user_id", userID,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -64,6 +74,9 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	if req.Name == nil {
+		slog.Warn("UpdateProfile: no fields to update",
+			"user_id", userID,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -73,6 +86,10 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	if err := h.userService.UpdateProfile(c.Request.Context(), userID, *req.Name); err != nil {
+		slog.Error("UpdateProfile: failed to update profile",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -81,6 +98,10 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	// Return updated profile
 	user, err := h.userService.GetProfile(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("UpdateProfile: failed to get updated profile",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -91,6 +112,9 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 		avatarURL = "/profile/avatar/" + strconv.FormatInt(user.ID, 10)
 	}
 
+	slog.Info("Profile updated successfully",
+		"user_id", userID,
+	)
 	c.JSON(http.StatusOK, dto.ProfileResponse{
 		ID:        user.ID,
 		Email:     user.Email,
@@ -108,6 +132,10 @@ func (h *ProfileHandler) UploadAvatar(c *gin.Context) {
 
 	file, header, err := c.Request.FormFile("avatar")
 	if err != nil {
+		slog.Warn("UploadAvatar: no avatar file provided",
+			"user_id", userID,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -119,6 +147,10 @@ func (h *ProfileHandler) UploadAvatar(c *gin.Context) {
 
 	avatarPath, err := h.userService.UploadAvatar(c.Request.Context(), userID, header.Filename, file)
 	if err != nil {
+		slog.Error("UploadAvatar: failed to upload avatar",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -126,6 +158,10 @@ func (h *ProfileHandler) UploadAvatar(c *gin.Context) {
 
 	avatarURL := "/profile/avatar/" + strconv.FormatInt(userID, 10)
 
+	slog.Info("Avatar uploaded successfully",
+		"user_id", userID,
+		"avatar_path", avatarPath,
+	)
 	c.JSON(http.StatusOK, dto.UploadAvatarResponse{
 		Message:   "avatar uploaded successfully",
 		AvatarURL: avatarURL,
@@ -138,11 +174,18 @@ func (h *ProfileHandler) DeleteAvatar(c *gin.Context) {
 	userID := c.GetInt64("user_id")
 
 	if err := h.userService.DeleteAvatar(c.Request.Context(), userID); err != nil {
+		slog.Error("DeleteAvatar: failed to delete avatar",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Avatar deleted successfully",
+		"user_id", userID,
+	)
 	c.JSON(http.StatusOK, dto.DeleteAvatarResponse{
 		Message: "avatar deleted successfully",
 	})
@@ -153,6 +196,10 @@ func (h *ProfileHandler) ServeAvatar(c *gin.Context) {
 	userIDStr := c.Param("id")
 	userID, err := strconv.ParseInt(userIDStr, 10, 64)
 	if err != nil {
+		slog.Warn("ServeAvatar: invalid user ID",
+			"user_id_str", userIDStr,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -163,6 +210,10 @@ func (h *ProfileHandler) ServeAvatar(c *gin.Context) {
 
 	avatarPath, err := h.userService.ServeAvatar(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("ServeAvatar: failed to serve avatar",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -192,6 +243,10 @@ func GetRoleFromContext(c *gin.Context) string {
 // BindJSON is a helper to bind JSON and return error response.
 func BindJSON(c *gin.Context, obj interface{}) bool {
 	if err := c.ShouldBindJSON(obj); err != nil {
+		slog.Warn("BindJSON: invalid request body",
+			"path", c.Request.URL.Path,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -205,6 +260,10 @@ func BindJSON(c *gin.Context, obj interface{}) bool {
 // BindQuery is a helper to bind query params and return error response.
 func BindQuery(c *gin.Context, obj interface{}) bool {
 	if err := c.ShouldBindQuery(obj); err != nil {
+		slog.Warn("BindQuery: invalid query parameters",
+			"path", c.Request.URL.Path,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
@@ -220,6 +279,11 @@ func ParseInt64Param(c *gin.Context, name string) (int64, bool) {
 	valStr := c.Param(name)
 	val, err := strconv.ParseInt(valStr, 10, 64)
 	if err != nil {
+		slog.Warn("ParseInt64Param: invalid parameter",
+			"param", name,
+			"value", valStr,
+			"error", err,
+		)
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_PARAM",

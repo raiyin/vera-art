@@ -10,6 +10,25 @@ import (
 
 var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$`)
 
+// ValidateUsername validates a username.
+func ValidateUsername(username string) error {
+	username = strings.TrimSpace(username)
+	if username == "" {
+		return domain.ErrInvalidInput
+	}
+	if len(username) < 3 {
+		return domain.ErrInvalidInput
+	}
+	if len(username) > 50 {
+		return domain.ErrInvalidInput
+	}
+	matched, _ := regexp.MatchString(`^[a-zA-Z0-9_\-]+$`, username)
+	if !matched {
+		return domain.ErrInvalidInput
+	}
+	return nil
+}
+
 // ValidateEmail validates an email address.
 func ValidateEmail(email string) error {
 	email = strings.TrimSpace(email)

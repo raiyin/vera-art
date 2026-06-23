@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -30,20 +31,24 @@ func NewAuthService(userRepo port.UserRepository, jwtManager *jwt.Manager, email
 }
 
 // Register registers a new user.
-func (s *AuthService) Register(ctx context.Context, emailAddr, password, name string) (*domain.User, error) {
+func (s *AuthService) Register(ctx context.Context, emailAddr, password, username string) (*domain.User, error) {
 	if err := validator.ValidateEmail(emailAddr); err != nil {
 		return nil, err
 	}
 	if err := validator.ValidatePassword(password); err != nil {
 		return nil, err
 	}
-	if err := validator.ValidateName(name); err != nil {
+	if err := validator.ValidateUsername(username); err != nil {
 		return nil, err
 	}
 
 	// Check if user already exists
 	existing, _ := s.userRepo.GetByEmail(ctx, emailAddr)
 	if existing != nil {
+		return nil, domain.ErrDuplicate
+	}
+	existingByName, _ := s.userRepo.GetByUsername(ctx, username)
+	if existingByName != nil {
 		return nil, domain.ErrDuplicate
 	}
 
@@ -59,9 +64,10 @@ func (s *AuthService) Register(ctx context.Context, emailAddr, password, name st
 
 	now := time.Now()
 	user := &domain.User{
+		Username:           username,
 		Email:              emailAddr,
 		PasswordHash:       string(hashedPassword),
-		Name:               name,
+		Name:               username,
 		Role:               "user",
 		EmailVerified:      false,
 		VerificationToken:  verificationToken,
@@ -74,19 +80,25 @@ func (s *AuthService) Register(ctx context.Context, emailAddr, password, name st
 
 	// Send verification email (non-blocking)
 	go func() {
-		_ = s.emailSender.SendVerificationEmail(user.Email, verificationToken)
+		if err := s.emailSender.SendVerificationEmail(user.Email, verificationToken); err != nil {
+			slog.Error("AuthService.Register: failed to send verification email",
+				"user_id", user.ID,
+				"email", user.Email,
+				"error", err,
+			)
+		}
 	}()
 
 	return user, nil
 }
 
 // Login authenticates a user and returns tokens.
-func (s *AuthService) Login(ctx context.Context, emailAddr, password string) (string, string, *domain.User, error) {
-	if err := validator.ValidateEmail(emailAddr); err != nil {
+func (s *AuthService) Login(ctx context.Context, username, password string) (string, string, *domain.User, error) {
+	if err := validator.ValidateUsername(username); err != nil {
 		return "", "", nil, err
 	}
 
-	user, err := s.userRepo.GetByEmail(ctx, emailAddr)
+	user, err := s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
 		return "", "", nil, domain.ErrUnauthorized
 	}
@@ -174,7 +186,13 @@ func (s *AuthService) ResendVerification(ctx context.Context, emailAddr string) 
 	}
 
 	go func() {
-		_ = s.emailSender.SendVerificationEmail(user.Email, verificationToken)
+		if err := s.emailSender.SendVerificationEmail(user.Email, verificationToken); err != nil {
+			slog.Error("AuthService.ResendVerification: failed to send verification email",
+				"user_id", user.ID,
+				"email", user.Email,
+				"error", err,
+			)
+		}
 	}()
 
 	return nil

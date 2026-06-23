@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"path/filepath"
 	"time"
 
@@ -84,7 +85,13 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFi
 
 	if imageFile != nil {
 		if existing.ImagePath != "" {
-			_ = s.fileRepo.Delete(ctx, existing.ImagePath)
+			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
+				slog.Warn("NewsService.UpdateNews: failed to delete old image",
+					"news_id", news.ID,
+					"image_path", existing.ImagePath,
+					"error", err,
+				)
+			}
 		}
 		imagePath := filepath.Join(newsDir, imageFile.Filename)
 		if err := s.fileRepo.Save(ctx, imagePath, imageFile.Reader); err != nil {
@@ -97,7 +104,13 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFi
 
 	if videoFile != nil {
 		if existing.VideoPath != "" {
-			_ = s.fileRepo.Delete(ctx, existing.VideoPath)
+			if err := s.fileRepo.Delete(ctx, existing.VideoPath); err != nil {
+				slog.Warn("NewsService.UpdateNews: failed to delete old video",
+					"news_id", news.ID,
+					"video_path", existing.VideoPath,
+					"error", err,
+				)
+			}
 		}
 		videoPath := filepath.Join(newsDir, videoFile.Filename)
 		if err := s.fileRepo.Save(ctx, videoPath, videoFile.Reader); err != nil {
@@ -119,10 +132,22 @@ func (s *NewsService) DeleteNews(ctx context.Context, id int64) error {
 	}
 
 	if news.ImagePath != "" {
-		_ = s.fileRepo.Delete(ctx, news.ImagePath)
+		if err := s.fileRepo.Delete(ctx, news.ImagePath); err != nil {
+			slog.Warn("NewsService.DeleteNews: failed to delete news image",
+				"news_id", id,
+				"image_path", news.ImagePath,
+				"error", err,
+			)
+		}
 	}
 	if news.VideoPath != "" {
-		_ = s.fileRepo.Delete(ctx, news.VideoPath)
+		if err := s.fileRepo.Delete(ctx, news.VideoPath); err != nil {
+			slog.Warn("NewsService.DeleteNews: failed to delete news video",
+				"news_id", id,
+				"video_path", news.VideoPath,
+				"error", err,
+			)
+		}
 	}
 
 	return s.newsRepo.Delete(ctx, id)

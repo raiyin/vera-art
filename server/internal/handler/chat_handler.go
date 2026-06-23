@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -46,6 +47,11 @@ func (h *ChatHandler) GetThreads(c *gin.Context) {
 	}
 
 	if err != nil {
+		slog.Error("GetThreads: failed to list threads",
+			"user_id", userID,
+			"role", role,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -65,11 +71,20 @@ func (h *ChatHandler) CreateThread(c *gin.Context) {
 
 	thread, err := h.chatService.CreateThread(c.Request.Context(), userID, strconv.FormatInt(req.PurchaseID, 10))
 	if err != nil {
+		slog.Error("CreateThread: failed to create thread",
+			"user_id", userID,
+			"purchase_id", req.PurchaseID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Chat thread created",
+		"thread_id", thread.ID,
+		"user_id", userID,
+	)
 	c.JSON(http.StatusCreated, dto.CreateChatThreadResponse{
 		ID:         thread.ID,
 		PurchaseID: req.PurchaseID,
@@ -88,6 +103,11 @@ func (h *ChatHandler) GetMessages(c *gin.Context) {
 
 	messages, err := h.chatService.GetMessages(c.Request.Context(), threadID, userID)
 	if err != nil {
+		slog.Error("GetMessages: failed to get messages",
+			"thread_id", threadID,
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -118,6 +138,10 @@ func (h *ChatHandler) AdminGetMessages(c *gin.Context) {
 
 	messages, err := h.chatService.AdminGetMessages(c.Request.Context(), threadID)
 	if err != nil {
+		slog.Error("AdminGetMessages: failed to get messages",
+			"thread_id", threadID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -155,11 +179,21 @@ func (h *ChatHandler) SendMessage(c *gin.Context) {
 
 	msg, err := h.chatService.SendMessage(c.Request.Context(), threadID, userID, req.Content)
 	if err != nil {
+		slog.Error("SendMessage: failed to send message",
+			"thread_id", threadID,
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Message sent",
+		"message_id", msg.ID,
+		"thread_id", threadID,
+		"user_id", userID,
+	)
 	c.JSON(http.StatusCreated, dto.SendChatMessageResponse{
 		ID:        msg.ID,
 		ThreadID:  msg.ThreadID,
@@ -181,11 +215,19 @@ func (h *ChatHandler) AdminSendMessage(c *gin.Context) {
 
 	msg, err := h.chatService.AdminSendMessage(c.Request.Context(), threadID, req.Content)
 	if err != nil {
+		slog.Error("AdminSendMessage: failed to send message",
+			"thread_id", threadID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Admin message sent",
+		"message_id", msg.ID,
+		"thread_id", threadID,
+	)
 	c.JSON(http.StatusCreated, dto.SendChatMessageResponse{
 		ID:        msg.ID,
 		ThreadID:  msg.ThreadID,
@@ -201,6 +243,10 @@ func (h *ChatHandler) MarkMessageAsRead(c *gin.Context) {
 	}
 
 	if err := h.chatService.MarkMessageAsRead(c.Request.Context(), messageID); err != nil {
+		slog.Error("MarkMessageAsRead: failed to mark message as read",
+			"message_id", messageID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -222,6 +268,11 @@ func (h *ChatHandler) PollMessages(c *gin.Context) {
 
 	messages, hasMore, err := h.chatService.PollMessages(c.Request.Context(), threadID, lastMessageID, userID)
 	if err != nil {
+		slog.Error("PollMessages: failed to poll messages",
+			"thread_id", threadID,
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return

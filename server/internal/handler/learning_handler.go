@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,6 +33,11 @@ func (h *LearningHandler) GetLessonsByProduct(c *gin.Context) {
 
 	lessons, err := h.learningService.GetLessonsByProduct(c.Request.Context(), productID, userID)
 	if err != nil {
+		slog.Error("GetLessonsByProduct: failed to get lessons",
+			"product_id", productID,
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -69,6 +75,11 @@ func (h *LearningHandler) GetLessonByID(c *gin.Context) {
 
 	lesson, err := h.learningService.GetLessonByID(c.Request.Context(), id, userID)
 	if err != nil {
+		slog.Error("GetLessonByID: failed to get lesson",
+			"lesson_id", id,
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -100,6 +111,10 @@ func (h *LearningHandler) AdminGetLessons(c *gin.Context) {
 
 	lessons, total, err := h.learningService.AdminGetLessons(c.Request.Context(), filter)
 	if err != nil {
+		slog.Error("AdminGetLessons: failed to list lessons",
+			"error", err,
+			"filter", filter,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -149,11 +164,20 @@ func (h *LearningHandler) CreateLesson(c *gin.Context) {
 	}
 
 	if err := h.learningService.CreateLesson(c.Request.Context(), lesson); err != nil {
+		slog.Error("CreateLesson: failed to create lesson",
+			"title", req.Title,
+			"product_id", req.ProductID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Lesson created successfully",
+		"lesson_id", lesson.ID,
+		"title", lesson.Title,
+	)
 	c.JSON(http.StatusCreated, dto.LessonResponse{
 		ID:              lesson.ID,
 		ProductID:       lesson.ProductID,
@@ -195,11 +219,18 @@ func (h *LearningHandler) UpdateLesson(c *gin.Context) {
 	}
 
 	if err := h.learningService.UpdateLesson(c.Request.Context(), lesson); err != nil {
+		slog.Error("UpdateLesson: failed to update lesson",
+			"lesson_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Lesson updated successfully",
+		"lesson_id", id,
+	)
 	c.JSON(http.StatusOK, dto.LessonResponse{
 		ID:              lesson.ID,
 		ProductID:       lesson.ProductID,
@@ -224,11 +255,18 @@ func (h *LearningHandler) DeleteLesson(c *gin.Context) {
 	}
 
 	if err := h.learningService.DeleteLesson(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteLesson: failed to delete lesson",
+			"lesson_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Lesson deleted successfully",
+		"lesson_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Lesson deleted successfully"})
 }
 
@@ -238,6 +276,10 @@ func (h *LearningHandler) GetMyCourses(c *gin.Context) {
 
 	courseIDs, err := h.learningService.GetMyCourses(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("GetMyCourses: failed to get courses",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -256,6 +298,11 @@ func (h *LearningHandler) GetLearningProgress(c *gin.Context) {
 
 	progress, err := h.learningService.GetLearningProgress(c.Request.Context(), userID, productID)
 	if err != nil {
+		slog.Error("GetLearningProgress: failed to get progress",
+			"user_id", userID,
+			"product_id", productID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -291,10 +338,20 @@ func (h *LearningHandler) UpdateLessonProgress(c *gin.Context) {
 	}
 
 	if err := h.learningService.UpdateLessonProgress(c.Request.Context(), userID, lessonID, req.Completed); err != nil {
+		slog.Error("UpdateLessonProgress: failed to update progress",
+			"user_id", userID,
+			"lesson_id", lessonID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Lesson progress updated",
+		"user_id", userID,
+		"lesson_id", lessonID,
+		"completed", req.Completed,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Progress updated successfully"})
 }

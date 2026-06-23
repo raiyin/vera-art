@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 	"strconv"
 
@@ -49,6 +50,9 @@ func NewMiscHandler(
 func (h *MiscHandler) GetDashboardStats(c *gin.Context) {
 	stats, err := h.adminService.GetDashboardStats(c.Request.Context())
 	if err != nil {
+		slog.Error("GetDashboardStats: failed to get stats",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -65,6 +69,9 @@ func (h *MiscHandler) GetDashboardStats(c *gin.Context) {
 func (h *MiscHandler) GetTags(c *gin.Context) {
 	tags, err := h.tagService.GetTags(c.Request.Context())
 	if err != nil {
+		slog.Error("GetTags: failed to list tags",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -98,11 +105,20 @@ func (h *MiscHandler) CreateTag(c *gin.Context) {
 	}
 
 	if err := h.tagService.CreateTag(c.Request.Context(), tag); err != nil {
+		slog.Error("CreateTag: failed to create tag",
+			"name_ru", req.NameRu,
+			"name_en", req.NameEn,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Tag created successfully",
+		"tag_id", tag.ID,
+		"slug", tag.Slug,
+	)
 	c.JSON(http.StatusCreated, dto.TagResponse{
 		ID:        tag.ID,
 		NameRu:    tag.NameRu,
@@ -132,11 +148,18 @@ func (h *MiscHandler) UpdateTag(c *gin.Context) {
 	}
 
 	if err := h.tagService.CreateTag(c.Request.Context(), tag); err != nil {
+		slog.Error("UpdateTag: failed to update tag",
+			"tag_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Tag updated successfully",
+		"tag_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Tag updated successfully"})
 }
 
@@ -148,11 +171,18 @@ func (h *MiscHandler) DeleteTag(c *gin.Context) {
 	}
 
 	if err := h.tagService.DeleteTag(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteTag: failed to delete tag",
+			"tag_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Tag deleted successfully",
+		"tag_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Tag deleted successfully"})
 }
 
@@ -164,6 +194,9 @@ func (h *MiscHandler) DeleteTag(c *gin.Context) {
 func (h *MiscHandler) GetMaterials(c *gin.Context) {
 	materials, err := h.materialService.GetMaterials(c.Request.Context())
 	if err != nil {
+		slog.Error("GetMaterials: failed to list materials",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -195,11 +228,19 @@ func (h *MiscHandler) CreateMaterial(c *gin.Context) {
 	}
 
 	if err := h.materialService.CreateMaterial(c.Request.Context(), material); err != nil {
+		slog.Error("CreateMaterial: failed to create material",
+			"name_ru", req.NameRu,
+			"name_en", req.NameEn,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Material created successfully",
+		"material_id", material.ID,
+	)
 	c.JSON(http.StatusCreated, dto.MaterialResponse{
 		ID:        material.ID,
 		NameRu:    material.NameRu,
@@ -216,11 +257,18 @@ func (h *MiscHandler) DeleteMaterial(c *gin.Context) {
 	}
 
 	if err := h.materialService.DeleteMaterial(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteMaterial: failed to delete material",
+			"material_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Material deleted successfully",
+		"material_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Material deleted successfully"})
 }
 
@@ -232,6 +280,9 @@ func (h *MiscHandler) DeleteMaterial(c *gin.Context) {
 func (h *MiscHandler) GetBases(c *gin.Context) {
 	bases, err := h.baseService.GetBases(c.Request.Context())
 	if err != nil {
+		slog.Error("GetBases: failed to list bases",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -263,11 +314,19 @@ func (h *MiscHandler) CreateBase(c *gin.Context) {
 	}
 
 	if err := h.baseService.CreateBase(c.Request.Context(), base); err != nil {
+		slog.Error("CreateBase: failed to create base",
+			"name_ru", req.NameRu,
+			"name_en", req.NameEn,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Base created successfully",
+		"base_id", base.ID,
+	)
 	c.JSON(http.StatusCreated, dto.BaseResponse{
 		ID:        base.ID,
 		NameRu:    base.NameRu,
@@ -284,11 +343,18 @@ func (h *MiscHandler) DeleteBase(c *gin.Context) {
 	}
 
 	if err := h.baseService.DeleteBase(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteBase: failed to delete base",
+			"base_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Base deleted successfully",
+		"base_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Base deleted successfully"})
 }
 
@@ -315,6 +381,10 @@ func (h *MiscHandler) SaveConsent(c *gin.Context) {
 
 	// Record analytics consent
 	if err := h.consentService.RecordConsent(c.Request.Context(), userID, "analytics", req.AnalyticsConsent, ipAddress); err != nil {
+		slog.Error("SaveConsent: failed to record analytics consent",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -322,11 +392,20 @@ func (h *MiscHandler) SaveConsent(c *gin.Context) {
 
 	// Record marketing consent
 	if err := h.consentService.RecordConsent(c.Request.Context(), userID, "marketing", req.MarketingConsent, ipAddress); err != nil {
+		slog.Error("SaveConsent: failed to record marketing consent",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Consent saved",
+		"user_id", userID,
+		"analytics", req.AnalyticsConsent,
+		"marketing", req.MarketingConsent,
+	)
 	c.JSON(http.StatusOK, dto.ConsentResponse{
 		Success:          true,
 		Message:          "Consent saved successfully",
@@ -343,6 +422,10 @@ func (h *MiscHandler) GetConsentStatus(c *gin.Context) {
 
 	consents, err := h.consentService.GetUserConsents(c.Request.Context(), userID)
 	if err != nil {
+		slog.Error("GetConsentStatus: failed to get consent status",
+			"user_id", userID,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -377,6 +460,9 @@ func (h *MiscHandler) GetConsentStatus(c *gin.Context) {
 func (h *MiscHandler) GetMasterClasses(c *gin.Context) {
 	masterClasses, total, err := h.masterClassService.GetMasterClasses(c.Request.Context())
 	if err != nil {
+		slog.Error("GetMasterClasses: failed to list master classes",
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -412,6 +498,10 @@ func (h *MiscHandler) GetMasterClassByID(c *gin.Context) {
 
 	mc, err := h.masterClassService.GetMasterClassByID(c.Request.Context(), id)
 	if err != nil {
+		slog.Error("GetMasterClassByID: failed to get master class",
+			"master_class_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -447,11 +537,19 @@ func (h *MiscHandler) CreateMasterClass(c *gin.Context) {
 	}
 
 	if err := h.masterClassService.CreateMasterClass(c.Request.Context(), mc); err != nil {
+		slog.Error("CreateMasterClass: failed to create master class",
+			"title", req.Title,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Master class created successfully",
+		"master_class_id", mc.ID,
+		"title", mc.Title,
+	)
 	c.JSON(http.StatusCreated, dto.MasterClassResponse{
 		ID:          mc.ID,
 		Title:       mc.Title,
@@ -488,11 +586,18 @@ func (h *MiscHandler) UpdateMasterClass(c *gin.Context) {
 	}
 
 	if err := h.masterClassService.UpdateMasterClass(c.Request.Context(), mc); err != nil {
+		slog.Error("UpdateMasterClass: failed to update master class",
+			"master_class_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Master class updated successfully",
+		"master_class_id", id,
+	)
 	c.JSON(http.StatusOK, dto.MasterClassResponse{
 		ID:          mc.ID,
 		Title:       mc.Title,
@@ -514,11 +619,18 @@ func (h *MiscHandler) DeleteMasterClass(c *gin.Context) {
 	}
 
 	if err := h.masterClassService.DeleteMasterClass(c.Request.Context(), id); err != nil {
+		slog.Error("DeleteMasterClass: failed to delete master class",
+			"master_class_id", id,
+			"error", err,
+		)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
+	slog.Info("Master class deleted successfully",
+		"master_class_id", id,
+	)
 	c.JSON(http.StatusOK, gin.H{"message": "Master class deleted successfully"})
 }
 

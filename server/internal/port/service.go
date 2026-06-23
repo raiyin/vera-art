@@ -22,7 +22,7 @@ type FileRepository interface {
 // AuthService defines the interface for authentication operations.
 type AuthService interface {
 	Register(ctx context.Context, email, password, name string) (*domain.User, error)
-	Login(ctx context.Context, email, password string) (accessToken string, refreshToken string, user *domain.User, err error)
+	Login(ctx context.Context, username, password string) (accessToken string, refreshToken string, user *domain.User, err error)
 	RefreshToken(ctx context.Context, refreshToken string) (newAccessToken string, newRefreshToken string, err error)
 	VerifyEmail(ctx context.Context, token string) error
 	ResendVerification(ctx context.Context, email string) error
