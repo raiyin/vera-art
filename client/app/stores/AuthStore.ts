@@ -19,7 +19,7 @@ export const useAuthStore = defineStore('authStore', () => {
     const userRole = ref<string | null>(null,);
     const userId = ref<number | null>(null,);
 
-    // Save tokens to localStorage
+    // Save tokens to localStorage and cookie (cookie for SSR access)
     const saveTokens = (tokenData: TokenData,) => {
         if (typeof window === 'undefined') return;
 
@@ -51,6 +51,11 @@ export const useAuthStore = defineStore('authStore', () => {
         // Also store as 'token' for backward compatibility with existing code
         localStorage.setItem('token', tokenData.access_token,);
 
+        // Save to cookie for SSR access
+        // Using document.cookie directly since useCookie() can only be called
+        // within Nuxt setup context (middleware, plugin, component setup)
+        setAuthCookieClient(tokenData.access_token, tokenData.refresh_token,);
+
         isAuthenticated.value = true;
     };
 
@@ -70,6 +75,9 @@ export const useAuthStore = defineStore('authStore', () => {
         localStorage.removeItem('access_expires',);
         localStorage.removeItem('refresh_expires',);
         localStorage.removeItem('token',); // Remove old token for backward compatibility
+
+        // Clear auth cookie
+        clearAuthCookieClient();
 
         isAuthenticated.value = false;
     };
@@ -91,6 +99,11 @@ export const useAuthStore = defineStore('authStore', () => {
         localStorage.setItem('access_expires', newExpiry,);
         // Also update 'token' for backward compatibility
         localStorage.setItem('token', newAccessToken,);
+
+        // Update auth cookie
+        if (refreshToken.value) {
+            setAuthCookieClient(newAccessToken, refreshToken.value,);
+        }
     };
 
     // Check if access token is expired
@@ -161,6 +174,25 @@ export const useAuthStore = defineStore('authStore', () => {
         }
     };
 
+    // Initialize auth state from cookie values (SSR-safe, called from middleware)
+    // The cookie values are passed in because useCookie() must be called within
+    // a Nuxt context (middleware, plugin, component setup), not inside a Pinia store.
+    const initFromCookie = (cookieAccessToken: string | null, cookieRefreshToken: string | null,) => {
+        if (cookieAccessToken && cookieRefreshToken) {
+            accessToken.value = cookieAccessToken;
+            refreshToken.value = cookieRefreshToken;
+
+            const role = getRoleFromToken(cookieAccessToken,);
+            const id = getUserIdFromToken(cookieAccessToken,);
+            if (role) userRole.value = role;
+            if (id) userId.value = id;
+
+            // We can't reliably check expiry from cookie without the stored expiry,
+            // so we trust the cookie presence as authenticated
+            isAuthenticated.value = true;
+        }
+    };
+
     return {
         isAuthenticated,
         accessToken,
@@ -182,5 +214,25 @@ export const useAuthStore = defineStore('authStore', () => {
         updateAccessToken,
         setAuthenticated,
         initFromLocalStorage,
+        initFromCookie,
     };
 },);
+
+/**
+ * Set auth cookies via document.cookie for SSR access.
+ * Using document.cookie directly because useCookie() can only be called
+ * within Nuxt setup context (middleware, plugin, component setup).
+ */
+function setAuthCookieClient(accessToken: string, refreshToken: string,) {
+    const maxAge = 60 * 60 * 24 * 7; // 7 days
+    document.cookie = `access_token=${encodeURIComponent(accessToken,)}; path=/; max-age=${maxAge}; sameSite=lax`;
+    document.cookie = `refresh_token=${encodeURIComponent(refreshToken,)}; path=/; max-age=${maxAge}; sameSite=lax`;
+}
+
+/**
+ * Clear auth cookies via document.cookie.
+ */
+function clearAuthCookieClient() {
+    document.cookie = 'access_token=; path=/; max-age=0; sameSite=lax';
+    document.cookie = 'refresh_token=; path=/; max-age=0; sameSite=lax';
+}

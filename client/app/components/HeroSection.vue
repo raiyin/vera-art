@@ -9,6 +9,7 @@ const themeStore = useThemeStore();
 const scrollY = ref(0);
 const mouseX = ref(0);
 const mouseY = ref(0);
+const mounted = ref(false);
 
 const toggleTheme = (event?: MouseEvent) => {
     if (event) {
@@ -38,6 +39,7 @@ const handleMouseMove = (event: MouseEvent) => {
 };
 
 onMounted(() => {
+    mounted.value = true;
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
     handleScroll();
@@ -56,7 +58,7 @@ onUnmounted(() => {
             :aria-label="t('home.toggleTheme')"
             @click="toggleTheme"
         >
-            {{ themeStore.theme === 'light' ? '🌙' : '☀️' }}
+            {{ mounted ? (themeStore.theme === 'light' ? '🌙' : '☀️') : '' }}
         </button>
 
         <div class="hero-overlay">

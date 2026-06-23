@@ -219,164 +219,147 @@
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import authApi from '~/api/auth';
+
+definePageMeta({
+    layout: false,
+});
 
 interface LoginForm {
     username: string;
     password: string;
 }
 
-export default {
-    setup() {
-        const router = useRouter();
-        const { t } = useI18n();
+const router = useRouter();
+const { t } = useI18n();
 
-        const formState = reactive<LoginForm>({
-            username: '',
-            password: '',
+const formState = reactive<LoginForm>({
+    username: '',
+    password: '',
+});
+
+const rememberMe = ref(false);
+const loading = ref(false);
+const error = ref('');
+const passwordVisible = ref(false);
+const emailNotVerified = ref('');
+const unverifiedEmail = ref('');
+const resending = ref(false);
+const resendSuccess = ref('');
+
+const handleLogin = async () => {
+    if (!formState.username.trim() || !formState.password.trim()) {
+        error.value = t('auth.fillAllFields', 'Please fill in all fields');
+        return;
+    }
+
+    loading.value = true;
+    error.value = '';
+    emailNotVerified.value = '';
+    resendSuccess.value = '';
+
+    try {
+        // Use the new auth API which handles token storage automatically
+        await authApi.login({
+            username: formState.username,
+            password: formState.password,
         });
 
-        const rememberMe = ref(false);
-        const loading = ref(false);
-        const error = ref('');
-        const passwordVisible = ref(false);
-        const emailNotVerified = ref('');
-        const unverifiedEmail = ref('');
-        const resending = ref(false);
-        const resendSuccess = ref('');
-
-        const handleLogin = async () => {
-            if (!formState.username.trim() || !formState.password.trim()) {
-                error.value = t('auth.fillAllFields', 'Please fill in all fields');
-                return;
+        // Store username for "remember me" functionality
+        if (rememberMe.value) {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('rememberedUser', formState.username);
             }
+        } else {
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('rememberedUser');
+            }
+        }
 
-            loading.value = true;
+        // Redirect to admin page
+        await router.push('/admin');
+    } catch (err: any) {
+        // Check if it's a 403 email not verified error
+        if (
+            err.code === 'email_not_verified' ||
+            err.response?.data?.code === 'email_not_verified'
+        ) {
+            const email = err.email || err.response?.data?.email || '';
+            unverifiedEmail.value = email;
+            emailNotVerified.value = t(
+                'auth.emailNotVerifiedMsg',
+                'Please verify your email before logging in. Check your inbox for the verification link.'
+            );
             error.value = '';
-            emailNotVerified.value = '';
-            resendSuccess.value = '';
-
-            try {
-                // Use the new auth API which handles token storage automatically
-                await authApi.login({
-                    username: formState.username,
-                    password: formState.password,
-                });
-
-                // Store username for "remember me" functionality
-                if (rememberMe.value) {
-                    if (typeof window !== 'undefined') {
-                        localStorage.setItem('rememberedUser', formState.username);
-                    }
-                } else {
-                    if (typeof window !== 'undefined') {
-                        localStorage.removeItem('rememberedUser');
-                    }
-                }
-
-                // Redirect to admin page
-                await router.push('/admin');
-            } catch (err: any) {
-                // Check if it's a 403 email not verified error
-                if (
-                    err.code === 'email_not_verified' ||
-                    err.response?.data?.code === 'email_not_verified'
-                ) {
-                    const email = err.email || err.response?.data?.email || '';
-                    unverifiedEmail.value = email;
-                    emailNotVerified.value = t(
-                        'auth.emailNotVerifiedMsg',
-                        'Please verify your email before logging in. Check your inbox for the verification link.'
-                    );
-                    error.value = '';
-                }
-                // Check if it's a 401 invalid credentials error
-                else if (
-                    err.response?.status === 401 ||
-                    err.error?.toLowerCase().includes('invalid credentials') ||
-                    err.message?.toLowerCase().includes('invalid credentials')
-                ) {
-                    error.value = t(
-                        'auth.invalidCredentials',
-                        'Invalid username or password. Please try again.'
-                    );
-                } else {
-                    error.value =
-                        err.message ||
-                        err.error ||
-                        t(
-                            'auth.loginError',
-                            'Login failed. Please check your credentials.'
-                        );
-                }
-                console.error('Login error:', err);
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        const resendVerification = async () => {
-            if (!unverifiedEmail.value) {
-                emailNotVerified.value = t(
-                    'auth.noEmailForResend',
-                    'Unable to resend verification. Please register again.'
-                );
-                return;
-            }
-
-            resending.value = true;
-            resendSuccess.value = '';
-
-            try {
-                const response = await authApi.resendVerification(unverifiedEmail.value);
-                resendSuccess.value =
-                    response.message ||
-                    t(
-                        'auth.verificationResent',
-                        'If this email is registered, a new verification link has been sent.'
-                    );
-            } catch (err: any) {
-                emailNotVerified.value =
-                    err.message ||
-                    err.error ||
-                    t(
-                        'auth.resendError',
-                        'Failed to resend verification email. Please try again later.'
-                    );
-                console.error('Resend error:', err);
-            } finally {
-                resending.value = false;
-            }
-        };
-
-        // Check for remembered username (client-side only, after hydration)
-        onMounted(() => {
-            const rememberedUser = localStorage.getItem('rememberedUser');
-            if (rememberedUser) {
-                formState.username = rememberedUser;
-                rememberMe.value = true;
-            }
-        });
-
-        return {
-            formState,
-            rememberMe,
-            loading,
-            error,
-            passwordVisible,
-            emailNotVerified,
-            unverifiedEmail,
-            resending,
-            resendSuccess,
-            handleLogin,
-            resendVerification,
-        };
-    },
+        }
+        // Check if it's a 401 invalid credentials error
+        else if (
+            err.response?.status === 401 ||
+            err.error?.toLowerCase().includes('invalid credentials') ||
+            err.message?.toLowerCase().includes('invalid credentials')
+        ) {
+            error.value = t(
+                'auth.invalidCredentials',
+                'Invalid username or password. Please try again.'
+            );
+        } else {
+            error.value =
+                err.message ||
+                err.error ||
+                t('auth.loginError', 'Login failed. Please check your credentials.');
+        }
+        console.error('Login error:', err);
+    } finally {
+        loading.value = false;
+    }
 };
+
+const resendVerification = async () => {
+    if (!unverifiedEmail.value) {
+        emailNotVerified.value = t(
+            'auth.noEmailForResend',
+            'Unable to resend verification. Please register again.'
+        );
+        return;
+    }
+
+    resending.value = true;
+    resendSuccess.value = '';
+
+    try {
+        const response = await authApi.resendVerification(unverifiedEmail.value);
+        resendSuccess.value =
+            response.message ||
+            t(
+                'auth.verificationResent',
+                'If this email is registered, a new verification link has been sent.'
+            );
+    } catch (err: any) {
+        emailNotVerified.value =
+            err.message ||
+            err.error ||
+            t(
+                'auth.resendError',
+                'Failed to resend verification email. Please try again later.'
+            );
+        console.error('Resend error:', err);
+    } finally {
+        resending.value = false;
+    }
+};
+
+// Check for remembered username (client-side only, after hydration)
+onMounted(() => {
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+        formState.username = rememberedUser;
+        rememberMe.value = true;
+    }
+});
 </script>
 
 <style scoped>

@@ -339,11 +339,15 @@
     </div>
 </template>
 
-<script lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
+<script setup lang="ts">
+import { ref, reactive, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import authApi from '~/api/auth';
+
+definePageMeta({
+    layout: false,
+});
 
 interface RegisterForm {
     username: string;
@@ -352,204 +356,183 @@ interface RegisterForm {
     confirmPassword: string;
 }
 
-export default {
-    setup() {
-        const router = useRouter();
-        const { t } = useI18n();
+const router = useRouter();
+const { t } = useI18n();
 
-        const formState = reactive<RegisterForm>({
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
+const formState = reactive<RegisterForm>({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+});
+
+const agreeTerms = ref(false);
+const loading = ref(false);
+const error = ref('');
+const success = ref('');
+const passwordVisible = ref(false);
+const confirmPasswordVisible = ref(false);
+
+// Password requirements checker
+const passwordRequirements = computed(() => {
+    const password = formState.password;
+    return {
+        minLength: password.length >= 8,
+        hasUppercase: /[A-Z]/.test(password),
+        hasLowercase: /[a-z]/.test(password),
+        hasDigit: /[0-9]/.test(password),
+        hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password),
+        notWeak: ![
+            'password',
+            '12345678',
+            'qwerty',
+            'admin',
+            'letmein',
+        ].some((weak) => password.toLowerCase().includes(weak)),
+    };
+});
+
+// Check if all password requirements are met
+const isPasswordValid = computed(() => {
+    const req = passwordRequirements.value;
+    return (
+        req.minLength &&
+        req.hasUppercase &&
+        req.hasLowercase &&
+        req.hasDigit &&
+        req.hasSpecial &&
+        req.notWeak
+    );
+});
+
+// Validation functions
+const validateUsername = (value: string) => {
+    if (!value.trim()) return t('auth.usernameRequired', 'Username is required');
+    if (value.length < 3)
+        return t(
+            'auth.usernameMinLength',
+            'Username must be at least 3 characters'
+        );
+    if (value.length > 20)
+        return t(
+            'auth.usernameMaxLength',
+            'Username must be less than 20 characters'
+        );
+    return true;
+};
+
+const validatePassword = (value: string) => {
+    if (!value.trim()) return t('auth.passwordRequired', 'Password is required');
+
+    const req = passwordRequirements.value;
+    if (!req.minLength)
+        return t(
+            'auth.passwordMinLength',
+            'Password must be at least 8 characters'
+        );
+    if (!req.hasUppercase)
+        return t(
+            'auth.passwordUppercase',
+            'Password must contain an uppercase letter'
+        );
+    if (!req.hasLowercase)
+        return t(
+            'auth.passwordLowercase',
+            'Password must contain a lowercase letter'
+        );
+    if (!req.hasDigit)
+        return t('auth.passwordDigit', 'Password must contain a digit');
+    if (!req.hasSpecial)
+        return t(
+            'auth.passwordSpecial',
+            'Password must contain a special character'
+        );
+    if (!req.notWeak)
+        return t('auth.passwordWeak', 'Password is too common or weak');
+
+    return true;
+};
+
+const validateEmail = (value: string) => {
+    if (!value.trim()) return t('auth.emailRequired', 'Email is required');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value.trim()))
+        return t('auth.emailInvalid', 'Please enter a valid email address');
+    return true;
+};
+
+const validateConfirmPassword = (value: string) => {
+    if (!value.trim())
+        return t('auth.confirmPasswordRequired', 'Please confirm your password');
+    if (value !== formState.password)
+        return t('auth.passwordsDontMatch', 'Passwords do not match');
+    return true;
+};
+
+const isFormValid = computed(() => {
+    const emailValid =
+        formState.email.trim() &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email.trim());
+    return (
+        formState.username.trim() &&
+        emailValid &&
+        formState.password.trim() &&
+        formState.confirmPassword.trim() &&
+        formState.password === formState.confirmPassword &&
+        isPasswordValid.value &&
+        agreeTerms.value
+    );
+});
+
+const handleRegister = async () => {
+    if (!isFormValid.value) {
+        error.value = t(
+            'auth.fillAllFields',
+            'Please fill in all fields correctly'
+        );
+        return;
+    }
+
+    loading.value = true;
+    error.value = '';
+    success.value = '';
+
+    try {
+        // Use the new auth API
+        await authApi.register({
+            username: formState.username,
+            password: formState.password,
+            email: formState.email,
         });
 
-        const agreeTerms = ref(false);
-        const loading = ref(false);
-        const error = ref('');
-        const success = ref('');
-        const passwordVisible = ref(false);
-        const confirmPasswordVisible = ref(false);
+        success.value = t(
+            'auth.verificationEmailSent',
+            'Registration successful! A verification link has been sent to your email. Please check your inbox.'
+        );
 
-        // Password requirements checker
-        const passwordRequirements = computed(() => {
-            const password = formState.password;
-            return {
-                minLength: password.length >= 8,
-                hasUppercase: /[A-Z]/.test(password),
-                hasLowercase: /[a-z]/.test(password),
-                hasDigit: /[0-9]/.test(password),
-                hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password),
-                notWeak: ![
-                    'password',
-                    '12345678',
-                    'qwerty',
-                    'admin',
-                    'letmein',
-                ].some((weak) => password.toLowerCase().includes(weak)),
-            };
-        });
+        // Clear form
+        formState.username = '';
+        formState.email = '';
+        formState.password = '';
+        formState.confirmPassword = '';
+        agreeTerms.value = false;
 
-        // Check if all password requirements are met
-        const isPasswordValid = computed(() => {
-            const req = passwordRequirements.value;
-            return (
-                req.minLength &&
-                req.hasUppercase &&
-                req.hasLowercase &&
-                req.hasDigit &&
-                req.hasSpecial &&
-                req.notWeak
+        // Redirect to login after 5 seconds
+        setTimeout(() => {
+            router.push('/auth/login');
+        }, 5000);
+    } catch (err: any) {
+        error.value =
+            err.message ||
+            err.error ||
+            t(
+                'auth.registrationError',
+                'Registration failed. Username may be taken.'
             );
-        });
-
-        // Validation functions
-        const validateUsername = (value: string) => {
-            if (!value.trim()) return t('auth.usernameRequired', 'Username is required');
-            if (value.length < 3)
-                return t(
-                    'auth.usernameMinLength',
-                    'Username must be at least 3 characters'
-                );
-            if (value.length > 20)
-                return t(
-                    'auth.usernameMaxLength',
-                    'Username must be less than 20 characters'
-                );
-            return true;
-        };
-
-        const validatePassword = (value: string) => {
-            if (!value.trim()) return t('auth.passwordRequired', 'Password is required');
-
-            const req = passwordRequirements.value;
-            if (!req.minLength)
-                return t(
-                    'auth.passwordMinLength',
-                    'Password must be at least 8 characters'
-                );
-            if (!req.hasUppercase)
-                return t(
-                    'auth.passwordUppercase',
-                    'Password must contain an uppercase letter'
-                );
-            if (!req.hasLowercase)
-                return t(
-                    'auth.passwordLowercase',
-                    'Password must contain a lowercase letter'
-                );
-            if (!req.hasDigit)
-                return t('auth.passwordDigit', 'Password must contain a digit');
-            if (!req.hasSpecial)
-                return t(
-                    'auth.passwordSpecial',
-                    'Password must contain a special character'
-                );
-            if (!req.notWeak)
-                return t('auth.passwordWeak', 'Password is too common or weak');
-
-            return true;
-        };
-
-        const validateEmail = (value: string) => {
-            if (!value.trim()) return t('auth.emailRequired', 'Email is required');
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(value.trim()))
-                return t('auth.emailInvalid', 'Please enter a valid email address');
-            return true;
-        };
-
-        const validateConfirmPassword = (value: string) => {
-            if (!value.trim())
-                return t('auth.confirmPasswordRequired', 'Please confirm your password');
-            if (value !== formState.password)
-                return t('auth.passwordsDontMatch', 'Passwords do not match');
-            return true;
-        };
-
-        const isFormValid = computed(() => {
-            const emailValid =
-                formState.email.trim() &&
-                /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email.trim());
-            return (
-                formState.username.trim() &&
-                emailValid &&
-                formState.password.trim() &&
-                formState.confirmPassword.trim() &&
-                formState.password === formState.confirmPassword &&
-                isPasswordValid.value &&
-                agreeTerms.value
-            );
-        });
-
-        const handleRegister = async () => {
-            if (!isFormValid.value) {
-                error.value = t(
-                    'auth.fillAllFields',
-                    'Please fill in all fields correctly'
-                );
-                return;
-            }
-
-            loading.value = true;
-            error.value = '';
-            success.value = '';
-
-            try {
-                // Use the new auth API
-                await authApi.register({
-                    username: formState.username,
-                    password: formState.password,
-                    email: formState.email,
-                });
-
-                success.value = t(
-                    'auth.verificationEmailSent',
-                    'Registration successful! A verification link has been sent to your email. Please check your inbox.'
-                );
-
-                // Clear form
-                formState.username = '';
-                formState.email = '';
-                formState.password = '';
-                formState.confirmPassword = '';
-                agreeTerms.value = false;
-
-                // Redirect to login after 5 seconds
-                setTimeout(() => {
-                    router.push('/auth/login');
-                }, 5000);
-            } catch (err: any) {
-                error.value =
-                    err.message ||
-                    err.error ||
-                    t(
-                        'auth.registrationError',
-                        'Registration failed. Username may be taken.'
-                    );
-                console.error('Registration error:', err);
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        return {
-            formState,
-            agreeTerms,
-            loading,
-            error,
-            success,
-            passwordVisible,
-            confirmPasswordVisible,
-            passwordRequirements,
-            validateUsername,
-            validateEmail,
-            validatePassword,
-            validateConfirmPassword,
-            isFormValid,
-            handleRegister,
-        };
-    },
+        console.error('Registration error:', err);
+    } finally {
+        loading.value = false;
+    }
 };
 </script>
 

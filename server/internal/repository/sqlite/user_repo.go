@@ -232,17 +232,23 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 	var users []domain.User
 	for rows.Next() {
 		var u domain.User
-		var avatarPath, verificationToken sql.NullString
+		var avatarPath, email, name, verificationToken sql.NullString
 		var verificationSentAt sql.NullTime
 
 		if err := rows.Scan(
-			&u.ID, &u.Username, &u.Email, &u.PasswordHash, &u.Name, &u.Role,
+			&u.ID, &u.Username, &email, &u.PasswordHash, &name, &u.Role,
 			&avatarPath, &u.EmailVerified, &verificationToken, &verificationSentAt,
 			&u.CreatedAt, &u.UpdatedAt,
 		); err != nil {
 			return nil, 0, fmt.Errorf("scan user: %w", err)
 		}
 
+		if email.Valid {
+			u.Email = email.String
+		}
+		if name.Valid {
+			u.Name = name.String
+		}
 		if avatarPath.Valid {
 			u.AvatarPath = avatarPath.String
 		}

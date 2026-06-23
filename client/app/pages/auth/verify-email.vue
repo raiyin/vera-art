@@ -143,103 +143,93 @@
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import authApi from '~/api/auth';
 
-export default {
-    setup() {
-        const router = useRouter();
-        const route = useRoute();
-        const { t } = useI18n();
+definePageMeta({
+    layout: false,
+});
 
-        const loading = ref(true);
-        const error = ref('');
-        const success = ref('');
-        const resending = ref(false);
-        const resendSuccess = ref('');
+const router = useRouter();
+const route = useRoute();
+const { t } = useI18n();
 
-        onMounted(async () => {
-            const token = route.query.token as string;
+const loading = ref(true);
+const error = ref('');
+const success = ref('');
+const resending = ref(false);
+const resendSuccess = ref('');
 
-            if (!token) {
-                loading.value = false;
-                error.value = t(
-                    'auth.noVerificationToken',
-                    'No verification token provided. Please use the link from your email.'
-                );
-                return;
-            }
+onMounted(async () => {
+    const token = route.query.token as string;
 
-            try {
-                const response = await authApi.verifyEmail(token);
-                success.value =
-                    response.message ||
-                    t(
-                        'auth.emailVerifiedSuccess',
-                        'Your email has been verified successfully! You can now log in.'
-                    );
-            } catch (err: any) {
-                error.value =
-                    err.message ||
-                    err.error ||
-                    t(
-                        'auth.verificationError',
-                        'Email verification failed. The link may be invalid or expired.'
-                    );
-                console.error('Verification error:', err);
-            } finally {
-                loading.value = false;
-            }
-        });
+    if (!token) {
+        loading.value = false;
+        error.value = t(
+            'auth.noVerificationToken',
+            'No verification token provided. Please use the link from your email.'
+        );
+        return;
+    }
 
-        const resendVerification = async () => {
-            const email = route.query.email as string;
-            if (!email) {
-                error.value = t(
-                    'auth.noEmailForResend',
-                    'Unable to resend verification. Please go to login and use the resend option.'
-                );
-                return;
-            }
+    try {
+        const response = await authApi.verifyEmail(token);
+        success.value =
+            response.message ||
+            t(
+                'auth.emailVerifiedSuccess',
+                'Your email has been verified successfully! You can now log in.'
+            );
+    } catch (err: any) {
+        error.value =
+            err.message ||
+            err.error ||
+            t(
+                'auth.verificationError',
+                'Email verification failed. The link may be invalid or expired.'
+            );
+        console.error('Verification error:', err);
+    } finally {
+        loading.value = false;
+    }
+});
 
-            resending.value = true;
-            resendSuccess.value = '';
+const resendVerification = async () => {
+    const email = route.query.email as string;
+    if (!email) {
+        error.value = t(
+            'auth.noEmailForResend',
+            'Unable to resend verification. Please go to login and use the resend option.'
+        );
+        return;
+    }
 
-            try {
-                const response = await authApi.resendVerification(email);
-                resendSuccess.value =
-                    response.message ||
-                    t(
-                        'auth.verificationResent',
-                        'If this email is registered, a new verification link has been sent.'
-                    );
-            } catch (err: any) {
-                error.value =
-                    err.message ||
-                    err.error ||
-                    t(
-                        'auth.resendError',
-                        'Failed to resend verification email. Please try again later.'
-                    );
-                console.error('Resend error:', err);
-            } finally {
-                resending.value = false;
-            }
-        };
+    resending.value = true;
+    resendSuccess.value = '';
 
-        return {
-            router,
-            loading,
-            error,
-            success,
-            resending,
-            resendSuccess,
-            resendVerification,
-        };
-    },
+    try {
+        const response = await authApi.resendVerification(email);
+        resendSuccess.value =
+            response.message ||
+            t(
+                'auth.verificationResent',
+                'If this email is registered, a new verification link has been sent.'
+            );
+    } catch (err: any) {
+        error.value =
+            err.message ||
+            err.error ||
+            t(
+                'auth.resendError',
+                'Failed to resend verification email. Please try again later.'
+            );
+        console.error('Resend error:', err);
+    } finally {
+        resending.value = false;
+    }
 };
 </script>
 
