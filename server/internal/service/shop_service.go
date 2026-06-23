@@ -77,31 +77,31 @@ func (s *ShopService) GetProductByID(ctx context.Context, id int64) (*domain.Pro
 	}
 	slog.Debug("ShopService.GetProductByID: product retrieved",
 		"product_id", id,
-		"title", product.Title,
+		"title_ru", product.TitleRu,
 	)
 	return product, nil
 }
 
 func (s *ShopService) CreateProduct(ctx context.Context, product *domain.Product) error {
-	if product.Title == "" || product.Slug == "" {
-		slog.Warn("ShopService.CreateProduct: missing title or slug",
-			"title", product.Title,
-			"slug", product.Slug,
+	if product.TitleRu == "" && product.TitleEn == "" {
+		slog.Warn("ShopService.CreateProduct: missing title",
+			"title_ru", product.TitleRu,
+			"title_en", product.TitleEn,
 		)
 		return domain.ErrInvalidInput
 	}
 	if err := s.productRepo.Create(ctx, product); err != nil {
 		slog.Error("ShopService.CreateProduct: failed to create product",
-			"title", product.Title,
-			"slug", product.Slug,
+			"title_ru", product.TitleRu,
+			"title_en", product.TitleEn,
 			"error", err,
 		)
 		return err
 	}
 	slog.Info("ShopService.CreateProduct: product created",
 		"product_id", product.ID,
-		"title", product.Title,
-		"slug", product.Slug,
+		"title_ru", product.TitleRu,
+		"title_en", product.TitleEn,
 	)
 	return nil
 }
@@ -110,14 +110,14 @@ func (s *ShopService) UpdateProduct(ctx context.Context, product *domain.Product
 	if err := s.productRepo.Update(ctx, product); err != nil {
 		slog.Error("ShopService.UpdateProduct: failed to update product",
 			"product_id", product.ID,
-			"title", product.Title,
+			"title_ru", product.TitleRu,
 			"error", err,
 		)
 		return err
 	}
 	slog.Info("ShopService.UpdateProduct: product updated",
 		"product_id", product.ID,
-		"title", product.Title,
+		"title_ru", product.TitleRu,
 	)
 	return nil
 }
@@ -153,20 +153,20 @@ func (s *ShopService) GetCategories(ctx context.Context) ([]domain.ProductCatego
 }
 
 func (s *ShopService) CreateCategory(ctx context.Context, category *domain.ProductCategory) error {
-	if category.Name == "" {
+	if category.NameRu == "" && category.NameEn == "" {
 		slog.Warn("ShopService.CreateCategory: empty name")
 		return domain.ErrInvalidInput
 	}
 	if err := s.categoryRepo.Create(ctx, category); err != nil {
 		slog.Error("ShopService.CreateCategory: failed to create category",
-			"name", category.Name,
+			"name_ru", category.NameRu,
 			"error", err,
 		)
 		return err
 	}
 	slog.Info("ShopService.CreateCategory: category created",
 		"category_id", category.ID,
-		"name", category.Name,
+		"name_ru", category.NameRu,
 	)
 	return nil
 }
@@ -175,14 +175,14 @@ func (s *ShopService) UpdateCategory(ctx context.Context, category *domain.Produ
 	if err := s.categoryRepo.Update(ctx, category); err != nil {
 		slog.Error("ShopService.UpdateCategory: failed to update category",
 			"category_id", category.ID,
-			"name", category.Name,
+			"name_ru", category.NameRu,
 			"error", err,
 		)
 		return err
 	}
 	slog.Info("ShopService.UpdateCategory: category updated",
 		"category_id", category.ID,
-		"name", category.Name,
+		"name_ru", category.NameRu,
 	)
 	return nil
 }

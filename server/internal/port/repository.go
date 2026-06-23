@@ -87,7 +87,7 @@ type ProductCategoryRepository interface {
 type LessonRepository interface {
 	Create(ctx context.Context, lesson *domain.Lesson) error
 	GetByID(ctx context.Context, id int64) (*domain.Lesson, error)
-	ListByProduct(ctx context.Context, productID int64, status string) ([]domain.Lesson, error)
+	ListByProduct(ctx context.Context, productID int64, onlyPublic bool) ([]domain.Lesson, error)
 	List(ctx context.Context, filter domain.LessonFilter) ([]domain.Lesson, int, error)
 	Update(ctx context.Context, lesson *domain.Lesson) error
 	Delete(ctx context.Context, id int64) error

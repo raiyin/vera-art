@@ -27,6 +27,8 @@ func (h *ShopHandler) GetProducts(c *gin.Context) {
 	filter := domain.ProductFilter{
 		CategoryID: ParseIntQueryAsInt64(c, "category_id"),
 		Status:     c.Query("status"),
+		Type:       c.Query("type"),
+		Difficulty: c.Query("difficulty"),
 		Query:      c.Query("q"),
 		SortBy:     c.Query("sort_by"),
 		SortOrder:  c.Query("sort_order"),
@@ -48,23 +50,37 @@ func (h *ShopHandler) GetProducts(c *gin.Context) {
 	responses := make([]dto.ProductResponse, len(products))
 	for i, p := range products {
 		responses[i] = dto.ProductResponse{
-			ID:              p.ID,
-			Title:           p.Title,
-			Slug:            p.Slug,
-			Description:     p.Description,
-			FullDescription: p.FullDescription,
-			Price:           p.Price,
-			OldPrice:        p.OldPrice,
-			ImagePath:       p.ImagePath,
-			CategoryID:      p.CategoryID,
-			CategoryName:    p.CategoryName,
-			Status:          p.Status,
-			IsDigital:       p.IsDigital,
-			IsMasterClass:   p.IsMasterClass,
-			SortOrder:       p.SortOrder,
-			Tags:            p.Tags,
-			CreatedAt:       p.CreatedAt,
-			UpdatedAt:       p.UpdatedAt,
+			ID:                   p.ID,
+			Type:                 p.Type,
+			TitleRu:              p.TitleRu,
+			TitleEn:              p.TitleEn,
+			DescriptionRu:        p.DescriptionRu,
+			DescriptionEn:        p.DescriptionEn,
+			ShortDescriptionRu:   p.ShortDescriptionRu,
+			ShortDescriptionEn:   p.ShortDescriptionEn,
+			Price:                p.Price,
+			DurationDays:         p.DurationDays,
+			ThumbnailURL:         p.ThumbnailURL,
+			VideoURL:             p.VideoURL,
+			Status:               p.Status,
+			Difficulty:           p.Difficulty,
+			TotalLessons:         p.TotalLessons,
+			TotalDurationMinutes: p.TotalDurationMinutes,
+			CategoryID:           p.CategoryID,
+			InstructorID:         p.InstructorID,
+			Tags:                 p.Tags,
+			PrerequisitesRu:      p.PrerequisitesRu,
+			PrerequisitesEn:      p.PrerequisitesEn,
+			LearningOutcomesRu:   p.LearningOutcomesRu,
+			LearningOutcomesEn:   p.LearningOutcomesEn,
+			CertificateAvailable: p.CertificateAvailable,
+			MaxStudents:          p.MaxStudents,
+			StartDate:            p.StartDate,
+			Language:             p.Language,
+			IsFeatured:           p.IsFeatured,
+			ViewCount:            p.ViewCount,
+			CreatedAt:            p.CreatedAt,
+			UpdatedAt:            p.UpdatedAt,
 		}
 	}
 
@@ -90,23 +106,37 @@ func (h *ShopHandler) GetProductBySlug(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.ProductResponse{
-		ID:              product.ID,
-		Title:           product.Title,
-		Slug:            product.Slug,
-		Description:     product.Description,
-		FullDescription: product.FullDescription,
-		Price:           product.Price,
-		OldPrice:        product.OldPrice,
-		ImagePath:       product.ImagePath,
-		CategoryID:      product.CategoryID,
-		CategoryName:    product.CategoryName,
-		Status:          product.Status,
-		IsDigital:       product.IsDigital,
-		IsMasterClass:   product.IsMasterClass,
-		SortOrder:       product.SortOrder,
-		Tags:            product.Tags,
-		CreatedAt:       product.CreatedAt,
-		UpdatedAt:       product.UpdatedAt,
+		ID:                   product.ID,
+		Type:                 product.Type,
+		TitleRu:              product.TitleRu,
+		TitleEn:              product.TitleEn,
+		DescriptionRu:        product.DescriptionRu,
+		DescriptionEn:        product.DescriptionEn,
+		ShortDescriptionRu:   product.ShortDescriptionRu,
+		ShortDescriptionEn:   product.ShortDescriptionEn,
+		Price:                product.Price,
+		DurationDays:         product.DurationDays,
+		ThumbnailURL:         product.ThumbnailURL,
+		VideoURL:             product.VideoURL,
+		Status:               product.Status,
+		Difficulty:           product.Difficulty,
+		TotalLessons:         product.TotalLessons,
+		TotalDurationMinutes: product.TotalDurationMinutes,
+		CategoryID:           product.CategoryID,
+		InstructorID:         product.InstructorID,
+		Tags:                 product.Tags,
+		PrerequisitesRu:      product.PrerequisitesRu,
+		PrerequisitesEn:      product.PrerequisitesEn,
+		LearningOutcomesRu:   product.LearningOutcomesRu,
+		LearningOutcomesEn:   product.LearningOutcomesEn,
+		CertificateAvailable: product.CertificateAvailable,
+		MaxStudents:          product.MaxStudents,
+		StartDate:            product.StartDate,
+		Language:             product.Language,
+		IsFeatured:           product.IsFeatured,
+		ViewCount:            product.ViewCount,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
 	})
 }
 
@@ -129,23 +159,37 @@ func (h *ShopHandler) GetProductByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.ProductResponse{
-		ID:              product.ID,
-		Title:           product.Title,
-		Slug:            product.Slug,
-		Description:     product.Description,
-		FullDescription: product.FullDescription,
-		Price:           product.Price,
-		OldPrice:        product.OldPrice,
-		ImagePath:       product.ImagePath,
-		CategoryID:      product.CategoryID,
-		CategoryName:    product.CategoryName,
-		Status:          product.Status,
-		IsDigital:       product.IsDigital,
-		IsMasterClass:   product.IsMasterClass,
-		SortOrder:       product.SortOrder,
-		Tags:            product.Tags,
-		CreatedAt:       product.CreatedAt,
-		UpdatedAt:       product.UpdatedAt,
+		ID:                   product.ID,
+		Type:                 product.Type,
+		TitleRu:              product.TitleRu,
+		TitleEn:              product.TitleEn,
+		DescriptionRu:        product.DescriptionRu,
+		DescriptionEn:        product.DescriptionEn,
+		ShortDescriptionRu:   product.ShortDescriptionRu,
+		ShortDescriptionEn:   product.ShortDescriptionEn,
+		Price:                product.Price,
+		DurationDays:         product.DurationDays,
+		ThumbnailURL:         product.ThumbnailURL,
+		VideoURL:             product.VideoURL,
+		Status:               product.Status,
+		Difficulty:           product.Difficulty,
+		TotalLessons:         product.TotalLessons,
+		TotalDurationMinutes: product.TotalDurationMinutes,
+		CategoryID:           product.CategoryID,
+		InstructorID:         product.InstructorID,
+		Tags:                 product.Tags,
+		PrerequisitesRu:      product.PrerequisitesRu,
+		PrerequisitesEn:      product.PrerequisitesEn,
+		LearningOutcomesRu:   product.LearningOutcomesRu,
+		LearningOutcomesEn:   product.LearningOutcomesEn,
+		CertificateAvailable: product.CertificateAvailable,
+		MaxStudents:          product.MaxStudents,
+		StartDate:            product.StartDate,
+		Language:             product.Language,
+		IsFeatured:           product.IsFeatured,
+		ViewCount:            product.ViewCount,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
 	})
 }
 
@@ -157,25 +201,38 @@ func (h *ShopHandler) CreateProduct(c *gin.Context) {
 	}
 
 	product := &domain.Product{
-		Title:           req.Title,
-		Slug:            req.Slug,
-		Description:     req.Description,
-		FullDescription: req.FullDescription,
-		Price:           req.Price,
-		OldPrice:        req.OldPrice,
-		ImagePath:       req.ImagePath,
-		CategoryID:      req.CategoryID,
-		Status:          req.Status,
-		IsDigital:       req.IsDigital,
-		IsMasterClass:   req.IsMasterClass,
-		SortOrder:       req.SortOrder,
-		Tags:            req.Tags,
+		Type:                 req.Type,
+		TitleRu:              req.TitleRu,
+		TitleEn:              req.TitleEn,
+		DescriptionRu:        req.DescriptionRu,
+		DescriptionEn:        req.DescriptionEn,
+		ShortDescriptionRu:   req.ShortDescriptionRu,
+		ShortDescriptionEn:   req.ShortDescriptionEn,
+		Price:                req.Price,
+		DurationDays:         req.DurationDays,
+		ThumbnailURL:         req.ThumbnailURL,
+		VideoURL:             req.VideoURL,
+		Status:               req.Status,
+		Difficulty:           req.Difficulty,
+		TotalLessons:         req.TotalLessons,
+		TotalDurationMinutes: req.TotalDurationMinutes,
+		CategoryID:           req.CategoryID,
+		InstructorID:         req.InstructorID,
+		Tags:                 req.Tags,
+		PrerequisitesRu:      req.PrerequisitesRu,
+		PrerequisitesEn:      req.PrerequisitesEn,
+		LearningOutcomesRu:   req.LearningOutcomesRu,
+		LearningOutcomesEn:   req.LearningOutcomesEn,
+		CertificateAvailable: req.CertificateAvailable,
+		MaxStudents:          req.MaxStudents,
+		StartDate:            req.StartDate,
+		Language:             req.Language,
+		IsFeatured:           req.IsFeatured,
 	}
 
 	if err := h.shopService.CreateProduct(c.Request.Context(), product); err != nil {
 		slog.Error("CreateProduct: failed to create product",
-			"title", req.Title,
-			"slug", req.Slug,
+			"title_ru", req.TitleRu,
 			"error", err,
 		)
 		apiErr := apperror.FromError(err)
@@ -185,26 +242,40 @@ func (h *ShopHandler) CreateProduct(c *gin.Context) {
 
 	slog.Info("Product created successfully",
 		"product_id", product.ID,
-		"title", product.Title,
+		"title_ru", product.TitleRu,
 	)
 	c.JSON(http.StatusCreated, dto.ProductResponse{
-		ID:              product.ID,
-		Title:           product.Title,
-		Slug:            product.Slug,
-		Description:     product.Description,
-		FullDescription: product.FullDescription,
-		Price:           product.Price,
-		OldPrice:        product.OldPrice,
-		ImagePath:       product.ImagePath,
-		CategoryID:      product.CategoryID,
-		CategoryName:    product.CategoryName,
-		Status:          product.Status,
-		IsDigital:       product.IsDigital,
-		IsMasterClass:   product.IsMasterClass,
-		SortOrder:       product.SortOrder,
-		Tags:            product.Tags,
-		CreatedAt:       product.CreatedAt,
-		UpdatedAt:       product.UpdatedAt,
+		ID:                   product.ID,
+		Type:                 product.Type,
+		TitleRu:              product.TitleRu,
+		TitleEn:              product.TitleEn,
+		DescriptionRu:        product.DescriptionRu,
+		DescriptionEn:        product.DescriptionEn,
+		ShortDescriptionRu:   product.ShortDescriptionRu,
+		ShortDescriptionEn:   product.ShortDescriptionEn,
+		Price:                product.Price,
+		DurationDays:         product.DurationDays,
+		ThumbnailURL:         product.ThumbnailURL,
+		VideoURL:             product.VideoURL,
+		Status:               product.Status,
+		Difficulty:           product.Difficulty,
+		TotalLessons:         product.TotalLessons,
+		TotalDurationMinutes: product.TotalDurationMinutes,
+		CategoryID:           product.CategoryID,
+		InstructorID:         product.InstructorID,
+		Tags:                 product.Tags,
+		PrerequisitesRu:      product.PrerequisitesRu,
+		PrerequisitesEn:      product.PrerequisitesEn,
+		LearningOutcomesRu:   product.LearningOutcomesRu,
+		LearningOutcomesEn:   product.LearningOutcomesEn,
+		CertificateAvailable: product.CertificateAvailable,
+		MaxStudents:          product.MaxStudents,
+		StartDate:            product.StartDate,
+		Language:             product.Language,
+		IsFeatured:           product.IsFeatured,
+		ViewCount:            product.ViewCount,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
 	})
 }
 
@@ -221,20 +292,89 @@ func (h *ShopHandler) UpdateProduct(c *gin.Context) {
 	}
 
 	product := &domain.Product{
-		ID:              id,
-		Title:           req.Title,
-		Slug:            req.Slug,
-		Description:     req.Description,
-		FullDescription: req.FullDescription,
-		Price:           req.Price,
-		OldPrice:        req.OldPrice,
-		ImagePath:       req.ImagePath,
-		CategoryID:      req.CategoryID,
-		Status:          req.Status,
-		IsDigital:       req.IsDigital,
-		IsMasterClass:   req.IsMasterClass,
-		SortOrder:       req.SortOrder,
-		Tags:            req.Tags,
+		ID: id,
+	}
+
+	if req.Type != nil {
+		product.Type = *req.Type
+	}
+	if req.TitleRu != nil {
+		product.TitleRu = *req.TitleRu
+	}
+	if req.TitleEn != nil {
+		product.TitleEn = *req.TitleEn
+	}
+	if req.DescriptionRu != nil {
+		product.DescriptionRu = *req.DescriptionRu
+	}
+	if req.DescriptionEn != nil {
+		product.DescriptionEn = *req.DescriptionEn
+	}
+	if req.ShortDescriptionRu != nil {
+		product.ShortDescriptionRu = *req.ShortDescriptionRu
+	}
+	if req.ShortDescriptionEn != nil {
+		product.ShortDescriptionEn = *req.ShortDescriptionEn
+	}
+	if req.Price != nil {
+		product.Price = *req.Price
+	}
+	if req.DurationDays != nil {
+		product.DurationDays = req.DurationDays
+	}
+	if req.ThumbnailURL != nil {
+		product.ThumbnailURL = *req.ThumbnailURL
+	}
+	if req.VideoURL != nil {
+		product.VideoURL = *req.VideoURL
+	}
+	if req.Status != nil {
+		product.Status = *req.Status
+	}
+	if req.Difficulty != nil {
+		product.Difficulty = *req.Difficulty
+	}
+	if req.TotalLessons != nil {
+		product.TotalLessons = *req.TotalLessons
+	}
+	if req.TotalDurationMinutes != nil {
+		product.TotalDurationMinutes = *req.TotalDurationMinutes
+	}
+	if req.CategoryID != nil {
+		product.CategoryID = req.CategoryID
+	}
+	if req.InstructorID != nil {
+		product.InstructorID = req.InstructorID
+	}
+	if req.PrerequisitesRu != nil {
+		product.PrerequisitesRu = *req.PrerequisitesRu
+	}
+	if req.PrerequisitesEn != nil {
+		product.PrerequisitesEn = *req.PrerequisitesEn
+	}
+	if req.LearningOutcomesRu != nil {
+		product.LearningOutcomesRu = *req.LearningOutcomesRu
+	}
+	if req.LearningOutcomesEn != nil {
+		product.LearningOutcomesEn = *req.LearningOutcomesEn
+	}
+	if req.CertificateAvailable != nil {
+		product.CertificateAvailable = *req.CertificateAvailable
+	}
+	if req.MaxStudents != nil {
+		product.MaxStudents = req.MaxStudents
+	}
+	if req.StartDate != nil {
+		product.StartDate = req.StartDate
+	}
+	if req.Language != nil {
+		product.Language = *req.Language
+	}
+	if req.IsFeatured != nil {
+		product.IsFeatured = *req.IsFeatured
+	}
+	if req.Tags != nil {
+		product.Tags = req.Tags
 	}
 
 	if err := h.shopService.UpdateProduct(c.Request.Context(), product); err != nil {
@@ -251,23 +391,37 @@ func (h *ShopHandler) UpdateProduct(c *gin.Context) {
 		"product_id", id,
 	)
 	c.JSON(http.StatusOK, dto.ProductResponse{
-		ID:              product.ID,
-		Title:           product.Title,
-		Slug:            product.Slug,
-		Description:     product.Description,
-		FullDescription: product.FullDescription,
-		Price:           product.Price,
-		OldPrice:        product.OldPrice,
-		ImagePath:       product.ImagePath,
-		CategoryID:      product.CategoryID,
-		CategoryName:    product.CategoryName,
-		Status:          product.Status,
-		IsDigital:       product.IsDigital,
-		IsMasterClass:   product.IsMasterClass,
-		SortOrder:       product.SortOrder,
-		Tags:            product.Tags,
-		CreatedAt:       product.CreatedAt,
-		UpdatedAt:       product.UpdatedAt,
+		ID:                   product.ID,
+		Type:                 product.Type,
+		TitleRu:              product.TitleRu,
+		TitleEn:              product.TitleEn,
+		DescriptionRu:        product.DescriptionRu,
+		DescriptionEn:        product.DescriptionEn,
+		ShortDescriptionRu:   product.ShortDescriptionRu,
+		ShortDescriptionEn:   product.ShortDescriptionEn,
+		Price:                product.Price,
+		DurationDays:         product.DurationDays,
+		ThumbnailURL:         product.ThumbnailURL,
+		VideoURL:             product.VideoURL,
+		Status:               product.Status,
+		Difficulty:           product.Difficulty,
+		TotalLessons:         product.TotalLessons,
+		TotalDurationMinutes: product.TotalDurationMinutes,
+		CategoryID:           product.CategoryID,
+		InstructorID:         product.InstructorID,
+		Tags:                 product.Tags,
+		PrerequisitesRu:      product.PrerequisitesRu,
+		PrerequisitesEn:      product.PrerequisitesEn,
+		LearningOutcomesRu:   product.LearningOutcomesRu,
+		LearningOutcomesEn:   product.LearningOutcomesEn,
+		CertificateAvailable: product.CertificateAvailable,
+		MaxStudents:          product.MaxStudents,
+		StartDate:            product.StartDate,
+		Language:             product.Language,
+		IsFeatured:           product.IsFeatured,
+		ViewCount:            product.ViewCount,
+		CreatedAt:            product.CreatedAt,
+		UpdatedAt:            product.UpdatedAt,
 	})
 }
 
@@ -309,11 +463,16 @@ func (h *ShopHandler) GetCategories(c *gin.Context) {
 	responses := make([]dto.CategoryResponse, len(categories))
 	for i, cat := range categories {
 		responses[i] = dto.CategoryResponse{
-			ID:        cat.ID,
-			Name:      cat.Name,
-			Slug:      cat.Slug,
-			SortOrder: cat.SortOrder,
-			CreatedAt: cat.CreatedAt,
+			ID:            cat.ID,
+			NameRu:        cat.NameRu,
+			NameEn:        cat.NameEn,
+			Slug:          cat.Slug,
+			DescriptionRu: cat.DescriptionRu,
+			DescriptionEn: cat.DescriptionEn,
+			SortOrder:     cat.SortOrder,
+			IsActive:      cat.IsActive,
+			CreatedAt:     cat.CreatedAt,
+			UpdatedAt:     cat.UpdatedAt,
 		}
 	}
 
@@ -328,14 +487,18 @@ func (h *ShopHandler) CreateCategory(c *gin.Context) {
 	}
 
 	category := &domain.ProductCategory{
-		Name:      req.Name,
-		Slug:      req.Slug,
-		SortOrder: req.SortOrder,
+		NameRu:        req.NameRu,
+		NameEn:        req.NameEn,
+		Slug:          req.Slug,
+		DescriptionRu: req.DescriptionRu,
+		DescriptionEn: req.DescriptionEn,
+		SortOrder:     req.SortOrder,
+		IsActive:      req.IsActive,
 	}
 
 	if err := h.shopService.CreateCategory(c.Request.Context(), category); err != nil {
 		slog.Error("CreateCategory: failed to create category",
-			"name", req.Name,
+			"name_ru", req.NameRu,
 			"error", err,
 		)
 		apiErr := apperror.FromError(err)
@@ -345,14 +508,19 @@ func (h *ShopHandler) CreateCategory(c *gin.Context) {
 
 	slog.Info("Category created successfully",
 		"category_id", category.ID,
-		"name", category.Name,
+		"name_ru", category.NameRu,
 	)
 	c.JSON(http.StatusCreated, dto.CategoryResponse{
-		ID:        category.ID,
-		Name:      category.Name,
-		Slug:      category.Slug,
-		SortOrder: category.SortOrder,
-		CreatedAt: category.CreatedAt,
+		ID:            category.ID,
+		NameRu:        category.NameRu,
+		NameEn:        category.NameEn,
+		Slug:          category.Slug,
+		DescriptionRu: category.DescriptionRu,
+		DescriptionEn: category.DescriptionEn,
+		SortOrder:     category.SortOrder,
+		IsActive:      category.IsActive,
+		CreatedAt:     category.CreatedAt,
+		UpdatedAt:     category.UpdatedAt,
 	})
 }
 
@@ -363,20 +531,34 @@ func (h *ShopHandler) UpdateCategory(c *gin.Context) {
 		return
 	}
 
-	var req struct {
-		Name      string `json:"name"`
-		Slug      string `json:"slug"`
-		SortOrder int    `json:"sort_order"`
-	}
+	var req dto.UpdateCategoryRequest
 	if !BindJSON(c, &req) {
 		return
 	}
 
 	category := &domain.ProductCategory{
-		ID:        id,
-		Name:      req.Name,
-		Slug:      req.Slug,
-		SortOrder: req.SortOrder,
+		ID: id,
+	}
+	if req.NameRu != nil {
+		category.NameRu = *req.NameRu
+	}
+	if req.NameEn != nil {
+		category.NameEn = *req.NameEn
+	}
+	if req.Slug != nil {
+		category.Slug = *req.Slug
+	}
+	if req.DescriptionRu != nil {
+		category.DescriptionRu = *req.DescriptionRu
+	}
+	if req.DescriptionEn != nil {
+		category.DescriptionEn = *req.DescriptionEn
+	}
+	if req.SortOrder != nil {
+		category.SortOrder = *req.SortOrder
+	}
+	if req.IsActive != nil {
+		category.IsActive = *req.IsActive
 	}
 
 	if err := h.shopService.UpdateCategory(c.Request.Context(), category); err != nil {
@@ -393,11 +575,16 @@ func (h *ShopHandler) UpdateCategory(c *gin.Context) {
 		"category_id", id,
 	)
 	c.JSON(http.StatusOK, dto.CategoryResponse{
-		ID:        category.ID,
-		Name:      category.Name,
-		Slug:      category.Slug,
-		SortOrder: category.SortOrder,
-		CreatedAt: category.CreatedAt,
+		ID:            category.ID,
+		NameRu:        category.NameRu,
+		NameEn:        category.NameEn,
+		Slug:          category.Slug,
+		DescriptionRu: category.DescriptionRu,
+		DescriptionEn: category.DescriptionEn,
+		SortOrder:     category.SortOrder,
+		IsActive:      category.IsActive,
+		CreatedAt:     category.CreatedAt,
+		UpdatedAt:     category.UpdatedAt,
 	})
 }
 

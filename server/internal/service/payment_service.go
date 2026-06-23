@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"math"
 
 	"github.com/raiyin/artserver/internal/domain"
 	"github.com/raiyin/artserver/internal/port"
@@ -45,7 +46,7 @@ func (s *PaymentService) CreatePayment(ctx context.Context, userID, productID in
 		return nil, "", err
 	}
 
-	amount := product.Price
+	amount := float64(product.Price) / 100
 	var discount float64
 
 	if promoCode != "" {
@@ -165,8 +166,8 @@ func (s *PaymentService) HandleWebhook(ctx context.Context, payload []byte) erro
 			UserID:    payment.UserID,
 			ProductID: payment.ProductID,
 			PaymentID: payment.ID,
-			Amount:    payment.Amount,
-			Status:    "completed",
+			PricePaid: int64(math.Round(payment.Amount * 100)),
+			Status:    "active",
 		}
 		if err := s.purchaseRepo.Create(ctx, purchase); err != nil {
 			slog.Error("PaymentService.HandleWebhook: failed to create purchase",

@@ -144,6 +144,39 @@ type ConsentAuditLogEntry struct {
 	CreatedAt      string                 `json:"created_at"`
 }
 
+// MasterClassResponse represents a master class in API responses.
+type MasterClassResponse struct {
+	ID          int64     `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description,omitempty"`
+	Price       float64   `json:"price"`
+	ImagePath   string    `json:"image_path"`
+	VideoURL    string    `json:"video_url,omitempty"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// CreateMasterClassRequest represents a create master class request.
+type CreateMasterClassRequest struct {
+	Title       string  `json:"title" binding:"required"`
+	Description string  `json:"description,omitempty"`
+	Price       float64 `json:"price" binding:"required"`
+	ImagePath   string  `json:"image_path"`
+	VideoURL    string  `json:"video_url,omitempty"`
+	Status      string  `json:"status"`
+}
+
+// UpdateMasterClassRequest represents an update master class request.
+type UpdateMasterClassRequest struct {
+	Title       string   `json:"title,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Price       *float64 `json:"price,omitempty"`
+	ImagePath   *string  `json:"image_path,omitempty"`
+	VideoURL    *string  `json:"video_url,omitempty"`
+	Status      *string  `json:"status,omitempty"`
+}
+
 // UserListResponse represents a user in admin user list.
 type UserListResponse struct {
 	ID            int64     `json:"id"`

@@ -171,17 +171,17 @@ func NewPurchaseRepository(db *sql.DB) *PurchaseRepository {
 }
 
 func (r *PurchaseRepository) Create(ctx context.Context, purchase *domain.Purchase) error {
-	query := `INSERT INTO purchases (user_id, product_id, payment_id, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO purchases (user_id, product_id, payment_id, price_paid, status, created_at) VALUES (?, ?, ?, ?, ?, ?)`
 	now := time.Now()
 	if purchase.CreatedAt.IsZero() {
 		purchase.CreatedAt = now
 	}
 	if purchase.Status == "" {
-		purchase.Status = "completed"
+		purchase.Status = "active"
 	}
 
 	result, err := r.db.ExecContext(ctx, query,
-		purchase.UserID, purchase.ProductID, purchase.PaymentID, purchase.Amount, purchase.Status, purchase.CreatedAt,
+		purchase.UserID, purchase.ProductID, purchase.PaymentID, purchase.PricePaid, purchase.Status, purchase.CreatedAt,
 	)
 	if err != nil {
 		return err
@@ -197,8 +197,8 @@ func (r *PurchaseRepository) Create(ctx context.Context, purchase *domain.Purcha
 func (r *PurchaseRepository) GetByID(ctx context.Context, id int64) (*domain.Purchase, error) {
 	p := &domain.Purchase{}
 	err := r.db.QueryRowContext(ctx,
-		"SELECT id, user_id, product_id, payment_id, amount, status, created_at FROM purchases WHERE id = ?", id,
-	).Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.Amount, &p.Status, &p.CreatedAt)
+		"SELECT id, user_id, product_id, payment_id, price_paid, status, created_at FROM purchases WHERE id = ?", id,
+	).Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.PricePaid, &p.Status, &p.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrNotFound
 	}
@@ -209,7 +209,7 @@ func (r *PurchaseRepository) List(ctx context.Context) ([]domain.Purchase, int, 
 	var total int
 	r.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM purchases").Scan(&total)
 
-	rows, err := r.db.QueryContext(ctx, "SELECT id, user_id, product_id, payment_id, amount, status, created_at FROM purchases ORDER BY created_at DESC")
+	rows, err := r.db.QueryContext(ctx, "SELECT id, user_id, product_id, payment_id, price_paid, status, created_at FROM purchases ORDER BY created_at DESC")
 	if err != nil {
 		return nil, 0, err
 	}
@@ -218,7 +218,7 @@ func (r *PurchaseRepository) List(ctx context.Context) ([]domain.Purchase, int, 
 	var purchases []domain.Purchase
 	for rows.Next() {
 		var p domain.Purchase
-		if err := rows.Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.Amount, &p.Status, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.PricePaid, &p.Status, &p.CreatedAt); err != nil {
 			return nil, 0, err
 		}
 		purchases = append(purchases, p)
@@ -228,7 +228,7 @@ func (r *PurchaseRepository) List(ctx context.Context) ([]domain.Purchase, int, 
 
 func (r *PurchaseRepository) ListByUser(ctx context.Context, userID int64) ([]domain.Purchase, error) {
 	rows, err := r.db.QueryContext(ctx,
-		"SELECT id, user_id, product_id, payment_id, amount, status, created_at FROM purchases WHERE user_id = ? ORDER BY created_at DESC", userID,
+		"SELECT id, user_id, product_id, payment_id, price_paid, status, created_at FROM purchases WHERE user_id = ? ORDER BY created_at DESC", userID,
 	)
 	if err != nil {
 		return nil, err
@@ -238,7 +238,7 @@ func (r *PurchaseRepository) ListByUser(ctx context.Context, userID int64) ([]do
 	var purchases []domain.Purchase
 	for rows.Next() {
 		var p domain.Purchase
-		if err := rows.Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.Amount, &p.Status, &p.CreatedAt); err != nil {
+		if err := rows.Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.PricePaid, &p.Status, &p.CreatedAt); err != nil {
 			return nil, err
 		}
 		purchases = append(purchases, p)
@@ -249,9 +249,9 @@ func (r *PurchaseRepository) ListByUser(ctx context.Context, userID int64) ([]do
 func (r *PurchaseRepository) GetByUserAndProduct(ctx context.Context, userID, productID int64) (*domain.Purchase, error) {
 	p := &domain.Purchase{}
 	err := r.db.QueryRowContext(ctx,
-		"SELECT id, user_id, product_id, payment_id, amount, status, created_at FROM purchases WHERE user_id = ? AND product_id = ?",
+		"SELECT id, user_id, product_id, payment_id, price_paid, status, created_at FROM purchases WHERE user_id = ? AND product_id = ?",
 		userID, productID,
-	).Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.Amount, &p.Status, &p.CreatedAt)
+	).Scan(&p.ID, &p.UserID, &p.ProductID, &p.PaymentID, &p.PricePaid, &p.Status, &p.CreatedAt)
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrNotFound
 	}

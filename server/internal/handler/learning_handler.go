@@ -46,18 +46,24 @@ func (h *LearningHandler) GetLessonsByProduct(c *gin.Context) {
 	responses := make([]dto.LessonResponse, len(lessons))
 	for i, l := range lessons {
 		responses[i] = dto.LessonResponse{
-			ID:              l.ID,
-			ProductID:       l.ProductID,
-			Title:           l.Title,
-			Description:     l.Description,
-			Content:         l.Content,
-			VideoURL:        l.VideoURL,
-			Resources:       l.Resources,
-			DurationMinutes: l.DurationMinutes,
-			SortOrder:       l.SortOrder,
-			Status:          l.Status,
-			CreatedAt:       l.CreatedAt,
-			UpdatedAt:       l.UpdatedAt,
+			ID:                 l.ID,
+			ProductID:          l.ProductID,
+			TitleRu:            l.TitleRu,
+			TitleEn:            l.TitleEn,
+			DescriptionRu:      l.DescriptionRu,
+			DescriptionEn:      l.DescriptionEn,
+			ContentType:        l.ContentType,
+			ContentURL:         l.ContentURL,
+			Resources:          l.Resources,
+			DurationMinutes:    l.DurationMinutes,
+			SortOrder:          l.SortOrder,
+			IsPreview:          l.IsPreview,
+			HomeworkRu:         l.HomeworkRu,
+			HomeworkEn:         l.HomeworkEn,
+			EstimatedStudyTime: l.EstimatedStudyTime,
+			IsRequired:         l.IsRequired,
+			CreatedAt:          l.CreatedAt,
+			UpdatedAt:          l.UpdatedAt,
 		}
 	}
 
@@ -86,18 +92,24 @@ func (h *LearningHandler) GetLessonByID(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, dto.LessonResponse{
-		ID:              lesson.ID,
-		ProductID:       lesson.ProductID,
-		Title:           lesson.Title,
-		Description:     lesson.Description,
-		Content:         lesson.Content,
-		VideoURL:        lesson.VideoURL,
-		Resources:       lesson.Resources,
-		DurationMinutes: lesson.DurationMinutes,
-		SortOrder:       lesson.SortOrder,
-		Status:          lesson.Status,
-		CreatedAt:       lesson.CreatedAt,
-		UpdatedAt:       lesson.UpdatedAt,
+		ID:                 lesson.ID,
+		ProductID:          lesson.ProductID,
+		TitleRu:            lesson.TitleRu,
+		TitleEn:            lesson.TitleEn,
+		DescriptionRu:      lesson.DescriptionRu,
+		DescriptionEn:      lesson.DescriptionEn,
+		ContentType:        lesson.ContentType,
+		ContentURL:         lesson.ContentURL,
+		Resources:          lesson.Resources,
+		DurationMinutes:    lesson.DurationMinutes,
+		SortOrder:          lesson.SortOrder,
+		IsPreview:          lesson.IsPreview,
+		HomeworkRu:         lesson.HomeworkRu,
+		HomeworkEn:         lesson.HomeworkEn,
+		EstimatedStudyTime: lesson.EstimatedStudyTime,
+		IsRequired:         lesson.IsRequired,
+		CreatedAt:          lesson.CreatedAt,
+		UpdatedAt:          lesson.UpdatedAt,
 	})
 }
 
@@ -105,7 +117,6 @@ func (h *LearningHandler) GetLessonByID(c *gin.Context) {
 func (h *LearningHandler) AdminGetLessons(c *gin.Context) {
 	filter := domain.LessonFilter{
 		ProductID: ParseIntQueryAsInt64(c, "product_id"),
-		Status:    c.Query("status"),
 		Query:     c.Query("q"),
 	}
 
@@ -123,18 +134,24 @@ func (h *LearningHandler) AdminGetLessons(c *gin.Context) {
 	responses := make([]dto.LessonResponse, len(lessons))
 	for i, l := range lessons {
 		responses[i] = dto.LessonResponse{
-			ID:              l.ID,
-			ProductID:       l.ProductID,
-			Title:           l.Title,
-			Description:     l.Description,
-			Content:         l.Content,
-			VideoURL:        l.VideoURL,
-			Resources:       l.Resources,
-			DurationMinutes: l.DurationMinutes,
-			SortOrder:       l.SortOrder,
-			Status:          l.Status,
-			CreatedAt:       l.CreatedAt,
-			UpdatedAt:       l.UpdatedAt,
+			ID:                 l.ID,
+			ProductID:          l.ProductID,
+			TitleRu:            l.TitleRu,
+			TitleEn:            l.TitleEn,
+			DescriptionRu:      l.DescriptionRu,
+			DescriptionEn:      l.DescriptionEn,
+			ContentType:        l.ContentType,
+			ContentURL:         l.ContentURL,
+			Resources:          l.Resources,
+			DurationMinutes:    l.DurationMinutes,
+			SortOrder:          l.SortOrder,
+			IsPreview:          l.IsPreview,
+			HomeworkRu:         l.HomeworkRu,
+			HomeworkEn:         l.HomeworkEn,
+			EstimatedStudyTime: l.EstimatedStudyTime,
+			IsRequired:         l.IsRequired,
+			CreatedAt:          l.CreatedAt,
+			UpdatedAt:          l.UpdatedAt,
 		}
 	}
 
@@ -152,20 +169,26 @@ func (h *LearningHandler) CreateLesson(c *gin.Context) {
 	}
 
 	lesson := &domain.Lesson{
-		ProductID:       req.ProductID,
-		Title:           req.Title,
-		Description:     req.Description,
-		Content:         req.Content,
-		VideoURL:        req.VideoURL,
-		Resources:       req.Resources,
-		DurationMinutes: req.DurationMinutes,
-		SortOrder:       req.SortOrder,
-		Status:          req.Status,
+		ProductID:          req.ProductID,
+		TitleRu:            req.TitleRu,
+		TitleEn:            req.TitleEn,
+		DescriptionRu:      req.DescriptionRu,
+		DescriptionEn:      req.DescriptionEn,
+		ContentType:        req.ContentType,
+		ContentURL:         req.ContentURL,
+		Resources:          req.Resources,
+		DurationMinutes:    req.DurationMinutes,
+		SortOrder:          req.SortOrder,
+		IsPreview:          req.IsPreview,
+		HomeworkRu:         req.HomeworkRu,
+		HomeworkEn:         req.HomeworkEn,
+		EstimatedStudyTime: req.EstimatedStudyTime,
+		IsRequired:         req.IsRequired,
 	}
 
 	if err := h.learningService.CreateLesson(c.Request.Context(), lesson); err != nil {
 		slog.Error("CreateLesson: failed to create lesson",
-			"title", req.Title,
+			"title_ru", req.TitleRu,
 			"product_id", req.ProductID,
 			"error", err,
 		)
@@ -176,21 +199,27 @@ func (h *LearningHandler) CreateLesson(c *gin.Context) {
 
 	slog.Info("Lesson created successfully",
 		"lesson_id", lesson.ID,
-		"title", lesson.Title,
+		"title_ru", lesson.TitleRu,
 	)
 	c.JSON(http.StatusCreated, dto.LessonResponse{
-		ID:              lesson.ID,
-		ProductID:       lesson.ProductID,
-		Title:           lesson.Title,
-		Description:     lesson.Description,
-		Content:         lesson.Content,
-		VideoURL:        lesson.VideoURL,
-		Resources:       lesson.Resources,
-		DurationMinutes: lesson.DurationMinutes,
-		SortOrder:       lesson.SortOrder,
-		Status:          lesson.Status,
-		CreatedAt:       lesson.CreatedAt,
-		UpdatedAt:       lesson.UpdatedAt,
+		ID:                 lesson.ID,
+		ProductID:          lesson.ProductID,
+		TitleRu:            lesson.TitleRu,
+		TitleEn:            lesson.TitleEn,
+		DescriptionRu:      lesson.DescriptionRu,
+		DescriptionEn:      lesson.DescriptionEn,
+		ContentType:        lesson.ContentType,
+		ContentURL:         lesson.ContentURL,
+		Resources:          lesson.Resources,
+		DurationMinutes:    lesson.DurationMinutes,
+		SortOrder:          lesson.SortOrder,
+		IsPreview:          lesson.IsPreview,
+		HomeworkRu:         lesson.HomeworkRu,
+		HomeworkEn:         lesson.HomeworkEn,
+		EstimatedStudyTime: lesson.EstimatedStudyTime,
+		IsRequired:         lesson.IsRequired,
+		CreatedAt:          lesson.CreatedAt,
+		UpdatedAt:          lesson.UpdatedAt,
 	})
 }
 
@@ -207,15 +236,49 @@ func (h *LearningHandler) UpdateLesson(c *gin.Context) {
 	}
 
 	lesson := &domain.Lesson{
-		ID:              id,
-		Title:           req.Title,
-		Description:     req.Description,
-		Content:         req.Content,
-		VideoURL:        req.VideoURL,
-		Resources:       req.Resources,
-		DurationMinutes: req.DurationMinutes,
-		SortOrder:       req.SortOrder,
-		Status:          req.Status,
+		ID: id,
+	}
+	if req.TitleRu != nil {
+		lesson.TitleRu = *req.TitleRu
+	}
+	if req.TitleEn != nil {
+		lesson.TitleEn = *req.TitleEn
+	}
+	if req.DescriptionRu != nil {
+		lesson.DescriptionRu = *req.DescriptionRu
+	}
+	if req.DescriptionEn != nil {
+		lesson.DescriptionEn = *req.DescriptionEn
+	}
+	if req.ContentType != nil {
+		lesson.ContentType = *req.ContentType
+	}
+	if req.ContentURL != nil {
+		lesson.ContentURL = *req.ContentURL
+	}
+	if req.Resources != nil {
+		lesson.Resources = req.Resources
+	}
+	if req.DurationMinutes != nil {
+		lesson.DurationMinutes = *req.DurationMinutes
+	}
+	if req.SortOrder != nil {
+		lesson.SortOrder = *req.SortOrder
+	}
+	if req.IsPreview != nil {
+		lesson.IsPreview = *req.IsPreview
+	}
+	if req.HomeworkRu != nil {
+		lesson.HomeworkRu = *req.HomeworkRu
+	}
+	if req.HomeworkEn != nil {
+		lesson.HomeworkEn = *req.HomeworkEn
+	}
+	if req.EstimatedStudyTime != nil {
+		lesson.EstimatedStudyTime = req.EstimatedStudyTime
+	}
+	if req.IsRequired != nil {
+		lesson.IsRequired = *req.IsRequired
 	}
 
 	if err := h.learningService.UpdateLesson(c.Request.Context(), lesson); err != nil {
@@ -232,18 +295,24 @@ func (h *LearningHandler) UpdateLesson(c *gin.Context) {
 		"lesson_id", id,
 	)
 	c.JSON(http.StatusOK, dto.LessonResponse{
-		ID:              lesson.ID,
-		ProductID:       lesson.ProductID,
-		Title:           lesson.Title,
-		Description:     lesson.Description,
-		Content:         lesson.Content,
-		VideoURL:        lesson.VideoURL,
-		Resources:       lesson.Resources,
-		DurationMinutes: lesson.DurationMinutes,
-		SortOrder:       lesson.SortOrder,
-		Status:          lesson.Status,
-		CreatedAt:       lesson.CreatedAt,
-		UpdatedAt:       lesson.UpdatedAt,
+		ID:                 lesson.ID,
+		ProductID:          lesson.ProductID,
+		TitleRu:            lesson.TitleRu,
+		TitleEn:            lesson.TitleEn,
+		DescriptionRu:      lesson.DescriptionRu,
+		DescriptionEn:      lesson.DescriptionEn,
+		ContentType:        lesson.ContentType,
+		ContentURL:         lesson.ContentURL,
+		Resources:          lesson.Resources,
+		DurationMinutes:    lesson.DurationMinutes,
+		SortOrder:          lesson.SortOrder,
+		IsPreview:          lesson.IsPreview,
+		HomeworkRu:         lesson.HomeworkRu,
+		HomeworkEn:         lesson.HomeworkEn,
+		EstimatedStudyTime: lesson.EstimatedStudyTime,
+		IsRequired:         lesson.IsRequired,
+		CreatedAt:          lesson.CreatedAt,
+		UpdatedAt:          lesson.UpdatedAt,
 	})
 }
 
@@ -314,7 +383,6 @@ func (h *LearningHandler) GetLearningProgress(c *gin.Context) {
 			ID:        p.ID,
 			UserID:    p.UserID,
 			LessonID:  p.LessonID,
-			ProductID: p.ProductID,
 			Completed: p.Completed,
 			CreatedAt: p.CreatedAt,
 			UpdatedAt: p.UpdatedAt,
@@ -332,7 +400,7 @@ func (h *LearningHandler) UpdateLessonProgress(c *gin.Context) {
 		return
 	}
 
-	var req dto.UpdateLessonProgressRequest
+	var req dto.UpdateProgressRequest
 	if !BindJSON(c, &req) {
 		return
 	}

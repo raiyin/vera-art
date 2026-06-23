@@ -164,13 +164,15 @@ func (h *PaymentHandler) GetPurchases(c *gin.Context) {
 	responses := make([]dto.PurchaseResponse, len(purchases))
 	for i, p := range purchases {
 		responses[i] = dto.PurchaseResponse{
-			ID:        p.ID,
-			UserID:    p.UserID,
-			ProductID: p.ProductID,
-			PaymentID: p.PaymentID,
-			PricePaid: p.Amount,
-			Status:    p.Status,
-			CreatedAt: p.CreatedAt,
+			ID:          p.ID,
+			UserID:      p.UserID,
+			ProductID:   p.ProductID,
+			PaymentID:   p.PaymentID,
+			PricePaid:   p.PricePaid,
+			Status:      p.Status,
+			AccessStart: p.AccessStart,
+			AccessEnd:   p.AccessEnd,
+			CreatedAt:   p.CreatedAt,
 		}
 	}
 
@@ -198,13 +200,15 @@ func (h *PaymentHandler) GetUserPurchases(c *gin.Context) {
 	responses := make([]dto.PurchaseResponse, len(purchases))
 	for i, p := range purchases {
 		responses[i] = dto.PurchaseResponse{
-			ID:        p.ID,
-			UserID:    p.UserID,
-			ProductID: p.ProductID,
-			PaymentID: p.PaymentID,
-			PricePaid: p.Amount,
-			Status:    p.Status,
-			CreatedAt: p.CreatedAt,
+			ID:          p.ID,
+			UserID:      p.UserID,
+			ProductID:   p.ProductID,
+			PaymentID:   p.PaymentID,
+			PricePaid:   p.PricePaid,
+			Status:      p.Status,
+			AccessStart: p.AccessStart,
+			AccessEnd:   p.AccessEnd,
+			CreatedAt:   p.CreatedAt,
 		}
 	}
 

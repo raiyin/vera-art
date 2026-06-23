@@ -38,7 +38,7 @@ type PurchaseResponse struct {
 	UserID      int64      `json:"user_id"`
 	ProductID   int64      `json:"product_id"`
 	PaymentID   int64      `json:"payment_id"`
-	PricePaid   float64    `json:"price_paid"`
+	PricePaid   int64      `json:"price_paid"`
 	Status      string     `json:"status"`
 	AccessStart time.Time  `json:"access_start"`
 	AccessEnd   *time.Time `json:"access_end,omitempty"`

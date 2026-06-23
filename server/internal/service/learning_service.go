@@ -41,18 +41,17 @@ func (s *LearningService) GetLessonsByProduct(ctx context.Context, productID int
 		return nil, err
 	}
 
-	status := ""
+	onlyPublic := false
 	if purchase == nil {
-		// Only show published lessons for non-purchasers
-		status = "published"
+		onlyPublic = true
 	}
 
-	lessons, err := s.lessonRepo.ListByProduct(ctx, productID, status)
+	lessons, err := s.lessonRepo.ListByProduct(ctx, productID, onlyPublic)
 	if err != nil {
 		slog.Error("LearningService.GetLessonsByProduct: failed to list lessons",
 			"product_id", productID,
 			"user_id", userID,
-			"status", status,
+			"only_public", onlyPublic,
 			"error", err,
 		)
 		return nil, err
@@ -79,12 +78,12 @@ func (s *LearningService) GetLessonByID(ctx context.Context, id int64, userID in
 
 	// Check access
 	purchase, _ := s.purchaseRepo.GetByUserAndProduct(ctx, userID, lesson.ProductID)
-	if purchase == nil && lesson.Status != "published" {
+	if purchase == nil && !lesson.IsPreview {
 		slog.Warn("LearningService.GetLessonByID: forbidden access",
 			"lesson_id", id,
 			"user_id", userID,
 			"product_id", lesson.ProductID,
-			"lesson_status", lesson.Status,
+			"is_preview", lesson.IsPreview,
 		)
 		return nil, domain.ErrForbidden
 	}
@@ -116,7 +115,7 @@ func (s *LearningService) AdminGetLessons(ctx context.Context, filter domain.Les
 
 // CreateLesson creates a new lesson.
 func (s *LearningService) CreateLesson(ctx context.Context, lesson *domain.Lesson) error {
-	if lesson.Title == "" {
+	if lesson.TitleRu == "" && lesson.TitleEn == "" {
 		slog.Warn("LearningService.CreateLesson: empty title",
 			"lesson", lesson,
 		)
@@ -124,7 +123,7 @@ func (s *LearningService) CreateLesson(ctx context.Context, lesson *domain.Lesso
 	}
 	if err := s.lessonRepo.Create(ctx, lesson); err != nil {
 		slog.Error("LearningService.CreateLesson: failed to create lesson",
-			"lesson_title", lesson.Title,
+			"lesson_title_ru", lesson.TitleRu,
 			"product_id", lesson.ProductID,
 			"error", err,
 		)
@@ -132,7 +131,7 @@ func (s *LearningService) CreateLesson(ctx context.Context, lesson *domain.Lesso
 	}
 	slog.Info("LearningService.CreateLesson: lesson created",
 		"lesson_id", lesson.ID,
-		"lesson_title", lesson.Title,
+		"lesson_title_ru", lesson.TitleRu,
 		"product_id", lesson.ProductID,
 	)
 	return nil
@@ -143,14 +142,14 @@ func (s *LearningService) UpdateLesson(ctx context.Context, lesson *domain.Lesso
 	if err := s.lessonRepo.Update(ctx, lesson); err != nil {
 		slog.Error("LearningService.UpdateLesson: failed to update lesson",
 			"lesson_id", lesson.ID,
-			"lesson_title", lesson.Title,
+			"lesson_title_ru", lesson.TitleRu,
 			"error", err,
 		)
 		return err
 	}
 	slog.Info("LearningService.UpdateLesson: lesson updated",
 		"lesson_id", lesson.ID,
-		"lesson_title", lesson.Title,
+		"lesson_title_ru", lesson.TitleRu,
 	)
 	return nil
 }
@@ -221,7 +220,6 @@ func (s *LearningService) UpdateLessonProgress(ctx context.Context, userID, less
 	progress := &domain.LearningProgress{
 		UserID:    userID,
 		LessonID:  lessonID,
-		ProductID: lesson.ProductID,
 		Completed: completed,
 	}
 

@@ -19,13 +19,15 @@ type Payment struct {
 }
 
 type Purchase struct {
-	ID        int64     `json:"id"`
-	UserID    int64     `json:"user_id"`
-	ProductID int64     `json:"product_id"`
-	PaymentID int64     `json:"payment_id"`
-	Amount    float64   `json:"amount"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
+	ID          int64      `json:"id"`
+	UserID      int64      `json:"user_id"`
+	ProductID   int64      `json:"product_id"`
+	PaymentID   int64      `json:"payment_id"`
+	PricePaid   int64      `json:"price_paid"` // в копейках
+	Status      string     `json:"status"`
+	CreatedAt   time.Time  `json:"created_at"`
+	AccessStart time.Time  `json:"access_start"`
+	AccessEnd   *time.Time `json:"access_end,omitempty"`
 }
 
 type PromoCode struct {

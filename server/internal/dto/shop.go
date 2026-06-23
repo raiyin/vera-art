@@ -4,73 +4,135 @@ import "time"
 
 // ProductResponse represents a product in API responses.
 type ProductResponse struct {
-	ID              int64     `json:"id"`
-	Title           string    `json:"title"`
-	Slug            string    `json:"slug"`
-	Description     string    `json:"description,omitempty"`
-	FullDescription string    `json:"full_description,omitempty"`
-	Price           float64   `json:"price"`
-	OldPrice        float64   `json:"old_price,omitempty"`
-	ImagePath       string    `json:"image_path"`
-	CategoryID      int64     `json:"category_id"`
-	CategoryName    string    `json:"category_name,omitempty"`
-	Status          string    `json:"status"`
-	IsDigital       bool      `json:"is_digital"`
-	IsMasterClass   bool      `json:"is_master_class"`
-	SortOrder       int       `json:"sort_order"`
-	Tags            []string  `json:"tags,omitempty"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                   int64     `json:"id"`
+	Type                 string    `json:"type"`
+	TitleRu              string    `json:"title_ru"`
+	TitleEn              string    `json:"title_en"`
+	DescriptionRu        string    `json:"description_ru,omitempty"`
+	DescriptionEn        string    `json:"description_en,omitempty"`
+	ShortDescriptionRu   string    `json:"short_description_ru,omitempty"`
+	ShortDescriptionEn   string    `json:"short_description_en,omitempty"`
+	Price                int64     `json:"price"`
+	DurationDays         *int      `json:"duration_days,omitempty"`
+	ThumbnailURL         string    `json:"thumbnail_url,omitempty"`
+	VideoURL             string    `json:"video_url,omitempty"`
+	Status               string    `json:"status"`
+	Difficulty           string    `json:"difficulty,omitempty"`
+	TotalLessons         int       `json:"total_lessons"`
+	TotalDurationMinutes int       `json:"total_duration_minutes"`
+	CategoryID           *int64    `json:"category_id,omitempty"`
+	InstructorID         *int64    `json:"instructor_id,omitempty"`
+	Tags                 []string  `json:"tags,omitempty"`
+	PrerequisitesRu      string    `json:"prerequisites_ru,omitempty"`
+	PrerequisitesEn      string    `json:"prerequisites_en,omitempty"`
+	LearningOutcomesRu   string    `json:"learning_outcomes_ru,omitempty"`
+	LearningOutcomesEn   string    `json:"learning_outcomes_en,omitempty"`
+	CertificateAvailable bool      `json:"certificate_available"`
+	MaxStudents          *int      `json:"max_students,omitempty"`
+	StartDate            *string   `json:"start_date,omitempty"`
+	Language             string    `json:"language"`
+	IsFeatured           bool      `json:"is_featured"`
+	ViewCount            int       `json:"view_count"`
+	CreatedAt            time.Time `json:"created_at"`
+	UpdatedAt            time.Time `json:"updated_at"`
 }
 
 // CreateProductRequest represents a create product request.
 type CreateProductRequest struct {
-	Title           string   `json:"title" binding:"required"`
-	Slug            string   `json:"slug" binding:"required"`
-	Description     string   `json:"description"`
-	FullDescription string   `json:"full_description"`
-	Price           float64  `json:"price" binding:"required"`
-	OldPrice        float64  `json:"old_price"`
-	ImagePath       string   `json:"image_path"`
-	CategoryID      int64    `json:"category_id"`
-	Status          string   `json:"status"`
-	IsDigital       bool     `json:"is_digital"`
-	IsMasterClass   bool     `json:"is_master_class"`
-	SortOrder       int      `json:"sort_order"`
-	Tags            []string `json:"tags"`
+	Type                 string   `json:"type" binding:"required"`
+	TitleRu              string   `json:"title_ru" binding:"required"`
+	TitleEn              string   `json:"title_en" binding:"required"`
+	DescriptionRu        string   `json:"description_ru,omitempty"`
+	DescriptionEn        string   `json:"description_en,omitempty"`
+	ShortDescriptionRu   string   `json:"short_description_ru,omitempty"`
+	ShortDescriptionEn   string   `json:"short_description_en,omitempty"`
+	Price                int64    `json:"price" binding:"required"`
+	DurationDays         *int     `json:"duration_days,omitempty"`
+	ThumbnailURL         string   `json:"thumbnail_url,omitempty"`
+	VideoURL             string   `json:"video_url,omitempty"`
+	Status               string   `json:"status"`
+	Difficulty           string   `json:"difficulty,omitempty"`
+	TotalLessons         int      `json:"total_lessons"`
+	TotalDurationMinutes int      `json:"total_duration_minutes"`
+	CategoryID           *int64   `json:"category_id,omitempty"`
+	InstructorID         *int64   `json:"instructor_id,omitempty"`
+	Tags                 []string `json:"tags,omitempty"`
+	PrerequisitesRu      string   `json:"prerequisites_ru,omitempty"`
+	PrerequisitesEn      string   `json:"prerequisites_en,omitempty"`
+	LearningOutcomesRu   string   `json:"learning_outcomes_ru,omitempty"`
+	LearningOutcomesEn   string   `json:"learning_outcomes_en,omitempty"`
+	CertificateAvailable bool     `json:"certificate_available"`
+	MaxStudents          *int     `json:"max_students,omitempty"`
+	StartDate            *string  `json:"start_date,omitempty"`
+	Language             string   `json:"language"`
+	IsFeatured           bool     `json:"is_featured"`
 }
 
 // UpdateProductRequest represents an update product request.
 type UpdateProductRequest struct {
-	Title           string   `json:"title"`
-	Slug            string   `json:"slug"`
-	Description     string   `json:"description"`
-	FullDescription string   `json:"full_description"`
-	Price           float64  `json:"price"`
-	OldPrice        float64  `json:"old_price"`
-	ImagePath       string   `json:"image_path"`
-	CategoryID      int64    `json:"category_id"`
-	Status          string   `json:"status"`
-	IsDigital       bool     `json:"is_digital"`
-	IsMasterClass   bool     `json:"is_master_class"`
-	SortOrder       int      `json:"sort_order"`
-	Tags            []string `json:"tags"`
+	Type                 *string  `json:"type,omitempty"`
+	TitleRu              *string  `json:"title_ru,omitempty"`
+	TitleEn              *string  `json:"title_en,omitempty"`
+	DescriptionRu        *string  `json:"description_ru,omitempty"`
+	DescriptionEn        *string  `json:"description_en,omitempty"`
+	ShortDescriptionRu   *string  `json:"short_description_ru,omitempty"`
+	ShortDescriptionEn   *string  `json:"short_description_en,omitempty"`
+	Price                *int64   `json:"price,omitempty"`
+	DurationDays         *int     `json:"duration_days,omitempty"`
+	ThumbnailURL         *string  `json:"thumbnail_url,omitempty"`
+	VideoURL             *string  `json:"video_url,omitempty"`
+	Status               *string  `json:"status,omitempty"`
+	Difficulty           *string  `json:"difficulty,omitempty"`
+	TotalLessons         *int     `json:"total_lessons,omitempty"`
+	TotalDurationMinutes *int     `json:"total_duration_minutes,omitempty"`
+	CategoryID           *int64   `json:"category_id,omitempty"`
+	InstructorID         *int64   `json:"instructor_id,omitempty"`
+	Tags                 []string `json:"tags,omitempty"`
+	PrerequisitesRu      *string  `json:"prerequisites_ru,omitempty"`
+	PrerequisitesEn      *string  `json:"prerequisites_en,omitempty"`
+	LearningOutcomesRu   *string  `json:"learning_outcomes_ru,omitempty"`
+	LearningOutcomesEn   *string  `json:"learning_outcomes_en,omitempty"`
+	CertificateAvailable *bool    `json:"certificate_available,omitempty"`
+	MaxStudents          *int     `json:"max_students,omitempty"`
+	StartDate            *string  `json:"start_date,omitempty"`
+	Language             *string  `json:"language,omitempty"`
+	IsFeatured           *bool    `json:"is_featured,omitempty"`
 }
 
 // CategoryResponse represents a product category in API responses.
 type CategoryResponse struct {
-	ID        int64     `json:"id"`
-	Name      string    `json:"name"`
-	Slug      string    `json:"slug"`
-	SortOrder int       `json:"sort_order"`
-	CreatedAt time.Time `json:"created_at"`
+	ID            int64     `json:"id"`
+	NameRu        string    `json:"name_ru"`
+	NameEn        string    `json:"name_en"`
+	Slug          string    `json:"slug"`
+	DescriptionRu string    `json:"description_ru,omitempty"`
+	DescriptionEn string    `json:"description_en,omitempty"`
+	SortOrder     int       `json:"sort_order"`
+	IsActive      bool      `json:"is_active"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // CreateCategoryRequest represents a create category request.
 type CreateCategoryRequest struct {
-	Name      string `json:"name" binding:"required"`
-	Slug      string `json:"slug" binding:"required"`
-	SortOrder int    `json:"sort_order"`
+	NameRu        string `json:"name_ru" binding:"required"`
+	NameEn        string `json:"name_en" binding:"required"`
+	Slug          string `json:"slug" binding:"required"`
+	DescriptionRu string `json:"description_ru,omitempty"`
+	DescriptionEn string `json:"description_en,omitempty"`
+	SortOrder     int    `json:"sort_order"`
+	IsActive      bool   `json:"is_active"`
+}
+
+// UpdateCategoryRequest represents an update category request.
+type UpdateCategoryRequest struct {
+	NameRu        *string `json:"name_ru,omitempty"`
+	NameEn        *string `json:"name_en,omitempty"`
+	Slug          *string `json:"slug,omitempty"`
+	DescriptionRu *string `json:"description_ru,omitempty"`
+	DescriptionEn *string `json:"description_en,omitempty"`
+	SortOrder     *int    `json:"sort_order,omitempty"`
+	IsActive      *bool   `json:"is_active,omitempty"`
 }
 
 // PromoCodeResponse represents a promo code in API responses.

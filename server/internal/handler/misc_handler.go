@@ -576,13 +576,23 @@ func (h *MiscHandler) UpdateMasterClass(c *gin.Context) {
 	}
 
 	mc := &domain.MasterClass{
-		ID:          id,
-		Title:       req.Title,
-		Description: req.Description,
-		Price:       req.Price,
-		ImagePath:   req.ImagePath,
-		VideoURL:    req.VideoURL,
-		Status:      req.Status,
+		ID:    id,
+		Title: req.Title,
+	}
+	if req.Description != nil {
+		mc.Description = *req.Description
+	}
+	if req.Price != nil {
+		mc.Price = *req.Price
+	}
+	if req.ImagePath != nil {
+		mc.ImagePath = *req.ImagePath
+	}
+	if req.VideoURL != nil {
+		mc.VideoURL = *req.VideoURL
+	}
+	if req.Status != nil {
+		mc.Status = *req.Status
 	}
 
 	if err := h.masterClassService.UpdateMasterClass(c.Request.Context(), mc); err != nil {
