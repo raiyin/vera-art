@@ -33,32 +33,60 @@ func NewAuthService(userRepo port.UserRepository, jwtManager *jwt.Manager, email
 // Register registers a new user.
 func (s *AuthService) Register(ctx context.Context, emailAddr, password, username string) (*domain.User, error) {
 	if err := validator.ValidateEmail(emailAddr); err != nil {
+		slog.Warn("AuthService.Register: invalid email",
+			"email", emailAddr,
+			"error", err,
+		)
 		return nil, err
 	}
 	if err := validator.ValidatePassword(password); err != nil {
+		slog.Warn("AuthService.Register: invalid password",
+			"username", username,
+			"error", err,
+		)
 		return nil, err
 	}
 	if err := validator.ValidateUsername(username); err != nil {
+		slog.Warn("AuthService.Register: invalid username",
+			"username", username,
+			"error", err,
+		)
 		return nil, err
 	}
 
 	// Check if user already exists
 	existing, _ := s.userRepo.GetByEmail(ctx, emailAddr)
 	if existing != nil {
+		slog.Warn("AuthService.Register: email already exists",
+			"email", emailAddr,
+			"username", username,
+		)
 		return nil, domain.ErrDuplicate
 	}
 	existingByName, _ := s.userRepo.GetByUsername(ctx, username)
 	if existingByName != nil {
+		slog.Warn("AuthService.Register: username already exists",
+			"username", username,
+			"email", emailAddr,
+		)
 		return nil, domain.ErrDuplicate
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		slog.Error("AuthService.Register: failed to hash password",
+			"username", username,
+			"error", err,
+		)
 		return nil, domain.ErrInternal
 	}
 
 	verificationToken, err := email.GenerateVerificationToken()
 	if err != nil {
+		slog.Error("AuthService.Register: failed to generate verification token",
+			"username", username,
+			"error", err,
+		)
 		return nil, domain.ErrInternal
 	}
 
@@ -75,8 +103,19 @@ func (s *AuthService) Register(ctx context.Context, emailAddr, password, usernam
 	}
 
 	if err := s.userRepo.Create(ctx, user); err != nil {
+		slog.Error("AuthService.Register: failed to create user",
+			"username", username,
+			"email", emailAddr,
+			"error", err,
+		)
 		return nil, err
 	}
+
+	slog.Info("AuthService.Register: user registered",
+		"user_id", user.ID,
+		"username", username,
+		"email", emailAddr,
+	)
 
 	// Send verification email (non-blocking)
 	go func() {
@@ -95,27 +134,54 @@ func (s *AuthService) Register(ctx context.Context, emailAddr, password, usernam
 // Login authenticates a user and returns tokens.
 func (s *AuthService) Login(ctx context.Context, username, password string) (string, string, *domain.User, error) {
 	if err := validator.ValidateUsername(username); err != nil {
+		slog.Warn("AuthService.Login: invalid username",
+			"username", username,
+			"error", err,
+		)
 		return "", "", nil, err
 	}
 
 	user, err := s.userRepo.GetByUsername(ctx, username)
 	if err != nil {
+		slog.Warn("AuthService.Login: user not found",
+			"username", username,
+			"error", err,
+		)
 		return "", "", nil, domain.ErrUnauthorized
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		slog.Warn("AuthService.Login: invalid password",
+			"username", username,
+			"user_id", user.ID,
+		)
 		return "", "", nil, domain.ErrUnauthorized
 	}
 
 	accessToken, err := s.jwtManager.GenerateAccessToken(user)
 	if err != nil {
+		slog.Error("AuthService.Login: failed to generate access token",
+			"user_id", user.ID,
+			"username", username,
+			"error", err,
+		)
 		return "", "", nil, domain.ErrInternal
 	}
 
 	refreshToken, err := s.jwtManager.GenerateRefreshToken(user)
 	if err != nil {
+		slog.Error("AuthService.Login: failed to generate refresh token",
+			"user_id", user.ID,
+			"username", username,
+			"error", err,
+		)
 		return "", "", nil, domain.ErrInternal
 	}
+
+	slog.Info("AuthService.Login: user logged in",
+		"user_id", user.ID,
+		"username", username,
+	)
 
 	return accessToken, refreshToken, user, nil
 }
@@ -124,23 +190,42 @@ func (s *AuthService) Login(ctx context.Context, username, password string) (str
 func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (string, string, error) {
 	claims, err := s.jwtManager.ValidateToken(refreshToken)
 	if err != nil {
+		slog.Warn("AuthService.RefreshToken: invalid refresh token",
+			"error", err,
+		)
 		return "", "", domain.ErrInvalidToken
 	}
 
 	user, err := s.userRepo.GetByID(ctx, claims.UserID)
 	if err != nil {
+		slog.Warn("AuthService.RefreshToken: user not found",
+			"user_id", claims.UserID,
+			"error", err,
+		)
 		return "", "", domain.ErrUnauthorized
 	}
 
 	newAccessToken, err := s.jwtManager.GenerateAccessToken(user)
 	if err != nil {
+		slog.Error("AuthService.RefreshToken: failed to generate access token",
+			"user_id", user.ID,
+			"error", err,
+		)
 		return "", "", domain.ErrInternal
 	}
 
 	newRefreshToken, err := s.jwtManager.GenerateRefreshToken(user)
 	if err != nil {
+		slog.Error("AuthService.RefreshToken: failed to generate refresh token",
+			"user_id", user.ID,
+			"error", err,
+		)
 		return "", "", domain.ErrInternal
 	}
+
+	slog.Info("AuthService.RefreshToken: tokens refreshed",
+		"user_id", user.ID,
+	)
 
 	return newAccessToken, newRefreshToken, nil
 }
@@ -149,31 +234,64 @@ func (s *AuthService) RefreshToken(ctx context.Context, refreshToken string) (st
 func (s *AuthService) VerifyEmail(ctx context.Context, token string) error {
 	user, err := s.userRepo.GetByVerificationToken(ctx, token)
 	if err != nil {
+		slog.Warn("AuthService.VerifyEmail: invalid verification token",
+			"error", err,
+		)
 		return domain.ErrInvalidToken
 	}
 
 	if user.EmailVerified {
+		slog.Warn("AuthService.VerifyEmail: email already verified",
+			"user_id", user.ID,
+			"email", user.Email,
+		)
 		return nil
 	}
 
 	user.EmailVerified = true
 	user.VerificationToken = ""
-	return s.userRepo.Update(ctx, user)
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		slog.Error("AuthService.VerifyEmail: failed to update user",
+			"user_id", user.ID,
+			"email", user.Email,
+			"error", err,
+		)
+		return err
+	}
+
+	slog.Info("AuthService.VerifyEmail: email verified",
+		"user_id", user.ID,
+		"email", user.Email,
+	)
+	return nil
 }
 
 // ResendVerification resends the verification email.
 func (s *AuthService) ResendVerification(ctx context.Context, emailAddr string) error {
 	user, err := s.userRepo.GetByEmail(ctx, emailAddr)
 	if err != nil {
+		slog.Warn("AuthService.ResendVerification: user not found",
+			"email", emailAddr,
+			"error", err,
+		)
 		return domain.ErrNotFound
 	}
 
 	if user.EmailVerified {
+		slog.Warn("AuthService.ResendVerification: email already verified",
+			"user_id", user.ID,
+			"email", emailAddr,
+		)
 		return nil
 	}
 
 	verificationToken, err := email.GenerateVerificationToken()
 	if err != nil {
+		slog.Error("AuthService.ResendVerification: failed to generate verification token",
+			"user_id", user.ID,
+			"email", emailAddr,
+			"error", err,
+		)
 		return domain.ErrInternal
 	}
 
@@ -182,8 +300,18 @@ func (s *AuthService) ResendVerification(ctx context.Context, emailAddr string) 
 	user.VerificationSentAt = &now
 
 	if err := s.userRepo.Update(ctx, user); err != nil {
+		slog.Error("AuthService.ResendVerification: failed to update user",
+			"user_id", user.ID,
+			"email", emailAddr,
+			"error", err,
+		)
 		return err
 	}
+
+	slog.Info("AuthService.ResendVerification: verification email resent",
+		"user_id", user.ID,
+		"email", emailAddr,
+	)
 
 	go func() {
 		if err := s.emailSender.SendVerificationEmail(user.Email, verificationToken); err != nil {

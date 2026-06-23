@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 
 	"github.com/raiyin/artserver/internal/domain"
 	"github.com/raiyin/artserver/internal/port"
@@ -36,6 +37,11 @@ func NewPaymentService(
 func (s *PaymentService) CreatePayment(ctx context.Context, userID, productID int64, promoCode string) (*domain.Payment, string, error) {
 	product, err := s.productRepo.GetByID(ctx, productID)
 	if err != nil {
+		slog.Error("PaymentService.CreatePayment: failed to get product",
+			"user_id", userID,
+			"product_id", productID,
+			"error", err,
+		)
 		return nil, "", err
 	}
 
@@ -45,6 +51,12 @@ func (s *PaymentService) CreatePayment(ctx context.Context, userID, productID in
 	if promoCode != "" {
 		promo, err := s.promoService.ValidatePromoCode(ctx, promoCode)
 		if err != nil {
+			slog.Warn("PaymentService.CreatePayment: invalid promo code",
+				"user_id", userID,
+				"product_id", productID,
+				"promo_code", promoCode,
+				"error", err,
+			)
 			return nil, "", err
 		}
 		discount = amount * promo.DiscountPercent / 100
@@ -62,18 +74,44 @@ func (s *PaymentService) CreatePayment(ctx context.Context, userID, productID in
 	}
 
 	if err := s.paymentRepo.Create(ctx, payment); err != nil {
+		slog.Error("PaymentService.CreatePayment: failed to create payment",
+			"user_id", userID,
+			"product_id", productID,
+			"amount", amount,
+			"error", err,
+		)
 		return nil, "", err
 	}
 
 	// Stub: return a mock confirmation URL
 	confirmationURL := fmt.Sprintf("https://yookassa.ru/payment?payment_id=%d", payment.ID)
 
+	slog.Info("PaymentService.CreatePayment: payment created",
+		"user_id", userID,
+		"product_id", productID,
+		"payment_id", payment.ID,
+		"amount", amount,
+		"discount", discount,
+	)
+
 	return payment, confirmationURL, nil
 }
 
 // GetPaymentStatus retrieves the status of a payment.
 func (s *PaymentService) GetPaymentStatus(ctx context.Context, paymentID int64) (*domain.Payment, error) {
-	return s.paymentRepo.GetByID(ctx, paymentID)
+	payment, err := s.paymentRepo.GetByID(ctx, paymentID)
+	if err != nil {
+		slog.Error("PaymentService.GetPaymentStatus: failed to get payment",
+			"payment_id", paymentID,
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("PaymentService.GetPaymentStatus: payment retrieved",
+		"payment_id", paymentID,
+		"status", payment.Status,
+	)
+	return payment, nil
 }
 
 // HandleWebhook handles a YooKassa webhook (stub).
@@ -88,18 +126,36 @@ func (s *PaymentService) HandleWebhook(ctx context.Context, payload []byte) erro
 	}
 
 	if err := json.Unmarshal(payload, &webhook); err != nil {
+		slog.Error("PaymentService.HandleWebhook: failed to unmarshal payload",
+			"error", err,
+		)
 		return domain.ErrInvalidInput
 	}
 
 	// Find payment by metadata or yookassa_id
 	payment, err := s.paymentRepo.GetByYooKassaID(ctx, webhook.Object.ID)
 	if err != nil {
+		slog.Error("PaymentService.HandleWebhook: failed to find payment by yookassa_id",
+			"yookassa_id", webhook.Object.ID,
+			"event", webhook.Event,
+			"error", err,
+		)
 		return err
 	}
+
+	slog.Info("PaymentService.HandleWebhook: processing webhook",
+		"payment_id", payment.ID,
+		"yookassa_id", webhook.Object.ID,
+		"event", webhook.Event,
+		"current_status", payment.Status,
+	)
 
 	switch webhook.Event {
 	case "payment.waiting_for_capture":
 		payment.Status = "waiting_for_capture"
+		slog.Info("PaymentService.HandleWebhook: payment waiting for capture",
+			"payment_id", payment.ID,
+		)
 	case "payment.succeeded":
 		payment.Status = "succeeded"
 		payment.YooKassaID = webhook.Object.ID
@@ -113,40 +169,122 @@ func (s *PaymentService) HandleWebhook(ctx context.Context, payload []byte) erro
 			Status:    "completed",
 		}
 		if err := s.purchaseRepo.Create(ctx, purchase); err != nil {
+			slog.Error("PaymentService.HandleWebhook: failed to create purchase",
+				"payment_id", payment.ID,
+				"user_id", payment.UserID,
+				"product_id", payment.ProductID,
+				"error", err,
+			)
 			return err
 		}
+		slog.Info("PaymentService.HandleWebhook: payment succeeded, purchase created",
+			"payment_id", payment.ID,
+			"user_id", payment.UserID,
+			"product_id", payment.ProductID,
+			"amount", payment.Amount,
+		)
 	case "payment.canceled":
 		payment.Status = "canceled"
+		slog.Info("PaymentService.HandleWebhook: payment canceled",
+			"payment_id", payment.ID,
+		)
+	default:
+		slog.Warn("PaymentService.HandleWebhook: unknown event type",
+			"payment_id", payment.ID,
+			"event", webhook.Event,
+		)
 	}
 
-	return s.paymentRepo.Update(ctx, payment)
+	if err := s.paymentRepo.Update(ctx, payment); err != nil {
+		slog.Error("PaymentService.HandleWebhook: failed to update payment",
+			"payment_id", payment.ID,
+			"new_status", payment.Status,
+			"error", err,
+		)
+		return err
+	}
+
+	slog.Info("PaymentService.HandleWebhook: payment updated",
+		"payment_id", payment.ID,
+		"new_status", payment.Status,
+	)
+	return nil
 }
 
 // GetPayments retrieves all payments.
 func (s *PaymentService) GetPayments(ctx context.Context) ([]domain.Payment, int, error) {
-	return s.paymentRepo.List(ctx)
+	payments, total, err := s.paymentRepo.List(ctx)
+	if err != nil {
+		slog.Error("PaymentService.GetPayments: failed to list payments",
+			"error", err,
+		)
+		return nil, 0, err
+	}
+	slog.Debug("PaymentService.GetPayments: payments listed",
+		"count", len(payments),
+		"total", total,
+	)
+	return payments, total, nil
 }
 
 // GetPurchases retrieves all purchases.
 func (s *PaymentService) GetPurchases(ctx context.Context) ([]domain.Purchase, int, error) {
-	return s.purchaseRepo.List(ctx)
+	purchases, total, err := s.purchaseRepo.List(ctx)
+	if err != nil {
+		slog.Error("PaymentService.GetPurchases: failed to list purchases",
+			"error", err,
+		)
+		return nil, 0, err
+	}
+	slog.Debug("PaymentService.GetPurchases: purchases listed",
+		"count", len(purchases),
+		"total", total,
+	)
+	return purchases, total, nil
 }
 
 // GetUserPurchases retrieves purchases for a user.
 func (s *PaymentService) GetUserPurchases(ctx context.Context, userID int64) ([]domain.Purchase, error) {
-	return s.purchaseRepo.ListByUser(ctx, userID)
+	purchases, err := s.purchaseRepo.ListByUser(ctx, userID)
+	if err != nil {
+		slog.Error("PaymentService.GetUserPurchases: failed to list user purchases",
+			"user_id", userID,
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("PaymentService.GetUserPurchases: user purchases listed",
+		"user_id", userID,
+		"count", len(purchases),
+	)
+	return purchases, nil
 }
 
 // HasUserPurchasedProduct checks if a user has purchased a product.
 func (s *PaymentService) HasUserPurchasedProduct(ctx context.Context, userID, productID int64) (bool, error) {
 	purchase, err := s.purchaseRepo.GetByUserAndProduct(ctx, userID, productID)
 	if err == domain.ErrNotFound {
+		slog.Debug("PaymentService.HasUserPurchasedProduct: no purchase found",
+			"user_id", userID,
+			"product_id", productID,
+		)
 		return false, nil
 	}
 	if err != nil {
+		slog.Error("PaymentService.HasUserPurchasedProduct: failed to check purchase",
+			"user_id", userID,
+			"product_id", productID,
+			"error", err,
+		)
 		return false, err
 	}
-	return purchase != nil, nil
+	purchased := purchase != nil
+	slog.Debug("PaymentService.HasUserPurchasedProduct: checked",
+		"user_id", userID,
+		"product_id", productID,
+		"purchased", purchased,
+	)
+	return purchased, nil
 }
 
 // Ensure interface compliance.

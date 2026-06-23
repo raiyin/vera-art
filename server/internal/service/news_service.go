@@ -30,17 +30,42 @@ func NewNewsService(newsRepo port.NewsRepository, fileRepo port.FileRepository, 
 
 // GetNews retrieves news entries with filtering.
 func (s *NewsService) GetNews(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error) {
-	return s.newsRepo.List(ctx, filter)
+	news, total, err := s.newsRepo.List(ctx, filter)
+	if err != nil {
+		slog.Error("NewsService.GetNews: failed to list news",
+			"filter", filter,
+			"error", err,
+		)
+		return nil, 0, err
+	}
+	slog.Debug("NewsService.GetNews: news listed",
+		"count", len(news),
+		"total", total,
+	)
+	return news, total, nil
 }
 
 // GetNewsByID retrieves a news entry by ID.
 func (s *NewsService) GetNewsByID(ctx context.Context, id int64) (*domain.News, error) {
-	return s.newsRepo.GetByID(ctx, id)
+	news, err := s.newsRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("NewsService.GetNewsByID: failed to get news",
+			"news_id", id,
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("NewsService.GetNewsByID: news retrieved",
+		"news_id", id,
+		"title", news.Title,
+	)
+	return news, nil
 }
 
 // CreateNews creates a new news entry.
 func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error {
 	if news.Title == "" {
+		slog.Warn("NewsService.CreateNews: empty title")
 		return domain.ErrInvalidInput
 	}
 
@@ -48,10 +73,19 @@ func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imageFi
 
 	if imageFile != nil {
 		if err := validator.ValidateFileExtension(imageFile.Filename, validator.ImageExtensions); err != nil {
+			slog.Warn("NewsService.CreateNews: invalid image extension",
+				"filename", imageFile.Filename,
+				"error", err,
+			)
 			return err
 		}
 		imagePath := filepath.Join(newsDir, imageFile.Filename)
 		if err := s.fileRepo.Save(ctx, imagePath, imageFile.Reader); err != nil {
+			slog.Error("NewsService.CreateNews: failed to save image",
+				"title", news.Title,
+				"image_path", imagePath,
+				"error", err,
+			)
 			return err
 		}
 		news.ImagePath = imagePath
@@ -59,22 +93,47 @@ func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imageFi
 
 	if videoFile != nil {
 		if err := validator.ValidateFileExtension(videoFile.Filename, validator.VideoExtensions); err != nil {
+			slog.Warn("NewsService.CreateNews: invalid video extension",
+				"filename", videoFile.Filename,
+				"error", err,
+			)
 			return err
 		}
 		videoPath := filepath.Join(newsDir, videoFile.Filename)
 		if err := s.fileRepo.Save(ctx, videoPath, videoFile.Reader); err != nil {
+			slog.Error("NewsService.CreateNews: failed to save video",
+				"title", news.Title,
+				"video_path", videoPath,
+				"error", err,
+			)
 			return err
 		}
 		news.VideoPath = videoPath
 	}
 
-	return s.newsRepo.Create(ctx, news)
+	if err := s.newsRepo.Create(ctx, news); err != nil {
+		slog.Error("NewsService.CreateNews: failed to create news",
+			"title", news.Title,
+			"error", err,
+		)
+		return err
+	}
+
+	slog.Info("NewsService.CreateNews: news created",
+		"news_id", news.ID,
+		"title", news.Title,
+	)
+	return nil
 }
 
 // UpdateNews updates a news entry.
 func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error {
 	existing, err := s.newsRepo.GetByID(ctx, news.ID)
 	if err != nil {
+		slog.Error("NewsService.UpdateNews: failed to get existing news",
+			"news_id", news.ID,
+			"error", err,
+		)
 		return err
 	}
 
@@ -95,6 +154,11 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFi
 		}
 		imagePath := filepath.Join(newsDir, imageFile.Filename)
 		if err := s.fileRepo.Save(ctx, imagePath, imageFile.Reader); err != nil {
+			slog.Error("NewsService.UpdateNews: failed to save new image",
+				"news_id", news.ID,
+				"image_path", imagePath,
+				"error", err,
+			)
 			return err
 		}
 		news.ImagePath = imagePath
@@ -114,6 +178,11 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFi
 		}
 		videoPath := filepath.Join(newsDir, videoFile.Filename)
 		if err := s.fileRepo.Save(ctx, videoPath, videoFile.Reader); err != nil {
+			slog.Error("NewsService.UpdateNews: failed to save new video",
+				"news_id", news.ID,
+				"video_path", videoPath,
+				"error", err,
+			)
 			return err
 		}
 		news.VideoPath = videoPath
@@ -121,13 +190,30 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFi
 		news.VideoPath = existing.VideoPath
 	}
 
-	return s.newsRepo.Update(ctx, news)
+	if err := s.newsRepo.Update(ctx, news); err != nil {
+		slog.Error("NewsService.UpdateNews: failed to update news",
+			"news_id", news.ID,
+			"title", news.Title,
+			"error", err,
+		)
+		return err
+	}
+
+	slog.Info("NewsService.UpdateNews: news updated",
+		"news_id", news.ID,
+		"title", news.Title,
+	)
+	return nil
 }
 
 // DeleteNews deletes a news entry.
 func (s *NewsService) DeleteNews(ctx context.Context, id int64) error {
 	news, err := s.newsRepo.GetByID(ctx, id)
 	if err != nil {
+		slog.Error("NewsService.DeleteNews: failed to get news",
+			"news_id", id,
+			"error", err,
+		)
 		return err
 	}
 
@@ -150,7 +236,20 @@ func (s *NewsService) DeleteNews(ctx context.Context, id int64) error {
 		}
 	}
 
-	return s.newsRepo.Delete(ctx, id)
+	if err := s.newsRepo.Delete(ctx, id); err != nil {
+		slog.Error("NewsService.DeleteNews: failed to delete news",
+			"news_id", id,
+			"title", news.Title,
+			"error", err,
+		)
+		return err
+	}
+
+	slog.Info("NewsService.DeleteNews: news deleted",
+		"news_id", id,
+		"title", news.Title,
+	)
+	return nil
 }
 
 // Ensure interface compliance.

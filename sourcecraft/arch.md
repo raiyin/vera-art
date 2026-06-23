@@ -451,7 +451,7 @@ Polling (Client):
 
 | Таблица | Назначение |
 |---------|------------|
-| `users` | Пользователи (username, password_hash, email, role, email_verified) |
+| `users` | Пользователи (username, pass_hash, email, role, email_verified) |
 | `refresh_tokens` | Refresh-токены (user_id, token_hash, expires_at) |
 | `works` | Работы галереи (title, description, image_path) |
 | `sales` | Продажи работ (work_id, price, is_sold) |

@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/raiyin/artserver/internal/domain"
 	"github.com/raiyin/artserver/internal/port"
@@ -18,18 +19,54 @@ func NewTagService(tagRepo port.TagRepository) *TagService {
 }
 
 func (s *TagService) GetTags(ctx context.Context) ([]domain.Tag, error) {
-	return s.tagRepo.List(ctx)
+	tags, err := s.tagRepo.List(ctx)
+	if err != nil {
+		slog.Error("TagService.GetTags: failed to list tags",
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("TagService.GetTags: tags listed",
+		"count", len(tags),
+	)
+	return tags, nil
 }
 
 func (s *TagService) CreateTag(ctx context.Context, tag *domain.Tag) error {
 	if tag.NameRu == "" && tag.NameEn == "" {
+		slog.Warn("TagService.CreateTag: empty name",
+			"tag", tag,
+		)
 		return domain.ErrInvalidInput
 	}
-	return s.tagRepo.Create(ctx, tag)
+	if err := s.tagRepo.Create(ctx, tag); err != nil {
+		slog.Error("TagService.CreateTag: failed to create tag",
+			"tag_name_ru", tag.NameRu,
+			"tag_name_en", tag.NameEn,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("TagService.CreateTag: tag created",
+		"tag_id", tag.ID,
+		"tag_name_ru", tag.NameRu,
+		"tag_name_en", tag.NameEn,
+	)
+	return nil
 }
 
 func (s *TagService) DeleteTag(ctx context.Context, id int64) error {
-	return s.tagRepo.Delete(ctx, id)
+	if err := s.tagRepo.Delete(ctx, id); err != nil {
+		slog.Error("TagService.DeleteTag: failed to delete tag",
+			"tag_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("TagService.DeleteTag: tag deleted",
+		"tag_id", id,
+	)
+	return nil
 }
 
 var _ port.TagService = (*TagService)(nil)
@@ -45,18 +82,54 @@ func NewMaterialService(materialRepo port.MaterialRepository) *MaterialService {
 }
 
 func (s *MaterialService) GetMaterials(ctx context.Context) ([]domain.Material, error) {
-	return s.materialRepo.List(ctx)
+	materials, err := s.materialRepo.List(ctx)
+	if err != nil {
+		slog.Error("MaterialService.GetMaterials: failed to list materials",
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("MaterialService.GetMaterials: materials listed",
+		"count", len(materials),
+	)
+	return materials, nil
 }
 
 func (s *MaterialService) CreateMaterial(ctx context.Context, material *domain.Material) error {
 	if material.NameRu == "" && material.NameEn == "" {
+		slog.Warn("MaterialService.CreateMaterial: empty name",
+			"material", material,
+		)
 		return domain.ErrInvalidInput
 	}
-	return s.materialRepo.Create(ctx, material)
+	if err := s.materialRepo.Create(ctx, material); err != nil {
+		slog.Error("MaterialService.CreateMaterial: failed to create material",
+			"material_name_ru", material.NameRu,
+			"material_name_en", material.NameEn,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("MaterialService.CreateMaterial: material created",
+		"material_id", material.ID,
+		"material_name_ru", material.NameRu,
+		"material_name_en", material.NameEn,
+	)
+	return nil
 }
 
 func (s *MaterialService) DeleteMaterial(ctx context.Context, id int64) error {
-	return s.materialRepo.Delete(ctx, id)
+	if err := s.materialRepo.Delete(ctx, id); err != nil {
+		slog.Error("MaterialService.DeleteMaterial: failed to delete material",
+			"material_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("MaterialService.DeleteMaterial: material deleted",
+		"material_id", id,
+	)
+	return nil
 }
 
 var _ port.MaterialService = (*MaterialService)(nil)
@@ -72,18 +145,54 @@ func NewBaseService(baseRepo port.BaseRepository) *BaseService {
 }
 
 func (s *BaseService) GetBases(ctx context.Context) ([]domain.Base, error) {
-	return s.baseRepo.List(ctx)
+	bases, err := s.baseRepo.List(ctx)
+	if err != nil {
+		slog.Error("BaseService.GetBases: failed to list bases",
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("BaseService.GetBases: bases listed",
+		"count", len(bases),
+	)
+	return bases, nil
 }
 
 func (s *BaseService) CreateBase(ctx context.Context, base *domain.Base) error {
 	if base.NameRu == "" && base.NameEn == "" {
+		slog.Warn("BaseService.CreateBase: empty name",
+			"base", base,
+		)
 		return domain.ErrInvalidInput
 	}
-	return s.baseRepo.Create(ctx, base)
+	if err := s.baseRepo.Create(ctx, base); err != nil {
+		slog.Error("BaseService.CreateBase: failed to create base",
+			"base_name_ru", base.NameRu,
+			"base_name_en", base.NameEn,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("BaseService.CreateBase: base created",
+		"base_id", base.ID,
+		"base_name_ru", base.NameRu,
+		"base_name_en", base.NameEn,
+	)
+	return nil
 }
 
 func (s *BaseService) DeleteBase(ctx context.Context, id int64) error {
-	return s.baseRepo.Delete(ctx, id)
+	if err := s.baseRepo.Delete(ctx, id); err != nil {
+		slog.Error("BaseService.DeleteBase: failed to delete base",
+			"base_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("BaseService.DeleteBase: base deleted",
+		"base_id", id,
+	)
+	return nil
 }
 
 var _ port.BaseService = (*BaseService)(nil)
@@ -105,11 +214,37 @@ func (s *ConsentService) RecordConsent(ctx context.Context, userID int64, consen
 		Granted:     granted,
 		IPAddress:   ipAddress,
 	}
-	return s.consentRepo.Create(ctx, consent)
+	if err := s.consentRepo.Create(ctx, consent); err != nil {
+		slog.Error("ConsentService.RecordConsent: failed to record consent",
+			"user_id", userID,
+			"consent_type", consentType,
+			"granted", granted,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("ConsentService.RecordConsent: consent recorded",
+		"user_id", userID,
+		"consent_type", consentType,
+		"granted", granted,
+	)
+	return nil
 }
 
 func (s *ConsentService) GetUserConsents(ctx context.Context, userID int64) ([]domain.UserConsent, error) {
-	return s.consentRepo.ListByUser(ctx, userID)
+	consents, err := s.consentRepo.ListByUser(ctx, userID)
+	if err != nil {
+		slog.Error("ConsentService.GetUserConsents: failed to list consents",
+			"user_id", userID,
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("ConsentService.GetUserConsents: consents listed",
+		"user_id", userID,
+		"count", len(consents),
+	)
+	return consents, nil
 }
 
 var _ port.ConsentService = (*ConsentService)(nil)
@@ -125,26 +260,83 @@ func NewMasterClassService(mcRepo port.MasterClassRepository) *MasterClassServic
 }
 
 func (s *MasterClassService) GetMasterClasses(ctx context.Context) ([]domain.MasterClass, int, error) {
-	return s.mcRepo.List(ctx)
+	classes, total, err := s.mcRepo.List(ctx)
+	if err != nil {
+		slog.Error("MasterClassService.GetMasterClasses: failed to list master classes",
+			"error", err,
+		)
+		return nil, 0, err
+	}
+	slog.Debug("MasterClassService.GetMasterClasses: master classes listed",
+		"count", len(classes),
+		"total", total,
+	)
+	return classes, total, nil
 }
 
 func (s *MasterClassService) GetMasterClassByID(ctx context.Context, id int64) (*domain.MasterClass, error) {
-	return s.mcRepo.GetByID(ctx, id)
+	mc, err := s.mcRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("MasterClassService.GetMasterClassByID: failed to get master class",
+			"master_class_id", id,
+			"error", err,
+		)
+		return nil, err
+	}
+	slog.Debug("MasterClassService.GetMasterClassByID: master class retrieved",
+		"master_class_id", id,
+		"title", mc.Title,
+	)
+	return mc, nil
 }
 
 func (s *MasterClassService) CreateMasterClass(ctx context.Context, mc *domain.MasterClass) error {
 	if mc.Title == "" {
+		slog.Warn("MasterClassService.CreateMasterClass: empty title")
 		return domain.ErrInvalidInput
 	}
-	return s.mcRepo.Create(ctx, mc)
+	if err := s.mcRepo.Create(ctx, mc); err != nil {
+		slog.Error("MasterClassService.CreateMasterClass: failed to create master class",
+			"title", mc.Title,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("MasterClassService.CreateMasterClass: master class created",
+		"master_class_id", mc.ID,
+		"title", mc.Title,
+	)
+	return nil
 }
 
 func (s *MasterClassService) UpdateMasterClass(ctx context.Context, mc *domain.MasterClass) error {
-	return s.mcRepo.Update(ctx, mc)
+	if err := s.mcRepo.Update(ctx, mc); err != nil {
+		slog.Error("MasterClassService.UpdateMasterClass: failed to update master class",
+			"master_class_id", mc.ID,
+			"title", mc.Title,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("MasterClassService.UpdateMasterClass: master class updated",
+		"master_class_id", mc.ID,
+		"title", mc.Title,
+	)
+	return nil
 }
 
 func (s *MasterClassService) DeleteMasterClass(ctx context.Context, id int64) error {
-	return s.mcRepo.Delete(ctx, id)
+	if err := s.mcRepo.Delete(ctx, id); err != nil {
+		slog.Error("MasterClassService.DeleteMasterClass: failed to delete master class",
+			"master_class_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("MasterClassService.DeleteMasterClass: master class deleted",
+		"master_class_id", id,
+	)
+	return nil
 }
 
 var _ port.MasterClassService = (*MasterClassService)(nil)
@@ -175,21 +367,33 @@ func NewAdminService(
 func (s *AdminService) GetDashboardStats(ctx context.Context) (map[string]interface{}, error) {
 	users, _, err := s.userRepo.List(ctx, domain.UserFilter{})
 	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list users",
+			"error", err,
+		)
 		return nil, err
 	}
 
 	products, _, err := s.productRepo.List(ctx, domain.ProductFilter{})
 	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list products",
+			"error", err,
+		)
 		return nil, err
 	}
 
 	payments, _, err := s.paymentRepo.List(ctx)
 	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list payments",
+			"error", err,
+		)
 		return nil, err
 	}
 
 	purchases, _, err := s.purchaseRepo.List(ctx)
 	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list purchases",
+			"error", err,
+		)
 		return nil, err
 	}
 
@@ -199,6 +403,13 @@ func (s *AdminService) GetDashboardStats(ctx context.Context) (map[string]interf
 		"total_payments":  len(payments),
 		"total_purchases": len(purchases),
 	}
+
+	slog.Info("AdminService.GetDashboardStats: stats retrieved",
+		"total_users", len(users),
+		"total_products", len(products),
+		"total_payments", len(payments),
+		"total_purchases", len(purchases),
+	)
 
 	return stats, nil
 }
