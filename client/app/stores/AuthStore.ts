@@ -179,16 +179,27 @@ export const useAuthStore = defineStore('authStore', () => {
     // a Nuxt context (middleware, plugin, component setup), not inside a Pinia store.
     const initFromCookie = (cookieAccessToken: string | null, cookieRefreshToken: string | null,) => {
         if (cookieAccessToken && cookieRefreshToken) {
+            const refreshExpiry = getTokenExpiry(cookieRefreshToken,);
+            if (!refreshExpiry || refreshExpiry <= new Date()) {
+                return; // Refresh token expired
+            }
+
             accessToken.value = cookieAccessToken;
             refreshToken.value = cookieRefreshToken;
+
+            const accessExpiry = getTokenExpiry(cookieAccessToken,);
+            if (accessExpiry) {
+                accessTokenExpiry.value = accessExpiry;
+            }
+            if (refreshExpiry) {
+                refreshTokenExpiry.value = refreshExpiry;
+            }
 
             const role = getRoleFromToken(cookieAccessToken,);
             const id = getUserIdFromToken(cookieAccessToken,);
             if (role) userRole.value = role;
             if (id) userId.value = id;
 
-            // We can't reliably check expiry from cookie without the stored expiry,
-            // so we trust the cookie presence as authenticated
             isAuthenticated.value = true;
         }
     };

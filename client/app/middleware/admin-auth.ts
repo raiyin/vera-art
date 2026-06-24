@@ -14,6 +14,15 @@ export default defineNuxtRouteMiddleware(async (_to, _from,) => {
         // On the client, initialize auth state from localStorage before checking
         // This is needed because middleware runs before app.vue's onMounted
         authStore.initFromLocalStorage();
+
+        // Fall back to cookies if localStorage is empty (e.g. first SSR visit).
+        // This ensures the client makes the same auth decision as the server,
+        // preventing hydration mismatch on page reload.
+        if (!authStore.isAuthenticated) {
+            const accessTokenCookie = useCookie<string | null>('access_token',).value ?? null;
+            const refreshTokenCookie = useCookie<string | null>('refresh_token',).value ?? null;
+            authStore.initFromCookie(accessTokenCookie, refreshTokenCookie,);
+        }
     }
 
     const isAuthenticated = authStore.isAuthenticated;

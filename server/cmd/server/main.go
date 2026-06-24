@@ -150,7 +150,7 @@ func main() {
 	baseService := service.NewBaseService(baseRepo)
 	consentService := service.NewConsentService(consentRepo)
 	masterClassService := service.NewMasterClassService(mcRepo)
-	adminService := service.NewAdminService(userRepo, productRepo, paymentRepo, purchaseRepo)
+	adminService := service.NewAdminService(userRepo, productRepo, purchaseRepo)
 
 	// -------------------------------------------------------------------------
 	// Handlers
@@ -491,6 +491,43 @@ func runMigrations(db *sql.DB) {
 	_, err = db.Exec("ALTER TABLE users ADD COLUMN verification_sent_at TIMESTAMP")
 	if err != nil {
 		slog.Warn("Migration (add verification_sent_at column) — this is normal if column already exists", "error", err)
+	}
+
+	// Create chat_threads table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS chat_threads (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			subject TEXT,
+			status TEXT NOT NULL DEFAULT 'open',
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create chat_threads table)", "error", err)
+	} else {
+		slog.Info("Migration (chat_threads table): applied successfully")
+	}
+
+	// Create chat_messages table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS chat_messages (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			thread_id INTEGER NOT NULL,
+			user_id INTEGER NOT NULL,
+			content TEXT NOT NULL,
+			is_admin INTEGER NOT NULL DEFAULT 0,
+			is_read INTEGER NOT NULL DEFAULT 0,
+			read_at TIMESTAMP,
+			created_at TIMESTAMP NOT NULL,
+			FOREIGN KEY (thread_id) REFERENCES chat_threads(id)
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create chat_messages table)", "error", err)
+	} else {
+		slog.Info("Migration (chat_messages table): applied successfully")
 	}
 
 	slog.Info("Database migrations completed")

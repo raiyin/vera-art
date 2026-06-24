@@ -345,7 +345,6 @@ var _ port.MasterClassService = (*MasterClassService)(nil)
 type AdminService struct {
 	userRepo     port.UserRepository
 	productRepo  port.ProductRepository
-	paymentRepo  port.PaymentRepository
 	purchaseRepo port.PurchaseRepository
 }
 
@@ -353,13 +352,11 @@ type AdminService struct {
 func NewAdminService(
 	userRepo port.UserRepository,
 	productRepo port.ProductRepository,
-	paymentRepo port.PaymentRepository,
 	purchaseRepo port.PurchaseRepository,
 ) *AdminService {
 	return &AdminService{
 		userRepo:     userRepo,
 		productRepo:  productRepo,
-		paymentRepo:  paymentRepo,
 		purchaseRepo: purchaseRepo,
 	}
 }
@@ -381,14 +378,6 @@ func (s *AdminService) GetDashboardStats(ctx context.Context) (map[string]interf
 		return nil, err
 	}
 
-	payments, _, err := s.paymentRepo.List(ctx)
-	if err != nil {
-		slog.Error("AdminService.GetDashboardStats: failed to list payments",
-			"error", err,
-		)
-		return nil, err
-	}
-
 	purchases, _, err := s.purchaseRepo.List(ctx)
 	if err != nil {
 		slog.Error("AdminService.GetDashboardStats: failed to list purchases",
@@ -400,14 +389,12 @@ func (s *AdminService) GetDashboardStats(ctx context.Context) (map[string]interf
 	stats := map[string]interface{}{
 		"total_users":     len(users),
 		"total_products":  len(products),
-		"total_payments":  len(payments),
 		"total_purchases": len(purchases),
 	}
 
 	slog.Info("AdminService.GetDashboardStats: stats retrieved",
 		"total_users", len(users),
 		"total_products", len(products),
-		"total_payments", len(payments),
 		"total_purchases", len(purchases),
 	)
 
