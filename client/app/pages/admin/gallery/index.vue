@@ -356,6 +356,10 @@ const showDeleteModal = ref(false);
 const deleting = ref(false);
 const deletingSingle = ref<AdminWorkItem | null>(null);
 
+// Lookup maps for enriching work items
+const materialsById = ref<Record<number, { name_ru: string; name_en: string }>>({});
+const basesById = ref<Record<number, { name_ru: string; name_en: string }>>({});
+
 // Type options
 const typeOptions = [
     { label: 'Все типы', value: null },
@@ -443,6 +447,37 @@ function onPageChange(page: number) {
     loadData();
 }
 
+function enrichWorkItem(item: AdminWorkItem): AdminWorkItem {
+    // Parse size string (e.g. "100×80" or "100x80") into width/height
+    if (item.size) {
+        const parts = item.size.split(/[x×X]/);
+        if (parts.length === 2) {
+            const w = parseInt(parts[0].trim(), 10);
+            const h = parseInt(parts[1].trim(), 10);
+            if (!isNaN(w)) item.width = w;
+            if (!isNaN(h)) item.height = h;
+        }
+    }
+    // Resolve base IDs to names
+    if (item.base_ids && item.base_ids.length > 0) {
+        const base = basesById.value[item.base_ids[0]];
+        if (base) {
+            item.base_ru = base.name_ru;
+            item.base_en = base.name_en;
+        }
+    }
+    // Resolve material IDs to names
+    if (item.material_ids && item.material_ids.length > 0) {
+        item.materials_ru = item.material_ids
+            .map(id => materialsById.value[id]?.name_ru)
+            .filter(Boolean) as string[];
+        item.materials_en = item.material_ids
+            .map(id => materialsById.value[id]?.name_en)
+            .filter(Boolean) as string[];
+    }
+    return item;
+}
+
 async function loadData() {
     loading.value = true;
     error.value = null;
@@ -456,7 +491,7 @@ async function loadData() {
             sort_by: sortBy.value,
             sort_dir: sortDir.value,
         });
-        items.value = result.items;
+        items.value = result.items.map(enrichWorkItem);
         total.value = result.total;
         totalPages.value = result.total_pages;
         selectedIds.value = [];
@@ -507,24 +542,41 @@ watch(searchQuery, () => {
 });
 
 onMounted(async () => {
-    // Load bases for filter
+    await Promise.all([loadReferences(), loadData()]);
+});
+
+async function loadReferences() {
     try {
-        const basesResponse = await fetch(`${SERVER_URL}bases`);
-        if (basesResponse.ok) {
-            const bases = await basesResponse.json();
+        const [basesRes, materialsRes] = await Promise.all([
+            fetch(`${SERVER_URL}bases`),
+            fetch(`${SERVER_URL}materials`),
+        ]);
+        if (basesRes.ok) {
+            const basesData = await basesRes.json();
+            const basesList: { id: number; name_ru: string; name_en: string }[] = basesData.bases || [];
+            const map: Record<number, { name_ru: string; name_en: string }> = {};
+            for (const b of basesList) {
+                map[b.id] = { name_ru: b.name_ru, name_en: b.name_en };
+            }
+            basesById.value = map;
             baseOptions.value = [
                 { label: 'Все основы', value: null },
-                ...bases.map((b: { id: number; base_ru: string }) => ({
-                    label: b.base_ru,
-                    value: b.id,
-                })),
+                ...basesList.map(b => ({ label: b.name_ru, value: b.id })),
             ];
         }
+        if (materialsRes.ok) {
+            const matsData = await materialsRes.json();
+            const matsList: { id: number; name_ru: string; name_en: string }[] = matsData.materials || [];
+            const map: Record<number, { name_ru: string; name_en: string }> = {};
+            for (const m of matsList) {
+                map[m.id] = { name_ru: m.name_ru, name_en: m.name_en };
+            }
+            materialsById.value = map;
+        }
     } catch {
-        // Ignore errors loading bases
+        // Ignore errors loading references
     }
-    await loadData();
-});
+}
 </script>
 
 <style scoped>

@@ -71,6 +71,9 @@ export async function fetchAdminWorks(params?: {
         materials_ru: [],
         materials_en: [],
         created_at: w.created_at || '',
+        size: w.size || '',
+        material_ids: w.material_ids || [],
+        base_ids: w.base_ids || [],
     }),);
 
     return {
