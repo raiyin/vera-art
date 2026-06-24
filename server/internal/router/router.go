@@ -218,6 +218,9 @@ func NewRouter(
 		// News management
 		admin.GET("/news/list", newsHandler.GetNews)
 
+		// Users list
+		admin.GET("/users/list", miscHandler.AdminGetUsers)
+
 		// Products list
 		admin.GET("/products/list", shopHandler.GetProducts)
 

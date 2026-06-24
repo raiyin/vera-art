@@ -497,4 +497,20 @@ func (s *AdminService) GetDashboardStats(ctx context.Context) (*domain.AdminDash
 	return stats, nil
 }
 
+func (s *AdminService) ListUsers(ctx context.Context, filter domain.UserFilter) ([]domain.User, int, error) {
+	users, total, err := s.userRepo.List(ctx, filter)
+	if err != nil {
+		slog.Error("AdminService.ListUsers: failed to list users",
+			"filter", filter,
+			"error", err,
+		)
+		return nil, 0, err
+	}
+	slog.Debug("AdminService.ListUsers: users listed",
+		"count", len(users),
+		"total", total,
+	)
+	return users, total, nil
+}
+
 var _ port.AdminService = (*AdminService)(nil)

@@ -18,6 +18,10 @@ type User struct {
 }
 
 type UserFilter struct {
-	Role  string
-	Query string
+	Role      string
+	Query     string
+	Page      int
+	Limit     int
+	SortBy    string
+	SortOrder string
 }

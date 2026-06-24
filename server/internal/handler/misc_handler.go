@@ -67,6 +67,52 @@ func (h *MiscHandler) GetRecentActivity(c *gin.Context) {
 }
 
 // ---------------------------------------------------------------------------
+// Admin Users
+// ---------------------------------------------------------------------------
+
+// AdminGetUsers returns a list of users with filtering and pagination.
+func (h *MiscHandler) AdminGetUsers(c *gin.Context) {
+	filter := domain.UserFilter{
+		Role:      c.Query("role"),
+		Query:     c.Query("q"),
+		Page:      ParseIntQuery(c, "page", 1),
+		Limit:     ParseIntQuery(c, "limit", 20),
+		SortBy:    c.Query("sort_by"),
+		SortOrder: c.Query("sort_order"),
+	}
+
+	users, total, err := h.adminService.ListUsers(c.Request.Context(), filter)
+	if err != nil {
+		slog.Error("AdminGetUsers: failed to list users",
+			"error", err,
+			"filter", filter,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	responses := make([]dto.UserListResponse, len(users))
+	for i, u := range users {
+		responses[i] = dto.UserListResponse{
+			ID:            u.ID,
+			Username:      u.Username,
+			Email:         u.Email,
+			Name:          u.Name,
+			Role:          u.Role,
+			EmailVerified: u.EmailVerified,
+			CreatedAt:     u.CreatedAt,
+			UpdatedAt:     u.UpdatedAt,
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"users": responses,
+		"total": total,
+	})
+}
+
+// ---------------------------------------------------------------------------
 // Tags
 // ---------------------------------------------------------------------------
 

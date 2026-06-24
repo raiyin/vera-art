@@ -6,9 +6,12 @@ import type {
     AdminListSalesResponse,
     AdminSaleItem,
     AdminListNewsResponse,
+    AdminNewsItem,
     AdminListProductsResponse,
+    AdminProductItem,
     AdminListLessonsResponse,
     AdminListUsersResponse,
+    AdminUserItem,
     AdminUserDetail,
     AdminListReviewsResponse,
     AdminPurchaseItem,
@@ -151,8 +154,54 @@ export async function fetchAdminNews(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListNewsResponse> {
-    const { data, } = await getHttpClient().get<AdminListNewsResponse>('admin/news/list', { params, },);
-    return data;
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/news/list', { params: backendParams, },);
+
+    const items: AdminNewsItem[] = (data.news || []).map((n: any,) => {
+        const imagePath: string = n.image_path || '';
+        const lastSlash = imagePath.lastIndexOf('/');
+        const dir = lastSlash >= 0 ? imagePath.slice(0, lastSlash + 1) : '';
+        const img_back = lastSlash >= 0 ? imagePath.slice(lastSlash + 1) : imagePath;
+
+        const images: string[] = (n.image_paths || []).map((p: string) => {
+            const idx = p.lastIndexOf('/');
+            return idx >= 0 ? p.slice(idx + 1) : p;
+        });
+
+        const videos: string[] = (n.video_paths || []).map((p: string) => {
+            const idx = p.lastIndexOf('/');
+            return idx >= 0 ? p.slice(idx + 1) : p;
+        });
+
+        return {
+            id: String(n.id || ''),
+            title_ru: n.title || '',
+            title_en: '',
+            datetime: n.created_at || '',
+            dir,
+            img_back,
+            img_backfull: '',
+            text_ru: n.description || '',
+            text_en: '',
+            images,
+            videos,
+        };
+    });
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage),
+    };
 }
 
 export async function deleteAdminNews(ids: string[],): Promise<void> {
@@ -172,8 +221,48 @@ export async function fetchAdminProducts(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListProductsResponse> {
-    const { data, } = await getHttpClient().get<AdminListProductsResponse>('admin/products/list', { params, },);
-    return data;
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        type: params?.type,
+        status: params?.status,
+        difficulty: params?.difficulty,
+        category_id: params?.category_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/products/list', { params: backendParams, },);
+
+    const items: AdminProductItem[] = (data.products || []).map((p: any,) => ({
+        id: p.id || 0,
+        type: p.type || '',
+        title_ru: p.title_ru || '',
+        title_en: p.title_en || '',
+        price: p.price || 0,
+        status: p.status || '',
+        difficulty: p.difficulty || '',
+        total_lessons: p.total_lessons || 0,
+        total_duration_minutes: p.total_duration_minutes || 0,
+        view_count: p.view_count || 0,
+        is_featured: p.is_featured || false,
+        language: p.language || '',
+        thumbnail_url: p.thumbnail_url || '',
+        category_name_ru: '',
+        category_name_en: '',
+        certificate_available: p.certificate_available || false,
+        created_at: p.created_at || '',
+        updated_at: p.updated_at || '',
+    }));
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage),
+    };
 }
 
 export async function deleteAdminProducts(ids: number[],): Promise<void> {
@@ -214,8 +303,37 @@ export async function fetchAdminUsers(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListUsersResponse> {
-    const { data, } = await getHttpClient().get<AdminListUsersResponse>('admin/users/list', { params, },);
-    return data;
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        role: params?.role,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/users/list', { params: backendParams, },);
+
+    const items: AdminUserItem[] = (data.users || []).map((u: any,) => ({
+        id: u.id || 0,
+        username: u.username || '',
+        full_name: u.name || '',
+        email: u.email || '',
+        role: u.role || '',
+        blocked: false,
+        purchases_count: 0,
+        reviews_count: 0,
+        created_at: u.created_at || '',
+        updated_at: u.updated_at || '',
+    }));
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage),
+    };
 }
 
 export async function fetchAdminUserDetail(id: number,): Promise<AdminUserDetail> {

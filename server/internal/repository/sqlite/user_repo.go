@@ -192,7 +192,7 @@ func (r *UserRepository) GetByVerificationToken(ctx context.Context, token strin
 	return user, nil
 }
 
-// List retrieves users with optional filtering.
+// List retrieves users with optional filtering, sorting, and pagination.
 func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]domain.User, int, error) {
 	var conditions []string
 	var args []interface{}
@@ -219,11 +219,42 @@ func (r *UserRepository) List(ctx context.Context, filter domain.UserFilter) ([]
 		return nil, 0, fmt.Errorf("count users: %w", err)
 	}
 
+	// Sorting
+	allowedSorts := map[string]string{
+		"u.id":       "id",
+		"id":         "id",
+		"username":   "username",
+		"email":      "email",
+		"name":       "name",
+		"role":       "role",
+		"created_at": "created_at",
+		"updated_at": "updated_at",
+	}
+	orderCol := "created_at"
+	if col, ok := allowedSorts[filter.SortBy]; ok {
+		orderCol = col
+	}
+	orderDir := "DESC"
+	if filter.SortOrder == "asc" {
+		orderDir = "ASC"
+	}
+
+	// Pagination
+	limit := filter.Limit
+	if limit <= 0 {
+		limit = 20
+	}
+	offset := (filter.Page - 1) * limit
+	if offset < 0 {
+		offset = 0
+	}
+
 	// List
 	listQuery := fmt.Sprintf(`SELECT id, username, email, password_hash, name, role, avatar_path, email_verified, verification_token, verification_sent_at, created_at, updated_at
-		FROM users %s ORDER BY created_at DESC`, whereClause)
+		FROM users %s ORDER BY %s %s LIMIT ? OFFSET ?`, whereClause, orderCol, orderDir)
 
-	rows, err := r.db.QueryContext(ctx, listQuery, args...)
+	listArgs := append(args, limit, offset)
+	rows, err := r.db.QueryContext(ctx, listQuery, listArgs...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list users: %w", err)
 	}
