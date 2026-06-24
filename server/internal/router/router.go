@@ -255,7 +255,7 @@ func NewRouter(
 	apiAdmin.Use(adminMw)
 	{
 		apiAdmin.GET("/stats", miscHandler.GetDashboardStats)
-		apiAdmin.GET("/recent-activity", miscHandler.GetDashboardStats)
+		apiAdmin.GET("/recent-activity", miscHandler.GetRecentActivity)
 	}
 
 	return r

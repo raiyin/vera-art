@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"log/slog"
+	"time"
 
 	"github.com/raiyin/artserver/internal/domain"
 	"github.com/raiyin/artserver/internal/port"
@@ -343,9 +344,14 @@ var _ port.MasterClassService = (*MasterClassService)(nil)
 
 // AdminService implements port.AdminService.
 type AdminService struct {
-	userRepo     port.UserRepository
-	productRepo  port.ProductRepository
-	purchaseRepo port.PurchaseRepository
+	userRepo       port.UserRepository
+	productRepo    port.ProductRepository
+	purchaseRepo   port.PurchaseRepository
+	workRepo       port.WorkRepository
+	newsRepo       port.NewsRepository
+	reviewRepo     port.ReviewRepository
+	chatThreadRepo port.ChatThreadRepository
+	mcRepo         port.MasterClassRepository
 }
 
 // NewAdminService creates a new AdminService.
@@ -353,49 +359,139 @@ func NewAdminService(
 	userRepo port.UserRepository,
 	productRepo port.ProductRepository,
 	purchaseRepo port.PurchaseRepository,
+	workRepo port.WorkRepository,
+	newsRepo port.NewsRepository,
+	reviewRepo port.ReviewRepository,
+	chatThreadRepo port.ChatThreadRepository,
+	mcRepo port.MasterClassRepository,
 ) *AdminService {
 	return &AdminService{
-		userRepo:     userRepo,
-		productRepo:  productRepo,
-		purchaseRepo: purchaseRepo,
+		userRepo:       userRepo,
+		productRepo:    productRepo,
+		purchaseRepo:   purchaseRepo,
+		workRepo:       workRepo,
+		newsRepo:       newsRepo,
+		reviewRepo:     reviewRepo,
+		chatThreadRepo: chatThreadRepo,
+		mcRepo:         mcRepo,
 	}
 }
 
-func (s *AdminService) GetDashboardStats(ctx context.Context) (map[string]interface{}, error) {
+func (s *AdminService) GetDashboardStats(ctx context.Context) (*domain.AdminDashboardStats, error) {
+	now := time.Now()
+	monthAgo := now.AddDate(0, -1, 0)
+
 	users, _, err := s.userRepo.List(ctx, domain.UserFilter{})
 	if err != nil {
-		slog.Error("AdminService.GetDashboardStats: failed to list users",
-			"error", err,
-		)
-		return nil, err
+		slog.Error("AdminService.GetDashboardStats: failed to list users", "error", err)
+		users = nil
+	}
+
+	var usersRegisteredMonth int
+	for _, u := range users {
+		if u.CreatedAt.After(monthAgo) {
+			usersRegisteredMonth++
+		}
 	}
 
 	products, _, err := s.productRepo.List(ctx, domain.ProductFilter{})
 	if err != nil {
-		slog.Error("AdminService.GetDashboardStats: failed to list products",
-			"error", err,
-		)
-		return nil, err
+		slog.Error("AdminService.GetDashboardStats: failed to list products", "error", err)
+		products = nil
+	}
+
+	var coursesCount, masterClassesCount int
+	for _, p := range products {
+		switch p.Type {
+		case "course":
+			coursesCount++
+		case "masterclass":
+			masterClassesCount++
+		}
 	}
 
 	purchases, _, err := s.purchaseRepo.List(ctx)
 	if err != nil {
-		slog.Error("AdminService.GetDashboardStats: failed to list purchases",
-			"error", err,
-		)
-		return nil, err
+		slog.Error("AdminService.GetDashboardStats: failed to list purchases", "error", err)
+		purchases = nil
 	}
 
-	stats := map[string]interface{}{
-		"total_users":     len(users),
-		"total_products":  len(products),
-		"total_purchases": len(purchases),
+	var revenueTotal int64
+	var revenueMonth int64
+	for _, p := range purchases {
+		revenueTotal += p.PricePaid
+		if p.CreatedAt.After(monthAgo) {
+			revenueMonth += p.PricePaid
+		}
+	}
+
+	works, _, err := s.workRepo.List(ctx, domain.WorkFilter{})
+	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list works", "error", err)
+		works = nil
+	}
+
+	newsItems, _, err := s.newsRepo.List(ctx, domain.NewsFilter{})
+	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list news", "error", err)
+		newsItems = nil
+	}
+
+	reviews, _, err := s.reviewRepo.List(ctx)
+	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list reviews", "error", err)
+		reviews = nil
+	}
+
+	var reviewsPending int
+	for _, r := range reviews {
+		if r.Status == "pending" {
+			reviewsPending++
+		}
+	}
+
+	chatThreads, err := s.chatThreadRepo.List(ctx)
+	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list chat threads", "error", err)
+		chatThreads = nil
+	}
+
+	var activeChats int
+	for _, t := range chatThreads {
+		if t.Status == "open" {
+			activeChats++
+		}
+	}
+
+	masterClasses, _, err := s.mcRepo.List(ctx)
+	if err != nil {
+		slog.Error("AdminService.GetDashboardStats: failed to list master classes", "error", err)
+		masterClasses = nil
+	}
+
+	stats := &domain.AdminDashboardStats{
+		GalleryWorksCount:    len(works),
+		ShopItemsCount:       len(products),
+		NewsCount:            len(newsItems),
+		UsersCount:           len(users),
+		CoursesCount:         coursesCount,
+		MasterClassesCount:   masterClassesCount + len(masterClasses),
+		ReviewsTotal:         len(reviews),
+		ReviewsPending:       reviewsPending,
+		PurchasesTotal:       len(purchases),
+		RevenueTotal:         revenueTotal,
+		RevenueMonth:         revenueMonth,
+		ActiveChats:          activeChats,
+		UsersRegisteredMonth: usersRegisteredMonth,
+		SalesByMonth:         nil,
+		PopularCategories:    nil,
 	}
 
 	slog.Info("AdminService.GetDashboardStats: stats retrieved",
-		"total_users", len(users),
-		"total_products", len(products),
-		"total_purchases", len(purchases),
+		"users", stats.UsersCount,
+		"products", stats.ShopItemsCount,
+		"purchases", stats.PurchasesTotal,
+		"works", stats.GalleryWorksCount,
 	)
 
 	return stats, nil

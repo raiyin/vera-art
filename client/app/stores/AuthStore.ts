@@ -83,11 +83,13 @@ export const useAuthStore = defineStore('authStore', () => {
     };
 
     // Update only access token (after refresh)
-    const updateAccessToken = (newAccessToken: string, newExpiry: string,) => {
+    const updateAccessToken = (newAccessToken: string, newExpiry?: string,) => {
         if (typeof window === 'undefined') return;
 
         accessToken.value = newAccessToken;
-        accessTokenExpiry.value = new Date(newExpiry,);
+        accessTokenExpiry.value = newExpiry
+            ? new Date(newExpiry,)
+            : getTokenExpiry(newAccessToken,);
 
         // Extract role and user ID from new access token
         const role = getRoleFromToken(newAccessToken,);
@@ -96,7 +98,9 @@ export const useAuthStore = defineStore('authStore', () => {
         if (id) userId.value = id;
 
         localStorage.setItem('access_token', newAccessToken,);
-        localStorage.setItem('access_expires', newExpiry,);
+        if (newExpiry) {
+            localStorage.setItem('access_expires', newExpiry,);
+        }
         // Also update 'token' for backward compatibility
         localStorage.setItem('token', newAccessToken,);
 
@@ -104,6 +108,34 @@ export const useAuthStore = defineStore('authStore', () => {
         if (refreshToken.value) {
             setAuthCookieClient(newAccessToken, refreshToken.value,);
         }
+    };
+
+    // Update both tokens (after refresh with rotation)
+    const updateTokens = (newAccessToken: string, newRefreshToken: string, newExpiry?: string,) => {
+        if (typeof window === 'undefined') return;
+
+        accessToken.value = newAccessToken;
+        refreshToken.value = newRefreshToken;
+        accessTokenExpiry.value = newExpiry
+            ? new Date(newExpiry,)
+            : getTokenExpiry(newAccessToken,);
+        refreshTokenExpiry.value = getTokenExpiry(newRefreshToken,);
+
+        // Extract role and user ID from new access token
+        const role = getRoleFromToken(newAccessToken,);
+        const id = getUserIdFromToken(newAccessToken,);
+        if (role) userRole.value = role;
+        if (id) userId.value = id;
+
+        localStorage.setItem('access_token', newAccessToken,);
+        localStorage.setItem('refresh_token', newRefreshToken,);
+        if (newExpiry) {
+            localStorage.setItem('access_expires', newExpiry,);
+        }
+        localStorage.setItem('token', newAccessToken,);
+
+        // Update auth cookie
+        setAuthCookieClient(newAccessToken, newRefreshToken,);
     };
 
     // Check if access token is expired
@@ -223,6 +255,7 @@ export const useAuthStore = defineStore('authStore', () => {
         saveTokens,
         clearTokens,
         updateAccessToken,
+        updateTokens,
         setAuthenticated,
         initFromLocalStorage,
         initFromCookie,

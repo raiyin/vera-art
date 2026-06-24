@@ -150,7 +150,7 @@ func main() {
 	baseService := service.NewBaseService(baseRepo)
 	consentService := service.NewConsentService(consentRepo)
 	masterClassService := service.NewMasterClassService(mcRepo)
-	adminService := service.NewAdminService(userRepo, productRepo, purchaseRepo)
+	adminService := service.NewAdminService(userRepo, productRepo, purchaseRepo, workRepo, newsRepo, reviewRepo, threadRepo, mcRepo)
 
 	// -------------------------------------------------------------------------
 	// Handlers
@@ -528,6 +528,25 @@ func runMigrations(db *sql.DB) {
 		slog.Error("Migration (create chat_messages table)", "error", err)
 	} else {
 		slog.Info("Migration (chat_messages table): applied successfully")
+	}
+
+	// Create reviews table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS reviews (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			product_id INTEGER NOT NULL,
+			rating INTEGER NOT NULL DEFAULT 0,
+			text TEXT,
+			status TEXT NOT NULL DEFAULT 'pending',
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create reviews table)", "error", err)
+	} else {
+		slog.Info("Migration (reviews table): applied successfully")
 	}
 
 	slog.Info("Database migrations completed")

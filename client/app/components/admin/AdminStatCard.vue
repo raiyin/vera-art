@@ -26,11 +26,12 @@ function formatPrice(value: number): string {
 }
 
 function formatStatValue(): string {
-    const value = props.stats[props.stat.key] as number;
+    const value = props.stats[props.stat.key];
+    if (value === undefined || value === null) return '0';
     if (props.stat.format === 'price') {
-        return formatPrice(value);
+        return formatPrice(value as number);
     }
-    return value.toLocaleString('ru-RU');
+    return (value as number).toLocaleString('ru-RU');
 }
 </script>
 

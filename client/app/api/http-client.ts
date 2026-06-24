@@ -13,7 +13,8 @@ import { useAuthStore, } from '~/stores/AuthStore';
 
 interface TokenRefreshResponse {
     access_token: string
-    access_expires: string
+    refresh_token: string
+    access_expires?: string
 }
 
 let isRefreshing = false;
@@ -104,10 +105,14 @@ function createHttpClient(): AxiosInstance {
                     { refresh_token: refreshTokenValue, },
                 );
 
-                const { access_token, access_expires, } = response.data;
+                const { access_token, refresh_token, access_expires, } = response.data;
 
-                // Update the access token in the store
-                authStore.updateAccessToken(access_token, access_expires,);
+                // Update both tokens in the store (server rotates refresh token too)
+                if (refresh_token) {
+                    authStore.updateTokens(access_token, refresh_token, access_expires,);
+                } else {
+                    authStore.updateAccessToken(access_token, access_expires,);
+                }
 
                 // Process queued requests with the new token
                 processQueue(null, access_token,);

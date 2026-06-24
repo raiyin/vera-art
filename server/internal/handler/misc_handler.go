@@ -61,6 +61,11 @@ func (h *MiscHandler) GetDashboardStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
+// GetRecentActivity returns recent admin activity items.
+func (h *MiscHandler) GetRecentActivity(c *gin.Context) {
+	c.JSON(http.StatusOK, []interface{}{})
+}
+
 // ---------------------------------------------------------------------------
 // Tags
 // ---------------------------------------------------------------------------

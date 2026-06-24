@@ -2,6 +2,7 @@ import { getHttpClient, } from '~/api/http-client';
 import type { DashboardStats, RecentActivityItem, } from '~/types/dashboard';
 import type {
     AdminListWorksResponse,
+    AdminWorkItem,
     AdminListSalesResponse,
     AdminListNewsResponse,
     AdminListProductsResponse,
@@ -43,8 +44,42 @@ export async function fetchAdminWorks(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListWorksResponse> {
-    const { data, } = await getHttpClient().get<AdminListWorksResponse>('admin/works', { params, },);
-    return data;
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        base_id: params?.base_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+        status: params?.type !== undefined ? String(params.type) : undefined,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/works', { params: backendParams, },);
+
+    const items: AdminWorkItem[] = (data.works || []).map((w: any,) => ({
+        id: w.id || 0,
+        str_id: String(w.id || ''),
+        dir: w.image_path || '',
+        name_ru: w.title || '',
+        name_en: '',
+        year: w.year || 0,
+        width: 0,
+        height: 0,
+        type: 0,
+        base_ru: '',
+        base_en: '',
+        images: w.images || [],
+        materials_ru: [],
+        materials_en: [],
+        created_at: w.created_at || '',
+    }),);
+
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: params?.per_page || items.length,
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20)),
+    };
 }
 
 export async function deleteAdminWorks(ids: number[],): Promise<void> {

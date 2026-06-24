@@ -138,7 +138,7 @@ type ChatService interface {
 
 // AdminService defines the interface for admin operations.
 type AdminService interface {
-	GetDashboardStats(ctx context.Context) (map[string]interface{}, error)
+	GetDashboardStats(ctx context.Context) (*domain.AdminDashboardStats, error)
 }
 
 // ConsentService defines the interface for consent operations.

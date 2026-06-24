@@ -32,3 +32,33 @@ type UserConsent struct {
 	IPAddress   string    `json:"ip_address,omitempty"`
 	CreatedAt   time.Time `json:"created_at"`
 }
+
+// AdminDashboardStats represents the admin dashboard statistics.
+type AdminDashboardStats struct {
+	GalleryWorksCount    int                     `json:"gallery_works_count"`
+	ShopItemsCount       int                     `json:"shop_items_count"`
+	NewsCount            int                     `json:"news_count"`
+	UsersCount           int                     `json:"users_count"`
+	CoursesCount         int                     `json:"courses_count"`
+	MasterClassesCount   int                     `json:"master_classes_count"`
+	ReviewsTotal         int                     `json:"reviews_total"`
+	ReviewsPending       int                     `json:"reviews_pending"`
+	PurchasesTotal       int                     `json:"purchases_total"`
+	RevenueTotal         int64                   `json:"revenue_total"`
+	RevenueMonth         int64                   `json:"revenue_month"`
+	ActiveChats          int                     `json:"active_chats"`
+	UsersRegisteredMonth int                     `json:"users_registered_month"`
+	SalesByMonth         []SalesByMonthEntry     `json:"sales_by_month"`
+	PopularCategories    []PopularCategoryEntry  `json:"popular_categories"`
+}
+
+type SalesByMonthEntry struct {
+	Month   string `json:"month"`
+	Count   int    `json:"count"`
+	Revenue int64  `json:"revenue"`
+}
+
+type PopularCategoryEntry struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
