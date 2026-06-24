@@ -40,8 +40,8 @@ DROP TABLE IF EXISTS bases;
 ALTER TABLE bases_new RENAME TO bases;
 DROP TABLE IF EXISTS bases_old;
 
--- 3. Create work_materials junction table
-CREATE TABLE IF NOT EXISTS work_materials (
+-- 3. Create works_materials junction table
+CREATE TABLE IF NOT EXISTS works_materials (
     work_id INTEGER NOT NULL,
     material_id INTEGER NOT NULL,
     PRIMARY KEY (work_id, material_id),
@@ -49,12 +49,12 @@ CREATE TABLE IF NOT EXISTS work_materials (
     FOREIGN KEY (material_id) REFERENCES materials(id) ON DELETE CASCADE
 );
 
-INSERT OR IGNORE INTO work_materials (work_id, material_id)
+INSERT OR IGNORE INTO works_materials (work_id, material_id)
     SELECT work_id, material_id FROM works_materials
     WHERE EXISTS (SELECT 1 FROM pragma_table_info('works_materials') WHERE name = 'work_id');
 
--- 4. Create work_bases junction table
-CREATE TABLE IF NOT EXISTS work_bases (
+-- 4. Create works_bases junction table
+CREATE TABLE IF NOT EXISTS works_bases (
     work_id INTEGER NOT NULL,
     base_id INTEGER NOT NULL,
     PRIMARY KEY (work_id, base_id),
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS work_bases (
     FOREIGN KEY (base_id) REFERENCES bases(id) ON DELETE CASCADE
 );
 
-INSERT OR IGNORE INTO work_bases (work_id, base_id)
+INSERT OR IGNORE INTO works_bases (work_id, base_id)
     SELECT id, base_id FROM works WHERE base_id > 0
     AND EXISTS (SELECT 1 FROM pragma_table_info('works') WHERE name = 'base_id');
 
@@ -140,10 +140,10 @@ DROP TABLE IF EXISTS threeds;
 -- Recreate indexes
 CREATE INDEX IF NOT EXISTS idx_works_status ON works(status);
 CREATE INDEX IF NOT EXISTS idx_works_sort_order ON works(sort_order);
-CREATE INDEX IF NOT EXISTS idx_work_materials_work_id ON work_materials(work_id);
-CREATE INDEX IF NOT EXISTS idx_work_materials_material_id ON work_materials(material_id);
-CREATE INDEX IF NOT EXISTS idx_work_bases_work_id ON work_bases(work_id);
-CREATE INDEX IF NOT EXISTS idx_work_bases_base_id ON work_bases(base_id);
+CREATE INDEX IF NOT EXISTS idx_works_materials_work_id ON works_materials(work_id);
+CREATE INDEX IF NOT EXISTS idx_works_materials_material_id ON works_materials(material_id);
+CREATE INDEX IF NOT EXISTS idx__work_id ON works_bases(work_id);
+CREATE INDEX IF NOT EXISTS idx_works_bases_base_id ON works_bases(base_id);
 
 -- 6. Create sale_materials junction table
 CREATE TABLE IF NOT EXISTS sale_materials (
@@ -154,8 +154,8 @@ CREATE TABLE IF NOT EXISTS sale_materials (
     FOREIGN KEY (material_id) REFERENCES materials(id) ON DELETE CASCADE
 );
 
--- 7. Create sale_bases junction table
-CREATE TABLE IF NOT EXISTS sale_bases (
+-- 7. Create sales_bases junction table
+CREATE TABLE IF NOT EXISTS sales_bases (
     sale_id INTEGER NOT NULL,
     base_id INTEGER NOT NULL,
     PRIMARY KEY (sale_id, base_id),
@@ -216,5 +216,5 @@ CREATE INDEX IF NOT EXISTS idx_sales_sort_order ON sales(sort_order);
 CREATE INDEX IF NOT EXISTS idx_sales_sold ON sales(sold);
 CREATE INDEX IF NOT EXISTS idx_sale_materials_sale_id ON sale_materials(sale_id);
 CREATE INDEX IF NOT EXISTS idx_sale_materials_material_id ON sale_materials(material_id);
-CREATE INDEX IF NOT EXISTS idx_sale_bases_sale_id ON sale_bases(sale_id);
-CREATE INDEX IF NOT EXISTS idx_sale_bases_base_id ON sale_bases(base_id);
+CREATE INDEX IF NOT EXISTS idx_sales_bases_sale_id ON sales_bases(sale_id);
+CREATE INDEX IF NOT EXISTS idx_sales_bases_base_id ON sales_bases(base_id);

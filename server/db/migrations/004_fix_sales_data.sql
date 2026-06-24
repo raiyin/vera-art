@@ -2,7 +2,7 @@
 -- ============================================================
 -- The previous migration (003) had two issues:
 -- 1. INSERT INTO sales_new referenced s.descr_ru but old sales table has descr (not descr_ru)
--- 2. sale_materials and sale_bases FK references point to "sales_old"(id) instead of sales(id)
+-- 2. sale_materials and sales_bases FK references point to "sales_old"(id) instead of sales(id)
 -- This migration fixes both issues.
 -- Idempotent: checks if sales_old table exists and has data before migrating.
 
@@ -20,10 +20,10 @@ CREATE TABLE IF NOT EXISTS sale_materials (
 CREATE INDEX IF NOT EXISTS idx_sale_materials_sale_id ON sale_materials(sale_id);
 CREATE INDEX IF NOT EXISTS idx_sale_materials_material_id ON sale_materials(material_id);
 
--- 2. Drop and recreate sale_bases with correct FK reference to sales(id)
-DROP TABLE IF EXISTS sale_bases;
+-- 2. Drop and recreate sales_bases with correct FK reference to sales(id)
+DROP TABLE IF EXISTS sales_bases;
 
-CREATE TABLE IF NOT EXISTS sale_bases (
+CREATE TABLE IF NOT EXISTS sales_bases (
     sale_id INTEGER NOT NULL,
     base_id INTEGER NOT NULL,
     PRIMARY KEY (sale_id, base_id),
@@ -31,8 +31,8 @@ CREATE TABLE IF NOT EXISTS sale_bases (
     FOREIGN KEY (base_id) REFERENCES bases(id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_sale_bases_sale_id ON sale_bases(sale_id);
-CREATE INDEX IF NOT EXISTS idx_sale_bases_base_id ON sale_bases(base_id);
+CREATE INDEX IF NOT EXISTS idx_sales_bases_sale_id ON sales_bases(sale_id);
+CREATE INDEX IF NOT EXISTS idx_sales_bases_base_id ON sales_bases(base_id);
 
 -- 3. Migrate data from sales_old to sales (if sales_old exists and has data)
 INSERT INTO sales (id, title, description, image_path, price, old_price, year, technique, size, status, sort_order, sold, created_at, updated_at)
@@ -55,13 +55,13 @@ INSERT INTO sales (id, title, description, image_path, price, old_price, year, t
     WHERE EXISTS (SELECT 1 FROM pragma_table_info('sales_old') WHERE name = 'name_ru')
     AND NOT EXISTS (SELECT 1 FROM sales WHERE sales.id = s.id);
 
--- 4. Migrate base associations from sales_old.base_id to sale_bases
-INSERT OR IGNORE INTO sale_bases (sale_id, base_id)
+-- 4. Migrate base associations from sales_old.base_id to sales_bases
+INSERT OR IGNORE INTO sales_bases (sale_id, base_id)
     SELECT s.id, s.base_id
     FROM sales_old s
     WHERE s.base_id > 0
     AND EXISTS (SELECT 1 FROM pragma_table_info('sales_old') WHERE name = 'base_id')
-    AND NOT EXISTS (SELECT 1 FROM sale_bases WHERE sale_bases.sale_id = s.id AND sale_bases.base_id = s.base_id);
+    AND NOT EXISTS (SELECT 1 FROM sales_bases WHERE sales_bases.sale_id = s.id AND sales_bases.base_id = s.base_id);
 
 -- 5. Drop sales_old table after successful migration
 DROP TABLE IF EXISTS sales_old;

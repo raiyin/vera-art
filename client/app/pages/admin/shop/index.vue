@@ -358,6 +358,10 @@ const baseOptions = ref<{ label: string; value: number | null }[]>([
     { label: 'Все основы', value: null },
 ]);
 
+// Lookup maps for enrichment
+const basesById = ref<Record<number, { name_ru: string; name_en: string }>>({});
+const materialsById = ref<Record<number, { name_ru: string; name_en: string }>>({});
+
 // Computed
 const allSelected = computed(() => {
     if (!items.value.length) return false;
@@ -436,6 +440,28 @@ function onPageChange(page: number) {
     loadData();
 }
 
+function enrichSaleItem(item: AdminSaleItem): AdminSaleItem {
+    // Resolve base IDs to names
+    const baseId = item.base_ids?.[0];
+    if (baseId) {
+        const base = basesById.value[baseId];
+        if (base) {
+            item.base_ru = base.name_ru;
+            item.base_en = base.name_en;
+        }
+    }
+    // Resolve material IDs to names
+    if (item.material_ids && item.material_ids.length > 0) {
+        item.materials_ru = item.material_ids
+            .map(id => materialsById.value[id]?.name_ru)
+            .filter(Boolean) as string[];
+        item.materials_en = item.material_ids
+            .map(id => materialsById.value[id]?.name_en)
+            .filter(Boolean) as string[];
+    }
+    return item;
+}
+
 async function loadData() {
     loading.value = true;
     error.value = null;
@@ -448,7 +474,7 @@ async function loadData() {
             sort_by: sortBy.value,
             sort_dir: sortDir.value,
         });
-        items.value = result.items;
+        items.value = result.items.map(enrichSaleItem);
         total.value = result.total;
         totalPages.value = result.total_pages;
         selectedIds.value = [];
@@ -499,21 +525,42 @@ watch(searchQuery, () => {
 });
 
 onMounted(async () => {
-    // Load bases for filter
+    // Load bases for filter and lookup
     try {
         const basesResponse = await fetch(`${SERVER_URL}bases`);
         if (basesResponse.ok) {
-            const bases = await basesResponse.json();
+            const basesData = await basesResponse.json();
+            const basesList: { id: number; name_ru: string; name_en: string }[] = basesData.bases || basesData;
             baseOptions.value = [
                 { label: 'Все основы', value: null },
-                ...bases.map((b: { id: number; base_ru: string }) => ({
-                    label: b.base_ru,
+                ...basesList.map((b) => ({
+                    label: b.name_ru,
                     value: b.id,
                 })),
             ];
+            const map: Record<number, { name_ru: string; name_en: string }> = {};
+            for (const b of basesList) {
+                map[b.id] = { name_ru: b.name_ru, name_en: b.name_en };
+            }
+            basesById.value = map;
         }
     } catch {
         // Ignore errors loading bases
+    }
+    // Load materials for lookup
+    try {
+        const materialsResponse = await fetch(`${SERVER_URL}materials`);
+        if (materialsResponse.ok) {
+            const materialsData = await materialsResponse.json();
+            const materialsList: { id: number; name_ru: string; name_en: string }[] = materialsData.materials || materialsData;
+            const map: Record<number, { name_ru: string; name_en: string }> = {};
+            for (const m of materialsList) {
+                map[m.id] = { name_ru: m.name_ru, name_en: m.name_en };
+            }
+            materialsById.value = map;
+        }
+    } catch {
+        // Ignore errors loading materials
     }
     await loadData();
 });

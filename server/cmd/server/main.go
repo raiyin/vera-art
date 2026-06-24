@@ -549,6 +549,93 @@ func runMigrations(db *sql.DB) {
 		slog.Info("Migration (reviews table): applied successfully")
 	}
 
+	// Add width and height columns to works table, populating from size
+	_, err = db.Exec("ALTER TABLE works ADD COLUMN width INTEGER DEFAULT 0")
+	if err != nil {
+		slog.Warn("Migration (add width column to works) — this is normal if column already exists", "error", err)
+	} else {
+		_, err = db.Exec("UPDATE works SET width = CAST(SUBSTR(size, 1, INSTR(size || 'x', 'x') - 1) AS INTEGER) WHERE size != '' AND size IS NOT NULL")
+		if err != nil {
+			slog.Warn("Migration (populate width from size)", "error", err)
+		}
+	}
+	_, err = db.Exec("ALTER TABLE works ADD COLUMN height INTEGER DEFAULT 0")
+	if err != nil {
+		slog.Warn("Migration (add height column to works) — this is normal if column already exists", "error", err)
+	} else {
+		_, err = db.Exec("UPDATE works SET height = CAST(SUBSTR(size, INSTR(size || 'x', 'x') + 1) AS INTEGER) WHERE size != '' AND size IS NOT NULL")
+		if err != nil {
+			slog.Warn("Migration (populate height from size)", "error", err)
+		}
+	}
+
+	// Add width and height columns to sales table, populating from size
+	_, err = db.Exec("ALTER TABLE sales ADD COLUMN width INTEGER DEFAULT 0")
+	if err != nil {
+		slog.Warn("Migration (add width column to sales) — this is normal if column already exists", "error", err)
+	} else {
+		_, err = db.Exec("UPDATE sales SET width = CAST(SUBSTR(size, 1, INSTR(size || 'x', 'x') - 1) AS INTEGER) WHERE size != '' AND size IS NOT NULL")
+		if err != nil {
+			slog.Warn("Migration (populate width from size)", "error", err)
+		}
+	}
+	_, err = db.Exec("ALTER TABLE sales ADD COLUMN height INTEGER DEFAULT 0")
+	if err != nil {
+		slog.Warn("Migration (add height column to sales) — this is normal if column already exists", "error", err)
+	} else {
+		_, err = db.Exec("UPDATE sales SET height = CAST(SUBSTR(size, INSTR(size || 'x', 'x') + 1) AS INTEGER) WHERE size != '' AND size IS NOT NULL")
+		if err != nil {
+			slog.Warn("Migration (populate height from size)", "error", err)
+		}
+	}
+
+	// Drop size column from works table (data already migrated to width/height)
+	_, err = db.Exec("ALTER TABLE works DROP COLUMN size")
+	if err != nil {
+		slog.Warn("Migration (drop size column from works) — this is normal if column was already dropped", "error", err)
+	} else {
+		slog.Info("Migration (drop size column from works): applied successfully")
+	}
+
+	// Drop size column from sales table (data already migrated to width/height)
+	_, err = db.Exec("ALTER TABLE sales DROP COLUMN size")
+	if err != nil {
+		slog.Warn("Migration (drop size column from sales) — this is normal if column was already dropped", "error", err)
+	} else {
+		slog.Info("Migration (drop size column from sales): applied successfully")
+	}
+
+	// Migrate material associations from old junction tables if needed
+	var workMatCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM works_materials").Scan(&workMatCount)
+	if err == nil && workMatCount == 0 {
+		_, err = db.Exec(`INSERT OR IGNORE INTO works_materials (work_id, material_id)
+			SELECT work_id, material_id FROM works_materials
+			WHERE work_id IN (SELECT id FROM works)`)
+		if err != nil {
+			slog.Warn("Migration (migrate works_materials from works_materials)", "error", err)
+		} else {
+			slog.Info("Migration (migrate works_materials from works_materials): applied successfully")
+		}
+	}
+
+	var saleMatCount int
+	err = db.QueryRow("SELECT COUNT(*) FROM sale_materials").Scan(&saleMatCount)
+	if err == nil && saleMatCount == 0 {
+		// Check if old sales_materials table exists
+		var exists int
+		if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales_materials') WHERE name = 'sale_id'").Scan(&exists); err == nil && exists > 0 {
+			_, err = db.Exec(`INSERT OR IGNORE INTO sale_materials (sale_id, material_id)
+				SELECT sale_id, material_id FROM sales_materials
+				WHERE sale_id IN (SELECT id FROM sales)`)
+			if err != nil {
+				slog.Warn("Migration (migrate sale_materials from sales_materials)", "error", err)
+			} else {
+				slog.Info("Migration (migrate sale_materials from sales_materials): applied successfully")
+			}
+		}
+	}
+
 	slog.Info("Database migrations completed")
 }
 

@@ -11,7 +11,8 @@ type WorkResponse struct {
 	Images      []string  `json:"images,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Width       int       `json:"width,omitempty"`
+	Height      int       `json:"height,omitempty"`
 	Status      string    `json:"status"`
 	SortOrder   int       `json:"sort_order"`
 	MaterialIDs []int64   `json:"material_ids,omitempty"`
@@ -28,7 +29,8 @@ type UpdateWorkResponse struct {
 	ImagePath   string    `json:"image_path"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Width       int       `json:"width,omitempty"`
+	Height      int       `json:"height,omitempty"`
 	Status      string    `json:"status"`
 	SortOrder   int       `json:"sort_order"`
 	MaterialIDs []int64   `json:"material_ids,omitempty"`
@@ -43,7 +45,8 @@ type CreateWorkRequest struct {
 	Description string  `json:"description" form:"description"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
-	Size        string  `json:"size" form:"size"`
+	Width       int     `json:"width" form:"width"`
+	Height      int     `json:"height" form:"height"`
 	Status      string  `json:"status" form:"status"`
 	SortOrder   int     `json:"sort_order" form:"sort_order"`
 	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
@@ -56,7 +59,8 @@ type UpdateWorkRequest struct {
 	Description string  `json:"description" form:"description"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
-	Size        string  `json:"size" form:"size"`
+	Width       int     `json:"width" form:"width"`
+	Height      int     `json:"height" form:"height"`
 	Status      string  `json:"status" form:"status"`
 	SortOrder   int     `json:"sort_order" form:"sort_order"`
 	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
@@ -73,7 +77,8 @@ type SaleResponse struct {
 	OldPrice    float64   `json:"old_price,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Width       int       `json:"width,omitempty"`
+	Height      int       `json:"height,omitempty"`
 	Status      string    `json:"status"`
 	SortOrder   int       `json:"sort_order"`
 	Sold        bool      `json:"sold"`
@@ -93,7 +98,8 @@ type UpdateSaleResponse struct {
 	OldPrice    float64   `json:"old_price,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Width       int       `json:"width,omitempty"`
+	Height      int       `json:"height,omitempty"`
 	Status      string    `json:"status"`
 	SortOrder   int       `json:"sort_order"`
 	Sold        bool      `json:"sold"`
@@ -111,7 +117,8 @@ type CreateSaleRequest struct {
 	OldPrice    float64 `json:"old_price" form:"old_price"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
-	Size        string  `json:"size" form:"size"`
+	Width       int     `json:"width" form:"width"`
+	Height      int     `json:"height" form:"height"`
 	Status      string  `json:"status" form:"status"`
 	SortOrder   int     `json:"sort_order" form:"sort_order"`
 	Sold        bool    `json:"sold" form:"sold"`
@@ -127,7 +134,8 @@ type UpdateSaleRequest struct {
 	OldPrice    float64 `json:"old_price" form:"old_price"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
-	Size        string  `json:"size" form:"size"`
+	Width       int     `json:"width" form:"width"`
+	Height      int     `json:"height" form:"height"`
 	Status      string  `json:"status" form:"status"`
 	SortOrder   int     `json:"sort_order" form:"sort_order"`
 	Sold        bool    `json:"sold" form:"sold"`

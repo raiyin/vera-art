@@ -9,7 +9,8 @@ type Work struct {
 	ImagePath   string    `json:"image_path"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
-	Size        string    `json:"size,omitempty"`
+	Width       int       `json:"width,omitempty"`
+	Height      int       `json:"height,omitempty"`
 	Status      string    `json:"status"`
 	SortOrder   int       `json:"sort_order"`
 	CreatedAt   time.Time `json:"created_at"`

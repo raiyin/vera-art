@@ -4,6 +4,7 @@ import type {
     AdminListWorksResponse,
     AdminWorkItem,
     AdminListSalesResponse,
+    AdminSaleItem,
     AdminListNewsResponse,
     AdminListProductsResponse,
     AdminListLessonsResponse,
@@ -62,8 +63,8 @@ export async function fetchAdminWorks(params?: {
         name_ru: w.title || '',
         name_en: '',
         year: w.year || 0,
-        width: 0,
-        height: 0,
+        width: w.width || 0,
+        height: w.height || 0,
         type: 0,
         base_ru: '',
         base_en: '',
@@ -71,7 +72,6 @@ export async function fetchAdminWorks(params?: {
         materials_ru: [],
         materials_en: [],
         created_at: w.created_at || '',
-        size: w.size || '',
         material_ids: w.material_ids || [],
         base_ids: w.base_ids || [],
     }),);
@@ -99,8 +99,43 @@ export async function fetchAdminSales(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListSalesResponse> {
-    const { data, } = await getHttpClient().get<AdminListSalesResponse>('admin/sales', { params, },);
-    return data;
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        base_id: params?.base_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/sales', { params: backendParams, },);
+
+    const items: AdminSaleItem[] = (data.sales || []).map((s: any,) => ({
+        id: s.id || 0,
+        str_id: String(s.id || ''),
+        dir: s.image_path || '',
+        name_ru: s.title || '',
+        name_en: '',
+        year: s.year || 0,
+        width: s.width || 0,
+        height: s.height || 0,
+        price: s.price || 0,
+        base_ru: '',
+        base_en: '',
+        images: s.images || [],
+        materials_ru: [],
+        materials_en: [],
+        created_at: s.created_at || '',
+        material_ids: s.material_ids || [],
+        base_ids: s.base_ids || [],
+    }),);
+
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: params?.per_page || items.length,
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20)),
+    };
 }
 
 export async function deleteAdminSales(ids: number[],): Promise<void> {

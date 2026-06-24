@@ -317,6 +317,26 @@ func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, file
 		return err
 	}
 
+	if len(work.MaterialIDs) > 0 {
+		if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
+			slog.Error("GalleryService.CreateWork: failed to set materials",
+				"work_id", work.ID,
+				"error", err,
+			)
+			return err
+		}
+	}
+
+	if len(work.BaseIDs) > 0 {
+		if err := s.workRepo.SetBases(ctx, work.ID, work.BaseIDs); err != nil {
+			slog.Error("GalleryService.CreateWork: failed to set bases",
+				"work_id", work.ID,
+				"error", err,
+			)
+			return err
+		}
+	}
+
 	slog.Info("GalleryService.CreateWork: work created",
 		"work_id", work.ID,
 		"title", work.Title,
@@ -364,6 +384,22 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 		slog.Error("GalleryService.UpdateWork: failed to update work",
 			"work_id", work.ID,
 			"title", work.Title,
+			"error", err,
+		)
+		return err
+	}
+
+	if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
+		slog.Error("GalleryService.UpdateWork: failed to set materials",
+			"work_id", work.ID,
+			"error", err,
+		)
+		return err
+	}
+
+	if err := s.workRepo.SetBases(ctx, work.ID, work.BaseIDs); err != nil {
+		slog.Error("GalleryService.UpdateWork: failed to set bases",
+			"work_id", work.ID,
 			"error", err,
 		)
 		return err
@@ -474,6 +510,26 @@ func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, file
 		return err
 	}
 
+	if len(sale.MaterialIDs) > 0 {
+		if err := s.saleRepo.SetMaterials(ctx, sale.ID, sale.MaterialIDs); err != nil {
+			slog.Error("GalleryService.CreateSale: failed to set materials",
+				"sale_id", sale.ID,
+				"error", err,
+			)
+			return err
+		}
+	}
+
+	if len(sale.BaseIDs) > 0 {
+		if err := s.saleRepo.SetBases(ctx, sale.ID, sale.BaseIDs); err != nil {
+			slog.Error("GalleryService.CreateSale: failed to set bases",
+				"sale_id", sale.ID,
+				"error", err,
+			)
+			return err
+		}
+	}
+
 	slog.Info("GalleryService.CreateSale: sale created",
 		"sale_id", sale.ID,
 		"title", sale.Title,
@@ -520,6 +576,22 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 		slog.Error("GalleryService.UpdateSale: failed to update sale",
 			"sale_id", sale.ID,
 			"title", sale.Title,
+			"error", err,
+		)
+		return err
+	}
+
+	if err := s.saleRepo.SetMaterials(ctx, sale.ID, sale.MaterialIDs); err != nil {
+		slog.Error("GalleryService.UpdateSale: failed to set materials",
+			"sale_id", sale.ID,
+			"error", err,
+		)
+		return err
+	}
+
+	if err := s.saleRepo.SetBases(ctx, sale.ID, sale.BaseIDs); err != nil {
+		slog.Error("GalleryService.UpdateSale: failed to set bases",
+			"sale_id", sale.ID,
 			"error", err,
 		)
 		return err

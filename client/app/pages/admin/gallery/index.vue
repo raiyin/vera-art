@@ -448,19 +448,10 @@ function onPageChange(page: number) {
 }
 
 function enrichWorkItem(item: AdminWorkItem): AdminWorkItem {
-    // Parse size string (e.g. "100×80" or "100x80") into width/height
-    if (item.size) {
-        const parts = item.size.split(/[x×X]/);
-        if (parts.length === 2) {
-            const w = parseInt(parts[0].trim(), 10);
-            const h = parseInt(parts[1].trim(), 10);
-            if (!isNaN(w)) item.width = w;
-            if (!isNaN(h)) item.height = h;
-        }
-    }
     // Resolve base IDs to names
-    if (item.base_ids && item.base_ids.length > 0) {
-        const base = basesById.value[item.base_ids[0]];
+    const baseId = item.base_ids?.[0];
+    if (baseId) {
+        const base = basesById.value[baseId];
         if (base) {
             item.base_ru = base.name_ru;
             item.base_en = base.name_en;
@@ -542,7 +533,8 @@ watch(searchQuery, () => {
 });
 
 onMounted(async () => {
-    await Promise.all([loadReferences(), loadData()]);
+    await loadReferences();
+    await loadData();
 });
 
 async function loadReferences() {

@@ -16,8 +16,6 @@ export interface AdminWorkItem {
     materials_ru: string[]
     materials_en: string[]
     created_at: string
-    /** Raw fields from backend for enrichment */
-    size?: string
     material_ids?: number[]
     base_ids?: number[]
 }
@@ -48,6 +46,8 @@ export interface AdminSaleItem {
     materials_ru: string[]
     materials_en: string[]
     created_at: string
+    material_ids?: number[]
+    base_ids?: number[]
 }
 
 export interface AdminListSalesResponse {

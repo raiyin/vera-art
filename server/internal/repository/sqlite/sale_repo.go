@@ -20,18 +20,20 @@ func NewSaleRepository(db *sql.DB) *SaleRepository {
 	return &SaleRepository{db: db}
 }
 
-const saleColumns = `id, title, description, image_path, price, old_price, year, technique, size, status, sort_order, sold, created_at, updated_at`
+const saleColumns = `id, title, description, image_path, price, old_price, year, technique, width, height, status, sort_order, sold, created_at, updated_at`
 
 func (r *SaleRepository) scanSale(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.Sale, error) {
 	s := &domain.Sale{}
-	var description, technique, size sql.NullString
+	var description, technique sql.NullString
 	var oldPrice, year sql.NullFloat64
+	var width, height sql.NullInt64
 
 	err := scanner.Scan(
 		&s.ID, &s.Title, &description, &s.ImagePath,
-		&s.Price, &oldPrice, &year, &technique, &size,
+		&s.Price, &oldPrice, &year, &technique,
+		&width, &height,
 		&s.Status, &s.SortOrder, &s.Sold,
 		&s.CreatedAt, &s.UpdatedAt,
 	)
@@ -45,8 +47,11 @@ func (r *SaleRepository) scanSale(scanner interface {
 	if technique.Valid {
 		s.Technique = technique.String
 	}
-	if size.Valid {
-		s.Size = size.String
+	if width.Valid {
+		s.Width = int(width.Int64)
+	}
+	if height.Valid {
+		s.Height = int(height.Int64)
 	}
 	if oldPrice.Valid {
 		s.OldPrice = oldPrice.Float64
@@ -60,8 +65,8 @@ func (r *SaleRepository) scanSale(scanner interface {
 
 // Create inserts a new sale.
 func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
-	query := `INSERT INTO sales (title, description, image_path, price, old_price, year, technique, size, status, sort_order, sold, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO sales (title, description, image_path, price, old_price, year, technique, width, height, status, sort_order, sold, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if sale.CreatedAt.IsZero() {
@@ -77,7 +82,8 @@ func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
 	result, err := r.db.ExecContext(ctx, query,
 		sale.Title, nullString(sale.Description), sale.ImagePath,
 		sale.Price, nullFloat(sale.OldPrice), nullInt(int64(sale.Year)),
-		nullString(sale.Technique), nullString(sale.Size),
+		nullString(sale.Technique),
+		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),
 		sale.Status, sale.SortOrder, sale.Sold,
 		sale.CreatedAt, sale.UpdatedAt,
 	)
@@ -157,7 +163,7 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 		joinClause += " JOIN sale_materials sm ON s.id = sm.sale_id"
 	}
 	if filter.BaseID > 0 {
-		joinClause += " JOIN sale_bases sb ON s.id = sb.sale_id"
+		joinClause += " JOIN sales_bases sb ON s.id = sb.sale_id"
 	}
 
 	countQuery := fmt.Sprintf("SELECT COUNT(DISTINCT s.id) FROM sales s%s %s", joinClause, whereClause)
@@ -204,20 +210,29 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 		sales = append(sales, *sale)
 	}
 
+	// Load material and base associations for all sales
+	materialIDs, _ := r.GetBulkMaterialIDs(ctx, sales)
+	baseIDs, _ := r.GetBulkBaseIDs(ctx, sales)
+	for i := range sales {
+		sales[i].MaterialIDs = materialIDs[sales[i].ID]
+		sales[i].BaseIDs = baseIDs[sales[i].ID]
+	}
+
 	return sales, total, nil
 }
 
 // Update updates a sale.
 func (r *SaleRepository) Update(ctx context.Context, sale *domain.Sale) error {
 	query := `UPDATE sales SET title = ?, description = ?, image_path = ?, price = ?, old_price = ?,
-		year = ?, technique = ?, size = ?, status = ?, sort_order = ?, sold = ?, updated_at = ? WHERE id = ?`
+		year = ?, technique = ?, width = ?, height = ?, status = ?, sort_order = ?, sold = ?, updated_at = ? WHERE id = ?`
 
 	sale.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
 		sale.Title, nullString(sale.Description), sale.ImagePath,
 		sale.Price, nullFloat(sale.OldPrice), nullInt(int64(sale.Year)),
-		nullString(sale.Technique), nullString(sale.Size),
+		nullString(sale.Technique),
+		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),
 		sale.Status, sale.SortOrder, sale.Sold, sale.UpdatedAt, sale.ID,
 	)
 	if err != nil {
@@ -243,7 +258,7 @@ func (r *SaleRepository) Delete(ctx context.Context, id int64) error {
 	if _, err := r.db.ExecContext(ctx, "DELETE FROM sale_materials WHERE sale_id = ?", id); err != nil {
 		return fmt.Errorf("delete sale materials: %w", err)
 	}
-	if _, err := r.db.ExecContext(ctx, "DELETE FROM sale_bases WHERE sale_id = ?", id); err != nil {
+	if _, err := r.db.ExecContext(ctx, "DELETE FROM sales_bases WHERE sale_id = ?", id); err != nil {
 		return fmt.Errorf("delete sale bases: %w", err)
 	}
 
@@ -285,11 +300,11 @@ func (r *SaleRepository) SetBases(ctx context.Context, saleID int64, baseIDs []i
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, "DELETE FROM sale_bases WHERE sale_id = ?", saleID); err != nil {
+	if _, err := tx.ExecContext(ctx, "DELETE FROM sales_bases WHERE sale_id = ?", saleID); err != nil {
 		return fmt.Errorf("delete sale bases: %w", err)
 	}
 	for _, baseID := range baseIDs {
-		if _, err := tx.ExecContext(ctx, "INSERT INTO sale_bases (sale_id, base_id) VALUES (?, ?)", saleID, baseID); err != nil {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO sales_bases (sale_id, base_id) VALUES (?, ?)", saleID, baseID); err != nil {
 			return fmt.Errorf("insert sale base: %w", err)
 		}
 	}
@@ -317,7 +332,7 @@ func (r *SaleRepository) GetMaterialIDs(ctx context.Context, saleID int64) ([]in
 
 // GetBaseIDs retrieves base IDs for a sale.
 func (r *SaleRepository) GetBaseIDs(ctx context.Context, saleID int64) ([]int64, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT base_id FROM sale_bases WHERE sale_id = ? ORDER BY base_id", saleID)
+	rows, err := r.db.QueryContext(ctx, "SELECT base_id FROM sales_bases WHERE sale_id = ? ORDER BY base_id", saleID)
 	if err != nil {
 		return nil, err
 	}
@@ -332,6 +347,72 @@ func (r *SaleRepository) GetBaseIDs(ctx context.Context, saleID int64) ([]int64,
 		ids = append(ids, id)
 	}
 	return ids, nil
+}
+
+// GetBulkMaterialIDs retrieves material IDs for multiple sales at once.
+func (r *SaleRepository) GetBulkMaterialIDs(ctx context.Context, sales []domain.Sale) (map[int64][]int64, error) {
+	if len(sales) == 0 {
+		return nil, nil
+	}
+	ids := make([]int64, len(sales))
+	for i, s := range sales {
+		ids[i] = s.ID
+	}
+	result := make(map[int64][]int64, len(sales))
+
+	query := "SELECT sale_id, material_id FROM sale_materials WHERE sale_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY sale_id, material_id"
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var saleID, materialID int64
+		if err := rows.Scan(&saleID, &materialID); err != nil {
+			return nil, err
+		}
+		result[saleID] = append(result[saleID], materialID)
+	}
+	return result, nil
+}
+
+// GetBulkBaseIDs retrieves base IDs for multiple sales at once.
+func (r *SaleRepository) GetBulkBaseIDs(ctx context.Context, sales []domain.Sale) (map[int64][]int64, error) {
+	if len(sales) == 0 {
+		return nil, nil
+	}
+	ids := make([]int64, len(sales))
+	for i, s := range sales {
+		ids[i] = s.ID
+	}
+	result := make(map[int64][]int64, len(sales))
+
+	query := "SELECT sale_id, base_id FROM sales_bases WHERE sale_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY sale_id, base_id"
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var saleID, baseID int64
+		if err := rows.Scan(&saleID, &baseID); err != nil {
+			return nil, err
+		}
+		result[saleID] = append(result[saleID], baseID)
+	}
+	return result, nil
 }
 
 func nullFloat(f float64) interface{} {

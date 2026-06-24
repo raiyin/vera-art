@@ -20,18 +20,19 @@ func NewWorkRepository(db *sql.DB) *WorkRepository {
 	return &WorkRepository{db: db}
 }
 
-const workColumns = `id, title, description, image_path, year, technique, size, status, sort_order, created_at, updated_at`
+const workColumns = `id, title, description, image_path, year, technique, width, height, status, sort_order, created_at, updated_at`
 
 func (r *WorkRepository) scanWork(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.Work, error) {
 	w := &domain.Work{}
-	var description, technique, size sql.NullString
-	var year sql.NullInt64
+	var description, technique sql.NullString
+	var year, width, height sql.NullInt64
 
 	err := scanner.Scan(
 		&w.ID, &w.Title, &description, &w.ImagePath,
-		&year, &technique, &size, &w.Status, &w.SortOrder,
+		&year, &technique, &width, &height,
+		&w.Status, &w.SortOrder,
 		&w.CreatedAt, &w.UpdatedAt,
 	)
 	if err != nil {
@@ -44,8 +45,11 @@ func (r *WorkRepository) scanWork(scanner interface {
 	if technique.Valid {
 		w.Technique = technique.String
 	}
-	if size.Valid {
-		w.Size = size.String
+	if width.Valid {
+		w.Width = int(width.Int64)
+	}
+	if height.Valid {
+		w.Height = int(height.Int64)
 	}
 	if year.Valid {
 		w.Year = int(year.Int64)
@@ -56,8 +60,8 @@ func (r *WorkRepository) scanWork(scanner interface {
 
 // Create inserts a new work.
 func (r *WorkRepository) Create(ctx context.Context, work *domain.Work) error {
-	query := `INSERT INTO works (title, description, image_path, year, technique, size, status, sort_order, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO works (title, description, image_path, year, technique, width, height, status, sort_order, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if work.CreatedAt.IsZero() {
@@ -72,7 +76,8 @@ func (r *WorkRepository) Create(ctx context.Context, work *domain.Work) error {
 
 	result, err := r.db.ExecContext(ctx, query,
 		work.Title, nullString(work.Description), work.ImagePath,
-		nullInt(int64(work.Year)), nullString(work.Technique), nullString(work.Size),
+		nullInt(int64(work.Year)), nullString(work.Technique),
+		nullInt(int64(work.Width)), nullInt(int64(work.Height)),
 		work.Status, work.SortOrder, work.CreatedAt, work.UpdatedAt,
 	)
 	if err != nil {
@@ -150,10 +155,10 @@ func (r *WorkRepository) List(ctx context.Context, filter domain.WorkFilter) ([]
 
 	joinClause := ""
 	if filter.MaterialID > 0 {
-		joinClause += " JOIN work_materials wm ON w.id = wm.work_id"
+		joinClause += " JOIN works_materials wm ON w.id = wm.work_id"
 	}
 	if filter.BaseID > 0 {
-		joinClause += " JOIN work_bases wb ON w.id = wb.work_id"
+		joinClause += " JOIN works_bases wb ON w.id = wb.work_id"
 	}
 
 	// Count
@@ -203,19 +208,28 @@ func (r *WorkRepository) List(ctx context.Context, filter domain.WorkFilter) ([]
 		works = append(works, *work)
 	}
 
+	// Load material and base associations for all works
+	materialIDs, _ := r.GetBulkMaterialIDs(ctx, works)
+	baseIDs, _ := r.GetBulkBaseIDs(ctx, works)
+	for i := range works {
+		works[i].MaterialIDs = materialIDs[works[i].ID]
+		works[i].BaseIDs = baseIDs[works[i].ID]
+	}
+
 	return works, total, nil
 }
 
 // Update updates a work.
 func (r *WorkRepository) Update(ctx context.Context, work *domain.Work) error {
 	query := `UPDATE works SET title = ?, description = ?, image_path = ?, year = ?, technique = ?,
-		size = ?, status = ?, sort_order = ?, updated_at = ? WHERE id = ?`
+		width = ?, height = ?, status = ?, sort_order = ?, updated_at = ? WHERE id = ?`
 
 	work.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
 		work.Title, nullString(work.Description), work.ImagePath,
-		nullInt(int64(work.Year)), nullString(work.Technique), nullString(work.Size),
+		nullInt(int64(work.Year)), nullString(work.Technique),
+		nullInt(int64(work.Width)), nullInt(int64(work.Height)),
 		work.Status, work.SortOrder, work.UpdatedAt, work.ID,
 	)
 	if err != nil {
@@ -240,10 +254,10 @@ func (r *WorkRepository) Update(ctx context.Context, work *domain.Work) error {
 // Delete deletes a work by ID.
 func (r *WorkRepository) Delete(ctx context.Context, id int64) error {
 	// Delete associations first
-	if _, err := r.db.ExecContext(ctx, "DELETE FROM work_materials WHERE work_id = ?", id); err != nil {
+	if _, err := r.db.ExecContext(ctx, "DELETE FROM works_materials WHERE work_id = ?", id); err != nil {
 		return fmt.Errorf("delete work materials: %w", err)
 	}
-	if _, err := r.db.ExecContext(ctx, "DELETE FROM work_bases WHERE work_id = ?", id); err != nil {
+	if _, err := r.db.ExecContext(ctx, "DELETE FROM works_bases WHERE work_id = ?", id); err != nil {
 		return fmt.Errorf("delete work bases: %w", err)
 	}
 
@@ -266,12 +280,12 @@ func (r *WorkRepository) SetMaterials(ctx context.Context, workID int64, materia
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, "DELETE FROM work_materials WHERE work_id = ?", workID); err != nil {
+	if _, err := tx.ExecContext(ctx, "DELETE FROM works_materials WHERE work_id = ?", workID); err != nil {
 		return fmt.Errorf("delete work materials: %w", err)
 	}
 
 	for _, materialID := range materialIDs {
-		if _, err := tx.ExecContext(ctx, "INSERT INTO work_materials (work_id, material_id) VALUES (?, ?)", workID, materialID); err != nil {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO works_materials (work_id, material_id) VALUES (?, ?)", workID, materialID); err != nil {
 			return fmt.Errorf("insert work material: %w", err)
 		}
 	}
@@ -287,12 +301,12 @@ func (r *WorkRepository) SetBases(ctx context.Context, workID int64, baseIDs []i
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, "DELETE FROM work_bases WHERE work_id = ?", workID); err != nil {
+	if _, err := tx.ExecContext(ctx, "DELETE FROM works_bases WHERE work_id = ?", workID); err != nil {
 		return fmt.Errorf("delete work bases: %w", err)
 	}
 
 	for _, baseID := range baseIDs {
-		if _, err := tx.ExecContext(ctx, "INSERT INTO work_bases (work_id, base_id) VALUES (?, ?)", workID, baseID); err != nil {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO works_bases (work_id, base_id) VALUES (?, ?)", workID, baseID); err != nil {
 			return fmt.Errorf("insert work base: %w", err)
 		}
 	}
@@ -302,7 +316,7 @@ func (r *WorkRepository) SetBases(ctx context.Context, workID int64, baseIDs []i
 
 // GetMaterialIDs retrieves material IDs for a work.
 func (r *WorkRepository) GetMaterialIDs(ctx context.Context, workID int64) ([]int64, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT material_id FROM work_materials WHERE work_id = ? ORDER BY material_id", workID)
+	rows, err := r.db.QueryContext(ctx, "SELECT material_id FROM works_materials WHERE work_id = ? ORDER BY material_id", workID)
 	if err != nil {
 		return nil, err
 	}
@@ -321,7 +335,7 @@ func (r *WorkRepository) GetMaterialIDs(ctx context.Context, workID int64) ([]in
 
 // GetBaseIDs retrieves base IDs for a work.
 func (r *WorkRepository) GetBaseIDs(ctx context.Context, workID int64) ([]int64, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT base_id FROM work_bases WHERE work_id = ? ORDER BY base_id", workID)
+	rows, err := r.db.QueryContext(ctx, "SELECT base_id FROM works_bases WHERE work_id = ? ORDER BY base_id", workID)
 	if err != nil {
 		return nil, err
 	}
@@ -336,6 +350,72 @@ func (r *WorkRepository) GetBaseIDs(ctx context.Context, workID int64) ([]int64,
 		ids = append(ids, id)
 	}
 	return ids, nil
+}
+
+// GetBulkMaterialIDs retrieves material IDs for multiple works at once.
+func (r *WorkRepository) GetBulkMaterialIDs(ctx context.Context, works []domain.Work) (map[int64][]int64, error) {
+	if len(works) == 0 {
+		return nil, nil
+	}
+	ids := make([]int64, len(works))
+	for i, w := range works {
+		ids[i] = w.ID
+	}
+	result := make(map[int64][]int64, len(works))
+
+	query := "SELECT work_id, material_id FROM works_materials WHERE work_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY work_id, material_id"
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var workID, materialID int64
+		if err := rows.Scan(&workID, &materialID); err != nil {
+			return nil, err
+		}
+		result[workID] = append(result[workID], materialID)
+	}
+	return result, nil
+}
+
+// GetBulkBaseIDs retrieves base IDs for multiple works at once.
+func (r *WorkRepository) GetBulkBaseIDs(ctx context.Context, works []domain.Work) (map[int64][]int64, error) {
+	if len(works) == 0 {
+		return nil, nil
+	}
+	ids := make([]int64, len(works))
+	for i, w := range works {
+		ids[i] = w.ID
+	}
+	result := make(map[int64][]int64, len(works))
+
+	query := "SELECT work_id, base_id FROM works_bases WHERE work_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY work_id, base_id"
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var workID, baseID int64
+		if err := rows.Scan(&workID, &baseID); err != nil {
+			return nil, err
+		}
+		result[workID] = append(result[workID], baseID)
+	}
+	return result, nil
 }
 
 func nullInt(n int64) interface{} {
