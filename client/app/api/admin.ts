@@ -14,6 +14,8 @@ import type {
     AdminUserItem,
     AdminUserDetail,
     AdminListReviewsResponse,
+    AdminReviewItem,
+    AdminReviewsStats,
     AdminPurchaseItem,
     AdminListPurchasesResponse,
     AdminPaymentItem,
@@ -360,8 +362,81 @@ export async function fetchAdminReviews(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListReviewsResponse> {
-    const { data, } = await getHttpClient().get<AdminListReviewsResponse>('admin/reviews/list', { params, },);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/reviews/list', {},);
+
+    const allReviews: AdminReviewItem[] = (data.reviews || []).map((r: any,) => ({
+        id: r.id || 0,
+        user_id: r.user_id || 0,
+        product_id: r.product_id || 0,
+        purchase_id: 0,
+        rating: r.rating || 0,
+        title_ru: '',
+        title_en: '',
+        comment_ru: r.text || '',
+        comment_en: '',
+        is_approved: r.status === 'approved',
+        is_visible: r.status === 'approved',
+        status: r.status || 'pending',
+        created_at: r.created_at || '',
+        updated_at: r.updated_at || '',
+        username: '',
+        user_full_name: '',
+        user_email: '',
+        product_title_ru: '',
+        product_title_en: '',
+        product_type: '',
+    }));
+
+    // Apply client-side filters since backend returns all reviews without filtering
+    let filtered = allReviews;
+    if (params?.status && params.status !== 'all') {
+        filtered = filtered.filter((r) => r.status === params.status);
+    }
+    if (params?.rating && params.rating !== 'all') {
+        const ratingNum = parseInt(params.rating, 10);
+        if (!isNaN(ratingNum)) {
+            filtered = filtered.filter((r) => r.rating === ratingNum);
+        }
+    }
+    if (params?.search) {
+        const q = params.search.toLowerCase();
+        filtered = filtered.filter(
+            (r) => r.comment_ru.toLowerCase().includes(q),
+        );
+    }
+
+    // Compute stats from all reviews (not filtered)
+    const totalReviews = allReviews.length;
+    const pendingCount = allReviews.filter((r) => r.status === 'pending').length;
+    const approvedCount = allReviews.filter((r) => r.status === 'approved').length;
+    const rejectedCount = allReviews.filter((r) => r.status === 'rejected').length;
+    const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+    const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+    const fiveStarCount = allReviews.filter((r) => r.rating === 5).length;
+
+    // Paginate filtered results
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / perPage);
+    const start = (currentPage - 1) * perPage;
+    const items = filtered.slice(start, start + perPage);
+
+    return {
+        items,
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: totalPages,
+        stats: {
+            total_reviews: totalReviews,
+            pending_count: pendingCount,
+            approved_count: approvedCount,
+            rejected_count: rejectedCount,
+            average_rating: averageRating,
+            five_star_count: fiveStarCount,
+        },
+    };
 }
 
 export async function approveAdminReview(id: number,): Promise<void> {
@@ -399,8 +474,50 @@ export async function fetchAdminPurchases(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListPurchasesResponse> {
-    const { data, } = await getHttpClient().get<AdminListPurchasesResponse>('admin/purchases/list', { params, },);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/purchases/list', {},);
+
+    const items: AdminPurchaseItem[] = (data.purchases || []).map((p: any,) => {
+        const created = p.created_at || '';
+        const accessEnd = p.access_end || null;
+        let daysRemaining = 0;
+        if (accessEnd) {
+            const end = new Date(accessEnd);
+            const now = new Date();
+            daysRemaining = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+        }
+        return {
+            id: p.id || 0,
+            user_id: p.user_id || 0,
+            product_id: p.product_id || 0,
+            purchase_date: created,
+            access_start: p.access_start || '',
+            access_end: accessEnd || '',
+            status: p.status || '',
+            payment_id: p.payment_id || null,
+            promo_code_id: null,
+            price_paid: p.price_paid || 0,
+            created_at: created,
+            username: '',
+            user_full_name: '',
+            user_email: '',
+            product_title_ru: '',
+            product_title_en: '',
+            product_type: '',
+            days_remaining: daysRemaining,
+        };
+    });
+
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    const total = items.length;
+    const start = (currentPage - 1) * perPage;
+    return {
+        items: items.slice(start, start + perPage),
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: Math.ceil(total / perPage),
+    };
 }
 
 export async function fetchAdminPurchaseDetail(id: number,): Promise<AdminPurchaseItem> {
@@ -426,8 +543,46 @@ export async function fetchAdminPayments(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListPaymentsResponse> {
-    const { data, } = await getHttpClient().get<AdminListPaymentsResponse>('admin/payments/list', { params, },);
-    return data;
+    const response = await getHttpClient().get<{
+        payments: Array<{
+            id: number
+            user_id: number
+            status: string
+            amount: number
+            currency: string
+            description: string
+            payment_method: string
+            yookassa_id: string | null
+            created_at: string
+            updated_at: string
+        }>
+        total: number
+    }>('admin/payments/list', { params, },);
+    const data = response.data;
+    const items: AdminPaymentItem[] = (data.payments || []).map((p) => ({
+        id: p.id,
+        user_id: p.user_id,
+        external_id: p.yookassa_id || '',
+        status: p.status,
+        amount: Math.round(p.amount * 100),
+        currency: p.currency,
+        description: p.description,
+        payment_method: p.payment_method,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+        username: '',
+        user_full_name: '',
+        user_email: '',
+    }));
+    const page = params?.page || 1;
+    const per_page = params?.per_page || 20;
+    return {
+        items,
+        total: data.total,
+        page,
+        per_page,
+        total_pages: Math.ceil(data.total / per_page) || 1,
+    };
 }
 
 export async function fetchAdminPaymentDetail(id: number,): Promise<AdminPaymentItem> {

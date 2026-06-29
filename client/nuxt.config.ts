@@ -73,6 +73,7 @@ export default defineNuxtConfig({
         // Disable fontsource provider to avoid network errors
         providers: {
             fontsource: false,
+            bunny: false,
         },
     },
 

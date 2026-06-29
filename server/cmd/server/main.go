@@ -549,6 +549,30 @@ func runMigrations(db *sql.DB) {
 		slog.Info("Migration (reviews table): applied successfully")
 	}
 
+	// Create payments table if it doesn't exist
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS payments (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			user_id INTEGER NOT NULL,
+			product_id INTEGER NOT NULL,
+			amount REAL NOT NULL,
+			currency TEXT NOT NULL DEFAULT 'RUB',
+			status TEXT NOT NULL DEFAULT 'pending',
+			payment_method TEXT,
+			yookassa_id TEXT,
+			promo_code TEXT,
+			discount REAL,
+			metadata TEXT,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create payments table)", "error", err)
+	} else {
+		slog.Info("Migration (payments table): applied successfully")
+	}
+
 	// Add width and height columns to works table, populating from size
 	_, err = db.Exec("ALTER TABLE works ADD COLUMN width INTEGER DEFAULT 0")
 	if err != nil {

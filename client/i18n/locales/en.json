@@ -49,7 +49,8 @@
         "cta_text": "Ready to dive into the world of art? Explore my works, learn about news, or get in touch for collaboration.",
         "view_works": "View Works",
         "read_news": "Read News",
-        "services": "Services"
+        "services": "Services",
+        "toggleTheme": "Toggle theme"
     },
     "allworks": {
         "painting": "PAINTING",
