@@ -54,6 +54,8 @@ Before answering any query, read these files for full project context:
 - Typecheck: `cd client && pnpm typecheck`
 - Go vet: `cd server && go vet ./...`
 - Go test: `cd server && go test ./...`
+- Client test: `cd client && pnpm test`
+- Client test watch: `cd client && pnpm test:watch`
 
 ### Documentation Update
 
