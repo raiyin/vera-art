@@ -1,31 +1,22 @@
 package domain
 
-import "time"
-
 type Work struct {
-	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	ImagePath   string    `json:"image_path"`
-	Year        int       `json:"year,omitempty"`
-	Technique   string    `json:"technique,omitempty"`
-	Width       int       `json:"width,omitempty"`
-	Height      int       `json:"height,omitempty"`
-	Status      string    `json:"status"`
-	SortOrder   int       `json:"sort_order"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	MaterialIDs []int64   `json:"material_ids,omitempty"`
-	BaseIDs     []int64   `json:"base_ids,omitempty"`
+	ID       int64  `json:"id"`
+	StrID    string `json:"str_id"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
+	Year     int    `json:"year"`
+	NameRu   string `json:"name_ru"`
+	NameEn   string `json:"name_en"`
+	BaseID   int64  `json:"base_id"`
+	DescrRu  string `json:"descr_ru,omitempty"`
+	DescrEn  string `json:"descr_en,omitempty"`
+	WorkPath string `json:"work_path"`
+	Images   string `json:"images,omitempty"`
 }
 
 type WorkFilter struct {
-	Status     string
-	MaterialID int64
-	BaseID     int64
-	Query      string
-	SortBy     string
-	SortOrder  string
-	Page       int
-	Limit      int
+	Query string
+	Page  int
+	Limit int
 }

@@ -3,20 +3,17 @@
 export interface WorkBase {
     id: number
     str_id: string
+    work_path: string
     dir: string
     name_ru: string
     name_en: string
     year: number
-    descr: string
-    base_ru: string
-    base_en: string
+    descr_ru?: string
+    descr_en?: string
+    base_id: number
     width: number
     height: number
-    type?: number
     images: string[]
-    materials_ids: number[]
-    materials_en?: string[]
-    materials_ru?: string[]
 }
 
 // ─── Work (gallery) ─────────────────────────────────────────────────
@@ -39,52 +36,42 @@ export type CommonWork = Work | Sale;
 // ─── Create/Update DTOs ─────────────────────────────────────────────
 
 export interface CreateWorkDto {
-    str_id: string
-    dir: string
+    str_id?: string
     name_ru: string
     name_en: string
     year: number
-    descr: string
-    base_ru: string
-    base_en: string
     width: number
     height: number
-    type: number
-    images: string[]
-    materials_ids: number[]
+    base_id: number
+    descr_ru: string
+    descr_en: string
 }
 
 export interface UpdateWorkResponse {
     id: number
     str_id: string
-    dir: string
+    work_path: string
     name_ru: string
     name_en: string
     year: number
-    descr: string
-    base_ru: string
-    base_en: string
     width: number
     height: number
-    type: number
+    base_id: number
+    descr_ru?: string
+    descr_en?: string
     images: string[]
-    materials_ids: number[]
 }
 
 export interface UpdateWorkRequest {
     str_id?: string
-    dir?: string
     name_ru?: string
     name_en?: string
     year?: number
-    descr?: string
-    base_ru?: string
-    base_en?: string
     width?: number
     height?: number
-    type?: number
-    images?: string[]
-    materials_ids?: number[]
+    base_id?: number
+    descr_ru: string
+    descr_en: string
 }
 
 // ─── Sale DTOs ──────────────────────────────────────────────────────

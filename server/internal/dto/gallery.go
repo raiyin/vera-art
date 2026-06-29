@@ -1,70 +1,79 @@
 package dto
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 // WorkResponse represents a work in API responses.
 type WorkResponse struct {
-	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	ImagePath   string    `json:"image_path"`
-	Images      []string  `json:"images,omitempty"`
-	Year        int       `json:"year,omitempty"`
-	Technique   string    `json:"technique,omitempty"`
-	Width       int       `json:"width,omitempty"`
-	Height      int       `json:"height,omitempty"`
-	Status      string    `json:"status"`
-	SortOrder   int       `json:"sort_order"`
-	MaterialIDs []int64   `json:"material_ids,omitempty"`
-	BaseIDs     []int64   `json:"base_ids,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID       int64    `json:"id"`
+	StrID    string   `json:"str_id"`
+	Width    int      `json:"width"`
+	Height   int      `json:"height"`
+	Year     int      `json:"year"`
+	NameRu   string   `json:"name_ru"`
+	NameEn   string   `json:"name_en"`
+	BaseID   int64    `json:"base_id"`
+	DescrRu  string   `json:"descr_ru,omitempty"`
+	DescrEn  string   `json:"descr_en,omitempty"`
+	WorkPath string   `json:"work_path"`
+	Images   []string `json:"images,omitempty"`
 }
 
 // UpdateWorkResponse represents a work in update API responses.
 type UpdateWorkResponse struct {
-	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	ImagePath   string    `json:"image_path"`
-	Year        int       `json:"year,omitempty"`
-	Technique   string    `json:"technique,omitempty"`
-	Width       int       `json:"width,omitempty"`
-	Height      int       `json:"height,omitempty"`
-	Status      string    `json:"status"`
-	SortOrder   int       `json:"sort_order"`
-	MaterialIDs []int64   `json:"material_ids,omitempty"`
-	BaseIDs     []int64   `json:"base_ids,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID       int64    `json:"id"`
+	StrID    string   `json:"str_id"`
+	Width    int      `json:"width"`
+	Height   int      `json:"height"`
+	Year     int      `json:"year"`
+	NameRu   string   `json:"name_ru"`
+	NameEn   string   `json:"name_en"`
+	BaseID   int64    `json:"base_id"`
+	DescrRu  string   `json:"descr_ru,omitempty"`
+	DescrEn  string   `json:"descr_en,omitempty"`
+	WorkPath string   `json:"work_path"`
+	Images   []string `json:"images,omitempty"`
 }
 
 // CreateWorkRequest represents a create work request.
 type CreateWorkRequest struct {
-	Title       string  `json:"title" form:"title" binding:"required"`
-	Description string  `json:"description" form:"description"`
-	Year        int     `json:"year" form:"year"`
-	Technique   string  `json:"technique" form:"technique"`
-	Width       int     `json:"width" form:"width"`
-	Height      int     `json:"height" form:"height"`
-	Status      string  `json:"status" form:"status"`
-	SortOrder   int     `json:"sort_order" form:"sort_order"`
-	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
-	BaseIDs     []int64 `json:"base_ids" form:"base_ids"`
+	StrID   string `json:"str_id" form:"str_id"`
+	Width   int    `json:"width" form:"width"`
+	Height  int    `json:"height" form:"height"`
+	Year    int    `json:"year" form:"year"`
+	NameRu  string `json:"name_ru" form:"name_ru" binding:"required"`
+	NameEn  string `json:"name_en" form:"name_en" binding:"required"`
+	BaseID  int64  `json:"base_id" form:"base_id"`
+	DescrRu string `json:"descr_ru" form:"descr_ru"`
+	DescrEn string `json:"descr_en" form:"descr_en"`
 }
 
 // UpdateWorkRequest represents an update work request.
 type UpdateWorkRequest struct {
-	Title       string  `json:"title" form:"title"`
-	Description string  `json:"description" form:"description"`
-	Year        int     `json:"year" form:"year"`
-	Technique   string  `json:"technique" form:"technique"`
-	Width       int     `json:"width" form:"width"`
-	Height      int     `json:"height" form:"height"`
-	Status      string  `json:"status" form:"status"`
-	SortOrder   int     `json:"sort_order" form:"sort_order"`
-	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
-	BaseIDs     []int64 `json:"base_ids" form:"base_ids"`
+	StrID   string `json:"str_id" form:"str_id"`
+	Width   int    `json:"width" form:"width"`
+	Height  int    `json:"height" form:"height"`
+	Year    int    `json:"year" form:"year"`
+	NameRu  string `json:"name_ru" form:"name_ru"`
+	NameEn  string `json:"name_en" form:"name_en"`
+	BaseID  int64  `json:"base_id" form:"base_id"`
+	DescrRu string `json:"descr_ru" form:"descr_ru"`
+	DescrEn string `json:"descr_en" form:"descr_en"`
+}
+
+// SplitImages splits a semicolon-separated images string into a slice.
+func SplitImages(s string) []string {
+	if s == "" {
+		return nil
+	}
+	return strings.Split(s, ";")
+}
+
+// JoinImages joins a slice of image filenames into a semicolon-separated string.
+func JoinImages(imgs []string) string {
+	return strings.Join(imgs, ";")
 }
 
 // SaleResponse represents a sale in API responses.

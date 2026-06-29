@@ -43,7 +43,6 @@ func NewGalleryHandler(
 
 // listImageFiles reads the image directory for a work and returns sorted filenames.
 func (h *GalleryHandler) listImageFiles(imagePath string) []string {
-	// imagePath is a directory name like "ajax/" or "gnome/"
 	dir := strings.TrimSuffix(imagePath, "/")
 	if dir == "" {
 		return nil
@@ -58,7 +57,6 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 		return nil
 	}
 
-	// Filter and sort image files
 	var images []string
 	for _, entry := range entries {
 		if entry.IsDir() {
@@ -72,7 +70,6 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 		}
 	}
 
-	// Sort numerically by extracting number before extension
 	sort.Slice(images, func(i, j int) bool {
 		ni, _ := strconv.Atoi(strings.TrimSuffix(images[i], filepath.Ext(images[i])))
 		nj, _ := strconv.Atoi(strings.TrimSuffix(images[j], filepath.Ext(images[j])))
@@ -82,22 +79,29 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 	return images
 }
 
+func workToResponse(w *domain.Work) dto.WorkResponse {
+	return dto.WorkResponse{
+		ID:       w.ID,
+		StrID:    w.StrID,
+		Width:    w.Width,
+		Height:   w.Height,
+		Year:     w.Year,
+		NameRu:   w.NameRu,
+		NameEn:   w.NameEn,
+		BaseID:   w.BaseID,
+		DescrRu:  w.DescrRu,
+		DescrEn:  w.DescrEn,
+		WorkPath: w.WorkPath,
+		Images:   dto.SplitImages(w.Images),
+	}
+}
+
 // GetWorks returns a list of works.
 func (h *GalleryHandler) GetWorks(c *gin.Context) {
 	filter := domain.WorkFilter{
-		Status:    c.Query("status"),
-		Query:     c.Query("q"),
-		SortBy:    c.Query("sort_by"),
-		SortOrder: c.Query("sort_order"),
-		Page:      ParseIntQuery(c, "page", 1),
-		Limit:     ParseIntQuery(c, "limit", 20),
-	}
-
-	if materialID, ok := ParseInt64Query(c, "material_id"); ok && materialID > 0 {
-		filter.MaterialID = materialID
-	}
-	if baseID, ok := ParseInt64Query(c, "base_id"); ok && baseID > 0 {
-		filter.BaseID = baseID
+		Query: c.Query("q"),
+		Page:  ParseIntQuery(c, "page", 1),
+		Limit: ParseIntQuery(c, "limit", 20),
 	}
 
 	works, total, err := h.galleryService.GetWorks(c.Request.Context(), filter)
@@ -113,24 +117,7 @@ func (h *GalleryHandler) GetWorks(c *gin.Context) {
 
 	responses := make([]dto.WorkResponse, len(works))
 	for i, w := range works {
-		images := h.listImageFiles(w.ImagePath)
-		responses[i] = dto.WorkResponse{
-			ID:          w.ID,
-			Title:       w.Title,
-			Description: w.Description,
-			ImagePath:   w.ImagePath,
-			Images:      images,
-			Year:        w.Year,
-			Technique:   w.Technique,
-			Width:       w.Width,
-			Height:      w.Height,
-			Status:      w.Status,
-			SortOrder:   w.SortOrder,
-			MaterialIDs: w.MaterialIDs,
-			BaseIDs:     w.BaseIDs,
-			CreatedAt:   w.CreatedAt,
-			UpdatedAt:   w.UpdatedAt,
-		}
+		responses[i] = workToResponse(&w)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -157,24 +144,7 @@ func (h *GalleryHandler) GetWorkByID(c *gin.Context) {
 		return
 	}
 
-	images := h.listImageFiles(work.ImagePath)
-	c.JSON(http.StatusOK, dto.WorkResponse{
-		ID:          work.ID,
-		Title:       work.Title,
-		Description: work.Description,
-		ImagePath:   work.ImagePath,
-		Images:      images,
-		Year:        work.Year,
-		Technique:   work.Technique,
-		Width:       work.Width,
-		Height:      work.Height,
-		Status:      work.Status,
-		SortOrder:   work.SortOrder,
-		MaterialIDs: work.MaterialIDs,
-		BaseIDs:     work.BaseIDs,
-		CreatedAt:   work.CreatedAt,
-		UpdatedAt:   work.UpdatedAt,
-	})
+	c.JSON(http.StatusOK, workToResponse(work))
 }
 
 // CreateWork creates a new work.
@@ -193,16 +163,15 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 	}
 
 	work := &domain.Work{
-		Title:       req.Title,
-		Description: req.Description,
-		Year:        req.Year,
-		Technique:   req.Technique,
-		Width:       req.Width,
-		Height:      req.Height,
-		Status:      req.Status,
-		SortOrder:   req.SortOrder,
-		MaterialIDs: req.MaterialIDs,
-		BaseIDs:     req.BaseIDs,
+		StrID:   req.StrID,
+		Width:   req.Width,
+		Height:  req.Height,
+		Year:    req.Year,
+		NameRu:  req.NameRu,
+		NameEn:  req.NameEn,
+		BaseID:  req.BaseID,
+		DescrRu: req.DescrRu,
+		DescrEn: req.DescrEn,
 	}
 
 	var filename string
@@ -217,7 +186,7 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 
 	if err := h.galleryService.CreateWork(c.Request.Context(), work, filename, reader); err != nil {
 		slog.Error("CreateWork: failed to create work",
-			"title", req.Title,
+			"name_ru", req.NameRu,
 			"error", err,
 		)
 		apiErr := apperror.FromError(err)
@@ -227,24 +196,9 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 
 	slog.Info("Work created successfully",
 		"work_id", work.ID,
-		"title", work.Title,
+		"name_ru", work.NameRu,
 	)
-	c.JSON(http.StatusCreated, dto.WorkResponse{
-		ID:          work.ID,
-		Title:       work.Title,
-		Description: work.Description,
-		ImagePath:   work.ImagePath,
-		Year:        work.Year,
-		Technique:   work.Technique,
-		Width:       work.Width,
-		Height:      work.Height,
-		Status:      work.Status,
-		SortOrder:   work.SortOrder,
-		MaterialIDs: work.MaterialIDs,
-		BaseIDs:     work.BaseIDs,
-		CreatedAt:   work.CreatedAt,
-		UpdatedAt:   work.UpdatedAt,
-	})
+	c.JSON(http.StatusCreated, workToResponse(work))
 }
 
 // UpdateWork updates a work.
@@ -269,17 +223,16 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 	}
 
 	work := &domain.Work{
-		ID:          id,
-		Title:       req.Title,
-		Description: req.Description,
-		Year:        req.Year,
-		Technique:   req.Technique,
-		Width:       req.Width,
-		Height:      req.Height,
-		Status:      req.Status,
-		SortOrder:   req.SortOrder,
-		MaterialIDs: req.MaterialIDs,
-		BaseIDs:     req.BaseIDs,
+		ID:      id,
+		StrID:   req.StrID,
+		Width:   req.Width,
+		Height:  req.Height,
+		Year:    req.Year,
+		NameRu:  req.NameRu,
+		NameEn:  req.NameEn,
+		BaseID:  req.BaseID,
+		DescrRu: req.DescrRu,
+		DescrEn: req.DescrEn,
 	}
 
 	var filename string
@@ -306,20 +259,18 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 		"work_id", id,
 	)
 	c.JSON(http.StatusOK, dto.UpdateWorkResponse{
-		ID:          work.ID,
-		Title:       work.Title,
-		Description: work.Description,
-		ImagePath:   work.ImagePath,
-		Year:        work.Year,
-		Technique:   work.Technique,
-		Width:       work.Width,
-		Height:      work.Height,
-		Status:      work.Status,
-		SortOrder:   work.SortOrder,
-		MaterialIDs: work.MaterialIDs,
-		BaseIDs:     work.BaseIDs,
-		CreatedAt:   work.CreatedAt,
-		UpdatedAt:   work.UpdatedAt,
+		ID:       work.ID,
+		StrID:    work.StrID,
+		Width:    work.Width,
+		Height:   work.Height,
+		Year:     work.Year,
+		NameRu:   work.NameRu,
+		NameEn:   work.NameEn,
+		BaseID:   work.BaseID,
+		DescrRu:  work.DescrRu,
+		DescrEn:  work.DescrEn,
+		WorkPath: work.WorkPath,
+		Images:   dto.SplitImages(work.Images),
 	})
 }
 

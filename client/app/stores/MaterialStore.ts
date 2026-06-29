@@ -14,7 +14,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
         error.value = null;
         try {
             const { data, } = await getHttpClient().get('materials',);
-            materials.value = data;
+            materials.value = data.materials ?? [];
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch materials';
             console.error('Error fetching materials:', err,);
@@ -28,7 +28,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
         error.value = null;
         try {
             const { data, } = await getHttpClient().get('bases',);
-            bases.value = data;
+            bases.value = data.bases ?? [];
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch bases';
             console.error('Error fetching bases:', err,);

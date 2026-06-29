@@ -13,19 +13,17 @@ const { items: works, sentinelRef, loading } = useInfiniteScroll<Work>(
         const { data } = await getHttpClient().get<{
             works: Array<{
                 id: number;
-                title: string;
-                description: string | null;
-                image_path: string;
+                str_id: string;
+                width: number;
+                height: number;
+                year: number;
+                name_ru: string;
+                name_en: string;
+                base_id: number;
+                descr_ru: string | null;
+                descr_en: string | null;
+                work_path: string;
                 images: string[];
-                year: number | null;
-                technique: string | null;
-                size: string | null;
-                status: string;
-                sort_order: number;
-                material_ids: number[] | null;
-                base_ids: number[] | null;
-                created_at: string;
-                updated_at: string;
             }>;
             total: number;
         }>('works', {
@@ -36,19 +34,18 @@ const { items: works, sentinelRef, loading } = useInfiniteScroll<Work>(
         });
         return data.works.map((work) => ({
             id: work.id,
-            str_id: String(work.id),
-            dir: relWorksDir,
-            name_ru: work.title,
-            name_en: work.title,
-            year: work.year ?? 0,
-            descr: work.description ?? '',
-            base_ru: work.technique ?? '',
-            base_en: work.technique ?? '',
-            width: 0,
-            height: 0,
-            type: undefined,
+            str_id: work.str_id,
+            work_path: work.work_path,
+            dir: relWorksDir + work.work_path,
+            name_ru: work.name_ru,
+            name_en: work.name_en,
+            year: work.year,
+            width: work.width,
+            height: work.height,
+            base_id: work.base_id,
+            descr_ru: work.descr_ru ?? '',
+            descr_en: work.descr_en ?? '',
             images: work.images ?? [],
-            materials_ids: work.material_ids ?? [],
             __type: 'GetWorkDto' as const,
         }));
     },

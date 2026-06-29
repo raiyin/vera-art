@@ -12,81 +12,6 @@
         </div>
 
         <form v-else class="work-form" @submit.prevent="submitForm">
-            <!-- Поле для загрузки изображений -->
-            <div class="form-section">
-                <h2 class="section-title">Изображения работы</h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >Изображения <span class="required">*</span></label
-                    >
-                    <div
-                        class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
-                        @dragover.prevent="handleDragOver"
-                        @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
-                        @click="triggerFileInput"
-                    >
-                        <input
-                            ref="fileInput"
-                            type="file"
-                            multiple
-                            accept="image/jpg,image/jpeg,image/png"
-                            class="file-input"
-                            @change="handleFileUpload"
-                        />
-                        <div class="file-drop-content">
-                            <svg
-                                class="upload-icon"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            <p class="upload-text">
-                                Перетащите изображения сюда или нажмите для выбора
-                            </p>
-                            <p class="upload-hint">
-                                Поддерживаются форматы: JPG, JPEG, PNG (макс. 10 файлов)
-                            </p>
-                        </div>
-                    </div>
-                    <div v-if="fileError" class="error-message">
-                        {{ fileError }}
-                    </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
-                        <div
-                            v-for="(image, index) in previewImages"
-                            :key="index"
-                            class="image-preview"
-                        >
-                            <img
-                                :src="image.preview"
-                                class="preview-image"
-                                :alt="`Preview ${index + 1}`"
-                            />
-                            <UButton
-                                type="button"
-                                class="remove-btn"
-                                :aria-label="`Удалить изображение ${index + 1}`"
-                                @click="removeImage(index)"
-                            >
-                                &times;
-                            </UButton>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">Основная информация</h2>
@@ -132,7 +57,7 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        Размеры ({{ units }}) <span class="required">*</span>
+                        Размеры (см) <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
@@ -191,11 +116,9 @@
                 </div>
             </div>
 
-            <!-- Технические характеристики -->
+            <!-- Основа -->
             <div class="form-section">
                 <h2 class="section-title">Технические характеристики</h2>
-
-                <!-- Основа -->
                 <div class="form-group">
                     <label class="form-label"
                         >Основа <span class="required">*</span></label
@@ -211,29 +134,6 @@
                     />
                     <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
-                    </div>
-                </div>
-
-                <!-- Материал -->
-                <div class="form-group">
-                    <label class="form-label"
-                        >Материалы
-                        <span class="required">{{
-                            isMaterialsRequired ? '*' : ''
-                        }}</span></label
-                    >
-                    <USelect
-                        v-model="work.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids }"
-                        placeholder="Выберите материалы"
-                        @blur="validateField('materials_ids')"
-                    />
-                    <div v-if="errors.materials_ids" class="error-message">
-                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
@@ -265,28 +165,6 @@
                 </div>
             </div>
 
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">Тип работы</h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >Тип работы <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.type"
-                        :items="workTypeOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.type }"
-                        placeholder="Выберите тип работы"
-                        @blur="validateField('type')"
-                    />
-                    <div v-if="errors.type" class="error-message">
-                        {{ errors.type }}
-                    </div>
-                </div>
-            </div>
-
             <!-- Кнопки -->
             <div class="form-actions">
                 <UButton type="button" class="btn btn-secondary" @click="resetForm">
@@ -310,8 +188,8 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-import type { RequestResult, UpdateWorkRequest, UpdateWorkResponse } from '~/types';
+import { ref, reactive, computed, onMounted } from 'vue';
+import type { UpdateWorkRequest } from '~/types';
 import { useMaterialStore } from '~/stores/MaterialStore';
 
 definePageMeta({
@@ -326,52 +204,30 @@ const SERVER_URL = config.public.serverUrl;
 
 const materialStore = useMaterialStore();
 
-// Reactive state
-const work = reactive<UpdateWorkResponse>({
-    id: 0,
-    str_id: '',
-    dir: '',
+const work = reactive<UpdateWorkRequest>({
+    name_ru: '',
+    name_en: '',
     width: 0,
     height: 0,
     year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
     base_id: 0,
     descr_ru: '',
     descr_en: '',
-    type: 0,
-    materials_ids: [],
-    images: [],
 });
 
-// For form reset
-const originalWork = reactive<UpdateWorkResponse>({
-    id: 0,
-    str_id: '',
-    dir: '',
+const originalWork = reactive<UpdateWorkRequest>({
+    name_ru: '',
+    name_en: '',
     width: 0,
     height: 0,
     year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
     base_id: 0,
     descr_ru: '',
     descr_en: '',
-    type: 0,
-    materials_ids: [],
-    images: [],
 });
 
-const files = ref<File[]>([]);
-const previewImages = ref<
-    { file?: File; preview: string; isExisting?: boolean; filename?: string }[]
->([]);
-const imagesToDelete = ref<string[]>([]);
 const isSubmitting = ref(false);
 const isLoading = ref(true);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
-const errorMessage = ref('');
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -380,15 +236,9 @@ const errors = reactive<Record<string, string>>({
     height: '',
     year: '',
     base_id: '',
-    materials_ids: '',
-    type: '',
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
-
-// Computed
 const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
     return bases.value.map((base) => ({
@@ -397,59 +247,32 @@ const baseOptions = computed(() => {
     }));
 });
 
-const workTypeOptions = computed(() => {
-    return [
-        { label: 'Картина', value: 1 },
-        { label: 'Иллюстрация', value: 2 },
-        { label: '3D', value: 3 },
-    ];
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map((material) => ({
-        label: material.material_ru,
-        value: material.id,
-    }));
-});
-
 const isFormValid = computed(() => {
-    const hasExistingImages = work.images.length > imagesToDelete.value.length;
-    const hasNewImages = files.value.length > 0;
     return (
-        work.name_ru.trim() !== '' &&
-        work.name_en.trim() !== '' &&
-        work.width > 0 &&
-        work.height > 0 &&
-        work.year >= 2000 &&
-        work.year <= new Date().getFullYear() &&
-        work.base_id > 0 &&
-        (work.type < 3
-            ? work.materials_ids.length > 0
-            : work.materials_ids.length === 0) &&
-        work.type > 0 &&
-        (hasExistingImages || hasNewImages)
+        work.name_ru?.trim() !== '' &&
+        work.name_en?.trim() !== '' &&
+        (work.width ?? 0) > 0 &&
+        (work.height ?? 0) > 0 &&
+        (work.year ?? 0) >= 2000 &&
+        (work.year ?? 0) <= new Date().getFullYear() &&
+        (work.base_id ?? 0) > 0
     );
 });
 
-const units = computed(() => {
-    return work.type <= 1 ? 'см' : 'px';
-});
-
-const isMaterialsRequired = computed(() => {
-    return work.type === 1 || work.type === 2;
-});
-
-// Methods
 async function loadWork() {
     try {
         const id = route.params.id;
-        const response = await axios.get(`${SERVER_URL}works/${id}/edit`);
-        Object.assign(work, response.data);
-        Object.assign(originalWork, { ...response.data });
-
-        // Load existing images as previews
-        loadPreviewImages();
-
+        const response = await axios.get(`${SERVER_URL}works/${id}`);
+        const data = response.data;
+        work.name_ru = data.name_ru;
+        work.name_en = data.name_en;
+        work.width = data.width;
+        work.height = data.height;
+        work.year = data.year;
+        work.base_id = data.base_id;
+        work.descr_ru = data.descr_ru ?? '';
+        work.descr_en = data.descr_en ?? '';
+        Object.assign(originalWork, { ...work });
         isLoading.value = false;
     } catch (error) {
         console.error('Ошибка при загрузке работы:', error);
@@ -464,168 +287,29 @@ async function loadWork() {
     }
 }
 
-function loadPreviewImages() {
-    previewImages.value = [];
-    for (let i = 0; i < work.images.length; i++) {
-        const imageUrl = `${work.dir}${work.images[i]}`;
-        previewImages.value.push({
-            preview: imageUrl,
-            isExisting: true,
-            filename: work.images[i],
-        });
-    }
-}
-
-function handleDragOver() {
-    isDragOver.value = true;
-}
-
-function handleDragLeave() {
-    isDragOver.value = false;
-}
-
-function handleDrop(event: DragEvent) {
-    isDragOver.value = false;
-    if (event.dataTransfer && event.dataTransfer.files.length) {
-        const droppedFiles = Array.from(event.dataTransfer.files);
-        addImages(droppedFiles);
-    }
-}
-
-function triggerFileInput() {
-    fileInput.value?.click();
-}
-
-function handleFileUpload(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length) {
-        const selectedFiles = Array.from(target.files);
-        addImages(selectedFiles);
-    }
-}
-
-function addImages(selectedFiles: File[]) {
-    fileError.value = null;
-
-    // Check max file count
-    if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = 'Можно загрузить не более 10 изображений';
-        return;
-    }
-
-    // Check file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
-
-    if (invalidFiles.length > 0) {
-        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-        return;
-    }
-
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-    if (largeFiles.length > 0) {
-        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
-        return;
-    }
-
-    // Add new files
-    files.value = [...files.value, ...selectedFiles];
-
-    // Create previews for new images
-    selectedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImages.value.push({
-                file,
-                preview: e.target?.result as string,
-                isExisting: false,
-                filename: file.name,
-            });
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function removeImage(index: number) {
-    const imageToRemove = previewImages.value[index];
-
-    if (imageToRemove.isExisting && imageToRemove.filename) {
-        // Mark existing image for deletion
-        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
-            imagesToDelete.value.push(imageToRemove.filename);
-        }
-    } else if (imageToRemove.file) {
-        // Remove from files array if it's a newly uploaded file
-        const fileIndex = files.value.indexOf(imageToRemove.file);
-        if (fileIndex > -1) {
-            files.value.splice(fileIndex, 1);
-        }
-    }
-
-    // Remove from preview images
-    previewImages.value.splice(index, 1);
-}
-
 function validateField(fieldName: string) {
     switch (fieldName) {
         case 'name_ru':
-            if (!work.name_ru.trim()) {
-                errors.name_ru = 'Пожалуйста, введите название на русском';
-            } else {
-                errors.name_ru = '';
-            }
+            errors.name_ru = !work.name_ru?.trim() ? 'Пожалуйста, введите название на русском' : '';
             break;
         case 'name_en':
-            if (!work.name_en.trim()) {
-                errors.name_en = 'Пожалуйста, введите название на английском';
-            } else {
-                errors.name_en = '';
-            }
+            errors.name_en = !work.name_en?.trim() ? 'Пожалуйста, введите название на английском' : '';
             break;
         case 'width':
-            if (work.width <= 0) {
-                errors.width = 'Ширина должна быть больше 0';
-            } else {
-                errors.width = '';
-            }
+            errors.width = (work.width ?? 0) <= 0 ? 'Ширина должна быть больше 0' : '';
             break;
         case 'height':
-            if (work.height <= 0) {
-                errors.height = 'Высота должна быть больше 0';
-            } else {
-                errors.height = '';
-            }
+            errors.height = (work.height ?? 0) <= 0 ? 'Высота должна быть больше 0' : '';
             break;
         case 'year':
-            if (work.year < 2000 || work.year > new Date().getFullYear()) {
+            if ((work.year ?? 0) < 2000 || (work.year ?? 0) > new Date().getFullYear()) {
                 errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
             } else {
                 errors.year = '';
             }
             break;
         case 'base_id':
-            if (work.base_id <= 0) {
-                errors.base_id = 'Пожалуйста, выберите основу';
-            } else {
-                errors.base_id = '';
-            }
-            break;
-        case 'materials_ids':
-            if (work.materials_ids.length === 0) {
-                errors.materials_ids = 'Пожалуйста, выберите хотя бы один материал';
-            } else {
-                errors.materials_ids = '';
-            }
-            break;
-        case 'type':
-            if (work.type <= 0) {
-                errors.type = 'Пожалуйста, выберите тип работы';
-            } else {
-                errors.type = '';
-            }
+            errors.base_id = (work.base_id ?? 0) <= 0 ? 'Пожалуйста, выберите основу' : '';
             break;
     }
 }
@@ -637,18 +321,6 @@ function validateForm() {
     validateField('height');
     validateField('year');
     validateField('base_id');
-    validateField('materials_ids');
-    validateField('type');
-
-    // Check at least one image exists (existing or newly uploaded)
-    const hasExistingImages = work.images.length > imagesToDelete.value.length;
-    const hasNewImages = files.value.length > 0;
-    if (!hasExistingImages && !hasNewImages) {
-        fileError.value = 'Пожалуйста, добавьте хотя бы одно изображение';
-        return false;
-    }
-
-    // Check no errors
     return Object.values(errors).every((error) => error === '');
 }
 
@@ -661,44 +333,11 @@ async function submitForm() {
 
     try {
         isSubmitting.value = true;
-        errorMessage.value = '';
 
-        // Build form data
-        const formData = new FormData();
-
-        const finalImages: string[] = [];
-
-        // Add existing images that are not marked for deletion
-        for (const imageName of work.images) {
-            if (!imagesToDelete.value.includes(imageName)) {
-                finalImages.push(imageName);
-            }
-        }
-
-        // Add new image filenames
-        for (const file of files.value) {
-            finalImages.push(file.name);
-        }
-
-        // Add files if any
-        if (files.value.length > 0) {
-            files.value.forEach((file) => {
-                formData.append('images', file);
-            });
-        }
-
-        const workDataToUpdate: UpdateWorkRequest = {
-            ...work,
-            images: finalImages,
-        };
-        workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
-
-        formData.append('data', JSON.stringify(workDataToUpdate));
-
-        const strId = route.params.id;
-        const response = await axios.put(SERVER_URL + 'works/' + strId, formData, {
+        const id = route.params.id;
+        const response = await axios.put(SERVER_URL + 'works/' + id, work, {
             headers: {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': 'application/json',
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
         });
@@ -711,12 +350,6 @@ async function submitForm() {
                 color: 'success',
                 duration: 5000,
             });
-            // Update work images with final list
-            work.images = finalImages;
-            // Clear deletion list and files
-            imagesToDelete.value = [];
-            files.value = [];
-            // Update original work
             Object.assign(originalWork, { ...work });
         } else {
             toast.add({
@@ -729,14 +362,9 @@ async function submitForm() {
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
-        let description =
-            'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-        if (error.response?.status === 413) {
-            description =
-                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-        } else if (error.response?.status === 400) {
-            description =
-                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+        let description = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+        if (error.response?.status === 400) {
+            description = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
         }
         toast.add({
             title: 'Ошибка!',
@@ -752,19 +380,9 @@ async function submitForm() {
 
 function resetForm() {
     Object.assign(work, { ...originalWork });
-    files.value = [];
-    previewImages.value = [];
-    imagesToDelete.value = [];
-    loadPreviewImages();
-    if (fileInput.value) {
-        fileInput.value.value = '';
-    }
-
-    // Reset errors
     Object.keys(errors).forEach((key) => {
         errors[key] = '';
     });
-    fileError.value = null;
 }
 
 // Lifecycle

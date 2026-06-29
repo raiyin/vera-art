@@ -3,7 +3,6 @@ import type { PropType } from 'vue';
 import type { CommonWork } from '~/types';
 import { useMaterialStore } from '~/stores/MaterialStore';
 import { useAuthStore } from '~/stores/AuthStore';
-import type { SelectItem } from '@nuxt/ui';
 import { ref, computed, watch, onBeforeUnmount } from 'vue';
 import { useI18n } from '#imports';
 import { useRouter } from 'vue-router';
@@ -20,33 +19,14 @@ const emit = defineEmits<{
     'work-deleted': [id: string];
 }>();
 
-// Reactive state
-const selectedWorkType = ref('all');
-const items = ref<SelectItem[]>([
-    { value: 'all', label: 'Все работы' },
-    { value: '1', label: 'Картины' },
-    { value: '2', label: 'Иллюстрации' },
-    { value: '3', label: '3D работы' },
-]);
-const value = ref('all');
-// Image modal state
 const showModal = ref(false);
 const selectedWork = ref<CommonWork | null>(null);
 const currentImageIndex = ref(0);
-// Delete confirmation modal state
 const showDeleteModal = ref(false);
 const workToDelete = ref<CommonWork | null>(null);
 const deletingId = ref<string | null>(null);
 
-// Computed properties
-const filteredImages = computed(() => {
-    if (selectedWorkType.value === 'all') {
-        return props.images;
-    }
-    return props.images.filter((image) => {
-        return image.type === parseInt(selectedWorkType.value);
-    });
-});
+const filteredImages = computed(() => props.images);
 
 const { locale } = useI18n();
 
@@ -59,9 +39,7 @@ const isAdmin = computed(() => {
     return authStore.isAuthenticated && authStore.isAdmin;
 });
 
-// Methods
 const handleWorkDeleted = (id: string) => {
-    // Emit event to parent component to update the list
     emit('work-deleted', id);
 };
 
@@ -119,7 +97,7 @@ const getWorkName = (work: CommonWork): string => {
 };
 
 const getWorkBase = (work: CommonWork): string => {
-    return locale.value === 'ru' ? work.base_ru || '' : work.base_en || '';
+    return materialStore.getBaseName(work.base_id, locale.value);
 };
 
 const getMainImageUrl = (work: CommonWork): string => {
@@ -131,23 +109,6 @@ const getWorkDimensions = (work: CommonWork): string => {
         return `${work.width}×${work.height}`;
     }
     return '';
-};
-
-const getWorkMaterials = (work: CommonWork): string[] => {
-    // If materials arrays are already present in the work object, use them
-    if (locale.value === 'ru' && work.materials_ru && work.materials_ru.length > 0) {
-        return work.materials_ru;
-    }
-    if (locale.value === 'en' && work.materials_en && work.materials_en.length > 0) {
-        return work.materials_en;
-    }
-    // Otherwise fall back to MaterialStore
-    return materialStore.getMaterialNames(work.materials_ids || [], locale.value);
-};
-
-const hasMaterials = (work: CommonWork): boolean => {
-    const materials = getWorkMaterials(work);
-    return materials.length > 0;
 };
 
 // Modal methods
@@ -229,10 +190,6 @@ onBeforeUnmount(() => {
 
 <template>
     <UContainer class="text-left main-content px-0">
-        <div class="my-4">
-            <USelect :items="items" v-model="value" />
-        </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
             <UCard
                 v-for="work in filteredImages"
@@ -311,18 +268,6 @@ onBeforeUnmount(() => {
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
                             <span class="truncate">{{ getWorkBase(work) }}</span>
-                        </div>
-
-                        <!-- Materials -->
-                        <div
-                            v-if="hasMaterials(work)"
-                            class="flex items-center flex-wrap [&:not(:first-child)]:ml-4] mt-2 text-gray-600 dark:text-gray-400"
-                        >
-                            <UIcon
-                                name="i-heroicons-paint-brush"
-                                class="w-4 h-4 mr-2 shrink-0"
-                            />
-                            <span>{{ getWorkMaterials(work).join(', ') }}</span>
                         </div>
 
                         <div
@@ -580,63 +525,7 @@ onBeforeUnmount(() => {
     flex: 1;
 }
 
-.work-types-selector {
-    display: flex;
-    padding: 1rem 1rem;
-    align-items: center;
-    justify-content: start;
-    background-color: var(--color-surface);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    margin-bottom: 2rem;
-    width: fit-content;
-}
 
-.selector-title {
-    color: var(--color-on-surface);
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    font-size: 1.3rem;
-}
-
-.selector-container {
-    position: relative;
-    margin-left: 1rem;
-}
-
-.work-type-dropdown {
-    background-color: var(--color-surface-secondary-solid);
-    color: var(--color-on-surface);
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1rem;
-    width: 100%;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.work-type-dropdown:focus {
-    border-color: #4a90e2;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-
-.work-type-dropdown option {
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-}
-
-.drop-down-arrow {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
 
 /* Custom Modal Styles (matching news carousel) */
 .modal-fade-enter-active,
@@ -912,17 +801,6 @@ onBeforeUnmount(() => {
     .custom-modal-nav-button svg {
         width: 20px;
         height: 20px;
-    }
-}
-
-@media (max-width: 576px) {
-    .work-types-selector {
-        padding: 1rem 0;
-    }
-
-    .selector-container {
-        max-width: 100%;
-        padding: 0 1rem;
     }
 }
 

@@ -16,89 +16,6 @@
         </div>
 
         <form v-else class="work-form" @submit.prevent="submitForm">
-            <!-- Поле для загрузки изображений -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.images') }}
-                </h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.select_images') }}
-                        <span class="required">*</span></label
-                    >
-                    <div
-                        class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
-                        @dragover.prevent="handleDragOver"
-                        @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop"
-                        @click="triggerFileInput"
-                    >
-                        <input
-                            ref="fileInput"
-                            type="file"
-                            multiple
-                            accept="image/jpg,image/jpeg,image/png"
-                            class="file-input"
-                            required
-                            @change="handleFileUpload"
-                        />
-                        <div class="file-drop-content">
-                            <svg
-                                class="upload-icon"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                            >
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
-                            </svg>
-                            <p class="upload-text">
-                                {{ $t('admin_gallery_form.labels.drag_drop_text') }}
-                            </p>
-                            <p class="upload-hint">
-                                {{ $t('admin_gallery_form.labels.file_formats') }}
-                            </p>
-                        </div>
-                    </div>
-                    <div v-if="fileError" class="error-message">
-                        {{ fileError }}
-                    </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
-                        <div
-                            v-for="(image, index) in previewImages"
-                            :key="index"
-                            class="image-preview"
-                        >
-                            <img
-                                :src="image.preview"
-                                class="preview-image"
-                                :alt="`Preview ${index + 1}`"
-                            />
-                            <UButton
-                                type="button"
-                                class="remove-btn"
-                                :aria-label="
-                                    $t('admin_gallery_form.aria_labels.remove_image', {
-                                        index: index + 1,
-                                    })
-                                "
-                                @click="removeImage(index)"
-                            >
-                                &times;
-                            </UButton>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
@@ -147,7 +64,7 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.dimensions') }} ({{ units }})
+                        {{ $t('admin_gallery_form.labels.dimensions') }} ({{ $t('admin_gallery_form.units.cm') }})
                         <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
@@ -208,13 +125,11 @@
                 </div>
             </div>
 
-            <!-- Технические характеристики -->
+            <!-- Основа -->
             <div class="form-section">
                 <h2 class="section-title">
                     {{ $t('admin_gallery_form.sections.tech_specs') }}
                 </h2>
-
-                <!-- Основа -->
                 <div class="form-group">
                     <label class="form-label"
                         >{{ $t('admin_gallery_form.labels.base') }}
@@ -231,29 +146,6 @@
                     />
                     <div v-if="errors.base_id" class="error-message">
                         {{ errors.base_id }}
-                    </div>
-                </div>
-
-                <!-- Материал -->
-                <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.materials') }}
-                        <span class="required">{{ isMaterialsRequired ? '*' : '' }}</span>
-                    </label>
-                    <USelect
-                        v-model="work.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_materials')
-                        "
-                        @blur="validateField('materials_ids')"
-                    />
-                    <div v-if="errors.materials_ids" class="error-message">
-                        {{ errors.materials_ids }}
                     </div>
                 </div>
             </div>
@@ -288,33 +180,6 @@
                         :maxlength="500"
                     />
                     <div class="char-count">{{ work.descr_en.length }}/500</div>
-                </div>
-            </div>
-
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.work_type') }}
-                </h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.work_type') }}
-                        <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.type"
-                        :items="workTypeOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.work_type }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_work_type')
-                        "
-                        @blur="validateField('work_type')"
-                    />
-                    <div v-if="errors.work_type" class="error-message">
-                        {{ errors.work_type }}
-                    </div>
                 </div>
             </div>
 
@@ -354,28 +219,19 @@ const SERVER_URL = config.public.serverUrl;
 
 const materialStore = useMaterialStore();
 
-// Reactive state
 const work = reactive<CreateWorkDto>({
     width: 0,
     height: 0,
     year: new Date().getFullYear(),
     name_ru: '',
     name_en: '',
-    base_id: (null as unknown) as number,
-    materials_ids: [],
+    base_id: 0,
     descr_ru: '',
     descr_en: '',
-    images: [],
-    type: null,
 });
 
-const files = ref<File[]>([]);
-const previewImages = ref<{ file: File; preview: string }[]>([]);
 const isSubmitting = ref(false);
 const isLoading = ref(true);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
-const errorMessage = ref('');
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -384,15 +240,9 @@ const errors = reactive<Record<string, string>>({
     height: '',
     year: '',
     base_id: '',
-    materials_ids: '',
-    work_type: '',
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
-
-// Computed
 const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
     const options = bases.value.map((base) => ({
@@ -400,21 +250,6 @@ const baseOptions = computed(() => {
         value: base.id,
     }));
     return [...options];
-});
-
-const workTypeOptions = computed(() => {
-    return [
-        { label: t('admin_gallery_form.work_types.painting'), value: 1 },
-        { label: t('admin_gallery_form.work_types.illustration'), value: 2 },
-        { label: t('admin_gallery_form.work_types.3d'), value: 3 },
-    ];
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map((material) => ({
-        label: locale.value === 'ru' ? material.material_ru : material.material_en,
-        value: material.id,
-    }));
 });
 
 const isFormValid = computed(() => {
@@ -425,134 +260,23 @@ const isFormValid = computed(() => {
         work.height > 0 &&
         work.year >= 2000 &&
         work.year <= new Date().getFullYear() &&
-        work.base_id !== null &&
-        work.base_id > 0 &&
-        (work.type < 3
-            ? work.materials_ids.length > 0
-            : work.materials_ids.length === 0) &&
-        files.value.length > 0 &&
-        work.type > 0
+        work.base_id > 0
     );
 });
-
-const units = computed(() => {
-    return work.type <= 1
-        ? t('admin_gallery_form.units.cm')
-        : t('admin_gallery_form.units.px');
-});
-
-const isMaterialsRequired = computed(() => {
-    return work.type === 1 || work.type === 2;
-});
-
-// Methods
-function handleDragOver() {
-    isDragOver.value = true;
-}
-
-function handleDragLeave() {
-    isDragOver.value = false;
-}
-
-function handleDrop(event: DragEvent) {
-    isDragOver.value = false;
-    if (event.dataTransfer && event.dataTransfer.files.length) {
-        const droppedFiles = Array.from(event.dataTransfer.files);
-        addImages(droppedFiles);
-    }
-}
-
-function triggerFileInput() {
-    fileInput.value?.click();
-}
-
-function handleFileUpload(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length) {
-        const selectedFiles = Array.from(target.files);
-        addImages(selectedFiles);
-    }
-}
-
-function addImages(selectedFiles: File[]) {
-    fileError.value = null;
-
-    // Check max file count
-    if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = t('admin_gallery_form.errors.max_files');
-        return;
-    }
-
-    // Check file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
-
-    if (invalidFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.invalid_file_type');
-        return;
-    }
-
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-    if (largeFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.file_size');
-        return;
-    }
-
-    // Add new files
-    files.value = [...files.value, ...selectedFiles];
-    work.images = files.value.map((file) => file.name);
-
-    // Create previews for new images
-    selectedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImages.value.push({
-                file,
-                preview: e.target?.result as string,
-            });
-        };
-        reader.readAsDataURL(file);
-    });
-}
-
-function removeImage(index: number) {
-    previewImages.value.splice(index, 1);
-    files.value.splice(index, 1);
-    work.images.splice(index, 1);
-}
 
 function validateField(fieldName: string) {
     switch (fieldName) {
         case 'name_ru':
-            if (!work.name_ru.trim()) {
-                errors.name_ru = t('admin_gallery_form.errors.name_ru_required');
-            } else {
-                errors.name_ru = '';
-            }
+            errors.name_ru = !work.name_ru.trim() ? t('admin_gallery_form.errors.name_ru_required') : '';
             break;
         case 'name_en':
-            if (!work.name_en.trim()) {
-                errors.name_en = t('admin_gallery_form.errors.name_en_required');
-            } else {
-                errors.name_en = '';
-            }
+            errors.name_en = !work.name_en.trim() ? t('admin_gallery_form.errors.name_en_required') : '';
             break;
         case 'width':
-            if (work.width <= 0) {
-                errors.width = t('admin_gallery_form.errors.width_required');
-            } else {
-                errors.width = '';
-            }
+            errors.width = work.width <= 0 ? t('admin_gallery_form.errors.width_required') : '';
             break;
         case 'height':
-            if (work.height <= 0) {
-                errors.height = t('admin_gallery_form.errors.height_required');
-            } else {
-                errors.height = '';
-            }
+            errors.height = work.height <= 0 ? t('admin_gallery_form.errors.height_required') : '';
             break;
         case 'year':
             if (work.year < 2000 || work.year > new Date().getFullYear()) {
@@ -564,25 +288,7 @@ function validateField(fieldName: string) {
             }
             break;
         case 'base_id':
-            if (work.base_id === null || work.base_id <= 0) {
-                errors.base_id = t('admin_gallery_form.errors.base_required');
-            } else {
-                errors.base_id = '';
-            }
-            break;
-        case 'materials_ids':
-            if (work.materials_ids.length === 0) {
-                errors.materials_ids = t('admin_gallery_form.errors.materials_required');
-            } else {
-                errors.materials_ids = '';
-            }
-            break;
-        case 'work_type':
-            if (work.type <= 0) {
-                errors.work_type = t('admin_gallery_form.errors.work_type_required');
-            } else {
-                errors.work_type = '';
-            }
+            errors.base_id = work.base_id <= 0 ? t('admin_gallery_form.errors.base_required') : '';
             break;
     }
 }
@@ -594,16 +300,6 @@ function validateForm() {
     validateField('height');
     validateField('year');
     validateField('base_id');
-    validateField('materials_ids');
-    validateField('work_type');
-
-    // Check images
-    if (files.value.length === 0) {
-        fileError.value = t('admin_gallery_form.errors.images_required');
-        return false;
-    }
-
-    // Check no errors
     return Object.values(errors).every((error) => error === '');
 }
 
@@ -616,26 +312,14 @@ async function submitForm() {
 
     try {
         isSubmitting.value = true;
-        errorMessage.value = '';
 
-        // Build form data
-        const formData = new FormData();
-
-        // Add files
-        files.value.forEach((file) => {
-            formData.append('images', file);
-        });
-
-        // Add other data
-        formData.append('data', JSON.stringify(work));
-
-        const response = await axios.post(SERVER_URL + 'works', formData, {
+        const response = await axios.post(SERVER_URL + 'works', work, {
             headers: {
-                'Content-Type': 'multipart/form-data',
+                'Content-Type': 'application/json',
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 201 || response.status === 200) {
             toast.add({
                 title: t('toast.success.title'),
                 description: t('toast.success.description'),
@@ -652,14 +336,11 @@ async function submitForm() {
                 color: 'error',
                 duration: 5000,
             });
-            errorMessage.value = t('admin_gallery_form.messages.submit_failed');
         }
     } catch (error: any) {
         console.error('Error submitting form:', error);
         let description = t('toast.error.description');
-        if (error.response?.status === 413) {
-            description = t('admin_gallery_form.messages.file_too_large');
-        } else if (error.response?.status === 400) {
+        if (error.response?.status === 400) {
             description = t('admin_gallery_form.messages.invalid_data');
         } else {
             description = t('admin_gallery_form.messages.general_error');
@@ -682,25 +363,12 @@ function resetForm() {
     work.year = new Date().getFullYear();
     work.name_ru = '';
     work.name_en = '';
-    work.base_id = (null as unknown) as number;
-    work.materials_ids = [];
+    work.base_id = 0;
     work.descr_ru = '';
     work.descr_en = '';
-    work.type = 0;
-    work.images = [];
-
-    files.value = [];
-    previewImages.value = [];
-
-    if (fileInput.value) {
-        fileInput.value.value = '';
-    }
-
-    // Reset errors
     Object.keys(errors).forEach((key) => {
         errors[key] = '';
     });
-    fileError.value = null;
 }
 
 // Lifecycle

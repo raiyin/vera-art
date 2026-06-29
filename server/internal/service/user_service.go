@@ -284,122 +284,39 @@ func (s *GalleryService) GetWorkByID(ctx context.Context, id int64) (*domain.Wor
 	}
 	slog.Debug("GalleryService.GetWorkByID: work retrieved",
 		"work_id", id,
-		"title", work.Title,
+		"name_ru", work.NameRu,
 	)
 	return work, nil
 }
 
 // CreateWork creates a new work.
 func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error {
-	if work.Title == "" {
-		slog.Warn("GalleryService.CreateWork: empty title")
+	if work.NameRu == "" {
+		slog.Warn("GalleryService.CreateWork: empty name_ru")
 		return domain.ErrInvalidInput
 	}
 
-	// Save image
-	imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("work_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
-	if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
-		slog.Error("GalleryService.CreateWork: failed to save image",
-			"title", work.Title,
-			"image_path", imagePath,
-			"error", err,
-		)
-		return err
-	}
-	work.ImagePath = imagePath
-
 	if err := s.workRepo.Create(ctx, work); err != nil {
 		slog.Error("GalleryService.CreateWork: failed to create work",
-			"title", work.Title,
-			"image_path", imagePath,
+			"name_ru", work.NameRu,
 			"error", err,
 		)
 		return err
-	}
-
-	if len(work.MaterialIDs) > 0 {
-		if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
-			slog.Error("GalleryService.CreateWork: failed to set materials",
-				"work_id", work.ID,
-				"error", err,
-			)
-			return err
-		}
-	}
-
-	if len(work.BaseIDs) > 0 {
-		if err := s.workRepo.SetBases(ctx, work.ID, work.BaseIDs); err != nil {
-			slog.Error("GalleryService.CreateWork: failed to set bases",
-				"work_id", work.ID,
-				"error", err,
-			)
-			return err
-		}
 	}
 
 	slog.Info("GalleryService.CreateWork: work created",
 		"work_id", work.ID,
-		"title", work.Title,
+		"name_ru", work.NameRu,
 	)
 	return nil
 }
 
 // UpdateWork updates a work.
 func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error {
-	existing, err := s.workRepo.GetByID(ctx, work.ID)
-	if err != nil {
-		slog.Error("GalleryService.UpdateWork: failed to get existing work",
-			"work_id", work.ID,
-			"error", err,
-		)
-		return err
-	}
-
-	if reader != nil {
-		// Delete old image
-		if existing.ImagePath != "" {
-			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
-				slog.Warn("GalleryService.UpdateWork: failed to delete old image",
-					"work_id", work.ID,
-					"image_path", existing.ImagePath,
-					"error", err,
-				)
-			}
-		}
-		imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("work_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
-		if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
-			slog.Error("GalleryService.UpdateWork: failed to save new image",
-				"work_id", work.ID,
-				"image_path", imagePath,
-				"error", err,
-			)
-			return err
-		}
-		work.ImagePath = imagePath
-	} else {
-		work.ImagePath = existing.ImagePath
-	}
-
 	if err := s.workRepo.Update(ctx, work); err != nil {
 		slog.Error("GalleryService.UpdateWork: failed to update work",
 			"work_id", work.ID,
-			"title", work.Title,
-			"error", err,
-		)
-		return err
-	}
-
-	if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
-		slog.Error("GalleryService.UpdateWork: failed to set materials",
-			"work_id", work.ID,
-			"error", err,
-		)
-		return err
-	}
-
-	if err := s.workRepo.SetBases(ctx, work.ID, work.BaseIDs); err != nil {
-		slog.Error("GalleryService.UpdateWork: failed to set bases",
-			"work_id", work.ID,
+			"name_ru", work.NameRu,
 			"error", err,
 		)
 		return err
@@ -407,36 +324,16 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 
 	slog.Info("GalleryService.UpdateWork: work updated",
 		"work_id", work.ID,
-		"title", work.Title,
+		"name_ru", work.NameRu,
 	)
 	return nil
 }
 
 // DeleteWork deletes a work.
 func (s *GalleryService) DeleteWork(ctx context.Context, id int64) error {
-	work, err := s.workRepo.GetByID(ctx, id)
-	if err != nil {
-		slog.Error("GalleryService.DeleteWork: failed to get work",
-			"work_id", id,
-			"error", err,
-		)
-		return err
-	}
-
-	if work.ImagePath != "" {
-		if err := s.fileRepo.Delete(ctx, work.ImagePath); err != nil {
-			slog.Warn("GalleryService.DeleteWork: failed to delete work image",
-				"work_id", id,
-				"image_path", work.ImagePath,
-				"error", err,
-			)
-		}
-	}
-
 	if err := s.workRepo.Delete(ctx, id); err != nil {
 		slog.Error("GalleryService.DeleteWork: failed to delete work",
 			"work_id", id,
-			"title", work.Title,
 			"error", err,
 		)
 		return err
@@ -444,7 +341,6 @@ func (s *GalleryService) DeleteWork(ctx context.Context, id int64) error {
 
 	slog.Info("GalleryService.DeleteWork: work deleted",
 		"work_id", id,
-		"title", work.Title,
 	)
 	return nil
 }

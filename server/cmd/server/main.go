@@ -12,6 +12,7 @@ import (
 
 	"github.com/raiyin/artserver/internal/config"
 	"github.com/raiyin/artserver/internal/handler"
+	"github.com/raiyin/artserver/internal/logger"
 	"github.com/raiyin/artserver/internal/repository/file"
 	"github.com/raiyin/artserver/internal/repository/sqlite"
 	"github.com/raiyin/artserver/internal/router"
@@ -21,8 +22,8 @@ import (
 )
 
 func main() {
-	// Setup structured logger
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+	// Setup structured logger with colored output
+	slog.SetDefault(slog.New(logger.NewColoredHandler(os.Stdout, &slog.HandlerOptions{
 		Level:     slog.LevelDebug,
 		AddSource: true,
 	})))
