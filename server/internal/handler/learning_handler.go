@@ -423,3 +423,24 @@ func (h *LearningHandler) UpdateLessonProgress(c *gin.Context) {
 	)
 	c.JSON(http.StatusOK, gin.H{"message": "Progress updated successfully"})
 }
+
+// BulkDeleteLessons deletes multiple lessons.
+func (h *LearningHandler) BulkDeleteLessons(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.learningService.BulkDeleteLessons(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteLessons: failed to bulk delete lessons",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Lessons deleted successfully"})
+}

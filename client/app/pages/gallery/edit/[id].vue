@@ -242,7 +242,7 @@ const bases = computed(() => materialStore.bases);
 
 const baseOptions = computed(() => {
     return bases.value.map((base) => ({
-        label: base.base_ru,
+        label: base.name_ru,
         value: base.id,
     }));
 });

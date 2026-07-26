@@ -4,8 +4,6 @@ import type { MasterClass } from '~/types/master-class';
 import {
     fetchMasterClasses,
     fetchMyPurchasedProductIds,
-    getMasterClassVideoUrl,
-    getMasterClassThumbnailUrl,
 } from '~/api/master-classes';
 import { useAuthStore } from '~/stores/AuthStore';
 
@@ -28,7 +26,7 @@ onMounted(async () => {
 
     // Загружаем купленные мастер-классы, если пользователь авторизован
     if (authStore.accessToken) {
-        purchasedIds.value = await fetchMyPurchasedProductIds(authStore.accessToken);
+        purchasedIds.value = await fetchMyPurchasedProductIds();
     }
 });
 
@@ -83,9 +81,7 @@ function closeVideoPlayer() {
 }
 
 function getVideoSrc(mc: MasterClass): string {
-    const url = getMasterClassVideoUrl(mc.id);
-    // Если мастер-класс платный, добавляем токен авторизации через query-параметр
-    // (токен будет передан в заголовке Authorization через fetch, но для <video> используем query)
+    const url = `${mc.video_url}`;
     if (!mc.is_free && authStore.accessToken) {
         return `${url}?token=${authStore.accessToken}`;
     }
@@ -93,7 +89,7 @@ function getVideoSrc(mc: MasterClass): string {
 }
 
 function getThumbnailSrc(mc: MasterClass): string {
-    return getMasterClassThumbnailUrl(mc.id);
+    return `${mc.thumbnail_url}`;
 }
 
 const activeFilter = ref<string>('all');
@@ -155,6 +151,10 @@ function getCategoryForMc(mc: MasterClass): string {
 function formatPrice(price: number): string {
     if (price === 0) return 'Бесплатно';
     return `${(price / 100).toLocaleString('ru-RU')} ₽`;
+}
+
+function reloadPage() {
+    window.location.reload();
 }
 
 function formatDuration(minutes: number): string {
@@ -243,7 +243,7 @@ function formatDuration(minutes: number): string {
                 Ошибка загрузки
             </h3>
             <p class="text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
-            <UButton color="primary" variant="outline" @click="window.location.reload()">
+            <UButton color="primary" variant="outline" @click="reloadPage()">
                 <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 mr-2" />
                 Попробовать снова
             </UButton>

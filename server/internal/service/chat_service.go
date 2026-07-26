@@ -249,5 +249,51 @@ func (s *ChatService) PollMessages(ctx context.Context, threadID int64, lastMess
 	return messages, hasMore, nil
 }
 
+func (s *ChatService) ResolveThread(ctx context.Context, id int64) error {
+	thread, err := s.threadRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("ChatService.ResolveThread: failed to get thread",
+			"thread_id", id,
+			"error", err,
+		)
+		return err
+	}
+	thread.Status = "resolved"
+	if err := s.threadRepo.Update(ctx, thread); err != nil {
+		slog.Error("ChatService.ResolveThread: failed to resolve thread",
+			"thread_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("ChatService.ResolveThread: thread resolved",
+		"thread_id", id,
+	)
+	return nil
+}
+
+func (s *ChatService) ReopenThread(ctx context.Context, id int64) error {
+	thread, err := s.threadRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("ChatService.ReopenThread: failed to get thread",
+			"thread_id", id,
+			"error", err,
+		)
+		return err
+	}
+	thread.Status = "open"
+	if err := s.threadRepo.Update(ctx, thread); err != nil {
+		slog.Error("ChatService.ReopenThread: failed to reopen thread",
+			"thread_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("ChatService.ReopenThread: thread reopened",
+		"thread_id", id,
+	)
+	return nil
+}
+
 // Ensure interface compliance.
 var _ port.ChatService = (*ChatService)(nil)

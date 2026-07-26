@@ -246,7 +246,7 @@ const bases = computed(() => materialStore.bases);
 
 const baseOptions = computed(() => {
     const options = bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        label: locale.value === 'ru' ? base.name_ru : base.name_en,
         value: base.id,
     }));
     return [...options];

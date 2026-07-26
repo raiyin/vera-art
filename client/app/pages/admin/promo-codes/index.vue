@@ -163,26 +163,26 @@
         </UCard>
 
         <!-- Create/Edit Modal -->
-        <UModal v-model="formModalOpen" class="max-w-lg">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">
-                            {{
-                                editingItem
-                                    ? 'Редактировать промокод'
-                                    : 'Создать промокод'
-                            }}
-                        </h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="formModalOpen = false"
-                        />
-                    </div>
-                </template>
+        <UModal v-model:open="formModalOpen" class="max-w-lg">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">
+                        {{
+                            editingItem
+                                ? 'Редактировать промокод'
+                                : 'Создать промокод'
+                        }}
+                    </h3>
+                    <UButton
+                        icon="i-lucide-x"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        @click="formModalOpen = false"
+                    />
+                </div>
+            </template>
+            <template #body>
                 <div class="space-y-4">
                     <UFormField label="Код промокода" required>
                         <UInput
@@ -253,28 +253,28 @@
                         />
                     </UFormField>
                 </div>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="formModalOpen = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            color="primary"
-                            :loading="saving"
-                            :disabled="
-                                !form.code || !form.discount_type || !form.discount_value
-                            "
-                            @click="savePromoCode"
-                        >
-                            {{ editingItem ? 'Сохранить' : 'Создать' }}
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
+            </template>
+            <template #footer>
+                <div class="flex justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        @click="formModalOpen = false"
+                    >
+                        Отмена
+                    </UButton>
+                    <UButton
+                        color="primary"
+                        :loading="saving"
+                        :disabled="
+                            !form.code || !form.discount_type || !form.discount_value
+                        "
+                        @click="savePromoCode"
+                    >
+                        {{ editingItem ? 'Сохранить' : 'Создать' }}
+                    </UButton>
+                </div>
+            </template>
         </UModal>
 
         <!-- Delete Confirmation Modal -->
@@ -374,8 +374,8 @@ function openEditModal(item: AdminPromoCodeItem) {
     form.discount_type = item.discount_type;
     form.discount_value = item.discount_value;
     form.max_uses = item.max_uses;
-    form.valid_from = item.valid_from ? item.valid_from.split('T')[0] : '';
-    form.valid_until = item.valid_until ? item.valid_until.split('T')[0] : '';
+    form.valid_from = item.valid_from ? item.valid_from.split('T')[0] ?? '' : '';
+    form.valid_until = item.valid_until ? item.valid_until.split('T')[0] ?? '' : '';
     form.is_active = item.is_active ? 'true' : 'false';
     formModalOpen.value = true;
 }

@@ -342,6 +342,19 @@ func (r *TagRepository) Create(ctx context.Context, tag *domain.Tag) error {
 	return nil
 }
 
+func (r *TagRepository) Update(ctx context.Context, tag *domain.Tag) error {
+	query := `UPDATE tags SET name_ru = ?, name_en = ?, slug = ? WHERE id = ?`
+	result, err := r.db.ExecContext(ctx, query, tag.NameRu, tag.NameEn, tag.Slug, tag.ID)
+	if err != nil {
+		return fmt.Errorf("update tag: %w", err)
+	}
+	affected, _ := result.RowsAffected()
+	if affected == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
+
 func (r *TagRepository) List(ctx context.Context) ([]domain.Tag, error) {
 	rows, err := r.db.QueryContext(ctx, "SELECT id, name_ru, name_en, slug, created_at FROM tags ORDER BY name_ru")
 	if err != nil {

@@ -1,18 +1,15 @@
 import type { NewsDesc, } from '~/types';
 import axios from 'axios';
-
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+import { useRuntimeConfig, } from '#imports';
 
 const fetchCurrentNews = async (
     path: string,
 ): Promise<NewsDesc> => {
     try {
+        const config = useRuntimeConfig();
         const newsid = path.substring(path.lastIndexOf('/',) + 1,);
-        const response = await axios.get(SERVER_URL + 'news', {
-            params: { id: newsid, },
-        },);
-        const oneCurrentNews = response.data[0];
+        const response = await axios.get(config.public.serverUrl + 'news/' + newsid,);
+        const oneCurrentNews = response.data;
 
         return oneCurrentNews;
     } catch (e) {
@@ -30,7 +27,7 @@ const fetchOtherNews = async (
         const response = await axios.get(config.public.serverUrl + 'news', {
             params: { id_ne: newsid, limit: 5, },
         },);
-        const otherNews = response.data;
+        const otherNews = response.data.news ?? [];
         return otherNews;
     } catch (e) {
         console.log(e,);

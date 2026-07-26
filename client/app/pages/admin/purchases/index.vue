@@ -228,20 +228,20 @@
         </UCard>
 
         <!-- Extend Access Modal -->
-        <UModal v-model="extendModalOpen" class="max-w-md">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">Продлить доступ</h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="extendModalOpen = false"
-                        />
-                    </div>
-                </template>
+        <UModal v-model:open="extendModalOpen" class="max-w-md">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">Продлить доступ</h3>
+                    <UButton
+                        icon="i-lucide-x"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        @click="extendModalOpen = false"
+                    />
+                </div>
+            </template>
+            <template #body>
                 <div class="space-y-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
                         Пользователь: <strong>{{ extendTarget?.username }}</strong
@@ -257,26 +257,26 @@
                         min="1"
                     />
                 </div>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="extendModalOpen = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            color="primary"
-                            :loading="extending"
-                            :disabled="!extendDays || extendDays < 1"
-                            @click="doExtend"
-                        >
-                            Продлить
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
+            </template>
+            <template #footer>
+                <div class="flex justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        @click="extendModalOpen = false"
+                    >
+                        Отмена
+                    </UButton>
+                    <UButton
+                        color="primary"
+                        :loading="extending"
+                        :disabled="!extendDays || extendDays < 1"
+                        @click="doExtend"
+                    >
+                        Продлить
+                    </UButton>
+                </div>
+            </template>
         </UModal>
 
         <!-- Cancel Confirmation Modal -->

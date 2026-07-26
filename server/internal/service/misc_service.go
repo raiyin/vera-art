@@ -56,6 +56,26 @@ func (s *TagService) CreateTag(ctx context.Context, tag *domain.Tag) error {
 	return nil
 }
 
+func (s *TagService) UpdateTag(ctx context.Context, tag *domain.Tag) error {
+	if tag.NameRu == "" && tag.NameEn == "" {
+		slog.Warn("TagService.UpdateTag: empty name",
+			"tag", tag,
+		)
+		return domain.ErrInvalidInput
+	}
+	if err := s.tagRepo.Update(ctx, tag); err != nil {
+		slog.Error("TagService.UpdateTag: failed to update tag",
+			"tag_id", tag.ID,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("TagService.UpdateTag: tag updated",
+		"tag_id", tag.ID,
+	)
+	return nil
+}
+
 func (s *TagService) DeleteTag(ctx context.Context, id int64) error {
 	if err := s.tagRepo.Delete(ctx, id); err != nil {
 		slog.Error("TagService.DeleteTag: failed to delete tag",

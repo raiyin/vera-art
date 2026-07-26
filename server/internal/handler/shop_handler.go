@@ -967,6 +967,158 @@ func (h *ShopHandler) DeleteReview(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Review deleted successfully"})
 }
 
+// UpdateProductStatus updates a product's status.
+func (h *ShopHandler) UpdateProductStatus(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	var req struct {
+		Status string `json:"status"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.shopService.UpdateProductStatus(c.Request.Context(), id, req.Status); err != nil {
+		slog.Error("UpdateProductStatus: failed to update product status",
+			"product_id", id,
+			"status", req.Status,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Product status updated successfully"})
+}
+
+// BulkDeleteProducts deletes multiple products.
+func (h *ShopHandler) BulkDeleteProducts(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.shopService.BulkDeleteProducts(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteProducts: failed to bulk delete products",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Products deleted successfully"})
+}
+
+// ApproveReview approves a review.
+func (h *ShopHandler) ApproveReview(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.shopService.BulkApproveReviews(c.Request.Context(), []int64{id}); err != nil {
+		slog.Error("ApproveReview: failed to approve review",
+			"review_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Review approved successfully"})
+}
+
+// RejectReview rejects a review.
+func (h *ShopHandler) RejectReview(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.shopService.BulkRejectReviews(c.Request.Context(), []int64{id}); err != nil {
+		slog.Error("RejectReview: failed to reject review",
+			"review_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Review rejected successfully"})
+}
+
+// BulkApproveReviews approves multiple reviews.
+func (h *ShopHandler) BulkApproveReviews(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.shopService.BulkApproveReviews(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkApproveReviews: failed to bulk approve reviews",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reviews approved successfully"})
+}
+
+// BulkRejectReviews rejects multiple reviews.
+func (h *ShopHandler) BulkRejectReviews(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.shopService.BulkRejectReviews(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkRejectReviews: failed to bulk reject reviews",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reviews rejected successfully"})
+}
+
+// BulkDeleteReviews deletes multiple reviews.
+func (h *ShopHandler) BulkDeleteReviews(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.shopService.BulkDeleteReviews(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteReviews: failed to bulk delete reviews",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reviews deleted successfully"})
+}
+
 // ParseIntQueryAsInt64 parses an int64 query parameter.
 func ParseIntQueryAsInt64(c *gin.Context, name string) int64 {
 	valStr := c.Query(name)

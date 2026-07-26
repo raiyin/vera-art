@@ -127,26 +127,26 @@
         </UCard>
 
         <!-- Create/Edit Modal -->
-        <UModal v-model="formModalOpen" class="max-w-lg">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">
-                            {{
-                                editingItem
-                                    ? 'Редактировать категорию'
-                                    : 'Создать категорию'
-                            }}
-                        </h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="formModalOpen = false"
-                        />
-                    </div>
-                </template>
+        <UModal v-model:open="formModalOpen" class="max-w-lg">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">
+                        {{
+                            editingItem
+                                ? 'Редактировать категорию'
+                                : 'Создать категорию'
+                        }}
+                    </h3>
+                    <UButton
+                        icon="i-lucide-x"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        @click="formModalOpen = false"
+                    />
+                </div>
+            </template>
+            <template #body>
                 <div class="space-y-4">
                     <UFormField label="Название (RU)" required>
                         <UInput
@@ -209,26 +209,26 @@
                         </UFormField>
                     </div>
                 </div>
-                <template #footer>
-                    <div class="flex justify-end gap-2">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="formModalOpen = false"
-                        >
-                            Отмена
-                        </UButton>
-                        <UButton
-                            color="primary"
-                            :loading="saving"
-                            :disabled="!form.name_ru || !form.name_en || !form.slug"
-                            @click="saveCategory"
-                        >
-                            {{ editingItem ? 'Сохранить' : 'Создать' }}
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
+            </template>
+            <template #footer>
+                <div class="flex justify-end gap-2">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        @click="formModalOpen = false"
+                    >
+                        Отмена
+                    </UButton>
+                    <UButton
+                        color="primary"
+                        :loading="saving"
+                        :disabled="!form.name_ru || !form.name_en || !form.slug"
+                        @click="saveCategory"
+                    >
+                        {{ editingItem ? 'Сохранить' : 'Создать' }}
+                    </UButton>
+                </div>
+            </template>
         </UModal>
 
         <!-- Delete Confirmation Modal -->

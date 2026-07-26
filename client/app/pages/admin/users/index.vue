@@ -338,24 +338,24 @@
         </UCard>
 
         <!-- User Detail Modal -->
-        <UModal v-model="showDetailModal" class="max-w-3xl">
-            <UCard v-if="selectedUser" :ui="{ body: 'p-0' }">
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">
-                            Пользователь: {{ selectedUser.username }}
-                        </h3>
-                        <UBadge
-                            :color="selectedUser.blocked ? 'error' : 'success'"
-                            variant="soft"
-                            size="sm"
-                        >
-                            {{ selectedUser.blocked ? 'Заблокирован' : 'Активен' }}
-                        </UBadge>
-                    </div>
-                </template>
+        <UModal v-model:open="showDetailModal" class="max-w-3xl">
+            <template v-if="selectedUser" #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">
+                        Пользователь: {{ selectedUser.username }}
+                    </h3>
+                    <UBadge
+                        :color="selectedUser.blocked ? 'error' : 'success'"
+                        variant="soft"
+                        size="sm"
+                    >
+                        {{ selectedUser.blocked ? 'Заблокирован' : 'Активен' }}
+                    </UBadge>
+                </div>
+            </template>
 
-                <div class="p-6 space-y-6">
+            <template v-if="selectedUser" #body>
+                <div class="space-y-6">
                     <!-- User Info -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
@@ -543,19 +543,19 @@
                         </div>
                     </div>
                 </div>
+            </template>
 
-                <template #footer>
-                    <div class="flex justify-end gap-3">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="showDetailModal = false"
-                        >
-                            Закрыть
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
+            <template #footer>
+                <div class="flex justify-end gap-3">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        @click="showDetailModal = false"
+                    >
+                        Закрыть
+                    </UButton>
+                </div>
+            </template>
         </UModal>
 
         <!-- Role Change Confirmation Modal -->

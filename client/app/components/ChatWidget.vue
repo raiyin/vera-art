@@ -62,10 +62,10 @@
                                 v-else-if="message.message_type === 'image'"
                                 class="chat-widget__image"
                             >
-                                <img :src="message.attachment_url" alt="Изображение" />
+                                <img :src="message.attachment_url ?? undefined" alt="Изображение" />
                             </div>
                             <div v-else class="chat-widget__file">
-                                <a :href="message.attachment_url" target="_blank">Файл</a>
+                                <a :href="message.attachment_url ?? undefined" target="_blank">Файл</a>
                             </div>
                         </div>
                         <div class="chat-widget__message-time">
@@ -121,7 +121,7 @@ const messages = ref<ChatMessage[]>([]);
 const newMessage = ref('');
 const unreadCount = ref(0);
 const messagesContainer = ref<HTMLElement | null>(null);
-let pollInterval: unknown = null;
+let pollInterval: ReturnType<typeof setInterval> | null = null;
 
 const fetchThread = async () => {
     if (props.threadId) {
@@ -130,7 +130,7 @@ const fetchThread = async () => {
             const response = await $fetch(`/api/chat/threads/${props.threadId}`, {
                 headers: { Authorization: `Bearer ${authStore.token}` },
             });
-            thread.value = response;
+            thread.value = response as ChatThread;
             await fetchMessages();
         } catch (err) {
             error.value = 'Не удалось загрузить чат';
@@ -140,7 +140,7 @@ const fetchThread = async () => {
         try {
             const threads = await $fetch('/api/chat/threads', {
                 headers: { Authorization: `Bearer ${authStore.token}` },
-            });
+            }) as ChatThread[];
             const found = threads.find(
                 (t: ChatThread) => t.purchase_id === props.purchaseId
             );
@@ -162,7 +162,7 @@ const fetchMessages = async () => {
         const response = await $fetch(`/api/chat/threads/${thread.value.id}/messages`, {
             headers: { Authorization: `Bearer ${authStore.token}` },
         });
-        messages.value = response;
+        messages.value = response as ChatMessage[];
         scrollToBottom();
         updateUnreadCount();
     } catch (err) {
@@ -178,7 +178,7 @@ const createThread = async () => {
             headers: { Authorization: `Bearer ${authStore.token}` },
             body: { purchase_id: props.purchaseId },
         });
-        thread.value = response;
+        thread.value = response as ChatThread;
         await fetchMessages();
     } catch (err) {
         error.value = 'Не удалось создать чат';
@@ -214,8 +214,9 @@ const pollNewMessages = async () => {
                 headers: { Authorization: `Bearer ${authStore.token}` },
             }
         );
-        if (response.messages && response.messages.length > 0) {
-            messages.value.push(...response.messages);
+        const pollResponse = response as { messages?: ChatMessage[] };
+        if (pollResponse.messages && pollResponse.messages.length > 0) {
+            messages.value.push(...pollResponse.messages);
             scrollToBottom();
             updateUnreadCount();
         }
@@ -263,6 +264,7 @@ onMounted(() => {
 onUnmounted(() => {
     if (pollInterval) {
         clearInterval(pollInterval);
+        pollInterval = null;
     }
 });
 

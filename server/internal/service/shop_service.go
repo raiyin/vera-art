@@ -409,5 +409,112 @@ func (s *ShopService) DeleteReview(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (s *ShopService) UpdateProductStatus(ctx context.Context, id int64, status string) error {
+	product, err := s.productRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("ShopService.UpdateProductStatus: failed to get product",
+			"product_id", id,
+			"error", err,
+		)
+		return err
+	}
+	product.Status = status
+	if err := s.productRepo.Update(ctx, product); err != nil {
+		slog.Error("ShopService.UpdateProductStatus: failed to update status",
+			"product_id", id,
+			"status", status,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("ShopService.UpdateProductStatus: status updated",
+		"product_id", id,
+		"status", status,
+	)
+	return nil
+}
+
+func (s *ShopService) BulkDeleteProducts(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteProduct(ctx, id); err != nil {
+			slog.Error("ShopService.BulkDeleteProducts: failed to delete product",
+				"product_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("ShopService.BulkDeleteProducts: products deleted",
+		"count", len(ids),
+	)
+	return nil
+}
+
+func (s *ShopService) BulkApproveReviews(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		review, err := s.reviewRepo.GetByID(ctx, id)
+		if err != nil {
+			slog.Error("ShopService.BulkApproveReviews: failed to get review",
+				"review_id", id,
+				"error", err,
+			)
+			return err
+		}
+		review.Status = "approved"
+		if err := s.reviewRepo.Update(ctx, review); err != nil {
+			slog.Error("ShopService.BulkApproveReviews: failed to approve review",
+				"review_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("ShopService.BulkApproveReviews: reviews approved",
+		"count", len(ids),
+	)
+	return nil
+}
+
+func (s *ShopService) BulkRejectReviews(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		review, err := s.reviewRepo.GetByID(ctx, id)
+		if err != nil {
+			slog.Error("ShopService.BulkRejectReviews: failed to get review",
+				"review_id", id,
+				"error", err,
+			)
+			return err
+		}
+		review.Status = "rejected"
+		if err := s.reviewRepo.Update(ctx, review); err != nil {
+			slog.Error("ShopService.BulkRejectReviews: failed to reject review",
+				"review_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("ShopService.BulkRejectReviews: reviews rejected",
+		"count", len(ids),
+	)
+	return nil
+}
+
+func (s *ShopService) BulkDeleteReviews(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteReview(ctx, id); err != nil {
+			slog.Error("ShopService.BulkDeleteReviews: failed to delete review",
+				"review_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("ShopService.BulkDeleteReviews: reviews deleted",
+		"count", len(ids),
+	)
+	return nil
+}
+
 // Ensure interface compliance.
 var _ port.ShopService = (*ShopService)(nil)

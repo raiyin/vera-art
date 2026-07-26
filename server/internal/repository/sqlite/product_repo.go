@@ -207,9 +207,9 @@ func (r *ProductRepository) GetByID(ctx context.Context, id int64) (*domain.Prod
 	return product, nil
 }
 
-// GetBySlug retrieves a product by category slug.
+// GetBySlug retrieves a product by slug.
 func (r *ProductRepository) GetBySlug(ctx context.Context, slug string) (*domain.Product, error) {
-	query := fmt.Sprintf(`SELECT %s FROM products p LEFT JOIN product_categories pc ON p.category_id = pc.id WHERE pc.slug = ?`,
+	query := fmt.Sprintf(`SELECT %s FROM products p LEFT JOIN product_categories pc ON p.category_id = pc.id WHERE p.slug = ?`,
 		productColumns)
 
 	product, err := r.scanProduct(r.db.QueryRowContext(ctx, query, slug))

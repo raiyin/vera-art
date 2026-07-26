@@ -134,8 +134,9 @@ async function applyPromoCode() {
             method: 'POST',
             body: { code: promoCode.value },
         });
-        if (response.is_valid) {
-            discount.value = response.discount_amount || 0;
+        const promoResponse = response as { is_valid: boolean; discount_amount?: number };
+        if (promoResponse.is_valid) {
+            discount.value = promoResponse.discount_amount || 0;
             promoCodeValid.value = true;
         } else {
             promoError.value = 'Промокод недействителен';
@@ -165,13 +166,14 @@ async function checkout() {
         const response = await $fetch('/api/payments/create', {
             method: 'POST',
             body: {
-                product_id: cartItems.value[0].id, // пока только один товар
+                product_id: cartItems.value[0]?.id ?? 0, // пока только один товар
                 promo_code: promoCode.value || undefined,
             },
         });
         // Перенаправление на страницу оплаты ЮKassa
-        if (response.confirmation_url) {
-            window.location.href = response.confirmation_url;
+        const payResponse = response as { confirmation_url?: string };
+        if (payResponse.confirmation_url) {
+            window.location.href = payResponse.confirmation_url;
         }
     } catch (error) {
         console.error('Ошибка создания платежа', error);

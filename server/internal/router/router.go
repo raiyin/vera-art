@@ -63,7 +63,7 @@ func NewRouter(
 	r.GET("/sales", galleryHandler.GetSales)
 	r.GET("/sales/:id", galleryHandler.GetSaleByID)
 	r.GET("/sales/:id/edit", galleryHandler.GetSaleByID)
-	r.POST("/sales", galleryHandler.CreateSale)
+	r.POST("/sales", authMw, galleryHandler.CreateSale)
 	r.PUT("/sales/:id", authMw, galleryHandler.UpdateSale)
 	r.DELETE("/sales/:id", authMw, galleryHandler.DeleteSale)
 
@@ -73,7 +73,7 @@ func NewRouter(
 	r.GET("/works", galleryHandler.GetWorks)
 	r.GET("/works/:id", galleryHandler.GetWorkByID)
 	r.GET("/works/:id/edit", galleryHandler.GetWorkByID)
-	r.POST("/works", galleryHandler.CreateWork)
+	r.POST("/works", authMw, galleryHandler.CreateWork)
 	r.PUT("/works/:id", authMw, galleryHandler.UpdateWork)
 	r.DELETE("/works/:id", authMw, galleryHandler.DeleteWork)
 
@@ -202,36 +202,57 @@ func NewRouter(
 		admin.GET("/reviews/list", shopHandler.GetReviews)
 		admin.PUT("/reviews/:id", shopHandler.UpdateReview)
 		admin.DELETE("/reviews/:id", shopHandler.DeleteReview)
+		admin.POST("/reviews/:id/approve", shopHandler.ApproveReview)
+		admin.POST("/reviews/:id/reject", shopHandler.RejectReview)
+		admin.POST("/reviews/bulk-approve", shopHandler.BulkApproveReviews)
+		admin.POST("/reviews/bulk-reject", shopHandler.BulkRejectReviews)
+		admin.POST("/reviews/bulk-delete", shopHandler.BulkDeleteReviews)
 
 		// Chat
 		admin.GET("/chat/threads", chatHandler.GetThreads)
 		admin.GET("/chat/threads/:thread_id/messages", chatHandler.AdminGetMessages)
 		admin.POST("/chat/threads/:thread_id/messages", chatHandler.AdminSendMessage)
+		admin.PUT("/chat/threads/:id/resolve", chatHandler.ResolveThread)
+		admin.PUT("/chat/threads/:id/reopen", chatHandler.ReopenThread)
 
 		// Dashboard
 		admin.GET("/stats", miscHandler.GetDashboardStats)
 
 		// Gallery management
 		admin.GET("/works", galleryHandler.GetWorks)
+		admin.POST("/works/bulk-delete", galleryHandler.BulkDeleteWorks)
 		admin.GET("/sales", galleryHandler.GetSales)
+		admin.POST("/sales/bulk-delete", galleryHandler.BulkDeleteSales)
 
 		// News management
 		admin.GET("/news/list", newsHandler.GetNews)
+		admin.POST("/news/bulk-delete", newsHandler.BulkDeleteNews)
 
-		// Users list
+		// Users
 		admin.GET("/users/list", miscHandler.AdminGetUsers)
+		admin.GET("/users/:id", miscHandler.AdminGetUserDetail)
+		admin.PUT("/users/:id/role", miscHandler.AdminUpdateUserRole)
+		admin.PUT("/users/:id/block", miscHandler.AdminToggleUserBlock)
 
 		// Products list
 		admin.GET("/products/list", shopHandler.GetProducts)
+		admin.POST("/products/:id/status", shopHandler.UpdateProductStatus)
+		admin.POST("/products/bulk-delete", shopHandler.BulkDeleteProducts)
 
 		// Lessons list
 		admin.GET("/lessons/list", learningHandler.AdminGetLessons)
+		admin.POST("/lessons/bulk-delete", learningHandler.BulkDeleteLessons)
 
 		// Payments
 		admin.GET("/payments/list", paymentHandler.GetPayments)
+		admin.GET("/payments/:id", paymentHandler.GetPaymentByID)
+		admin.POST("/payments/:id/refund", paymentHandler.RefundPayment)
 
 		// Purchases
 		admin.GET("/purchases/list", paymentHandler.GetPurchases)
+		admin.GET("/purchases/:id", paymentHandler.GetPurchaseByID)
+		admin.POST("/purchases/:id/extend", paymentHandler.ExtendPurchaseAccess)
+		admin.PUT("/purchases/:id/cancel", paymentHandler.CancelPurchase)
 
 		// Materials
 		admin.POST("/materials", miscHandler.CreateMaterial)

@@ -37,6 +37,9 @@ type UserService interface {
 	ServeAvatar(ctx context.Context, userID int64) (string, error)
 	ListUsers(ctx context.Context, filter domain.UserFilter) ([]domain.User, int, error)
 	DeleteUser(ctx context.Context, id int64) error
+	GetUserByID(ctx context.Context, id int64) (*domain.User, error)
+	UpdateUserRole(ctx context.Context, id int64, role string) error
+	ToggleUserBlock(ctx context.Context, id int64) error
 }
 
 // GalleryService defines the interface for gallery (works + sales) operations.
@@ -47,6 +50,7 @@ type GalleryService interface {
 	CreateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
 	UpdateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
 	DeleteWork(ctx context.Context, id int64) error
+	BulkDeleteWorks(ctx context.Context, ids []int64) error
 
 	// Sales
 	GetSales(ctx context.Context, filter domain.SaleFilter) ([]domain.Sale, int, error)
@@ -54,6 +58,7 @@ type GalleryService interface {
 	CreateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
 	UpdateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
 	DeleteSale(ctx context.Context, id int64) error
+	BulkDeleteSales(ctx context.Context, ids []int64) error
 }
 
 // NewsService defines the interface for news operations.
@@ -63,6 +68,7 @@ type NewsService interface {
 	CreateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error
 	UpdateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error
 	DeleteNews(ctx context.Context, id int64) error
+	BulkDeleteNews(ctx context.Context, ids []int64) error
 }
 
 // ShopService defines the interface for shop (products, categories, promo codes, reviews) operations.
@@ -94,6 +100,13 @@ type ShopService interface {
 	CreateReview(ctx context.Context, review *domain.Review) error
 	UpdateReview(ctx context.Context, review *domain.Review) error
 	DeleteReview(ctx context.Context, id int64) error
+
+	// Admin operations
+	UpdateProductStatus(ctx context.Context, id int64, status string) error
+	BulkDeleteProducts(ctx context.Context, ids []int64) error
+	BulkApproveReviews(ctx context.Context, ids []int64) error
+	BulkRejectReviews(ctx context.Context, ids []int64) error
+	BulkDeleteReviews(ctx context.Context, ids []int64) error
 }
 
 // LearningService defines the interface for learning (lessons, progress) operations.
@@ -105,6 +118,7 @@ type LearningService interface {
 	CreateLesson(ctx context.Context, lesson *domain.Lesson) error
 	UpdateLesson(ctx context.Context, lesson *domain.Lesson) error
 	DeleteLesson(ctx context.Context, id int64) error
+	BulkDeleteLessons(ctx context.Context, ids []int64) error
 
 	// Learning Progress
 	GetMyCourses(ctx context.Context, userID int64) ([]int64, error)
@@ -121,6 +135,11 @@ type PaymentService interface {
 	GetPurchases(ctx context.Context) ([]domain.Purchase, int, error)
 	GetUserPurchases(ctx context.Context, userID int64) ([]domain.Purchase, error)
 	HasUserPurchasedProduct(ctx context.Context, userID, productID int64) (bool, error)
+	GetPaymentByID(ctx context.Context, id int64) (*domain.Payment, error)
+	GetPurchaseByID(ctx context.Context, id int64) (*domain.Purchase, error)
+	ExtendPurchaseAccess(ctx context.Context, id int64, days int) error
+	CancelPurchase(ctx context.Context, id int64) error
+	RefundPayment(ctx context.Context, id int64) error
 }
 
 // ChatService defines the interface for chat operations.
@@ -134,6 +153,8 @@ type ChatService interface {
 	AdminSendMessage(ctx context.Context, threadID int64, content string) (*domain.ChatMessage, error)
 	MarkMessageAsRead(ctx context.Context, messageID int64) error
 	PollMessages(ctx context.Context, threadID int64, lastMessageID int64, userID int64) ([]domain.ChatMessage, bool, error)
+	ResolveThread(ctx context.Context, id int64) error
+	ReopenThread(ctx context.Context, id int64) error
 }
 
 // AdminService defines the interface for admin operations.
@@ -161,6 +182,7 @@ type MasterClassService interface {
 type TagService interface {
 	GetTags(ctx context.Context) ([]domain.Tag, error)
 	CreateTag(ctx context.Context, tag *domain.Tag) error
+	UpdateTag(ctx context.Context, tag *domain.Tag) error
 	DeleteTag(ctx context.Context, id int64) error
 }
 

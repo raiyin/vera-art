@@ -21,6 +21,7 @@ type MiscHandler struct {
 	baseService        port.BaseService
 	consentService     port.ConsentService
 	masterClassService port.MasterClassService
+	userService        port.UserService
 }
 
 // NewMiscHandler creates a new MiscHandler.
@@ -31,6 +32,7 @@ func NewMiscHandler(
 	baseService port.BaseService,
 	consentService port.ConsentService,
 	masterClassService port.MasterClassService,
+	userService port.UserService,
 ) *MiscHandler {
 	return &MiscHandler{
 		adminService:       adminService,
@@ -39,6 +41,7 @@ func NewMiscHandler(
 		baseService:        baseService,
 		consentService:     consentService,
 		masterClassService: masterClassService,
+		userService:        userService,
 	}
 }
 
@@ -110,6 +113,83 @@ func (h *MiscHandler) AdminGetUsers(c *gin.Context) {
 		"users": responses,
 		"total": total,
 	})
+}
+
+// AdminGetUserDetail returns a single user by ID.
+func (h *MiscHandler) AdminGetUserDetail(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	user, err := h.userService.GetUserByID(c.Request.Context(), id)
+	if err != nil {
+		slog.Error("AdminGetUserDetail: failed to get user",
+			"user_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.UserListResponse{
+		ID:            user.ID,
+		Username:      user.Username,
+		Email:         user.Email,
+		Name:          user.Name,
+		Role:          user.Role,
+		EmailVerified: user.EmailVerified,
+		CreatedAt:     user.CreatedAt,
+		UpdatedAt:     user.UpdatedAt,
+	})
+}
+
+// AdminUpdateUserRole updates a user's role.
+func (h *MiscHandler) AdminUpdateUserRole(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	var req struct {
+		Role string `json:"role"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.userService.UpdateUserRole(c.Request.Context(), id, req.Role); err != nil {
+		slog.Error("AdminUpdateUserRole: failed to update role",
+			"user_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Role updated successfully"})
+}
+
+// AdminToggleUserBlock toggles a user's blocked status.
+func (h *MiscHandler) AdminToggleUserBlock(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.userService.ToggleUserBlock(c.Request.Context(), id); err != nil {
+		slog.Error("AdminToggleUserBlock: failed to toggle block",
+			"user_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Block status toggled successfully"})
 }
 
 // ---------------------------------------------------------------------------
@@ -198,7 +278,7 @@ func (h *MiscHandler) UpdateTag(c *gin.Context) {
 		Slug:   req.Slug,
 	}
 
-	if err := h.tagService.CreateTag(c.Request.Context(), tag); err != nil {
+	if err := h.tagService.UpdateTag(c.Request.Context(), tag); err != nil {
 		slog.Error("UpdateTag: failed to update tag",
 			"tag_id", id,
 			"error", err,

@@ -1,5 +1,5 @@
 export interface Base {
     id: number
-    base_ru: string
-    base_en: string
+    name_ru: string
+    name_en: string
 }

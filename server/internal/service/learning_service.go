@@ -242,5 +242,21 @@ func (s *LearningService) UpdateLessonProgress(ctx context.Context, userID, less
 	return nil
 }
 
+func (s *LearningService) BulkDeleteLessons(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteLesson(ctx, id); err != nil {
+			slog.Error("LearningService.BulkDeleteLessons: failed to delete lesson",
+				"lesson_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("LearningService.BulkDeleteLessons: lessons deleted",
+		"count", len(ids),
+	)
+	return nil
+}
+
 // Ensure interface compliance.
 var _ port.LearningService = (*LearningService)(nil)

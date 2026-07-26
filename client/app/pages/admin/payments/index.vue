@@ -192,22 +192,22 @@
         </UCard>
 
         <!-- Detail Modal -->
-        <UModal v-model="detailModalOpen" class="max-w-lg">
-            <UCard>
-                <template #header>
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold">
-                            Детали платежа #{{ detailTarget?.id }}
-                        </h3>
-                        <UButton
-                            icon="i-lucide-x"
-                            color="neutral"
-                            variant="ghost"
-                            size="sm"
-                            @click="detailModalOpen = false"
-                        />
-                    </div>
-                </template>
+        <UModal v-model:open="detailModalOpen" class="max-w-lg">
+            <template #header>
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold">
+                        Детали платежа #{{ detailTarget?.id }}
+                    </h3>
+                    <UButton
+                        icon="i-lucide-x"
+                        color="neutral"
+                        variant="ghost"
+                        size="sm"
+                        @click="detailModalOpen = false"
+                    />
+                </div>
+            </template>
+            <template #body>
                 <div v-if="detailTarget" class="space-y-3">
                     <div class="admin-payments__detail-row">
                         <span class="admin-payments__detail-label">Пользователь</span>
@@ -265,18 +265,18 @@
                         }}</span>
                     </div>
                 </div>
-                <template #footer>
-                    <div class="flex justify-end">
-                        <UButton
-                            color="neutral"
-                            variant="outline"
-                            @click="detailModalOpen = false"
-                        >
-                            Закрыть
-                        </UButton>
-                    </div>
-                </template>
-            </UCard>
+            </template>
+            <template #footer>
+                <div class="flex justify-end">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        @click="detailModalOpen = false"
+                    >
+                        Закрыть
+                    </UButton>
+                </div>
+            </template>
         </UModal>
 
         <!-- Refund Confirmation Modal -->

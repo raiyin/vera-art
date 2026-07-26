@@ -27,9 +27,9 @@ export const useNotificationStore = defineStore('notificationStore', () => {
         }
 
         try {
-            const { data, } = await getHttpClient().get('chat/threads',);
+            const { data, } = await getHttpClient().get<any>('chat/threads',);
 
-            const threads = data as ChatThread[];
+            const threads = data.threads as ChatThread[];
 
             let totalUnread = 0;
             if (Array.isArray(threads,)) {

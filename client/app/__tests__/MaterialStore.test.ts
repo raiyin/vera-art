@@ -24,13 +24,13 @@ describe('MaterialStore', () => {
     it('finds a material by id', () => {
       const store = useMaterialStore()
       store.materials = [
-        { id: 1, material_ru: 'Холст', material_en: 'Canvas' },
-        { id: 2, material_ru: 'Акрил', material_en: 'Acrylic' },
+        { id: 1, name_ru: 'Холст', name_en: 'Canvas' },
+        { id: 2, name_ru: 'Акрил', name_en: 'Acrylic' },
       ]
       expect(store.getMaterialById(2)).toEqual({
         id: 2,
-        material_ru: 'Акрил',
-        material_en: 'Acrylic',
+        name_ru: 'Акрил',
+        name_en: 'Acrylic',
       })
     })
   })
@@ -38,19 +38,19 @@ describe('MaterialStore', () => {
   describe('getMaterialName', () => {
     it('returns russian name', () => {
       const store = useMaterialStore()
-      store.materials = [{ id: 1, material_ru: 'Масло', material_en: 'Oil' }]
+      store.materials = [{ id: 1, name_ru: 'Масло', name_en: 'Oil' }]
       expect(store.getMaterialName(1, 'ru')).toBe('Масло')
     })
 
     it('returns english name', () => {
       const store = useMaterialStore()
-      store.materials = [{ id: 1, material_ru: 'Масло', material_en: 'Oil' }]
+      store.materials = [{ id: 1, name_ru: 'Масло', name_en: 'Oil' }]
       expect(store.getMaterialName(1, 'en')).toBe('Oil')
     })
 
     it('returns empty string for unknown id', () => {
       const store = useMaterialStore()
-      store.materials = [{ id: 1, material_ru: 'Масло', material_en: 'Oil' }]
+      store.materials = [{ id: 1, name_ru: 'Масло', name_en: 'Oil' }]
       expect(store.getMaterialName(99, 'ru')).toBe('')
     })
   })
@@ -59,15 +59,15 @@ describe('MaterialStore', () => {
     it('returns names for multiple ids', () => {
       const store = useMaterialStore()
       store.materials = [
-        { id: 1, material_ru: 'Холст', material_en: 'Canvas' },
-        { id: 2, material_ru: 'Акрил', material_en: 'Acrylic' },
+        { id: 1, name_ru: 'Холст', name_en: 'Canvas' },
+        { id: 2, name_ru: 'Акрил', name_en: 'Acrylic' },
       ]
       expect(store.getMaterialNames([1, 2], 'ru')).toEqual(['Холст', 'Акрил'])
     })
 
     it('filters out unknown ids', () => {
       const store = useMaterialStore()
-      store.materials = [{ id: 1, material_ru: 'Масло', material_en: 'Oil' }]
+      store.materials = [{ id: 1, name_ru: 'Масло', name_en: 'Oil' }]
       expect(store.getMaterialNames([1, 99], 'ru')).toEqual(['Масло'])
     })
   })
@@ -76,8 +76,8 @@ describe('MaterialStore', () => {
     it('joins names with comma', () => {
       const store = useMaterialStore()
       store.materials = [
-        { id: 1, material_ru: 'Холст', material_en: 'Canvas' },
-        { id: 2, material_ru: 'Акрил', material_en: 'Acrylic' },
+        { id: 1, name_ru: 'Холст', name_en: 'Canvas' },
+        { id: 2, name_ru: 'Акрил', name_en: 'Acrylic' },
       ]
       expect(store.getMaterialNamesString([1, 2], 'ru')).toBe('Холст, Акрил')
     })
@@ -92,13 +92,13 @@ describe('MaterialStore', () => {
     it('finds a base by id', () => {
       const store = useMaterialStore()
       store.bases = [
-        { id: 1, base_ru: 'Картон', base_en: 'Cardboard' },
-        { id: 2, base_ru: 'Дерево', base_en: 'Wood' },
+        { id: 1, name_ru: 'Картон', name_en: 'Cardboard' },
+        { id: 2, name_ru: 'Дерево', name_en: 'Wood' },
       ]
       expect(store.getBaseById(2)).toEqual({
         id: 2,
-        base_ru: 'Дерево',
-        base_en: 'Wood',
+        name_ru: 'Дерево',
+        name_en: 'Wood',
       })
     })
   })
@@ -106,19 +106,19 @@ describe('MaterialStore', () => {
   describe('getBaseName', () => {
     it('returns russian name', () => {
       const store = useMaterialStore()
-      store.bases = [{ id: 1, base_ru: 'Холст', base_en: 'Canvas' }]
+      store.bases = [{ id: 1, name_ru: 'Холст', name_en: 'Canvas' }]
       expect(store.getBaseName(1, 'ru')).toBe('Холст')
     })
 
     it('returns english name', () => {
       const store = useMaterialStore()
-      store.bases = [{ id: 1, base_ru: 'Холст', base_en: 'Canvas' }]
+      store.bases = [{ id: 1, name_ru: 'Холст', name_en: 'Canvas' }]
       expect(store.getBaseName(1, 'en')).toBe('Canvas')
     })
 
     it('returns empty string for unknown id', () => {
       const store = useMaterialStore()
-      store.bases = [{ id: 1, base_ru: 'Холст', base_en: 'Canvas' }]
+      store.bases = [{ id: 1, name_ru: 'Холст', name_en: 'Canvas' }]
       expect(store.getBaseName(99, 'en')).toBe('')
     })
   })

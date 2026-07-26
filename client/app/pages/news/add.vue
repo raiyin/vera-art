@@ -6,9 +6,9 @@ definePageMeta({
 
 import { ref, reactive, computed } from 'vue';
 import type { NewsDesc } from '~/types';
-import authApi from '~/api/auth';
+import { getHttpClient } from '~/api/http-client';
 
-const api = authApi.getApiInstance();
+const api = getHttpClient();
 
 const { t } = useI18n();
 const toast = useToast();

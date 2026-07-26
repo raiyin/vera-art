@@ -255,3 +255,132 @@ func (h *PaymentHandler) CreatePurchase(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Purchase creation is handled via webhook"})
 }
+
+// GetPurchaseByID returns a single purchase by ID (admin).
+func (h *PaymentHandler) GetPurchaseByID(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	purchase, err := h.paymentService.GetPurchaseByID(c.Request.Context(), id)
+	if err != nil {
+		slog.Error("GetPurchaseByID: failed to get purchase",
+			"purchase_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.PurchaseResponse{
+		ID:          purchase.ID,
+		UserID:      purchase.UserID,
+		ProductID:   purchase.ProductID,
+		PaymentID:   purchase.PaymentID,
+		PricePaid:   purchase.PricePaid,
+		Status:      purchase.Status,
+		AccessStart: purchase.AccessStart,
+		AccessEnd:   purchase.AccessEnd,
+		CreatedAt:   purchase.CreatedAt,
+	})
+}
+
+// ExtendPurchaseAccess extends access for a purchase (admin).
+func (h *PaymentHandler) ExtendPurchaseAccess(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	var req struct {
+		Days int `json:"days"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.paymentService.ExtendPurchaseAccess(c.Request.Context(), id, req.Days); err != nil {
+		slog.Error("ExtendPurchaseAccess: failed to extend access",
+			"purchase_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Purchase access extended successfully"})
+}
+
+// CancelPurchase cancels a purchase (admin).
+func (h *PaymentHandler) CancelPurchase(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.paymentService.CancelPurchase(c.Request.Context(), id); err != nil {
+		slog.Error("CancelPurchase: failed to cancel purchase",
+			"purchase_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Purchase cancelled successfully"})
+}
+
+// GetPaymentByID returns a single payment by ID (admin).
+func (h *PaymentHandler) GetPaymentByID(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	payment, err := h.paymentService.GetPaymentByID(c.Request.Context(), id)
+	if err != nil {
+		slog.Error("GetPaymentByID: failed to get payment",
+			"payment_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.PaymentResponse{
+		ID:            payment.ID,
+		UserID:        payment.UserID,
+		Status:        payment.Status,
+		Amount:        payment.Amount,
+		Currency:      payment.Currency,
+		Description:   "Payment",
+		PaymentMethod: payment.PaymentMethod,
+		CreatedAt:     payment.CreatedAt,
+		UpdatedAt:     payment.UpdatedAt,
+	})
+}
+
+// RefundPayment refunds a payment (admin).
+func (h *PaymentHandler) RefundPayment(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.paymentService.RefundPayment(c.Request.Context(), id); err != nil {
+		slog.Error("RefundPayment: failed to refund payment",
+			"payment_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Payment refunded successfully"})
+}

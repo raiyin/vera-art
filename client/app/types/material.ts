@@ -1,5 +1,5 @@
 export interface Material {
     id: number
-    material_ru: string
-    material_en: string
+    name_ru: string
+    name_en: string
 }

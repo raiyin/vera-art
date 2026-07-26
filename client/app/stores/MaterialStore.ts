@@ -48,7 +48,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
     function getMaterialName(id: number, locale: string,): string {
         const material = getMaterialById(id,);
         if (!material) return '';
-        return locale === 'ru' ? material.material_ru : material.material_en;
+        return locale === 'ru' ? material.name_ru : material.name_en;
     }
 
     function getMaterialNames(ids: number[], locale: string,): string[] {
@@ -66,7 +66,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
     function getBaseName(id: number, locale: string,): string {
         const base = getBaseById(id,);
         if (!base) return '';
-        return locale === 'ru' ? base.base_ru : base.base_en;
+        return locale === 'ru' ? base.name_ru : base.name_en;
     }
 
     return {

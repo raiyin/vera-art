@@ -155,6 +155,7 @@ type ChatMessageRepository interface {
 // TagRepository defines the interface for tag data access.
 type TagRepository interface {
 	Create(ctx context.Context, tag *domain.Tag) error
+	Update(ctx context.Context, tag *domain.Tag) error
 	List(ctx context.Context) ([]domain.Tag, error)
 	Delete(ctx context.Context, id int64) error
 }

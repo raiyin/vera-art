@@ -252,5 +252,21 @@ func (s *NewsService) DeleteNews(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (s *NewsService) BulkDeleteNews(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteNews(ctx, id); err != nil {
+			slog.Error("NewsService.BulkDeleteNews: failed to delete news",
+				"news_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("NewsService.BulkDeleteNews: news deleted",
+		"count", len(ids),
+	)
+	return nil
+}
+
 // Ensure interface compliance.
 var _ port.NewsService = (*NewsService)(nil)

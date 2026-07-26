@@ -14,6 +14,7 @@ export interface WorkBase {
     width: number
     height: number
     images: string[]
+    material_ids?: number[]
 }
 
 // ─── Work (gallery) ─────────────────────────────────────────────────

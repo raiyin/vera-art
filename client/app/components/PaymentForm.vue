@@ -63,7 +63,7 @@ async function initiatePayment() {
         const response = await $fetch(`/api/payments/${props.paymentId}/capture`, {
             method: 'POST',
         });
-        if (response.success) {
+        if ((response as Record<string, boolean>).success) {
             status.value = 'success';
         } else {
             throw new Error('Payment capture failed');

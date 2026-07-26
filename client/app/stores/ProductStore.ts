@@ -114,7 +114,7 @@ export const useProductStore = defineStore('productStore', () => {
 
             const { data, } = await getHttpClient().get('categories',);
 
-            categories.value = data;
+            categories.value = data.categories ?? [];
             return categories.value;
         } catch (err: unknown) {
             const errorMessage = (err as { response?: { data?: { error?: string } } })?.response?.data?.error || 'Failed to fetch categories';
@@ -131,9 +131,10 @@ export const useProductStore = defineStore('productStore', () => {
             isLoading.value = true;
             error.value = null;
 
-            const { data, } = await getHttpClient().get(`categories/${slug}`,);
+            const { data, } = await getHttpClient().get('categories',);
 
-            currentCategory.value = data;
+            const cat = (data.categories ?? []).find((c: ProductCategory,) => c.slug === slug,) ?? null;
+            currentCategory.value = cat;
             return currentCategory.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch category';
@@ -168,7 +169,7 @@ export const useProductStore = defineStore('productStore', () => {
 
             const { data, } = await getHttpClient().get(`products?${params.toString()}`,);
 
-            products.value = data;
+            products.value = data.products ?? [];
             return products.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch products';
@@ -179,14 +180,19 @@ export const useProductStore = defineStore('productStore', () => {
         }
     };
 
-    const fetchProductBySlug = async (slug: string,) => {
+    const fetchProductBySlug = async (slug: string, categorySlug?: string,) => {
         try {
             isLoading.value = true;
             error.value = null;
 
-            const { data, } = await getHttpClient().get(`product/${slug}`,);
-
-            currentProduct.value = data;
+            if (categorySlug) {
+                const { data, } = await getHttpClient().get(`category/${categorySlug}/product/${slug}`,);
+                currentProduct.value = data;
+            } else {
+                const { data, } = await getHttpClient().get('products', { params: { q: slug, limit: 1, }, },);
+                const products = data.products ?? [];
+                currentProduct.value = products.length > 0 ? products[0] : null;
+            }
             return currentProduct.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch product';
@@ -228,7 +234,7 @@ export const useProductStore = defineStore('productStore', () => {
                 },
             },);
 
-            featuredProducts.value = data;
+            featuredProducts.value = data.products ?? [];
             return featuredProducts.value;
         } catch (err: unknown) {
             error.value = extractErrorMessage(err,) || 'Failed to fetch featured products';

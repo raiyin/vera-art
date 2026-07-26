@@ -24,6 +24,7 @@ const { items: works, sentinelRef, loading } = useInfiniteScroll<Work>(
                 descr_en: string | null;
                 work_path: string;
                 images: string[];
+                material_ids: number[];
             }>;
             total: number;
         }>('works', {
@@ -46,6 +47,7 @@ const { items: works, sentinelRef, loading } = useInfiniteScroll<Work>(
             descr_ru: work.descr_ru ?? '',
             descr_en: work.descr_en ?? '',
             images: work.images ?? [],
+            material_ids: work.material_ids ?? [],
             __type: 'GetWorkDto' as const,
         }));
     },

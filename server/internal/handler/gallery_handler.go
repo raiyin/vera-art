@@ -81,18 +81,19 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 
 func workToResponse(w *domain.Work) dto.WorkResponse {
 	return dto.WorkResponse{
-		ID:       w.ID,
-		StrID:    w.StrID,
-		Width:    w.Width,
-		Height:   w.Height,
-		Year:     w.Year,
-		NameRu:   w.NameRu,
-		NameEn:   w.NameEn,
-		BaseID:   w.BaseID,
-		DescrRu:  w.DescrRu,
-		DescrEn:  w.DescrEn,
-		WorkPath: w.WorkPath,
-		Images:   dto.SplitImages(w.Images),
+		ID:          w.ID,
+		StrID:       w.StrID,
+		Width:       w.Width,
+		Height:      w.Height,
+		Year:        w.Year,
+		NameRu:      w.NameRu,
+		NameEn:      w.NameEn,
+		BaseID:      w.BaseID,
+		DescrRu:     w.DescrRu,
+		DescrEn:     w.DescrEn,
+		WorkPath:    w.WorkPath,
+		Images:      dto.SplitImages(w.Images),
+		MaterialIDs: w.MaterialIDs,
 	}
 }
 
@@ -258,20 +259,21 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 	slog.Info("Work updated successfully",
 		"work_id", id,
 	)
-	c.JSON(http.StatusOK, dto.UpdateWorkResponse{
-		ID:       work.ID,
-		StrID:    work.StrID,
-		Width:    work.Width,
-		Height:   work.Height,
-		Year:     work.Year,
-		NameRu:   work.NameRu,
-		NameEn:   work.NameEn,
-		BaseID:   work.BaseID,
-		DescrRu:  work.DescrRu,
-		DescrEn:  work.DescrEn,
-		WorkPath: work.WorkPath,
-		Images:   dto.SplitImages(work.Images),
-	})
+		c.JSON(http.StatusOK, dto.UpdateWorkResponse{
+			ID:          work.ID,
+			StrID:       work.StrID,
+			Width:       work.Width,
+			Height:      work.Height,
+			Year:        work.Year,
+			NameRu:      work.NameRu,
+			NameEn:      work.NameEn,
+			BaseID:      work.BaseID,
+			DescrRu:     work.DescrRu,
+			DescrEn:     work.DescrEn,
+			WorkPath:    work.WorkPath,
+			Images:      dto.SplitImages(work.Images),
+			MaterialIDs: work.MaterialIDs,
+		})
 }
 
 // DeleteWork deletes a work.
@@ -425,15 +427,19 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 		BaseIDs:     req.BaseIDs,
 	}
 
-	var filename string
-	var reader io.ReadCloser
-
 	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		defer file.Close()
-		filename = header.Filename
-		reader = file
+	if err != nil {
+		slog.Warn("CreateSale: missing image file")
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "MISSING_IMAGE",
+			Message: "Image file is required",
+		})
+		return
 	}
+	defer file.Close()
+	filename := header.Filename
+	reader := file
 
 	if err := h.galleryService.CreateSale(c.Request.Context(), sale, filename, reader); err != nil {
 		slog.Error("CreateSale: failed to create sale",
@@ -573,4 +579,46 @@ func (h *GalleryHandler) DeleteSale(c *gin.Context) {
 		"sale_id", id,
 	)
 	c.JSON(http.StatusOK, gin.H{"message": "Sale deleted successfully"})
+}
+
+// BulkDeleteWorks deletes multiple works.
+func (h *GalleryHandler) BulkDeleteWorks(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.galleryService.BulkDeleteWorks(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteWorks: failed to bulk delete works",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Works deleted successfully"})
+}
+
+// BulkDeleteSales deletes multiple sales.
+func (h *GalleryHandler) BulkDeleteSales(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.galleryService.BulkDeleteSales(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteSales: failed to bulk delete sales",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Sales deleted successfully"})
 }

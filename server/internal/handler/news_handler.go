@@ -268,5 +268,26 @@ func (h *NewsHandler) DeleteNews(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
 }
 
+// BulkDeleteNews deletes multiple news entries.
+func (h *NewsHandler) BulkDeleteNews(c *gin.Context) {
+	var req struct {
+		IDs []int64 `json:"ids"`
+	}
+	if !BindJSON(c, &req) {
+		return
+	}
+
+	if err := h.newsService.BulkDeleteNews(c.Request.Context(), req.IDs); err != nil {
+		slog.Error("BulkDeleteNews: failed to bulk delete news",
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
+}
+
 // Ensure io is used
 var _ io.Reader

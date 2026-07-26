@@ -237,6 +237,66 @@ func (s *UserService) DeleteUser(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (s *UserService) GetUserByID(ctx context.Context, id int64) (*domain.User, error) {
+	user, err := s.userRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("UserService.GetUserByID: failed to get user",
+			"user_id", id,
+			"error", err,
+		)
+		return nil, err
+	}
+	return user, nil
+}
+
+func (s *UserService) UpdateUserRole(ctx context.Context, id int64, role string) error {
+	user, err := s.userRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("UserService.UpdateUserRole: failed to get user",
+			"user_id", id,
+			"error", err,
+		)
+		return err
+	}
+	user.Role = role
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		slog.Error("UserService.UpdateUserRole: failed to update role",
+			"user_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("UserService.UpdateUserRole: role updated",
+		"user_id", id,
+		"role", role,
+	)
+	return nil
+}
+
+func (s *UserService) ToggleUserBlock(ctx context.Context, id int64) error {
+	user, err := s.userRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("UserService.ToggleUserBlock: failed to get user",
+			"user_id", id,
+			"error", err,
+		)
+		return err
+	}
+	user.Blocked = !user.Blocked
+	if err := s.userRepo.Update(ctx, user); err != nil {
+		slog.Error("UserService.ToggleUserBlock: failed to toggle block",
+			"user_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("UserService.ToggleUserBlock: block toggled",
+		"user_id", id,
+		"blocked", user.Blocked,
+	)
+	return nil
+}
+
 // GalleryService implements port.GalleryService.
 type GalleryService struct {
 	workRepo  port.WorkRepository
@@ -533,6 +593,38 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 	slog.Info("GalleryService.DeleteSale: sale deleted",
 		"sale_id", id,
 		"title", sale.Title,
+	)
+	return nil
+}
+
+func (s *GalleryService) BulkDeleteWorks(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteWork(ctx, id); err != nil {
+			slog.Error("GalleryService.BulkDeleteWorks: failed to delete work",
+				"work_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("GalleryService.BulkDeleteWorks: works deleted",
+		"count", len(ids),
+	)
+	return nil
+}
+
+func (s *GalleryService) BulkDeleteSales(ctx context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := s.DeleteSale(ctx, id); err != nil {
+			slog.Error("GalleryService.BulkDeleteSales: failed to delete sale",
+				"sale_id", id,
+				"error", err,
+			)
+			return err
+		}
+	}
+	slog.Info("GalleryService.BulkDeleteSales: sales deleted",
+		"count", len(ids),
 	)
 	return nil
 }

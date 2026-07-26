@@ -138,6 +138,24 @@ func (m *mockGalleryService) DeleteSale(_ context.Context, id int64) error {
 	return domain.ErrNotFound
 }
 
+func (m *mockGalleryService) BulkDeleteWorks(_ context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := m.DeleteWork(context.Background(), id); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (m *mockGalleryService) BulkDeleteSales(_ context.Context, ids []int64) error {
+	for _, id := range ids {
+		if err := m.DeleteSale(context.Background(), id); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func setupGalleryRouter(h *GalleryHandler) *gin.Engine {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()

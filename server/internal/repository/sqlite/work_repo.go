@@ -84,6 +84,9 @@ func (r *WorkRepository) GetByID(ctx context.Context, id int64) (*domain.Work, e
 		return nil, fmt.Errorf("get work by id: %w", err)
 	}
 
+	materialIDs, _ := r.GetMaterialIDs(ctx, id)
+	work.MaterialIDs = materialIDs
+
 	return work, nil
 }
 
@@ -139,6 +142,12 @@ func (r *WorkRepository) List(ctx context.Context, filter domain.WorkFilter) ([]
 		works = append(works, *work)
 	}
 
+	// Load material associations for all works
+	materialIDs, _ := r.GetBulkMaterialIDs(ctx, works)
+	for i := range works {
+		works[i].MaterialIDs = materialIDs[works[i].ID]
+	}
+
 	return works, total, nil
 }
 
@@ -164,6 +173,10 @@ func (r *WorkRepository) Update(ctx context.Context, work *domain.Work) error {
 
 // Delete deletes a work by ID.
 func (r *WorkRepository) Delete(ctx context.Context, id int64) error {
+	if _, err := r.db.ExecContext(ctx, "DELETE FROM works_materials WHERE work_id = ?", id); err != nil {
+		return fmt.Errorf("delete work materials: %w", err)
+	}
+
 	result, err := r.db.ExecContext(ctx, "DELETE FROM works WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("delete work: %w", err)
@@ -173,6 +186,58 @@ func (r *WorkRepository) Delete(ctx context.Context, id int64) error {
 		return domain.ErrNotFound
 	}
 	return nil
+}
+
+// GetMaterialIDs retrieves material IDs for a work.
+func (r *WorkRepository) GetMaterialIDs(ctx context.Context, workID int64) ([]int64, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT material_id FROM works_materials WHERE work_id = ? ORDER BY material_id", workID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []int64
+	for rows.Next() {
+		var id int64
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, nil
+}
+
+// GetBulkMaterialIDs retrieves material IDs for multiple works at once.
+func (r *WorkRepository) GetBulkMaterialIDs(ctx context.Context, works []domain.Work) (map[int64][]int64, error) {
+	if len(works) == 0 {
+		return nil, nil
+	}
+	ids := make([]int64, len(works))
+	for i, w := range works {
+		ids[i] = w.ID
+	}
+	result := make(map[int64][]int64, len(works))
+
+	query := "SELECT work_id, material_id FROM works_materials WHERE work_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY work_id, material_id"
+	args := make([]interface{}, len(ids))
+	for i, id := range ids {
+		args[i] = id
+	}
+
+	rows, err := r.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var workID, materialID int64
+		if err := rows.Scan(&workID, &materialID); err != nil {
+			return nil, err
+		}
+		result[workID] = append(result[workID], materialID)
+	}
+	return result, nil
 }
 
 func nullInt(n int64) interface{} {

@@ -270,9 +270,9 @@
                                 />
                                 <label :for="'material-' + material.id">
                                     {{
-                                        $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
+        $i18n.locale === 'ru'
+            ? material.name_ru
+            : material.name_en
                                     }}
                                 </label>
                             </div>
@@ -414,7 +414,7 @@ const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
     return bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        label: locale.value === 'ru' ? base.name_ru : base.name_en,
         value: base.id,
     }));
 });
@@ -424,7 +424,7 @@ const selectedMaterialsDisplay = computed(() => {
     const selectedNames = materialStore.materials
         .filter((material) => sale.materials_ids.includes(material.id))
         .map((material) =>
-            locale.value === 'ru' ? material.material_ru : material.material_en
+            locale.value === 'ru' ? material.name_ru : material.name_en
         );
     return selectedNames.join(', ');
 });

@@ -296,3 +296,43 @@ func (h *ChatHandler) PollMessages(c *gin.Context) {
 		HasMore:  hasMore,
 	})
 }
+
+// ResolveThread resolves a chat thread (admin).
+func (h *ChatHandler) ResolveThread(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.chatService.ResolveThread(c.Request.Context(), id); err != nil {
+		slog.Error("ResolveThread: failed to resolve thread",
+			"thread_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Thread resolved successfully"})
+}
+
+// ReopenThread reopens a chat thread (admin).
+func (h *ChatHandler) ReopenThread(c *gin.Context) {
+	id, ok := ParseInt64Param(c, "id")
+	if !ok {
+		return
+	}
+
+	if err := h.chatService.ReopenThread(c.Request.Context(), id); err != nil {
+		slog.Error("ReopenThread: failed to reopen thread",
+			"thread_id", id,
+			"error", err,
+		)
+		apiErr := apperror.FromError(err)
+		c.JSON(apiErr.Status, apiErr)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Thread reopened successfully"})
+}

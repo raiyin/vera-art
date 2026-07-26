@@ -177,6 +177,7 @@ func main() {
 		baseService,
 		consentService,
 		masterClassService,
+		userService,
 	)
 
 	// -------------------------------------------------------------------------

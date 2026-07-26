@@ -286,8 +286,18 @@ export async function fetchAdminLessons(params?: {
     sort_by?: string
     sort_dir?: string
 },): Promise<AdminListLessonsResponse> {
-    const { data, } = await getHttpClient().get<AdminListLessonsResponse>('admin/lessons/list', { params, },);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/lessons/list', { params, },);
+    const lessons = data.lessons ?? [];
+    const total = data.total ?? lessons.length;
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    return {
+        items: lessons,
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: Math.ceil(total / perPage) || 1,
+    };
 }
 
 export async function deleteAdminLessons(ids: number[],): Promise<void> {
@@ -597,8 +607,8 @@ export async function refundAdminPayment(id: number,): Promise<void> {
 // ─── Promo Codes ────────────────────────────────────────────────────
 
 export async function fetchAdminPromoCodes(): Promise<AdminPromoCodeItem[]> {
-    const { data, } = await getHttpClient().get<AdminPromoCodeItem[]>('admin/promo-codes',);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/promo-codes',);
+    return data.promo_codes ?? [];
 }
 
 export async function createAdminPromoCode(data: {
@@ -632,17 +642,17 @@ export async function deleteAdminPromoCode(id: number,): Promise<void> {
 // ─── Chat ───────────────────────────────────────────────────────────
 
 export async function fetchAdminChatThreads(): Promise<AdminChatThread[]> {
-    const { data, } = await getHttpClient().get<AdminChatThread[]>('admin/chat/threads',);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/chat/threads',);
+    return data.threads ?? [];
 }
 
 export async function fetchAdminChatMessages(threadId: number,): Promise<AdminChatMessage[]> {
-    const { data, } = await getHttpClient().get<AdminChatMessage[]>(`admin/chat/threads/${threadId}/messages`,);
-    return data;
+    const { data, } = await getHttpClient().get<any>(`admin/chat/threads/${threadId}/messages`,);
+    return data.messages ?? [];
 }
 
 export async function sendAdminChatMessage(threadId: number, content: string,): Promise<AdminChatMessage> {
-    const { data, } = await getHttpClient().post<AdminChatMessage>(`admin/chat/threads/${threadId}/messages`, { content, },);
+    const { data, } = await getHttpClient().post<any>(`admin/chat/threads/${threadId}/messages`, { content, },);
     return data;
 }
 
@@ -657,8 +667,8 @@ export async function reopenAdminChatThread(threadId: number,): Promise<void> {
 // ─── Categories ─────────────────────────────────────────────────────
 
 export async function fetchAdminCategories(): Promise<AdminCategoryItem[]> {
-    const { data, } = await getHttpClient().get<AdminCategoryItem[]>('admin/categories',);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/categories',);
+    return data.categories ?? [];
 }
 
 export async function createAdminCategory(data: {
@@ -694,8 +704,8 @@ export async function deleteAdminCategory(id: number,): Promise<void> {
 // ─── Tags ───────────────────────────────────────────────────────────
 
 export async function fetchAdminTags(): Promise<AdminTagItem[]> {
-    const { data, } = await getHttpClient().get<AdminTagItem[]>('admin/tags',);
-    return data;
+    const { data, } = await getHttpClient().get<any>('admin/tags',);
+    return data.tags ?? [];
 }
 
 export async function createAdminTag(data: {

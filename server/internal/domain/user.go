@@ -13,6 +13,7 @@ type User struct {
 	EmailVerified      bool       `json:"email_verified"`
 	VerificationToken  string     `json:"-"`
 	VerificationSentAt *time.Time `json:"verification_sent_at,omitempty"`
+	Blocked            bool       `json:"blocked"`
 	CreatedAt          time.Time  `json:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at"`
 }

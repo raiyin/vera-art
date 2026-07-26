@@ -386,14 +386,14 @@ const materials = computed(() => materialStore.materials);
 
 const baseOptions = computed(() => {
     return bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
+        label: locale.value === 'ru' ? base.name_ru : base.name_en,
         value: base.id,
     }));
 });
 
 const materialOptions = computed(() => {
     return materials.value.map((material) => ({
-        label: locale.value === 'ru' ? material.material_ru : material.material_en,
+        label: locale.value === 'ru' ? material.name_ru : material.name_en,
         value: material.id,
     }));
 });

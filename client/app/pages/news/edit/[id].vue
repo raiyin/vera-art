@@ -411,9 +411,9 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import type { NewsDesc } from '~/types';
-import authApi from '~/api/auth';
+import { getHttpClient } from '~/api/http-client';
 
-const api = authApi.getApiInstance();
+const api = getHttpClient();
 
 const route = useRoute();
 const config = useRuntimeConfig();
@@ -474,7 +474,7 @@ const videosInput = ref<HTMLInputElement | null>(null);
 
 const newsDate = computed({
     get: () => (news.datetime || '').split('T')[0],
-    set: (val) => {
+    set: (val: string) => {
         news.datetime = val;
     },
 });

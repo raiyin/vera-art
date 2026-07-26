@@ -40,6 +40,11 @@ func setupWorkDB(t *testing.T) *sql.DB {
 			descr_en TEXT DEFAULT '',
 			work_path TEXT NOT NULL DEFAULT '',
 			images TEXT NOT NULL DEFAULT ''
+		);
+		CREATE TABLE IF NOT EXISTS works_materials (
+			work_id INTEGER NOT NULL,
+			material_id INTEGER NOT NULL,
+			PRIMARY KEY (work_id, material_id)
 		)
 	`)
 	if err != nil {

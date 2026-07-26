@@ -25,6 +25,7 @@ export function decodeJWT(token: string,): JWTClaims | null {
 
         // Decode base64 URL encoded payload
         const payload = parts[1];
+        if (!payload) return null;
         const decoded = atob(payload.replace(/-/g, '+',).replace(/_/g, '/',),);
         return JSON.parse(decoded,);
     } catch (error) {
@@ -47,7 +48,8 @@ export function getRoleFromToken(token: string,): string | null {
 
     // Fallback to checking custom claims
     if (decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']) {
-        return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        const roleClaim = decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+        if (typeof roleClaim === 'string') return roleClaim;
     }
 
     return null;

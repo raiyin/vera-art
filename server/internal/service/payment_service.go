@@ -288,5 +288,88 @@ func (s *PaymentService) HasUserPurchasedProduct(ctx context.Context, userID, pr
 	return purchased, nil
 }
 
+func (s *PaymentService) GetPaymentByID(ctx context.Context, id int64) (*domain.Payment, error) {
+	payment, err := s.paymentRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("PaymentService.GetPaymentByID: failed to get payment",
+			"payment_id", id,
+			"error", err,
+		)
+		return nil, err
+	}
+	return payment, nil
+}
+
+func (s *PaymentService) GetPurchaseByID(ctx context.Context, id int64) (*domain.Purchase, error) {
+	purchase, err := s.purchaseRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("PaymentService.GetPurchaseByID: failed to get purchase",
+			"purchase_id", id,
+			"error", err,
+		)
+		return nil, err
+	}
+	return purchase, nil
+}
+
+func (s *PaymentService) ExtendPurchaseAccess(ctx context.Context, id int64, days int) error {
+	purchase, err := s.purchaseRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("PaymentService.ExtendPurchaseAccess: failed to get purchase",
+			"purchase_id", id,
+			"error", err,
+		)
+		return err
+	}
+	if purchase.AccessEnd != nil {
+		newEnd := purchase.AccessEnd.AddDate(0, 0, days)
+		purchase.AccessEnd = &newEnd
+	}
+	slog.Info("PaymentService.ExtendPurchaseAccess: access extended",
+		"purchase_id", id,
+		"days", days,
+	)
+	return nil
+}
+
+func (s *PaymentService) CancelPurchase(ctx context.Context, id int64) error {
+	purchase, err := s.purchaseRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("PaymentService.CancelPurchase: failed to get purchase",
+			"purchase_id", id,
+			"error", err,
+		)
+		return err
+	}
+	purchase.Status = "cancelled"
+	slog.Info("PaymentService.CancelPurchase: purchase cancelled",
+		"purchase_id", id,
+	)
+	return nil
+}
+
+func (s *PaymentService) RefundPayment(ctx context.Context, id int64) error {
+	payment, err := s.paymentRepo.GetByID(ctx, id)
+	if err != nil {
+		slog.Error("PaymentService.RefundPayment: failed to get payment",
+			"payment_id", id,
+			"error", err,
+		)
+		return err
+	}
+	payment.Status = "refunded"
+	if err := s.paymentRepo.Update(ctx, payment); err != nil {
+		slog.Error("PaymentService.RefundPayment: failed to update payment",
+			"payment_id", id,
+			"error", err,
+		)
+		return err
+	}
+	slog.Info("PaymentService.RefundPayment: payment refunded",
+		"payment_id", id,
+	)
+	return nil
+}
+
 // Ensure interface compliance.
 var _ port.PaymentService = (*PaymentService)(nil)
