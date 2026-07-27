@@ -49,6 +49,7 @@
                         </label>
                         <input
                             id="avatar-upload"
+                            ref="avatarInputRef"
                             type="file"
                             accept="image/jpeg,image/png,image/gif,image/webp"
                             class="hidden"
@@ -69,17 +70,13 @@
                             color="primary"
                             variant="solid"
                             :loading="avatarUploading"
-                            :disabled="avatarUploading || !selectedFile"
-                            @click="handleAvatarUpload"
+                            :disabled="avatarUploading"
+                            @click="handleAvatarClick"
                         >
                             <template #leading>
                                 <Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
                             </template>
-                            {{
-                                selectedFile
-                                    ? $t('profile.uploadAvatar')
-                                    : $t('profile.changeAvatar')
-                            }}
+                            {{ $t('profile.changeAvatar') }}
                         </UButton>
 
                         <UButton
@@ -97,14 +94,6 @@
                             {{ $t('profile.deleteAvatar') }}
                         </UButton>
                     </div>
-
-                    <!-- Selected file name -->
-                    <p
-                        v-if="selectedFile"
-                        class="text-xs text-gray-500 dark:text-gray-400 mt-2"
-                    >
-                        {{ selectedFile.name }}
-                    </p>
 
                     <!-- Avatar error message -->
                     <UAlert
@@ -127,7 +116,6 @@
                             v-model="formState.username"
                             type="text"
                             icon="i-heroicons-user"
-                            size="lg"
                             disabled
                             class="w-full"
                         />
@@ -139,7 +127,6 @@
                             v-model="formState.email"
                             type="email"
                             icon="i-heroicons-envelope"
-                            size="lg"
                             :placeholder="$t('profile.emailPlaceholder')"
                             class="w-full"
                         />
@@ -151,7 +138,6 @@
                             v-model="formState.full_name"
                             type="text"
                             icon="i-heroicons-identification"
-                            size="lg"
                             :placeholder="$t('profile.fullNamePlaceholder')"
                             class="w-full"
                         />
@@ -163,7 +149,6 @@
                             v-model="formState.role"
                             type="text"
                             icon="i-heroicons-shield-check"
-                            size="lg"
                             disabled
                             class="w-full"
                         />
@@ -175,7 +160,6 @@
                             v-model="formState.created_at"
                             type="text"
                             icon="i-heroicons-calendar"
-                            size="lg"
                             disabled
                             class="w-full"
                         />
@@ -205,11 +189,10 @@
                     <div class="flex gap-3 pt-2">
                         <UButton
                             type="submit"
-                            size="lg"
                             :loading="saving"
                             :disabled="saving"
                             color="primary"
-                            class="flex-1"
+                            class="flex-1 justify-center"
                         >
                             <template #leading>
                                 <Icon name="i-heroicons-check" class="w-5 h-5" />
@@ -218,11 +201,11 @@
                         </UButton>
 
                         <UButton
-                            size="lg"
                             variant="outline"
                             color="neutral"
                             @click="resetForm"
                             :disabled="saving"
+                            class="justify-center"
                         >
                             {{ $t('profile.reset') }}
                         </UButton>
@@ -277,10 +260,10 @@ const success = ref('');
 
 // Avatar state
 const avatarUrl = ref('');
-const selectedFile = ref<File | null>(null);
 const avatarUploading = ref(false);
 const avatarDeleting = ref(false);
 const avatarError = ref('');
+const avatarInputRef = ref<HTMLInputElement | null>(null);
 
 const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
@@ -303,7 +286,7 @@ const loadProfile = async () => {
         const data = await authApi.getProfile();
         formState.username = data.username || '';
         formState.email = data.email || '';
-        formState.full_name = data.full_name || '';
+        formState.full_name = data.name || '';
         formState.role = formatRole(data.role);
         formState.created_at = formatDate(data.created_at);
         avatarUrl.value = data.avatar_url || '';
@@ -338,8 +321,8 @@ const handleSave = async () => {
 
         const data = await authApi.updateProfile(payload);
         formState.email = data.email || '';
-        formState.full_name = data.full_name || '';
-        avatarUrl.value = data.avatar_url || '';
+        formState.full_name = data.name || '';
+        avatarUrl.value = data.avatar_url ? `${data.avatar_url}?t=${Date.now()}` : avatarUrl.value;
         originalData.value = { ...formState };
         success.value = t('profile.updateSuccess');
     } catch (err: any) {
@@ -362,7 +345,7 @@ const resetForm = () => {
 };
 
 // Avatar handlers
-const handleAvatarSelect = (event: Event) => {
+const handleAvatarSelect = async (event: Event) => {
     const input = event.target as HTMLInputElement;
     const files = input.files;
     if (!files || files.length === 0) return;
@@ -372,7 +355,6 @@ const handleAvatarSelect = (event: Event) => {
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
         avatarError.value = t('profile.avatarTooLarge');
-        selectedFile.value = null;
         input.value = '';
         return;
     }
@@ -381,13 +363,9 @@ const handleAvatarSelect = (event: Event) => {
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
         avatarError.value = t('profile.avatarInvalidType');
-        selectedFile.value = null;
         input.value = '';
         return;
     }
-
-    selectedFile.value = file;
-    avatarError.value = '';
 
     // Show preview
     const reader = new FileReader();
@@ -397,27 +375,29 @@ const handleAvatarSelect = (event: Event) => {
         }
     };
     reader.readAsDataURL(file);
-};
 
-const handleAvatarUpload = async () => {
-    if (!selectedFile.value) return;
-
+    // Upload immediately
     avatarUploading.value = true;
     avatarError.value = '';
     success.value = '';
 
     try {
-        const data = await authApi.uploadAvatar(selectedFile.value);
-        avatarUrl.value = data.avatar_url;
-        selectedFile.value = null;
+        const formData = new FormData();
+        formData.append('avatar', file, file.name);
+        const data = await authApi.uploadAvatar(formData);
+        avatarUrl.value = `${data.avatar_url}?t=${Date.now()}`;
         success.value = t('profile.avatarUploadSuccess');
     } catch (err: any) {
         avatarError.value = err.error || t('profile.avatarUploadError');
-        // Reload original avatar on error
         loadProfile();
     } finally {
         avatarUploading.value = false;
+        input.value = '';
     }
+};
+
+const handleAvatarClick = () => {
+    avatarInputRef.value?.click();
 };
 
 const handleAvatarDelete = async () => {

@@ -575,6 +575,56 @@ func runMigrations(db *sql.DB) {
 		slog.Info("Migration (payments table): applied successfully")
 	}
 
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS promo_codes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			code TEXT UNIQUE NOT NULL,
+			discount_percent REAL NOT NULL,
+			max_uses INTEGER NOT NULL DEFAULT 0,
+			current_uses INTEGER NOT NULL DEFAULT 0,
+			expires_at TIMESTAMP NOT NULL,
+			is_active INTEGER NOT NULL DEFAULT 1,
+			created_at TIMESTAMP NOT NULL
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create promo_codes table)", "error", err)
+	} else {
+		slog.Info("Migration (promo_codes table): applied successfully")
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS tags (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name_ru TEXT NOT NULL UNIQUE,
+			name_en TEXT NOT NULL UNIQUE,
+			slug TEXT NOT NULL UNIQUE,
+			created_at TIMESTAMP NOT NULL
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create tags table)", "error", err)
+	} else {
+		slog.Info("Migration (tags table): applied successfully")
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS product_tags (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			product_id INTEGER NOT NULL,
+			tag_id INTEGER NOT NULL,
+			created_at TIMESTAMP NOT NULL,
+			FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+			FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+			UNIQUE(product_id, tag_id)
+		)
+	`)
+	if err != nil {
+		slog.Error("Migration (create product_tags table)", "error", err)
+	} else {
+		slog.Info("Migration (product_tags table): applied successfully")
+	}
+
 	// Add width and height columns to works table, populating from size
 	_, err = db.Exec("ALTER TABLE works ADD COLUMN width INTEGER DEFAULT 0")
 	if err != nil {

@@ -41,9 +41,6 @@ function createHttpClient(): AxiosInstance {
     const client = axios.create({
         baseURL,
         timeout: 15000,
-        headers: {
-            'Content-Type': 'application/json',
-        },
     },);
 
     // Request interceptor: attach auth token (skip for auth endpoints)

@@ -1,4 +1,26 @@
 {
-    "vue3snippets.enable-compile-vue-file-on-did-save-code": true,
-    "makefile.configureOnOpen": false
+  "go.goroot": "",
+  "go.toolsManagement.autoUpdate": true,
+  "go.useLanguageServer": true,
+  "go.lintTool": "golangci-lint",
+  "[go]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "golang.go",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "eslint.enable": true,
+  "eslint.run": "onSave",
+  "eslint.workingDirectories": [
+    { "directory": "client", "changeProcessCWD": true }
+  ],
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.classRegex": [],
+  "typescript.tsdk": "client/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "vue.server.hybridMode": true,
+  "vue.autoInsert.dotValue": true
 }
