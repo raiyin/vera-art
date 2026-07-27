@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import { useThemeStore } from '~/stores/ThemeStore';
+import { ref, onMounted, onUnmounted, } from 'vue';
+import { useThemeStore, } from '~/stores/ThemeStore';
 
-const { t } = useI18n();
+const { t, } = useI18n();
 
 const themeStore = useThemeStore();
 
-const scrollY = ref(0);
-const mouseX = ref(0);
-const mouseY = ref(0);
-const mounted = ref(false);
+const scrollY = ref(0,);
+const mouseX = ref(0,);
+const mouseY = ref(0,);
+const mounted = ref(false,);
 
-const toggleTheme = (event?: MouseEvent) => {
+const toggleTheme = (event?: MouseEvent,) => {
     if (event) {
         event.preventDefault();
         event.stopPropagation();
@@ -24,12 +24,12 @@ const handleScroll = () => {
     scrollY.value = window.scrollY;
 };
 
-const handleMouseMove = (event: MouseEvent) => {
+const handleMouseMove = (event: MouseEvent,) => {
     mouseX.value = event.clientX;
     mouseY.value = event.clientY;
 
-    const visualElements = document.querySelectorAll('.visual-element');
-    visualElements.forEach((el, index) => {
+    const visualElements = document.querySelectorAll('.visual-element',);
+    visualElements.forEach((el, index,) => {
         const element = el as HTMLElement;
         const speed = 0.01 + index * 0.005;
         const x = (mouseX.value * speed) % 100;
@@ -40,14 +40,14 @@ const handleMouseMove = (event: MouseEvent) => {
 
 onMounted(() => {
     mounted.value = true;
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('scroll', handleScroll,);
+    window.addEventListener('mousemove', handleMouseMove,);
     handleScroll();
 });
 
 onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('mousemove', handleMouseMove);
+    window.removeEventListener('scroll', handleScroll,);
+    window.removeEventListener('mousemove', handleMouseMove,);
 });
 </script>
 
@@ -55,16 +55,55 @@ onUnmounted(() => {
     <div class="hero-section">
         <button
             class="theme-toggle-btn"
-            :aria-label="t('home.toggleTheme')"
+            :aria-label="t('home.toggleTheme',)"
             @click="toggleTheme"
         >
-            {{ mounted ? (themeStore.theme === 'light' ? '🌙' : '☀️') : '' }}
+            <svg
+                v-if="mounted && themeStore.theme === 'light'"
+                class="theme-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+            <svg
+                v-else
+                class="theme-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+            >
+                <circle
+                    cx="12"
+                    cy="12"
+                    r="5"
+                />
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+            </svg>
+            <template v-if="!mounted">
+                <svg
+                    class="theme-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                >
+                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+                </svg>
+            </template>
         </button>
 
         <div class="hero-overlay">
             <div class="hero-content">
-                <h1 class="hero-title">{{ t('home.hi') }}</h1>
-                <p class="hero-subtitle">{{ t('home.familiarity') }}</p>
+                <h1 class="hero-title">
+                    {{ t('home.hi',) }}
+                </h1>
+                <p class="hero-subtitle">
+                    {{ t('home.familiarity',) }}
+                </p>
                 <div class="scroll-indicator">
                     <div class="mouse">
                         <div class="wheel" />
@@ -77,7 +116,7 @@ onUnmounted(() => {
             src="../assets/images/img_parallax.webp"
             alt="Pertsukova"
             class="hero-image"
-        />
+        >
     </div>
 </template>
 
@@ -132,6 +171,11 @@ onUnmounted(() => {
     justify-content: center;
 }
 
+.theme-icon {
+    width: 26px;
+    height: 26px;
+}
+
 .theme-toggle-btn {
     position: absolute;
     top: 2rem;
@@ -143,7 +187,6 @@ onUnmounted(() => {
     background: rgba(255, 255, 255, 0.2);
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: white;
-    font-size: 1.8rem;
     display: flex;
     align-items: center;
     justify-content: center;

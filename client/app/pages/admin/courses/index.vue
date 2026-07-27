@@ -10,8 +10,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Курсы</h1>
-                <p class="admin-page__subtitle">Управление онлайн-курсами</p>
+                <h1 class="admin-page__title">
+                    Курсы
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление онлайн-курсами
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -23,14 +27,21 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" to="/admin/courses/add">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    to="/admin/courses/add"
+                >
                     Создать курс
                 </UButton>
             </div>
         </div>
 
         <!-- Search & Filters -->
-        <UCard class="admin-page__filters-card" :ui="{ body: 'p-4' }">
+        <UCard
+            class="admin-page__filters-card"
+            :ui="{ body: 'p-4', }"
+        >
             <div class="admin-page__filters">
                 <div class="admin-page__search">
                     <UInput
@@ -63,8 +74,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-image" />
                     <div class="admin-page__skeleton-lines">
@@ -76,11 +93,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -89,19 +116,30 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-book-open" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Курсы не найдены</h3>
+                <UIcon
+                    name="i-lucide-book-open"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Курсы не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     По заданным критериям ничего не найдено
                 </p>
-                <UButton color="primary" to="/admin/courses/add">
+                <UButton
+                    color="primary"
+                    to="/admin/courses/add"
+                >
                     Создать первый курс
                 </UButton>
             </div>
         </UCard>
 
         <!-- Data Table -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-page__table-wrapper">
                 <table class="admin-page__table">
                     <thead>
@@ -113,10 +151,12 @@
                                     @change="toggleSelectAll"
                                 />
                             </th>
-                            <th class="admin-page__cell admin-page__cell--head">ID</th>
+                            <th class="admin-page__cell admin-page__cell--head">
+                                ID
+                            </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('title_ru')"
+                                @click="toggleSort('title_ru',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Название</span>
@@ -133,7 +173,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('price')"
+                                @click="toggleSort('price',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Цена</span>
@@ -175,12 +215,12 @@
                             v-for="item in items"
                             :key="item.id"
                             class="admin-page__row"
-                            :class="{ 'admin-page__row--selected': isSelected(item.id) }"
+                            :class="{ 'admin-page__row--selected': isSelected(item.id,), }"
                         >
                             <td class="admin-page__cell admin-page__cell--checkbox">
                                 <UCheckbox
-                                    :model-value="isSelected(item.id)"
-                                    @change="toggleSelect(item.id)"
+                                    :model-value="isSelected(item.id,)"
+                                    @change="toggleSelect(item.id,)"
                                 />
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
@@ -198,25 +238,25 @@
                             </td>
                             <td class="admin-page__cell">
                                 <span class="admin-page__price">{{
-                                    formatPrice(item.price)
+                                    formatPrice(item.price,)
                                 }}</span>
                             </td>
                             <td class="admin-page__cell">
                                 <UBadge
-                                    :color="statusColor(item.status)"
+                                    :color="statusColor(item.status,)"
                                     variant="soft"
                                     size="sm"
                                 >
-                                    {{ statusLabel(item.status) }}
+                                    {{ statusLabel(item.status,) }}
                                 </UBadge>
                             </td>
                             <td class="admin-page__cell">
                                 <UBadge
-                                    :color="difficultyColor(item.difficulty)"
+                                    :color="difficultyColor(item.difficulty,)"
                                     variant="subtle"
                                     size="sm"
                                 >
-                                    {{ difficultyLabel(item.difficulty) }}
+                                    {{ difficultyLabel(item.difficulty,) }}
                                 </UBadge>
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
@@ -254,7 +294,7 @@
                                             color="error"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmDelete(item)"
+                                            @click="confirmDelete(item,)"
                                         />
                                     </UTooltip>
                                 </div>
@@ -315,225 +355,225 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, } from 'vue';
-import {
-    fetchAdminProducts,
-    deleteAdminProducts,
-} from '~/api/admin';
-import type { AdminProductItem } from '~/types';
+    import { ref, computed, onMounted, watch, } from 'vue';
+    import {
+        fetchAdminProducts,
+        deleteAdminProducts,
+    } from '~/api/admin';
+    import type { AdminProductItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-// State
-const items = ref<AdminProductItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const searchQuery = ref('');
-const statusFilter = ref<string | null>(null);
-const difficultyFilter = ref<string | null>(null);
-const currentPage = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const totalPages = ref(0);
-const sortBy = ref('created_at');
-const sortDir = ref<'asc' | 'desc'>('desc');
-const selectedIds = ref<number[]>([]);
-const showDeleteModal = ref(false);
-const deleting = ref(false);
-const deletingSingle = ref<AdminProductItem | null>(null);
+    // State
+    const items = ref<AdminProductItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const searchQuery = ref('',);
+    const statusFilter = ref<string | null>(null,);
+    const difficultyFilter = ref<string | null>(null,);
+    const currentPage = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const totalPages = ref(0,);
+    const sortBy = ref('created_at',);
+    const sortDir = ref<'asc' | 'desc'>('desc',);
+    const selectedIds = ref<number[]>([],);
+    const showDeleteModal = ref(false,);
+    const deleting = ref(false,);
+    const deletingSingle = ref<AdminProductItem | null>(null,);
 
-// Filter options
-const statusOptions = [
-    { label: 'Все статусы', value: null },
-    { label: 'Опубликован', value: 'published' },
-    { label: 'Черновик', value: 'draft' },
-    { label: 'Архивный', value: 'archived' },
-];
+    // Filter options
+    const statusOptions = [
+        { label: 'Все статусы', value: null, },
+        { label: 'Опубликован', value: 'published', },
+        { label: 'Черновик', value: 'draft', },
+        { label: 'Архивный', value: 'archived', },
+    ];
 
-const difficultyOptions = [
-    { label: 'Любая сложность', value: null },
-    { label: 'Начальный', value: 'beginner' },
-    { label: 'Средний', value: 'intermediate' },
-    { label: 'Продвинутый', value: 'advanced' },
-];
+    const difficultyOptions = [
+        { label: 'Любая сложность', value: null, },
+        { label: 'Начальный', value: 'beginner', },
+        { label: 'Средний', value: 'intermediate', },
+        { label: 'Продвинутый', value: 'advanced', },
+    ];
 
-// Computed
-const allSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.every((item) => selectedIds.value.includes(item.id));
-});
+    // Computed
+    const allSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.every(item => selectedIds.value.includes(item.id,),);
+    });
 
-const someSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.some((item) => selectedIds.value.includes(item.id)) && !allSelected.value;
-});
+    const someSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.some(item => selectedIds.value.includes(item.id,),) && !allSelected.value;
+    });
 
-const paginationInfo = computed(() => {
-    const start = (currentPage.value - 1) * perPage.value + 1;
-    const end = Math.min(currentPage.value * perPage.value, total.value);
-    return `${start}–${end} из ${total.value}`;
-});
+    const paginationInfo = computed(() => {
+        const start = (currentPage.value - 1) * perPage.value + 1;
+        const end = Math.min(currentPage.value * perPage.value, total.value,);
+        return `${start}–${end} из ${total.value}`;
+    });
 
-const deleteConfirmMessage = computed(() => {
-    if (deletingSingle.value) {
-        return `Вы уверены, что хотите удалить курс «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
-    }
-    return `Вы уверены, что хотите удалить ${selectedIds.value.length} курс(ов)? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
-});
-
-// Methods
-function formatPrice(priceKopecks: number): string {
-    const rubles = priceKopecks / 100;
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(rubles);
-}
-
-function statusColor(status: string): 'success' | 'neutral' | 'error' {
-    switch (status) {
-        case 'published': return 'success';
-        case 'draft': return 'neutral';
-        case 'archived': return 'error';
-        default: return 'neutral';
-    }
-}
-
-function statusLabel(status: string): string {
-    switch (status) {
-        case 'published': return 'Опубликован';
-        case 'draft': return 'Черновик';
-        case 'archived': return 'Архивный';
-        default: return status || '—';
-    }
-}
-
-function difficultyColor(difficulty: string): 'success' | 'warning' | 'error' | 'neutral' {
-    switch (difficulty) {
-        case 'beginner': return 'success';
-        case 'intermediate': return 'warning';
-        case 'advanced': return 'error';
-        default: return 'neutral';
-    }
-}
-
-function difficultyLabel(difficulty: string): string {
-    switch (difficulty) {
-        case 'beginner': return 'Начальный';
-        case 'intermediate': return 'Средний';
-        case 'advanced': return 'Продвинутый';
-        default: return difficulty || '—';
-    }
-}
-
-function isSelected(id: number): boolean {
-    return selectedIds.value.includes(id);
-}
-
-function toggleSelect(id: number) {
-    const idx = selectedIds.value.indexOf(id);
-    if (idx === -1) {
-        selectedIds.value.push(id);
-    } else {
-        selectedIds.value.splice(idx, 1);
-    }
-}
-
-function toggleSelectAll() {
-    if (allSelected.value) {
-        selectedIds.value = [];
-    } else {
-        selectedIds.value = items.value.map((item) => item.id);
-    }
-}
-
-function toggleSort(field: string) {
-    if (sortBy.value === field) {
-        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortBy.value = field;
-        sortDir.value = 'asc';
-    }
-    loadData();
-}
-
-function onPageChange(page: number) {
-    currentPage.value = page;
-    loadData();
-}
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const result = await fetchAdminProducts({
-            page: currentPage.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            type: 'course',
-            status: statusFilter.value || undefined,
-            difficulty: difficultyFilter.value || undefined,
-            sort_by: sortBy.value,
-            sort_dir: sortDir.value,
-        });
-        items.value = result.items;
-        total.value = result.total;
-        totalPages.value = result.total_pages;
-        selectedIds.value = [];
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
-    } finally {
-        loading.value = false;
-    }
-}
-
-function confirmDelete(item: AdminProductItem) {
-    deletingSingle.value = item;
-    showDeleteModal.value = true;
-}
-
-function confirmBulkDelete() {
-    deletingSingle.value = null;
-    showDeleteModal.value = true;
-}
-
-async function executeDelete() {
-    deleting.value = true;
-    try {
+    const deleteConfirmMessage = computed(() => {
         if (deletingSingle.value) {
-            await deleteAdminProducts([deletingSingle.value.id]);
-        } else {
-            await deleteAdminProducts(selectedIds.value);
+            return `Вы уверены, что хотите удалить курс «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
         }
-        showDeleteModal.value = false;
-        selectedIds.value = [];
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
-    } finally {
-        deleting.value = false;
-        deletingSingle.value = null;
+        return `Вы уверены, что хотите удалить ${selectedIds.value.length} курс(ов)? Все связанные уроки также будут удалены. Это действие нельзя отменить.`;
+    });
+
+    // Methods
+    function formatPrice(priceKopecks: number,): string {
+        const rubles = priceKopecks / 100;
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(rubles,);
     }
-}
 
-// Debounced search
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(searchQuery, () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        currentPage.value = 1;
+    function statusColor(status: string,): 'success' | 'neutral' | 'error' {
+        switch (status) {
+    case 'published': return 'success';
+    case 'draft': return 'neutral';
+    case 'archived': return 'error';
+    default: return 'neutral';
+        }
+    }
+
+    function statusLabel(status: string,): string {
+        switch (status) {
+    case 'published': return 'Опубликован';
+    case 'draft': return 'Черновик';
+    case 'archived': return 'Архивный';
+    default: return status || '—';
+        }
+    }
+
+    function difficultyColor(difficulty: string,): 'success' | 'warning' | 'error' | 'neutral' {
+        switch (difficulty) {
+    case 'beginner': return 'success';
+    case 'intermediate': return 'warning';
+    case 'advanced': return 'error';
+    default: return 'neutral';
+        }
+    }
+
+    function difficultyLabel(difficulty: string,): string {
+        switch (difficulty) {
+    case 'beginner': return 'Начальный';
+    case 'intermediate': return 'Средний';
+    case 'advanced': return 'Продвинутый';
+    default: return difficulty || '—';
+        }
+    }
+
+    function isSelected(id: number,): boolean {
+        return selectedIds.value.includes(id,);
+    }
+
+    function toggleSelect(id: number,) {
+        const idx = selectedIds.value.indexOf(id,);
+        if (idx === -1) {
+            selectedIds.value.push(id,);
+        } else {
+            selectedIds.value.splice(idx, 1,);
+        }
+    }
+
+    function toggleSelectAll() {
+        if (allSelected.value) {
+            selectedIds.value = [];
+        } else {
+            selectedIds.value = items.value.map(item => item.id,);
+        }
+    }
+
+    function toggleSort(field: string,) {
+        if (sortBy.value === field) {
+            sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortDir.value = 'asc';
+        }
         loadData();
-    }, 400);
-});
+    }
 
-onMounted(async () => {
-    await loadData();
-});
+    function onPageChange(page: number,) {
+        currentPage.value = page;
+        loadData();
+    }
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const result = await fetchAdminProducts({
+                page: currentPage.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                type: 'course',
+                status: statusFilter.value || undefined,
+                difficulty: difficultyFilter.value || undefined,
+                sort_by: sortBy.value,
+                sort_dir: sortDir.value,
+            });
+            items.value = result.items;
+            total.value = result.total;
+            totalPages.value = result.total_pages;
+            selectedIds.value = [];
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    function confirmDelete(item: AdminProductItem,) {
+        deletingSingle.value = item;
+        showDeleteModal.value = true;
+    }
+
+    function confirmBulkDelete() {
+        deletingSingle.value = null;
+        showDeleteModal.value = true;
+    }
+
+    async function executeDelete() {
+        deleting.value = true;
+        try {
+            if (deletingSingle.value) {
+                await deleteAdminProducts([deletingSingle.value.id,],);
+            } else {
+                await deleteAdminProducts(selectedIds.value,);
+            }
+            showDeleteModal.value = false;
+            selectedIds.value = [];
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
+        } finally {
+            deleting.value = false;
+            deletingSingle.value = null;
+        }
+    }
+
+    // Debounced search
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    watch(searchQuery, () => {
+        clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            currentPage.value = 1;
+            loadData();
+        }, 400,);
+    });
+
+    onMounted(async () => {
+        await loadData();
+    });
 </script>
 
 <style scoped>

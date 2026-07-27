@@ -1,17 +1,26 @@
 <template>
-    <div class="product-card">
+    <div class="product-card group">
         <div class="product-card__image">
             <img
                 v-if="product.thumbnail_url"
                 :src="product.thumbnail_url"
                 :alt="productTitle"
                 class="product-card__thumbnail"
-            />
-            <div v-else class="product-card__placeholder">
-                <span class="product-card__placeholder-text">{{ productTypeIcon }}</span>
+            >
+            <div
+                v-else
+                class="product-card__placeholder"
+            >
+                <UIcon
+                    :name="product.type === 'course' ? 'i-heroicons-academic-cap' : 'i-heroicons-video-camera'"
+                    class="w-10 h-10 text-gray-300 dark:text-gray-600"
+                />
             </div>
 
-            <div v-if="product.discount_price" class="product-card__discount">
+            <div
+                v-if="product.discount_price"
+                class="product-card__discount"
+            >
                 -{{ discountPercentage }}%
             </div>
 
@@ -23,17 +32,10 @@
                     v-if="product.certificate_available"
                     class="product-card__badge product-card__badge--certificate"
                 >
-                    <svg
-                        class="product-card__badge-icon"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M12 15l8-8-8 8-4-4-4 4" />
-                    </svg>
+                    <UIcon
+                        name="i-heroicons-check-circle"
+                        class="w-3 h-3"
+                    />
                     Сертификат
                 </span>
             </div>
@@ -48,63 +50,37 @@
                 {{ productTitle }}
             </h3>
 
-            <p v-if="productShortDescription" class="product-card__description">
+            <p
+                v-if="productShortDescription"
+                class="product-card__description"
+            >
                 {{ productShortDescription }}
             </p>
 
             <div class="product-card__meta">
                 <div class="product-card__meta-item">
-                    <svg
+                    <UIcon
+                        name="i-heroicons-clock"
                         class="product-card__meta-icon"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    <span v-if="product.duration_hours"
-                        >{{ product.duration_hours }} ч.</span
-                    >
-                    <span v-else-if="product.duration_days"
-                        >{{ product.duration_days }} дн.</span
-                    >
+                    />
+                    <span v-if="product.duration_hours">{{ product.duration_hours }} ч.</span>
+                    <span v-else-if="product.duration_days">{{ product.duration_days }} дн.</span>
                     <span v-else>—</span>
                 </div>
 
                 <div class="product-card__meta-item">
-                    <svg
+                    <UIcon
+                        name="i-heroicons-book-open"
                         class="product-card__meta-icon"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path
-                            d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
-                        />
-                    </svg>
+                    />
                     <span>{{ product.total_lessons }} уроков</span>
                 </div>
 
                 <div class="product-card__meta-item">
-                    <svg
+                    <UIcon
+                        name="i-heroicons-user-group"
                         class="product-card__meta-icon"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                    >
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                    </svg>
+                    />
                     <span>{{ difficultyLabel }}</span>
                 </div>
             </div>
@@ -116,20 +92,23 @@
                         class="product-card__price-wrapper"
                     >
                         <span class="product-card__price product-card__price--old">
-                            {{ formatPrice(product.price) }}
+                            {{ formatPrice(product.price,) }}
                         </span>
                         <span class="product-card__price product-card__price--current">
-                            {{ formatPrice(product.discount_price) }}
+                            {{ formatPrice(product.discount_price,) }}
                         </span>
                     </div>
                     <div v-else>
                         <span class="product-card__price">
-                            {{ formatPrice(product.price) }}
+                            {{ formatPrice(product.price,) }}
                         </span>
                     </div>
                 </div>
 
-                <button class="product-card__button" @click="$emit('select', product)">
+                <button
+                    class="product-card__button"
+                    @click="$emit('select', product,)"
+                >
                     Подробнее
                 </button>
             </div>
@@ -138,16 +117,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { Product } from '~/stores/ProductStore';
+import { computed, } from 'vue';
+import type { Product, } from '~/stores/ProductStore';
 
 interface Props {
-    product: Product;
+    product: Product
 }
 
 const props = defineProps<Props>();
 defineEmits<{
-    select: [product: Product];
+    select: [product: Product,]
 }>();
 
 const productTitle = computed(() => {
@@ -157,19 +136,19 @@ const productTitle = computed(() => {
 
 const productShortDescription = computed(() => {
     return (
-        props.product.short_description_ru ||
-        props.product.short_description_en ||
-        props.product.description_ru ||
-        props.product.description_en
+        props.product.short_description_ru
+            || props.product.short_description_en
+        || props.product.description_ru
+            || props.product.description_en
     );
 });
 
 const productCategory = computed(() => {
     if (props.product.category) {
         return (
-            props.product.category.name_ru ||
-            props.product.category.name_en ||
-            'Без категории'
+            props.product.category.name_ru
+                || props.product.category.name_en
+            || 'Без категории'
         );
     }
     return 'Без категории';
@@ -180,7 +159,7 @@ const productTypeLabel = computed(() => {
 });
 
 const productTypeIcon = computed(() => {
-    return props.product.type === 'course' ? '📚' : '🎨';
+    return props.product.type === 'course' ? 'i-heroicons-academic-cap' : 'i-heroicons-video-camera';
 });
 
 const difficultyLabel = computed(() => {
@@ -194,13 +173,13 @@ const difficultyLabel = computed(() => {
 
 const discountPercentage = computed(() => {
     if (!props.product.discount_price) return 0;
-    const discount =
-        ((props.product.price - props.product.discount_price) / props.product.price) *
-        100;
-    return Math.round(discount);
+    const discount
+            = ((props.product.price - props.product.discount_price) / props.product.price)
+            * 100;
+    return Math.round(discount,);
 });
 
-const formatPrice = (price: number) => {
+const formatPrice = (price: number,) => {
     // Price is stored in kopecks (1 RUB = 100 kopecks)
     const rubles = price / 100;
     return new Intl.NumberFormat('ru-RU', {
@@ -208,25 +187,26 @@ const formatPrice = (price: number) => {
         currency: 'RUB',
         minimumFractionDigits: 0,
         maximumFractionDigits: 0,
-    }).format(rubles);
+    }).format(rubles,);
 };
 </script>
 
 <style scoped>
 .product-card {
     background: var(--color-background);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     height: 100%;
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--color-border, #e5e7eb);
 }
 
 .product-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
 .product-card__image {
@@ -264,13 +244,14 @@ const formatPrice = (price: number) => {
     position: absolute;
     top: 12px;
     right: 12px;
-    background: #ff4757;
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
     color: white;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 4px 8px;
-    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
     z-index: 2;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
 }
 
 .product-card__badges {
@@ -284,13 +265,14 @@ const formatPrice = (price: number) => {
 }
 
 .product-card__badge {
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 8px;
-    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
     display: inline-flex;
     align-items: center;
     gap: 4px;
+    backdrop-filter: blur(4px);
 }
 
 .product-card__badge--type {
@@ -390,19 +372,21 @@ const formatPrice = (price: number) => {
 }
 
 .product-card__button {
-    background: var(--color-primary);
+    background: var(--color-primary, #4B9E90);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
+    padding: 10px 24px;
+    border-radius: 8px;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .product-card__button:hover {
-    background: var(--color-primary-dark);
+    background: var(--color-primary-hover, #3d8a7d);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(75, 158, 144, 0.3);
 }
 
 @media (max-width: 768px) {

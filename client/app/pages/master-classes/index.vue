@@ -1,168 +1,168 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import type { MasterClass } from '~/types/master-class';
-import {
-    fetchMasterClasses,
-    fetchMyPurchasedProductIds,
-} from '~/api/master-classes';
-import { useAuthStore } from '~/stores/AuthStore';
+    import { ref, computed, onMounted, } from 'vue';
+    import type { MasterClass, } from '~/types/master-class';
+    import {
+        fetchMasterClasses,
+        fetchMyPurchasedProductIds,
+    } from '~/api/master-classes';
+    import { useAuthStore, } from '~/stores/AuthStore';
 
-const router = useRouter();
-const authStore = useAuthStore();
-const masterClasses = ref<MasterClass[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const purchasedIds = ref<number[]>([]);
+    const router = useRouter();
+    const authStore = useAuthStore();
+    const masterClasses = ref<MasterClass[]>([],);
+    const loading = ref(true,);
+    const error = ref<string | null>(null,);
+    const purchasedIds = ref<number[]>([],);
 
-onMounted(async () => {
-    try {
-        masterClasses.value = await fetchMasterClasses();
-    } catch (e) {
-        error.value = 'Не удалось загрузить мастер-классы';
-        console.error(e);
-    } finally {
-        loading.value = false;
-    }
+    onMounted(async () => {
+        try {
+            masterClasses.value = await fetchMasterClasses();
+        } catch (e) {
+            error.value = 'Не удалось загрузить мастер-классы';
+            console.error(e,);
+        } finally {
+            loading.value = false;
+        }
 
-    // Загружаем купленные мастер-классы, если пользователь авторизован
-    if (authStore.accessToken) {
-        purchasedIds.value = await fetchMyPurchasedProductIds();
-    }
-});
-
-const selectedMasterClass = ref<MasterClass | null>(null);
-const showDetailModal = ref(false);
-const showVideoPlayer = ref(false);
-const playingMasterClass = ref<MasterClass | null>(null);
-const videoError = ref<string | null>(null);
-
-/**
- * Проверяет, может ли пользователь смотреть мастер-класс:
- * - бесплатные доступны всем
- * - администратор может смотреть всё
- * - пользователь может смотреть только купленные мастер-классы
- */
-function canWatch(mc: MasterClass): boolean {
-    if (mc.is_free) return true;
-    if (authStore.isAdmin) return true;
-    return purchasedIds.value.includes(mc.id);
-}
-
-function openDetailModal(mc: MasterClass) {
-    selectedMasterClass.value = mc;
-    showDetailModal.value = true;
-}
-
-function closeDetailModal() {
-    showDetailModal.value = false;
-    // Delay clearing so the modal transition plays out
-    setTimeout(() => {
-        selectedMasterClass.value = null;
-    }, 300);
-}
-
-function playMasterClass(mc: MasterClass) {
-    if (!canWatch(mc)) {
-        // Если не куплен — перенаправляем на страницу покупки
-        router.push(`/products/${mc.id}`);
-        return;
-    }
-    playingMasterClass.value = mc;
-    videoError.value = null;
-    showVideoPlayer.value = true;
-}
-
-function closeVideoPlayer() {
-    showVideoPlayer.value = false;
-    setTimeout(() => {
-        playingMasterClass.value = null;
-        videoError.value = null;
-    }, 300);
-}
-
-function getVideoSrc(mc: MasterClass): string {
-    const url = `${mc.video_url}`;
-    if (!mc.is_free && authStore.accessToken) {
-        return `${url}?token=${authStore.accessToken}`;
-    }
-    return url;
-}
-
-function getThumbnailSrc(mc: MasterClass): string {
-    return `${mc.thumbnail_url}`;
-}
-
-const activeFilter = ref<string>('all');
-
-const filteredClasses = computed(() => {
-    if (activeFilter.value === 'all') return masterClasses.value;
-    return masterClasses.value.filter((mc) => {
-        // Map difficulty to category for filtering
-        if (activeFilter.value === 'watercolor')
-            return (
-                mc.difficulty === 'beginner' &&
-                mc.tags.some((t) => t.slug === 'watercolor')
-            );
-        if (activeFilter.value === 'oil')
-            return mc.difficulty === 'intermediate' || mc.difficulty === 'advanced';
-        if (activeFilter.value === 'beginners') return mc.difficulty === 'beginner';
-        return true;
+        // Загружаем купленные мастер-классы, если пользователь авторизован
+        if (authStore.accessToken) {
+            purchasedIds.value = await fetchMyPurchasedProductIds();
+        }
     });
-});
 
-const filterOptions = [
-    { value: 'all', label: 'Все мастер-классы', icon: 'i-heroicons-squares-2x2' },
-    { value: 'watercolor', label: 'Акварель', icon: 'i-heroicons-paint-brush' },
-    { value: 'oil', label: 'Масло', icon: 'i-heroicons-paint-brush' },
-    { value: 'beginners', label: 'Для начинающих', icon: 'i-heroicons-sparkles' },
-];
+    const selectedMasterClass = ref<MasterClass | null>(null,);
+    const showDetailModal = ref(false,);
+    const showVideoPlayer = ref(false,);
+    const playingMasterClass = ref<MasterClass | null>(null,);
+    const videoError = ref<string | null>(null,);
 
-const categoryColors: Record<
-    string,
-    { bg: string; badge: string; gradient: string; icon: string }
-> = {
-    watercolor: {
-        bg: 'from-blue-50 to-teal-50 dark:from-blue-950/30 dark:to-teal-950/30',
-        badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
-        gradient: 'from-blue-500 to-teal-500',
-        icon: 'i-heroicons-paint-brush',
-    },
-    oil: {
-        bg: 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30',
-        badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
-        gradient: 'from-amber-500 to-orange-500',
-        icon: 'i-heroicons-paint-brush',
-    },
-    beginners: {
-        bg: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30',
-        badge:
-            'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
-        gradient: 'from-emerald-500 to-green-500',
-        icon: 'i-heroicons-sparkles',
-    },
-};
+    /**
+     * Проверяет, может ли пользователь смотреть мастер-класс:
+     * - бесплатные доступны всем
+     * - администратор может смотреть всё
+     * - пользователь может смотреть только купленные мастер-классы
+     */
+    function canWatch(mc: MasterClass,): boolean {
+        if (mc.is_free) return true;
+        if (authStore.isAdmin) return true;
+        return purchasedIds.value.includes(mc.id,);
+    }
 
-function getCategoryForMc(mc: MasterClass): string {
-    if (mc.tags.some((t) => t.slug === 'watercolor')) return 'watercolor';
-    if (mc.tags.some((t) => t.slug === 'oil')) return 'oil';
-    return 'beginners';
-}
+    function openDetailModal(mc: MasterClass,) {
+        selectedMasterClass.value = mc;
+        showDetailModal.value = true;
+    }
 
-function formatPrice(price: number): string {
-    if (price === 0) return 'Бесплатно';
-    return `${(price / 100).toLocaleString('ru-RU')} ₽`;
-}
+    function closeDetailModal() {
+        showDetailModal.value = false;
+        // Delay clearing so the modal transition plays out
+        setTimeout(() => {
+            selectedMasterClass.value = null;
+        }, 300,);
+    }
 
-function reloadPage() {
-    window.location.reload();
-}
+    function playMasterClass(mc: MasterClass,) {
+        if (!canWatch(mc,)) {
+            // Если не куплен — перенаправляем на страницу покупки
+            router.push(`/products/${mc.id}`,);
+            return;
+        }
+        playingMasterClass.value = mc;
+        videoError.value = null;
+        showVideoPlayer.value = true;
+    }
 
-function formatDuration(minutes: number): string {
-    if (minutes < 60) return `${minutes} мин`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m > 0 ? `${h} ч ${m} мин` : `${h} ч`;
-}
+    function closeVideoPlayer() {
+        showVideoPlayer.value = false;
+        setTimeout(() => {
+            playingMasterClass.value = null;
+            videoError.value = null;
+        }, 300,);
+    }
+
+    function getVideoSrc(mc: MasterClass,): string {
+        const url = `${mc.video_url}`;
+        if (!mc.is_free && authStore.accessToken) {
+            return `${url}?token=${authStore.accessToken}`;
+        }
+        return url;
+    }
+
+    function getThumbnailSrc(mc: MasterClass,): string {
+        return `${mc.thumbnail_url}`;
+    }
+
+    const activeFilter = ref<string>('all',);
+
+    const filteredClasses = computed(() => {
+        if (activeFilter.value === 'all') return masterClasses.value;
+        return masterClasses.value.filter((mc,) => {
+            // Map difficulty to category for filtering
+            if (activeFilter.value === 'watercolor')
+                return (
+                    mc.difficulty === 'beginner'
+                && mc.tags.some(t => t.slug === 'watercolor',)
+                );
+            if (activeFilter.value === 'oil')
+                return mc.difficulty === 'intermediate' || mc.difficulty === 'advanced';
+            if (activeFilter.value === 'beginners') return mc.difficulty === 'beginner';
+            return true;
+        });
+    });
+
+    const filterOptions = [
+        { value: 'all', label: 'Все мастер-классы', icon: 'i-heroicons-squares-2x2', },
+        { value: 'watercolor', label: 'Акварель', icon: 'i-heroicons-paint-brush', },
+        { value: 'oil', label: 'Масло', icon: 'i-heroicons-paint-brush', },
+        { value: 'beginners', label: 'Для начинающих', icon: 'i-heroicons-sparkles', },
+    ];
+
+    const categoryColors: Record<
+        string,
+        { bg: string, badge: string, gradient: string, icon: string }
+    > = {
+        watercolor: {
+            bg: 'from-blue-50 to-teal-50 dark:from-blue-950/30 dark:to-teal-950/30',
+            badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300',
+            gradient: 'from-blue-500 to-teal-500',
+            icon: 'i-heroicons-paint-brush',
+        },
+        oil: {
+            bg: 'from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30',
+            badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300',
+            gradient: 'from-amber-500 to-orange-500',
+            icon: 'i-heroicons-paint-brush',
+        },
+        beginners: {
+            bg: 'from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30',
+            badge:
+                'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300',
+            gradient: 'from-emerald-500 to-green-500',
+            icon: 'i-heroicons-sparkles',
+        },
+    };
+
+    function getCategoryForMc(mc: MasterClass,): string {
+        if (mc.tags.some(t => t.slug === 'watercolor',)) return 'watercolor';
+        if (mc.tags.some(t => t.slug === 'oil',)) return 'oil';
+        return 'beginners';
+    }
+
+    function formatPrice(price: number,): string {
+        if (price === 0) return 'Бесплатно';
+        return `${(price / 100).toLocaleString('ru-RU',)} ₽`;
+    }
+
+    function reloadPage() {
+        window.location.reload();
+    }
+
+    function formatDuration(minutes: number,): string {
+        if (minutes < 60) return `${minutes} мин`;
+        const h = Math.floor(minutes / 60,);
+        const m = minutes % 60;
+        return m > 0 ? `${h} ч ${m} мин` : `${h} ч`;
+    }
 </script>
 
 <template>
@@ -170,14 +170,14 @@ function formatDuration(minutes: number): string {
         <!-- Hero Section -->
         <div class="mb-12">
             <div
-                class="relative rounded-3xl overflow-hidden bg-linear-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-900 p-8 md:p-12"
+                class="relative rounded-3xl overflow-hidden bg-linear-to-r from-green-50 to-teal-50 dark:from-gray-800 dark:to-gray-900 p-8 md:p-12"
             >
                 <div class="max-w-3xl">
                     <UBreadcrumb
                         :links="[
-                            { label: 'Главная', to: '/' },
-                            { label: 'Услуги', to: '/services' },
-                            { label: 'Мастер-классы' },
+                            { label: 'Главная', to: '/', },
+                            { label: 'Услуги', to: '/services', },
+                            { label: 'Мастер-классы', },
                         ]"
                         class="mb-6"
                     />
@@ -195,16 +195,37 @@ function formatDuration(minutes: number): string {
                     </p>
 
                     <div class="flex flex-wrap gap-3">
-                        <UBadge color="primary" variant="soft" size="lg">
-                            <UIcon name="i-heroicons-video-camera" class="w-4 h-4 mr-1" />
+                        <UBadge
+                            color="primary"
+                            variant="soft"
+                            size="lg"
+                        >
+                            <UIcon
+                                name="i-heroicons-video-camera"
+                                class="w-4 h-4 mr-1"
+                            />
                             {{ masterClasses.length }} мастер-классов
                         </UBadge>
-                        <UBadge color="success" variant="soft" size="lg">
-                            <UIcon name="i-heroicons-lock-open" class="w-4 h-4 mr-1" />
-                            {{ masterClasses.filter((m) => m.is_free).length }} бесплатных
+                        <UBadge
+                            color="success"
+                            variant="soft"
+                            size="lg"
+                        >
+                            <UIcon
+                                name="i-heroicons-lock-open"
+                                class="w-4 h-4 mr-1"
+                            />
+                            {{ masterClasses.filter((m,) => m.is_free,).length }} бесплатных
                         </UBadge>
-                        <UBadge color="warning" variant="soft" size="lg">
-                            <UIcon name="i-heroicons-clock" class="w-4 h-4 mr-1" />
+                        <UBadge
+                            color="warning"
+                            variant="soft"
+                            size="lg"
+                        >
+                            <UIcon
+                                name="i-heroicons-clock"
+                                class="w-4 h-4 mr-1"
+                            />
                             Разные уровни
                         </UBadge>
                     </div>
@@ -218,23 +239,31 @@ function formatDuration(minutes: number): string {
                             src="/hero-images/master-hero.jpg"
                             alt="Мастер-класс по рисованию"
                             class="w-full h-full object-cover"
-                        />
+                        >
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="text-center py-16">
+        <div
+            v-if="loading"
+            class="text-center py-16"
+        >
             <UIcon
                 name="i-heroicons-arrow-path"
                 class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4 animate-spin"
             />
-            <p class="text-gray-500 dark:text-gray-400">Загрузка мастер-классов...</p>
+            <p class="text-gray-500 dark:text-gray-400">
+                Загрузка мастер-классов...
+            </p>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="text-center py-16">
+        <div
+            v-else-if="error"
+            class="text-center py-16"
+        >
             <UIcon
                 name="i-heroicons-exclamation-triangle"
                 class="w-16 h-16 mx-auto text-red-300 dark:text-red-600 mb-4"
@@ -242,9 +271,18 @@ function formatDuration(minutes: number): string {
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
                 Ошибка загрузки
             </h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
-            <UButton color="primary" variant="outline" @click="reloadPage()">
-                <UIcon name="i-heroicons-arrow-path" class="w-4 h-4 mr-2" />
+            <p class="text-gray-500 dark:text-gray-400 mb-6">
+                {{ error }}
+            </p>
+            <UButton
+                color="primary"
+                variant="outline"
+                @click="reloadPage()"
+            >
+                <UIcon
+                    name="i-heroicons-arrow-path"
+                    class="w-4 h-4 mr-2"
+                />
                 Попробовать снова
             </UButton>
         </div>
@@ -261,7 +299,10 @@ function formatDuration(minutes: number): string {
                         :variant="activeFilter === option.value ? 'solid' : 'outline'"
                         @click="activeFilter = option.value"
                     >
-                        <UIcon :name="option.icon" class="w-4 h-4 mr-2" />
+                        <UIcon
+                            :name="option.icon"
+                            class="w-4 h-4 mr-2"
+                        />
                         {{ option.label }}
                     </UButton>
                 </div>
@@ -278,10 +319,10 @@ function formatDuration(minutes: number): string {
                     <div class="relative shrink-0">
                         <div class="w-full h-52 overflow-hidden">
                             <img
-                                :src="getThumbnailSrc(mc)"
+                                :src="getThumbnailSrc(mc,)"
                                 :alt="mc.title_ru"
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+                            >
                         </div>
 
                         <!-- Free/Paid Badge -->
@@ -299,7 +340,7 @@ function formatDuration(minutes: number): string {
                                     "
                                     class="w-3.5 h-3.5 mr-1"
                                 />
-                                {{ formatPrice(mc.price) }}
+                                {{ formatPrice(mc.price,) }}
                             </UBadge>
                         </div>
 
@@ -307,31 +348,34 @@ function formatDuration(minutes: number): string {
                         <div
                             class="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm flex items-center"
                         >
-                            <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5 mr-1" />
-                            {{ formatDuration(mc.duration_minutes) }}
+                            <UIcon
+                                name="i-heroicons-clock"
+                                class="w-3.5 h-3.5 mr-1"
+                            />
+                            {{ formatDuration(mc.duration_minutes,) }}
                         </div>
 
                         <!-- Category Badge -->
                         <div class="absolute top-4 right-4">
                             <span
-                                :class="categoryColors[getCategoryForMc(mc)]?.badge"
+                                :class="categoryColors[getCategoryForMc(mc,)]?.badge"
                                 class="px-3 py-1 rounded-full text-xs font-medium"
                             >
                                 {{
-                                    getCategoryForMc(mc) === 'watercolor'
+                                    getCategoryForMc(mc,) === 'watercolor'
                                         ? 'Акварель'
-                                        : getCategoryForMc(mc) === 'oil'
-                                        ? 'Масло'
-                                        : 'Новичкам'
+                                        : getCategoryForMc(mc,) === 'oil'
+                                            ? 'Масло'
+                                            : 'Новичкам'
                                 }}
                             </span>
                         </div>
 
                         <!-- Play overlay (только если можно смотреть) -->
                         <div
-                            v-if="canWatch(mc)"
+                            v-if="canWatch(mc,)"
                             class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                            @click="playMasterClass(mc)"
+                            @click="playMasterClass(mc,)"
                         >
                             <div
                                 class="w-16 h-16 rounded-full bg-black/60 flex items-center justify-center shadow-2xl"
@@ -349,7 +393,7 @@ function formatDuration(minutes: number): string {
                         <!-- Tags -->
                         <div class="flex flex-wrap gap-1.5 mb-3">
                             <span
-                                v-for="tag in mc.tags.slice(0, 3)"
+                                v-for="tag in mc.tags.slice(0, 3,)"
                                 :key="tag.slug"
                                 class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                             >
@@ -386,7 +430,7 @@ function formatDuration(minutes: number): string {
                             <!-- Fade-out gradient at the bottom -->
                             <div
                                 class="absolute bottom-0 left-0 right-0 h-8 bg-linear-to-t from-white dark:from-gray-800 to-transparent pointer-events-none"
-                            ></div>
+                            />
                         </div>
 
                         <!-- Read More Button -->
@@ -395,7 +439,7 @@ function formatDuration(minutes: number): string {
                             variant="ghost"
                             size="sm"
                             class="mb-3 self-start group/read"
-                            @click="openDetailModal(mc)"
+                            @click="openDetailModal(mc,)"
                         >
                             <span class="text-xs">Читать далее</span>
                             <UIcon
@@ -407,7 +451,7 @@ function formatDuration(minutes: number): string {
                         <!-- Action Button -->
                         <UButton
                             :color="
-                                canWatch(mc)
+                                canWatch(mc,)
                                     ? mc.is_free
                                         ? 'primary'
                                         : 'primary'
@@ -415,24 +459,27 @@ function formatDuration(minutes: number): string {
                             "
                             variant="solid"
                             class="w-full shrink-0 mt-auto"
-                            @click="playMasterClass(mc)"
+                            @click="playMasterClass(mc,)"
                         >
                             <UIcon
                                 :name="
-                                    canWatch(mc)
+                                    canWatch(mc,)
                                         ? 'i-heroicons-play'
                                         : 'i-heroicons-shopping-cart'
                                 "
                                 class="w-4 h-4 mr-2"
                             />
-                            {{ canWatch(mc) ? 'Смотреть' : 'Купить' }}
+                            {{ canWatch(mc,) ? 'Смотреть' : 'Купить' }}
                         </UButton>
                     </div>
                 </div>
             </div>
 
             <!-- Empty State -->
-            <div v-if="filteredClasses.length === 0" class="text-center py-16">
+            <div
+                v-if="filteredClasses.length === 0"
+                class="text-center py-16"
+            >
                 <UIcon
                     name="i-heroicons-video-camera-slash"
                     class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4"
@@ -443,8 +490,15 @@ function formatDuration(minutes: number): string {
                 <p class="text-gray-500 dark:text-gray-400 mb-6">
                     Попробуйте выбрать другую категорию или вернуться позже.
                 </p>
-                <UButton color="primary" variant="outline" @click="activeFilter = 'all'">
-                    <UIcon name="i-heroicons-squares-2x2" class="w-4 h-4 mr-2" />
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="activeFilter = 'all'"
+                >
+                    <UIcon
+                        name="i-heroicons-squares-2x2"
+                        class="w-4 h-4 mr-2"
+                    />
                     Показать все
                 </UButton>
             </div>
@@ -466,17 +520,17 @@ function formatDuration(minutes: number): string {
                     <span
                         v-if="selectedMasterClass"
                         :class="
-                            categoryColors[getCategoryForMc(selectedMasterClass)]?.badge
+                            categoryColors[getCategoryForMc(selectedMasterClass,)]?.badge
                         "
                         class="px-2.5 py-0.5 rounded-full text-xs font-medium"
                     >
                         {{
                             selectedMasterClass
-                                ? getCategoryForMc(selectedMasterClass) === 'watercolor'
+                                ? getCategoryForMc(selectedMasterClass,) === 'watercolor'
                                     ? 'Акварель'
-                                    : getCategoryForMc(selectedMasterClass) === 'oil'
-                                    ? 'Масло'
-                                    : 'Новичкам'
+                                    : getCategoryForMc(selectedMasterClass,) === 'oil'
+                                        ? 'Масло'
+                                        : 'Новичкам'
                                 : ''
                         }}
                     </span>
@@ -501,11 +555,17 @@ function formatDuration(minutes: number): string {
                     class="flex flex-wrap items-center gap-4 text-sm text-gray-500 dark:text-gray-400"
                 >
                     <span class="flex items-center gap-1.5">
-                        <UIcon name="i-heroicons-clock" class="w-4 h-4" />
-                        {{ formatDuration(selectedMasterClass.duration_minutes) }}
+                        <UIcon
+                            name="i-heroicons-clock"
+                            class="w-4 h-4"
+                        />
+                        {{ formatDuration(selectedMasterClass.duration_minutes,) }}
                     </span>
                     <span class="flex items-center gap-1.5">
-                        <UIcon name="i-heroicons-eye" class="w-4 h-4" />
+                        <UIcon
+                            name="i-heroicons-eye"
+                            class="w-4 h-4"
+                        />
                         {{ selectedMasterClass.view_count }} просмотров
                     </span>
                     <span class="flex items-center gap-1.5">
@@ -517,7 +577,7 @@ function formatDuration(minutes: number): string {
                             "
                             class="w-4 h-4"
                         />
-                        {{ formatPrice(selectedMasterClass.price) }}
+                        {{ formatPrice(selectedMasterClass.price,) }}
                     </span>
                 </div>
 
@@ -549,26 +609,29 @@ function formatDuration(minutes: number): string {
                 </div>
 
                 <!-- Watch / Buy button in detail modal -->
-                <div v-if="selectedMasterClass" class="pt-2">
+                <div
+                    v-if="selectedMasterClass"
+                    class="pt-2"
+                >
                     <UButton
-                        :color="canWatch(selectedMasterClass) ? 'primary' : 'warning'"
+                        :color="canWatch(selectedMasterClass,) ? 'primary' : 'warning'"
                         variant="solid"
                         size="lg"
                         class="w-full"
                         @click="
                             closeDetailModal();
-                            playMasterClass(selectedMasterClass);
+                            playMasterClass(selectedMasterClass,);
                         "
                     >
                         <UIcon
                             :name="
-                                canWatch(selectedMasterClass)
+                                canWatch(selectedMasterClass,)
                                     ? 'i-heroicons-play'
                                     : 'i-heroicons-shopping-cart'
                             "
                             class="w-5 h-5 mr-2"
                         />
-                        {{ canWatch(selectedMasterClass) ? 'Смотреть' : 'Купить' }}
+                        {{ canWatch(selectedMasterClass,) ? 'Смотреть' : 'Купить' }}
                     </UButton>
                 </div>
             </div>
@@ -626,9 +689,12 @@ function formatDuration(minutes: number): string {
                         controls
                         autoplay
                         class="w-full max-h-[70vh]"
-                        :poster="getThumbnailSrc(playingMasterClass)"
+                        :poster="getThumbnailSrc(playingMasterClass,)"
                     >
-                        <source :src="getVideoSrc(playingMasterClass)" type="video/mp4" />
+                        <source
+                            :src="getVideoSrc(playingMasterClass,)"
+                            type="video/mp4"
+                        >
                         Ваш браузер не поддерживает воспроизведение видео.
                     </video>
                 </div>
@@ -643,7 +709,10 @@ function formatDuration(minutes: number): string {
                     size="lg"
                     @click="closeVideoPlayer"
                 >
-                    <UIcon name="i-heroicons-x-mark" class="w-5 h-5 mr-2" />
+                    <UIcon
+                        name="i-heroicons-x-mark"
+                        class="w-5 h-5 mr-2"
+                    />
                     Закрыть
                 </UButton>
             </div>

@@ -1,181 +1,181 @@
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/AuthStore';
-import { getHttpClient } from '~/api/http-client';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
-import { ref, onMounted, onUnmounted } from 'vue';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import { getHttpClient, } from '~/api/http-client';
+    import { useI18n, } from 'vue-i18n';
+    import { useRouter, } from 'vue-router';
+    import { ref, onMounted, onUnmounted, } from 'vue';
 
-/**
- * News item shape returned by the server's public GET /news endpoint.
- */
-interface NewsItem {
-    id: number;
-    title: string;
-    description: string | null;
-    content: string | null;
-    image_path: string;
-    video_path: string | null;
-    status: string;
-    created_at: string;
-    updated_at: string;
-}
-
-const showDeleteModal = ref(false);
-const newsToDelete = ref<NewsItem | null>(null);
-const deleteError = ref('');
-
-const { locale } = useI18n();
-const router = useRouter();
-const authStore = useAuthStore();
-
-const news = ref<NewsItem[]>([]);
-const page = ref(0);
-const limit = ref(9);
-const loading = ref(false);
-const initialLoading = ref(true);
-const hasMore = ref(true);
-const observer = ref<IntersectionObserver | null>(null);
-const observerElement = ref<HTMLElement | null>(null);
-const deletingId = ref<number | null>(null);
-
-const loadNews = async (initial = false) => {
-    if (loading.value || (!hasMore.value && !initial)) return;
-
-    try {
-        loading.value = true;
-        const currentPage = initial ? 1 : page.value;
-        const { data } = await getHttpClient().get<{ news: NewsItem[]; total: number }>(
-            'news',
-            {
-                params: {
-                    page: currentPage,
-                    limit: limit.value,
-                },
-            }
-        );
-
-        const newNews = data.news || [];
-
-        if (initial) {
-            news.value = newNews;
-            page.value = 2;
-        } else {
-            news.value = [...news.value, ...newNews];
-            page.value += 1;
-        }
-
-        if (newNews.length < limit.value) {
-            hasMore.value = false;
-        }
-    } catch (e) {
-        console.error('Error fetching news', e);
-    } finally {
-        loading.value = false;
-        initialLoading.value = false;
+    /**
+     * News item shape returned by the server's public GET /news endpoint.
+     */
+    interface NewsItem {
+        id: number
+        title: string
+        description: string | null
+        content: string | null
+        image_path: string
+        video_path: string | null
+        status: string
+        created_at: string
+        updated_at: string
     }
-};
 
-const loadMoreNews = async () => {
-    if (!hasMore.value || loading.value) return;
-    await loadNews(false);
-};
+    const showDeleteModal = ref(false,);
+    const newsToDelete = ref<NewsItem | null>(null,);
+    const deleteError = ref('',);
 
-const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+    const { locale, } = useI18n();
+    const router = useRouter();
+    const authStore = useAuthStore();
+
+    const news = ref<NewsItem[]>([],);
+    const page = ref(0,);
+    const limit = ref(9,);
+    const loading = ref(false,);
+    const initialLoading = ref(true,);
+    const hasMore = ref(true,);
+    const observer = ref<IntersectionObserver | null>(null,);
+    const observerElement = ref<HTMLElement | null>(null,);
+    const deletingId = ref<number | null>(null,);
+
+    const loadNews = async (initial = false,) => {
+        if (loading.value || (!hasMore.value && !initial)) return;
+
+        try {
+            loading.value = true;
+            const currentPage = initial ? 1 : page.value;
+            const { data, } = await getHttpClient().get<{ news: NewsItem[], total: number }>(
+                'news',
+                {
+                    params: {
+                        page: currentPage,
+                        limit: limit.value,
+                    },
+                }
+            );
+
+            const newNews = data.news || [];
+
+            if (initial) {
+                news.value = newNews;
+                page.value = 2;
+            } else {
+                news.value = [...news.value, ...newNews,];
+                page.value += 1;
+            }
+
+            if (newNews.length < limit.value) {
+                hasMore.value = false;
+            }
+        } catch (e) {
+            console.error('Error fetching news', e,);
+        } finally {
+            loading.value = false;
+            initialLoading.value = false;
+        }
     };
-    return date.toLocaleDateString(locale.value === 'ru' ? 'ru-RU' : 'en-US', options);
-};
 
-const getNewsTitle = (newsItem: NewsItem) => {
-    return newsItem.title;
-};
+    const loadMoreNews = async () => {
+        if (!hasMore.value || loading.value) return;
+        await loadNews(false,);
+    };
 
-const getImageUrl = (newsItem: NewsItem) => {
-    return newsItem.image_path;
-};
+    const formatDate = (dateString: string,) => {
+        const date = new Date(dateString,);
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        };
+        return date.toLocaleDateString(locale.value === 'ru' ? 'ru-RU' : 'en-US', options,);
+    };
 
-const navigateToNews = (id: number) => {
-    router.push(`/news/${id}`);
-};
+    const getNewsTitle = (newsItem: NewsItem,) => {
+        return newsItem.title;
+    };
 
-const editNews = (id: number) => {
-    router.push(`/news/edit/${id}/`);
-};
+    const getImageUrl = (newsItem: NewsItem,) => {
+        return newsItem.image_path;
+    };
 
-const confirmDelete = (newsItem: NewsItem) => {
-    newsToDelete.value = newsItem;
-    showDeleteModal.value = true;
-};
+    const navigateToNews = (id: number,) => {
+        router.push(`/news/${id}`,);
+    };
 
-const deleteNews = async () => {
-    if (!newsToDelete.value) return;
+    const editNews = (id: number,) => {
+        router.push(`/news/edit/${id}/`,);
+    };
 
-    deletingId.value = newsToDelete.value.id;
-    showDeleteModal.value = false;
-    deleteError.value = '';
+    const confirmDelete = (newsItem: NewsItem,) => {
+        newsToDelete.value = newsItem;
+        showDeleteModal.value = true;
+    };
 
-    try {
-        await getHttpClient().delete(`news/${newsToDelete.value.id}`);
+    const deleteNews = async () => {
+        if (!newsToDelete.value) return;
 
-        news.value = news.value.filter((n) => n.id !== newsToDelete.value!.id);
-    } catch (error) {
-        console.error('Error deleting news:', error);
+        deletingId.value = newsToDelete.value.id;
+        showDeleteModal.value = false;
+        deleteError.value = '';
 
-        if (error && typeof error === 'object' && 'response' in error) {
-            const axiosError = error as { response?: { status?: number } };
-            if (axiosError.response?.status === 401) {
-                deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
-                authStore.clearTokens();
-                setTimeout(() => {
-                    router.push('/auth/login');
-                }, 2000);
+        try {
+            await getHttpClient().delete(`news/${newsToDelete.value.id}`,);
+
+            news.value = news.value.filter(n => n.id !== newsToDelete.value!.id,);
+        } catch (error) {
+            console.error('Error deleting news:', error,);
+
+            if (error && typeof error === 'object' && 'response' in error) {
+                const axiosError = error as { response?: { status?: number } };
+                if (axiosError.response?.status === 401) {
+                    deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
+                    authStore.clearTokens();
+                    setTimeout(() => {
+                        router.push('/auth/login',);
+                    }, 2000,);
+                } else {
+                    deleteError.value = 'Ошибка при удалении новости';
+                }
             } else {
                 deleteError.value = 'Ошибка при удалении новости';
             }
-        } else {
-            deleteError.value = 'Ошибка при удалении новости';
+        } finally {
+            deletingId.value = null;
+            newsToDelete.value = null;
         }
-    } finally {
-        deletingId.value = null;
-        newsToDelete.value = null;
-    }
-};
-
-const cancelDelete = () => {
-    showDeleteModal.value = false;
-    newsToDelete.value = null;
-};
-
-onMounted(async () => {
-    await loadNews(true);
-
-    const options = {
-        root: null,
-        rootMargin: '100px',
-        threshold: 0.1,
     };
 
-    observer.value = new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        if (entry?.isIntersecting && hasMore.value && !loading.value) {
-            loadMoreNews();
+    const cancelDelete = () => {
+        showDeleteModal.value = false;
+        newsToDelete.value = null;
+    };
+
+    onMounted(async () => {
+        await loadNews(true,);
+
+        const options = {
+            root: null,
+            rootMargin: '100px',
+            threshold: 0.1,
+        };
+
+        observer.value = new IntersectionObserver((entries,) => {
+            const entry = entries[0];
+            if (entry?.isIntersecting && hasMore.value && !loading.value) {
+                loadMoreNews();
+            }
+        }, options,);
+
+        if (observerElement.value) {
+            observer.value.observe(observerElement.value,);
         }
-    }, options);
+    });
 
-    if (observerElement.value) {
-        observer.value.observe(observerElement.value);
-    }
-});
-
-onUnmounted(() => {
-    if (observer.value) {
-        observer.value.disconnect();
-    }
-});
+    onUnmounted(() => {
+        if (observer.value) {
+            observer.value.disconnect();
+        }
+    });
 </script>
 
 <template>
@@ -186,7 +186,7 @@ onUnmounted(() => {
                 <h1
                     class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4"
                 >
-                    {{ $t('news.title') }}
+                    {{ $t('news.title',) }}
                 </h1>
             </div>
 
@@ -202,15 +202,18 @@ onUnmounted(() => {
                         <div
                             class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2"
                         >
-                            <UIcon name="i-heroicons-calendar" class="w-4 h-4 mr-2" />
-                            {{ formatDate(newsItem.created_at) }}
+                            <UIcon
+                                name="i-heroicons-calendar"
+                                class="w-4 h-4 mr-2"
+                            />
+                            {{ formatDate(newsItem.created_at,) }}
                         </div>
                         <!-- Title -->
                         <h3
                             class="text-xl font-bold text-gray-900 dark:text-white line-clamp-2 hover:text-green-600 dark:hover:text-green-400 transition-colors cursor-pointer"
-                            @click="navigateToNews(newsItem.id)"
+                            @click="navigateToNews(newsItem.id,)"
                         >
-                            {{ getNewsTitle(newsItem) }}
+                            {{ getNewsTitle(newsItem,) }}
                         </h3>
                     </template>
 
@@ -219,23 +222,26 @@ onUnmounted(() => {
                         <!-- Image -->
                         <div
                             class="relative overflow-hidden rounded-lg cursor-pointer"
-                            @click="navigateToNews(newsItem.id)"
+                            @click="navigateToNews(newsItem.id,)"
                         >
                             <img
-                                :src="getImageUrl(newsItem)"
-                                :alt="getNewsTitle(newsItem)"
+                                :src="getImageUrl(newsItem,)"
+                                :alt="getNewsTitle(newsItem,)"
                                 class="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
                                 loading="lazy"
-                            />
+                            >
                         </div>
 
                         <!-- Read More -->
                         <div
                             class="flex items-center text-green-600 dark:text-green-400 font-medium cursor-pointer"
-                            @click="navigateToNews(newsItem.id)"
+                            @click="navigateToNews(newsItem.id,)"
                         >
-                            <span class="mr-2">{{ $t('news.readMore') }}</span>
-                            <UIcon name="i-heroicons-arrow-right" class="w-4 h-4" />
+                            <span class="mr-2">{{ $t('news.readMore',) }}</span>
+                            <UIcon
+                                name="i-heroicons-arrow-right"
+                                class="w-4 h-4"
+                            />
                         </div>
 
                         <!-- Admin Controls -->
@@ -249,7 +255,7 @@ onUnmounted(() => {
                                         size="sm"
                                         color="primary"
                                         variant="outline"
-                                        @click="editNews(newsItem.id)"
+                                        @click="editNews(newsItem.id,)"
                                     >
                                         Редактировать
                                     </UButton>
@@ -259,7 +265,7 @@ onUnmounted(() => {
                                         variant="outline"
                                         :loading="deletingId === newsItem.id"
                                         :disabled="deletingId === newsItem.id"
-                                        @click="confirmDelete(newsItem)"
+                                        @click="confirmDelete(newsItem,)"
                                     >
                                         Удалить
                                     </UButton>
@@ -271,11 +277,17 @@ onUnmounted(() => {
             </div>
 
             <!-- Initial Loading State (beautiful centered loader) -->
-            <div v-if="initialLoading" class="mt-24">
+            <div
+                v-if="initialLoading"
+                class="mt-24"
+            >
                 <div class="flex flex-col items-center justify-center space-y-6">
                     <!-- Animated spinner -->
                     <div class="news-loader-spinner">
-                        <svg class="news-loader-circle" viewBox="0 0 50 50">
+                        <svg
+                            class="news-loader-circle"
+                            viewBox="0 0 50 50"
+                        >
                             <circle
                                 class="news-loader-path"
                                 cx="25"
@@ -288,43 +300,53 @@ onUnmounted(() => {
                     </div>
                     <div class="flex flex-col items-center space-y-2">
                         <p class="text-lg font-medium text-gray-600 dark:text-gray-300">
-                            {{ $t('news.loading') }}
+                            {{ $t('news.loading',) }}
                         </p>
                         <div class="flex space-x-1.5">
                             <span
                                 class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
                                 style="animation-delay: 0s"
-                            ></span>
+                            />
                             <span
                                 class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
                                 style="animation-delay: 0.15s"
-                            ></span>
+                            />
                             <span
                                 class="news-loader-dot w-2 h-2 rounded-full bg-green-500 animate-bounce"
                                 style="animation-delay: 0.3s"
-                            ></span>
+                            />
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Skeleton Loading State (for load more) -->
-            <div v-if="loading && !initialLoading" class="mt-12">
+            <div
+                v-if="loading && !initialLoading"
+                class="mt-12"
+            >
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <div v-for="n in 3" :key="n" class="news-card-skeleton">
-                        <div class="skeleton-image h-48 rounded-t-2xl"></div>
+                    <div
+                        v-for="n in 3"
+                        :key="n"
+                        class="news-card-skeleton"
+                    >
+                        <div class="skeleton-image h-48 rounded-t-2xl" />
                         <div class="p-6">
-                            <div class="skeleton-line h-4 w-24 mb-4"></div>
-                            <div class="skeleton-line h-6 w-full mb-3"></div>
-                            <div class="skeleton-line h-4 w-full mb-2"></div>
-                            <div class="skeleton-line h-4 w-3/4"></div>
+                            <div class="skeleton-line h-4 w-24 mb-4" />
+                            <div class="skeleton-line h-6 w-full mb-3" />
+                            <div class="skeleton-line h-4 w-full mb-2" />
+                            <div class="skeleton-line h-4 w-3/4" />
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- No More News Message -->
-            <div v-if="!hasMore && news.length > 0" class="mt-12 text-center py-8">
+            <div
+                v-if="!hasMore && news.length > 0"
+                class="mt-12 text-center py-8"
+            >
                 <div
                     class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-4"
                 >
@@ -339,11 +361,11 @@ onUnmounted(() => {
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M5 13l4 4L19 7"
-                        ></path>
+                        />
                     </svg>
                 </div>
                 <p class="text-lg text-gray-600 dark:text-gray-300">
-                    {{ $t('news.allLoaded') }}
+                    {{ $t('news.allLoaded',) }}
                 </p>
             </div>
 
@@ -366,14 +388,14 @@ onUnmounted(() => {
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"
-                        ></path>
+                        />
                     </svg>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {{ $t('news.noNews') }}
+                    {{ $t('news.noNews',) }}
                 </h3>
                 <p class="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
-                    {{ $t('news.noNewsDescription') }}
+                    {{ $t('news.noNewsDescription',) }}
                 </p>
             </div>
 
@@ -393,8 +415,8 @@ onUnmounted(() => {
             <div
                 ref="observerElement"
                 class="h-1 w-full"
-                :class="{ 'opacity-0': !hasMore || loading }"
-            ></div>
+                :class="{ 'opacity-0': !hasMore || loading, }"
+            />
         </div>
 
         <!-- Delete Confirmation Modal -->
@@ -405,7 +427,7 @@ onUnmounted(() => {
             :transition="true"
             class="delete-modal"
         >
-            <template #header="{ close }">
+            <template #header="{ close, }">
                 <div class="delete-modal-header">
                     <div class="delete-modal-icon-wrapper">
                         <UIcon
@@ -413,7 +435,9 @@ onUnmounted(() => {
                             class="delete-modal-icon"
                         />
                     </div>
-                    <h3 class="delete-modal-title">Подтверждение удаления</h3>
+                    <h3 class="delete-modal-title">
+                        Подтверждение удаления
+                    </h3>
                 </div>
             </template>
 
@@ -421,11 +445,11 @@ onUnmounted(() => {
                 <div class="delete-modal-body">
                     <p class="delete-modal-text">
                         Вы уверены, что хотите удалить новость
-                        <span class="delete-modal-highlight"
-                            >«{{ newsToDelete ? getNewsTitle(newsToDelete) : '' }}»</span
-                        >?
+                        <span class="delete-modal-highlight">«{{ newsToDelete ? getNewsTitle(newsToDelete,) : '' }}»</span>?
                     </p>
-                    <p class="delete-modal-warning">Это действие нельзя отменить.</p>
+                    <p class="delete-modal-warning">
+                        Это действие нельзя отменить.
+                    </p>
                 </div>
             </template>
 

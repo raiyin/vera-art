@@ -1,32 +1,46 @@
 <template>
-    <div class="admin-filter-bar" :class="{ 'admin-filter-bar--dark': isDark }">
+    <div
+        class="admin-filter-bar"
+        :class="{ 'admin-filter-bar--dark': isDark, }"
+    >
         <div class="admin-filter-bar__filters">
-            <template v-for="filter in filters" :key="filter.key">
+            <template
+                v-for="filter in filters"
+                :key="filter.key"
+            >
                 <!-- Text filter -->
-                <div v-if="filter.type === 'text'" class="admin-filter-bar__item">
+                <div
+                    v-if="filter.type === 'text'"
+                    class="admin-filter-bar__item"
+                >
                     <label class="admin-filter-bar__label">{{ filter.label }}</label>
                     <input
                         :value="filterValues[filter.key] || ''"
                         type="text"
                         class="admin-filter-bar__input"
                         :placeholder="filter.placeholder || filter.label"
-                        @input="onFilterChange(filter.key, ($event.target as HTMLInputElement).value)"
-                    />
+                        @input="onFilterChange(filter.key, ($event.target as HTMLInputElement).value,)"
+                    >
                 </div>
 
                 <!-- Select filter -->
-                <div v-else-if="filter.type === 'select'" class="admin-filter-bar__item">
+                <div
+                    v-else-if="filter.type === 'select'"
+                    class="admin-filter-bar__item"
+                >
                     <label class="admin-filter-bar__label">{{ filter.label }}</label>
                     <select
                         :value="filterValues[filter.key] || ''"
                         class="admin-filter-bar__select"
-                        @change="onFilterChange(filter.key, ($event.target as HTMLSelectElement).value)"
+                        @change="onFilterChange(filter.key, ($event.target as HTMLSelectElement).value,)"
                     >
-                        <option value="">Все</option>
+                        <option value="">
+                            Все
+                        </option>
                         <option
                             v-for="opt in filter.options"
-                            :key="String(opt.value)"
-                            :value="String(opt.value)"
+                            :key="String(opt.value,)"
+                            :value="String(opt.value,)"
                         >
                             {{ opt.label }}
                         </option>
@@ -45,16 +59,16 @@
                             type="number"
                             class="admin-filter-bar__input admin-filter-bar__input--sm"
                             placeholder="От"
-                            @input="onFilterChange(`${filter.key}_min`, ($event.target as HTMLInputElement).value)"
-                        />
+                            @input="onFilterChange(`${filter.key}_min`, ($event.target as HTMLInputElement).value,)"
+                        >
                         <span class="admin-filter-bar__range-sep">—</span>
                         <input
                             :value="filterValues[`${filter.key}_max`] || ''"
                             type="number"
                             class="admin-filter-bar__input admin-filter-bar__input--sm"
                             placeholder="До"
-                            @input="onFilterChange(`${filter.key}_max`, ($event.target as HTMLInputElement).value)"
-                        />
+                            @input="onFilterChange(`${filter.key}_max`, ($event.target as HTMLInputElement).value,)"
+                        >
                     </div>
                 </div>
             </template>
@@ -74,8 +88,18 @@
                     width="14"
                     height="14"
                 >
-                    <line x1="18" y1="6" x2="6" y2="18" />
-                    <line x1="6" y1="6" x2="18" y2="18" />
+                    <line
+                        x1="18"
+                        y1="6"
+                        x2="6"
+                        y2="18"
+                    />
+                    <line
+                        x1="6"
+                        y1="6"
+                        x2="18"
+                        y2="18"
+                    />
                 </svg>
                 Сбросить
             </button>
@@ -84,20 +108,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, } from 'vue';
 
 export interface FilterDef {
-    key: string;
-    label: string;
-    type: 'text' | 'select' | 'date-range' | 'number-range';
-    options?: { label: string; value: string | number | boolean }[];
-    placeholder?: string;
+    key: string
+    label: string
+    type: 'text' | 'select' | 'date-range' | 'number-range'
+    options?: { label: string, value: string | number | boolean }[]
+    placeholder?: string
 }
 
 const props = withDefaults(
     defineProps<{
-        filters: FilterDef[];
-        isDark?: boolean;
+        filters: FilterDef[]
+        isDark?: boolean
     }>(),
     {
         isDark: false,
@@ -105,29 +129,29 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-    'update:filter': [filters: Record<string, any>];
+    'update:filter': [filters: Record<string, any>,]
 }>();
 
-const filterValues = ref<Record<string, string>>({});
+const filterValues = ref<Record<string, string>>({},);
 
 const hasActiveFilters = computed(() => {
-    return Object.values(filterValues.value).some((v) => v !== '');
+    return Object.values(filterValues.value,).some(v => v !== '',);
 });
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-function onFilterChange(key: string, value: string) {
+function onFilterChange(key: string, value: string,) {
     filterValues.value[key] = value;
 
-    if (debounceTimer) clearTimeout(debounceTimer);
+    if (debounceTimer) clearTimeout(debounceTimer,);
     debounceTimer = setTimeout(() => {
-        emit('update:filter', { ...filterValues.value });
-    }, 300);
+        emit('update:filter', { ...filterValues.value, },);
+    }, 300,);
 }
 
 function clearFilters() {
     filterValues.value = {};
-    emit('update:filter', {});
+    emit('update:filter', {},);
 }
 </script>
 

@@ -1,225 +1,225 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useI18n } from '#imports';
-import { getHttpClient } from '~/api/http-client';
-import { useFormatting } from '~/composables/useFormatting';
-import type { NewsItem, NewsListResponse } from '~/api/news';
-import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
-import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
+    import { ref, onMounted, computed, } from 'vue';
+    import { useI18n, } from '#imports';
+    import { getHttpClient, } from '~/api/http-client';
+    import { useFormatting, } from '~/composables/useFormatting';
+    import type { NewsItem, NewsListResponse, } from '~/api/news';
+    import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
+    import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
 
-const route = useRoute();
-const router = useRouter();
-const { t } = useI18n();
-const { formatDate } = useFormatting();
+    const route = useRoute();
+    const router = useRouter();
+    const { t, } = useI18n();
+    const { formatDate, } = useFormatting();
 
-const currentNewsItem = ref<NewsItem | null>(null);
-const otherNews = ref<NewsItem[]>([]);
-const loading = ref(true);
-const error = ref<string | null>(null);
-const mainImageError = ref(false);
+    const currentNewsItem = ref<NewsItem | null>(null,);
+    const otherNews = ref<NewsItem[]>([],);
+    const loading = ref(true,);
+    const error = ref<string | null>(null,);
+    const mainImageError = ref(false,);
 
-// Video carousel state
-const currentVideoIndex = ref(0);
-const videoErrors = ref<Set<number>>(new Set());
+    // Video carousel state
+    const currentVideoIndex = ref(0,);
+    const videoErrors = ref<Set<number>>(new Set(),);
 
-// Gallery modal state
-const selectedGalleryIndex = ref<number | null>(null);
-const galleryImageErrors = ref<Set<number>>(new Set());
+    // Gallery modal state
+    const selectedGalleryIndex = ref<number | null>(null,);
+    const galleryImageErrors = ref<Set<number>>(new Set(),);
 
-const openGalleryModal = (index: number): void => {
-    selectedGalleryIndex.value = index;
-};
+    const openGalleryModal = (index: number,): void => {
+        selectedGalleryIndex.value = index;
+    };
 
-const closeGalleryModal = (): void => {
-    selectedGalleryIndex.value = null;
-};
+    const closeGalleryModal = (): void => {
+        selectedGalleryIndex.value = null;
+    };
 
-const goToPreviousGalleryImage = (): void => {
-    if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
-    selectedGalleryIndex.value =
-        (selectedGalleryIndex.value - 1 + galleryImages.value.length) %
-        galleryImages.value.length;
-};
+    const goToPreviousGalleryImage = (): void => {
+        if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
+        selectedGalleryIndex.value
+        = (selectedGalleryIndex.value - 1 + galleryImages.value.length)
+                % galleryImages.value.length;
+    };
 
-const goToNextGalleryImage = (): void => {
-    if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
-    selectedGalleryIndex.value =
-        (selectedGalleryIndex.value + 1) % galleryImages.value.length;
-};
+    const goToNextGalleryImage = (): void => {
+        if (selectedGalleryIndex.value === null || galleryImages.value.length === 0) return;
+        selectedGalleryIndex.value
+        = (selectedGalleryIndex.value + 1) % galleryImages.value.length;
+    };
 
-const handleGalleryImageError = (index: number): void => {
-    galleryImageErrors.value.add(index);
-};
+    const handleGalleryImageError = (index: number,): void => {
+        galleryImageErrors.value.add(index,);
+    };
 
-const newsId = computed(() => Number(route.params.id));
+    const newsId = computed(() => Number(route.params.id,),);
 
-/**
- * Normalize file paths by replacing backslashes with forward slashes.
- * The legacy system stored paths with OS-specific separators.
- */
-const normalizePath = (path: string | null | undefined): string | undefined => {
-    if (!path) return undefined;
-    return path.replace(/\\/g, '/');
-};
+    /**
+     * Normalize file paths by replacing backslashes with forward slashes.
+     * The legacy system stored paths with OS-specific separators.
+     */
+    const normalizePath = (path: string | null | undefined,): string | undefined => {
+        if (!path) return undefined;
+        return path.replace(/\\/g, '/',);
+    };
 
-/**
- * Resolve a single video path to its actual file URL.
- * The legacy system stores the video directory name, while the actual
- * video file is located at `videos/{dirname}/{dirname}.mp4`.
- */
-const resolveVideoPath = (videoPath: string): string | undefined => {
-    const normalizedPath = normalizePath(videoPath);
-    if (!normalizedPath) return undefined;
+    /**
+     * Resolve a single video path to its actual file URL.
+     * The legacy system stores the video directory name, while the actual
+     * video file is located at `videos/{dirname}/{dirname}.mp4`.
+     */
+    const resolveVideoPath = (videoPath: string,): string | undefined => {
+        const normalizedPath = normalizePath(videoPath,);
+        if (!normalizedPath) return undefined;
 
-    // Check if the path already points to a file with extension
-    if (/\.\w+$/.test(normalizedPath)) {
-        return normalizedPath;
-    }
-
-    // The path points to a directory — construct the actual video file path
-    // Pattern: /content/news/YYYY/MM/DD/videoplayback
-    // Actual file: /content/news/YYYY/MM/DD/videos/videoplayback/videoplayback.mp4
-    const dirName = normalizedPath.split('/').pop() || '';
-    const basePath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/'));
-    return `${basePath}/videos/${dirName}/${dirName}.mp4`;
-};
-
-/**
- * All resolved video URLs for the carousel.
- * Combines the single video_path (legacy) with the video_paths array.
- */
-const allVideoUrls = computed<string[]>(() => {
-    const item = currentNewsItem.value;
-    if (!item) return [];
-
-    const urls: string[] = [];
-
-    // Add from video_paths array (new system with multiple videos)
-    if (item.video_paths && item.video_paths.length > 0) {
-        for (const vp of item.video_paths) {
-            const resolved = resolveVideoPath(vp);
-            if (resolved) urls.push(resolved);
+        // Check if the path already points to a file with extension
+        if (/\.\w+$/.test(normalizedPath,)) {
+            return normalizedPath;
         }
-    }
 
-    // Add from single video_path if not already included (legacy fallback)
-    if (item.video_path) {
-        const resolved = resolveVideoPath(item.video_path);
-        if (resolved && !urls.includes(resolved)) {
-            urls.push(resolved);
+        // The path points to a directory — construct the actual video file path
+        // Pattern: /content/news/YYYY/MM/DD/videoplayback
+        // Actual file: /content/news/YYYY/MM/DD/videos/videoplayback/videoplayback.mp4
+        const dirName = normalizedPath.split('/',).pop() || '';
+        const basePath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/',),);
+        return `${basePath}/videos/${dirName}/${dirName}.mp4`;
+    };
+
+    /**
+     * All resolved video URLs for the carousel.
+     * Combines the single video_path (legacy) with the video_paths array.
+     */
+    const allVideoUrls = computed<string[]>(() => {
+        const item = currentNewsItem.value;
+        if (!item) return [];
+
+        const urls: string[] = [];
+
+        // Add from video_paths array (new system with multiple videos)
+        if (item.video_paths && item.video_paths.length > 0) {
+            for (const vp of item.video_paths) {
+                const resolved = resolveVideoPath(vp,);
+                if (resolved) urls.push(resolved,);
+            }
         }
-    }
 
-    return urls;
-});
+        // Add from single video_path if not already included (legacy fallback)
+        if (item.video_path) {
+            const resolved = resolveVideoPath(item.video_path,);
+            if (resolved && !urls.includes(resolved,)) {
+                urls.push(resolved,);
+            }
+        }
 
-const hasMultipleVideos = computed(() => allVideoUrls.value.length > 1);
+        return urls;
+    });
 
-const currentVideoUrl = computed(() => {
-    if (allVideoUrls.value.length === 0) return undefined;
-    return allVideoUrls.value[currentVideoIndex.value];
-});
+    const hasMultipleVideos = computed(() => allVideoUrls.value.length > 1,);
 
-const isCurrentVideoError = computed(() =>
-    videoErrors.value.has(currentVideoIndex.value)
+    const currentVideoUrl = computed(() => {
+        if (allVideoUrls.value.length === 0) return undefined;
+        return allVideoUrls.value[currentVideoIndex.value];
+    });
+
+    const isCurrentVideoError = computed(() =>
+        videoErrors.value.has(currentVideoIndex.value,),
 );
 
-/**
- * Resolve the actual image file URL from the stored image_path.
- */
-const resolvedImagePath = computed<string | undefined>(() => {
-    if (!currentNewsItem.value?.image_path) return undefined;
-    return normalizePath(currentNewsItem.value.image_path);
-});
+    /**
+     * Resolve the actual image file URL from the stored image_path.
+     */
+    const resolvedImagePath = computed<string | undefined>(() => {
+        if (!currentNewsItem.value?.image_path) return undefined;
+        return normalizePath(currentNewsItem.value.image_path,);
+    });
 
-/**
- * Extract the directory from image_path to construct gallery image URLs.
- * image_path example: /content/news/2024/11/22/back.jpg
- * image_paths example: ["1.jpg", "2.jpg", "3.jpg"]
- * Result: ["/content/news/2024/11/22/1.jpg", "/content/news/2024/11/22/2.jpg", ...]
- */
-const imageDir = computed<string>(() => {
-    const path = normalizePath(currentNewsItem.value?.image_path);
-    if (!path) return '';
-    const lastSlash = path.lastIndexOf('/');
-    if (lastSlash === -1) return '';
-    return path.substring(0, lastSlash + 1);
-});
+    /**
+     * Extract the directory from image_path to construct gallery image URLs.
+     * image_path example: /content/news/2024/11/22/back.jpg
+     * image_paths example: ["1.jpg", "2.jpg", "3.jpg"]
+     * Result: ["/content/news/2024/11/22/1.jpg", "/content/news/2024/11/22/2.jpg", ...]
+     */
+    const imageDir = computed<string>(() => {
+        const path = normalizePath(currentNewsItem.value?.image_path,);
+        if (!path) return '';
+        const lastSlash = path.lastIndexOf('/',);
+        if (lastSlash === -1) return '';
+        return path.substring(0, lastSlash + 1,);
+    });
 
-const galleryImages = computed<string[]>(() => {
-    const item = currentNewsItem.value;
-    if (!item?.image_paths || item.image_paths.length === 0) return [];
-    const dir = imageDir.value;
-    if (!dir) return [];
-    return item.image_paths
-        .map((name: string) => `${dir}${name}`)
-        .map((p: string) => normalizePath(p) || p);
-});
+    const galleryImages = computed<string[]>(() => {
+        const item = currentNewsItem.value;
+        if (!item?.image_paths || item.image_paths.length === 0) return [];
+        const dir = imageDir.value;
+        if (!dir) return [];
+        return item.image_paths
+            .map((name: string,) => `${dir}${name}`,)
+            .map((p: string,) => normalizePath(p,) || p,);
+    });
 
-// Video carousel navigation
-const goToPreviousVideo = (): void => {
-    if (allVideoUrls.value.length === 0) return;
-    currentVideoIndex.value =
-        (currentVideoIndex.value - 1 + allVideoUrls.value.length) %
-        allVideoUrls.value.length;
-};
+    // Video carousel navigation
+    const goToPreviousVideo = (): void => {
+        if (allVideoUrls.value.length === 0) return;
+        currentVideoIndex.value
+        = (currentVideoIndex.value - 1 + allVideoUrls.value.length)
+                % allVideoUrls.value.length;
+    };
 
-const goToNextVideo = (): void => {
-    if (allVideoUrls.value.length === 0) return;
-    currentVideoIndex.value = (currentVideoIndex.value + 1) % allVideoUrls.value.length;
-};
+    const goToNextVideo = (): void => {
+        if (allVideoUrls.value.length === 0) return;
+        currentVideoIndex.value = (currentVideoIndex.value + 1) % allVideoUrls.value.length;
+    };
 
-const goToVideo = (index: number): void => {
-    if (index >= 0 && index < allVideoUrls.value.length) {
-        currentVideoIndex.value = index;
-    }
-};
+    const goToVideo = (index: number,): void => {
+        if (index >= 0 && index < allVideoUrls.value.length) {
+            currentVideoIndex.value = index;
+        }
+    };
 
-const handleVideoError = (index: number): void => {
-    videoErrors.value.add(index);
-};
+    const handleVideoError = (index: number,): void => {
+        videoErrors.value.add(index,);
+    };
 
-const handleMainImageError = (): void => {
-    mainImageError.value = true;
-};
+    const handleMainImageError = (): void => {
+        mainImageError.value = true;
+    };
 
-const fetchNewsDetail = async (): Promise<void> => {
-    try {
-        loading.value = true;
-        error.value = null;
+    const fetchNewsDetail = async (): Promise<void> => {
+        try {
+            loading.value = true;
+            error.value = null;
 
-        const { data: currentData } = await getHttpClient().get<NewsItem>(
-            `news/${newsId.value}`
+            const { data: currentData, } = await getHttpClient().get<NewsItem>(
+                `news/${newsId.value}`,
         );
-        currentNewsItem.value = currentData;
+            currentNewsItem.value = currentData;
 
-        // Fetch other news for sidebar (excluding current)
-        const { data: otherData } = await getHttpClient().get<NewsListResponse>('news', {
-            params: {
-                page: 1,
-                limit: 6,
-            },
-        });
+            // Fetch other news for sidebar (excluding current)
+            const { data: otherData, } = await getHttpClient().get<NewsListResponse>('news', {
+                params: {
+                    page: 1,
+                    limit: 6,
+                },
+            });
 
-        // Filter out current news and take first 5
-        otherNews.value = (otherData.news || [])
-            .filter((news: NewsItem) => news.id !== newsId.value)
-            .slice(0, 5);
-    } catch (err) {
-        console.error('Error fetching news detail:', err);
-        error.value = t('news.detail.error.loadFailed');
-    } finally {
-        loading.value = false;
-    }
-};
+            // Filter out current news and take first 5
+            otherNews.value = (otherData.news || [])
+                .filter((news: NewsItem,) => news.id !== newsId.value,)
+                .slice(0, 5,);
+        } catch (err) {
+            console.error('Error fetching news detail:', err,);
+            error.value = t('news.detail.error.loadFailed',);
+        } finally {
+            loading.value = false;
+        }
+    };
 
-const navigateToNews = (id: number): void => {
-    router.push(`/news/${id}`);
-};
+    const navigateToNews = (id: number,): void => {
+        router.push(`/news/${id}`,);
+    };
 
-onMounted(() => {
-    fetchNewsDetail();
-});
+    onMounted(() => {
+        fetchNewsDetail();
+    });
 </script>
 
 <template>
@@ -228,7 +228,10 @@ onMounted(() => {
         <NewsDescriptionSkeleton v-if="loading && !currentNewsItem" />
 
         <!-- Error State -->
-        <div v-else-if="error" class="error-container">
+        <div
+            v-else-if="error"
+            class="error-container"
+        >
             <div class="error-content">
                 <svg
                     class="error-icon"
@@ -245,19 +248,25 @@ onMounted(() => {
                     />
                 </svg>
                 <h2 class="error-title">
-                    {{ $t('news.detail.error.title') }}
+                    {{ $t('news.detail.error.title',) }}
                 </h2>
                 <p class="error-message">
                     {{ error }}
                 </p>
-                <button class="retry-button" @click="fetchNewsDetail">
-                    {{ $t('news.detail.error.retryButton') }}
+                <button
+                    class="retry-button"
+                    @click="fetchNewsDetail"
+                >
+                    {{ $t('news.detail.error.retryButton',) }}
                 </button>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div v-else-if="currentNewsItem" class="container mx-auto px-4 py-8">
+        <div
+            v-else-if="currentNewsItem"
+            class="container mx-auto px-4 py-8"
+        >
             <!-- Breadcrumb -->
             <nav class="mb-6">
                 <ol class="flex items-center space-x-2 text-sm text-gray-500">
@@ -266,7 +275,7 @@ onMounted(() => {
                             to="/"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.home') }}
+                            {{ $t('breadcrumb.home',) }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -288,7 +297,7 @@ onMounted(() => {
                             to="/news"
                             class="hover:text-green-600 transition-colors"
                         >
-                            {{ $t('breadcrumb.news') }}
+                            {{ $t('breadcrumb.news',) }}
                         </router-link>
                     </li>
                     <li class="flex items-center">
@@ -341,7 +350,7 @@ onMounted(() => {
                                 />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400 text-center">
-                                {{ $t('news.detail.image.error') }}
+                                {{ $t('news.detail.image.error',) }}
                             </p>
                         </div>
                         <img
@@ -351,7 +360,7 @@ onMounted(() => {
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
-                        />
+                        >
                     </div>
                 </div>
 
@@ -361,7 +370,7 @@ onMounted(() => {
                         <h3
                             class="text-xl font-bold text-gray-900 dark:text-white mb-4 pb-1 border-b border-gray-200 dark:border-gray-700"
                         >
-                            {{ $t('news.detail.sidebar.title') }}
+                            {{ $t('news.detail.sidebar.title',) }}
                         </h3>
 
                         <div
@@ -372,13 +381,16 @@ onMounted(() => {
                                 v-for="news in otherNews"
                                 :key="news.id"
                                 class="sidebar-news-item cursor-pointer group"
-                                @click="navigateToNews(news.id)"
+                                @click="navigateToNews(news.id,)"
                             >
                                 <SideNewsTrailer :side-news-object="news" />
                             </div>
                         </div>
 
-                        <div v-else class="text-center py-8">
+                        <div
+                            v-else
+                            class="text-center py-8"
+                        >
                             <svg
                                 class="w-12 h-12 mx-auto text-gray-400 mb-4"
                                 fill="none"
@@ -394,7 +406,7 @@ onMounted(() => {
                                 />
                             </svg>
                             <p class="text-gray-500 dark:text-gray-400">
-                                {{ $t('news.detail.sidebar.empty') }}
+                                {{ $t('news.detail.sidebar.empty',) }}
                             </p>
                         </div>
 
@@ -403,7 +415,7 @@ onMounted(() => {
                                 to="/news"
                                 class="flex items-center justify-center w-full py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors"
                             >
-                                <span>{{ $t('news.viewAllNews') }}</span>
+                                <span>{{ $t('news.viewAllNews',) }}</span>
                                 <svg
                                     class="w-5 h-5 ml-2"
                                     fill="none"
@@ -444,7 +456,7 @@ onMounted(() => {
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                     </svg>
-                    {{ formatDate(currentNewsItem.created_at) }}
+                    {{ formatDate(currentNewsItem.created_at,) }}
                 </div>
 
                 <!-- Title -->
@@ -456,14 +468,20 @@ onMounted(() => {
             </div>
 
             <!-- News Description -->
-            <div v-if="currentNewsItem.description" class="news-description mb-6">
+            <div
+                v-if="currentNewsItem.description"
+                class="news-description mb-6"
+            >
                 <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
                     {{ currentNewsItem.description }}
                 </p>
             </div>
 
             <!-- News Content -->
-            <div v-if="currentNewsItem.content" class="news-text mb-12">
+            <div
+                v-if="currentNewsItem.content"
+                class="news-text mb-12"
+            >
                 <div class="prose prose-lg dark:prose-invert max-w-none">
                     <div
                         class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
@@ -473,9 +491,12 @@ onMounted(() => {
             </div>
 
             <!-- Video Carousel Section -->
-            <div v-if="allVideoUrls.length > 0" class="video-section mb-12">
+            <div
+                v-if="allVideoUrls.length > 0"
+                class="video-section mb-12"
+            >
                 <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                    {{ $t('news.detail.videos.title') }}
+                    {{ $t('news.detail.videos.title',) }}
                     <span
                         v-if="hasMultipleVideos"
                         class="text-lg font-normal text-gray-500 dark:text-gray-400 ml-2"
@@ -497,10 +518,10 @@ onMounted(() => {
                             class="w-full h-full object-contain"
                             controls
                             preload="metadata"
-                            @error="handleVideoError(currentVideoIndex)"
+                            @error="handleVideoError(currentVideoIndex,)"
                         >
                             <p class="text-white text-center py-8">
-                                {{ $t('news.detail.videos.notSupported') }}
+                                {{ $t('news.detail.videos.notSupported',) }}
                             </p>
                         </video>
 
@@ -525,7 +546,7 @@ onMounted(() => {
                                     />
                                 </svg>
                                 <p class="text-gray-500 dark:text-gray-400">
-                                    {{ $t('news.detail.videos.notSupported') }}
+                                    {{ $t('news.detail.videos.notSupported',) }}
                                 </p>
                             </div>
                         </div>
@@ -587,15 +608,18 @@ onMounted(() => {
                                 'carousel-dot-active': index === currentVideoIndex,
                             }"
                             :aria-label="`Go to video ${index + 1}`"
-                            @click="goToVideo(index)"
+                            @click="goToVideo(index,)"
                         />
                     </div>
                 </div>
 
                 <!-- Gallery Section -->
-                <div v-if="galleryImages.length > 0" class="gallery-section mb-12">
+                <div
+                    v-if="galleryImages.length > 0"
+                    class="gallery-section mb-12"
+                >
                     <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        {{ $t('news.detail.gallery.title') }}
+                        {{ $t('news.detail.gallery.title',) }}
                     </h3>
 
                     <div class="gallery-grid">
@@ -603,10 +627,10 @@ onMounted(() => {
                             v-for="(imgUrl, index) in galleryImages"
                             :key="index"
                             class="gallery-item"
-                            @click="openGalleryModal(index)"
+                            @click="openGalleryModal(index,)"
                         >
                             <div
-                                v-if="galleryImageErrors.has(index)"
+                                v-if="galleryImageErrors.has(index,)"
                                 class="gallery-item-error"
                             >
                                 <svg
@@ -626,11 +650,11 @@ onMounted(() => {
                             <img
                                 v-else
                                 :src="imgUrl"
-                                :alt="`${$t('news.detail.gallery.title')} ${index + 1}`"
+                                :alt="`${$t('news.detail.gallery.title',)} ${index + 1}`"
                                 class="gallery-image"
                                 loading="lazy"
-                                @error="handleGalleryImageError(index)"
-                            />
+                                @error="handleGalleryImageError(index,)"
+                            >
                         </div>
                     </div>
 
@@ -653,7 +677,7 @@ onMounted(() => {
                             />
                         </svg>
                         <p class="text-gray-500 dark:text-gray-400">
-                            {{ $t('news.detail.gallery.empty') }}
+                            {{ $t('news.detail.gallery.empty',) }}
                         </p>
                     </div>
                 </div>
@@ -669,7 +693,7 @@ onMounted(() => {
                             <!-- Close button -->
                             <button
                                 class="gallery-modal-close"
-                                :aria-label="$t('news.detail.modal.close')"
+                                :aria-label="$t('news.detail.modal.close',)"
                                 @click="closeGalleryModal"
                             >
                                 <svg
@@ -691,7 +715,7 @@ onMounted(() => {
                             <button
                                 v-if="galleryImages.length > 1"
                                 class="gallery-modal-nav gallery-modal-prev"
-                                :aria-label="$t('news.detail.modal.previous')"
+                                :aria-label="$t('news.detail.modal.previous',)"
                                 @click="goToPreviousGalleryImage"
                             >
                                 <svg
@@ -712,16 +736,19 @@ onMounted(() => {
                             <!-- Image -->
                             <div class="gallery-modal-image-wrapper">
                                 <img
-                                    v-if="!galleryImageErrors.has(selectedGalleryIndex)"
+                                    v-if="!galleryImageErrors.has(selectedGalleryIndex,)"
                                     :key="selectedGalleryIndex"
                                     :src="galleryImages[selectedGalleryIndex]"
-                                    :alt="`${$t('news.detail.gallery.title')} ${
+                                    :alt="`${$t('news.detail.gallery.title',)} ${
                                         selectedGalleryIndex + 1
                                     }`"
                                     class="gallery-modal-image"
-                                    @error="handleGalleryImageError(selectedGalleryIndex)"
-                                />
-                                <div v-else class="gallery-modal-error">
+                                    @error="handleGalleryImageError(selectedGalleryIndex,)"
+                                >
+                                <div
+                                    v-else
+                                    class="gallery-modal-error"
+                                >
                                     <svg
                                         class="w-16 h-16 text-gray-400"
                                         fill="none"
@@ -742,7 +769,7 @@ onMounted(() => {
                             <button
                                 v-if="galleryImages.length > 1"
                                 class="gallery-modal-nav gallery-modal-next"
-                                :aria-label="$t('news.detail.modal.next')"
+                                :aria-label="$t('news.detail.modal.next',)"
                                 @click="goToNextGalleryImage"
                             >
                                 <svg
@@ -766,7 +793,7 @@ onMounted(() => {
                                     $t('news.detail.modal.caption', {
                                         current: selectedGalleryIndex + 1,
                                         total: galleryImages.length,
-                                    })
+                                    },)
                                 }}
                             </div>
                         </div>

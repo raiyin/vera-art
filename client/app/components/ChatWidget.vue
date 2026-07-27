@@ -1,8 +1,16 @@
 <template>
-    <div class="chat-widget" :class="{ 'chat-widget--collapsed': collapsed }">
-        <div class="chat-widget__header" @click="toggleCollapse">
+    <div
+        class="chat-widget"
+        :class="{ 'chat-widget--collapsed': collapsed, }"
+    >
+        <div
+            class="chat-widget__header"
+            @click="toggleCollapse"
+        >
             <div class="chat-widget__header-left">
-                <div class="chat-widget__icon">💬</div>
+                <div class="chat-widget__icon">
+                    💬
+                </div>
                 <div class="chat-widget__title">
                     {{
                         thread
@@ -10,21 +18,43 @@
                             : 'Чат'
                     }}
                 </div>
-                <div v-if="unreadCount > 0" class="chat-widget__badge">
+                <div
+                    v-if="unreadCount > 0"
+                    class="chat-widget__badge"
+                >
                     {{ unreadCount }}
                 </div>
             </div>
             <div class="chat-widget__header-right">
-                <button class="chat-widget__header-button" @click.stop="toggleCollapse">
+                <button
+                    class="chat-widget__header-button"
+                    @click.stop="toggleCollapse"
+                >
                     {{ collapsed ? '▶' : '▼' }}
                 </button>
             </div>
         </div>
 
-        <div v-if="!collapsed" class="chat-widget__body">
-            <div v-if="loading" class="chat-widget__loading">Загрузка...</div>
-            <div v-else-if="error" class="chat-widget__error">{{ error }}</div>
-            <div v-else-if="!thread" class="chat-widget__no-thread">
+        <div
+            v-if="!collapsed"
+            class="chat-widget__body"
+        >
+            <div
+                v-if="loading"
+                class="chat-widget__loading"
+            >
+                Загрузка...
+            </div>
+            <div
+                v-else-if="error"
+                class="chat-widget__error"
+            >
+                {{ error }}
+            </div>
+            <div
+                v-else-if="!thread"
+                class="chat-widget__no-thread"
+            >
                 <p>У вас нет активного чата по этому курсу.</p>
                 <button
                     v-if="purchaseId"
@@ -34,8 +64,14 @@
                     Создать чат
                 </button>
             </div>
-            <div v-else class="chat-widget__messages-container">
-                <div ref="messagesContainer" class="chat-widget__messages">
+            <div
+                v-else
+                class="chat-widget__messages-container"
+            >
+                <div
+                    ref="messagesContainer"
+                    class="chat-widget__messages"
+                >
                     <div
                         v-for="message in messages"
                         :key="message.id"
@@ -49,9 +85,9 @@
                     >
                         <div class="chat-widget__message-sender">
                             {{
-                                message.sender?.full_name ||
-                                message.sender?.username ||
-                                'Пользователь'
+                                message.sender?.full_name
+                                    || message.sender?.username
+                                    || 'Пользователь'
                             }}
                         </div>
                         <div class="chat-widget__message-content">
@@ -62,14 +98,23 @@
                                 v-else-if="message.message_type === 'image'"
                                 class="chat-widget__image"
                             >
-                                <img :src="message.attachment_url ?? undefined" alt="Изображение" />
+                                <img
+                                    :src="message.attachment_url ?? undefined"
+                                    alt="Изображение"
+                                >
                             </div>
-                            <div v-else class="chat-widget__file">
-                                <a :href="message.attachment_url ?? undefined" target="_blank">Файл</a>
+                            <div
+                                v-else
+                                class="chat-widget__file"
+                            >
+                                <a
+                                    :href="message.attachment_url ?? undefined"
+                                    target="_blank"
+                                >Файл</a>
                             </div>
                         </div>
                         <div class="chat-widget__message-time">
-                            {{ formatTime(message.created_at) }}
+                            {{ formatTime(message.created_at,) }}
                         </div>
                     </div>
                 </div>
@@ -84,8 +129,8 @@
                     />
                     <button
                         class="chat-widget__send-button"
-                        @click="sendMessage"
                         :disabled="!newMessage.trim()"
+                        @click="sendMessage"
                     >
                         Отправить
                     </button>
@@ -96,180 +141,180 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
-import { useAuthStore } from '~/stores/AuthStore';
-import type { ChatThread, ChatMessage } from '~/types';
+    import { ref, computed, onMounted, onUnmounted, watch, nextTick, } from 'vue';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import type { ChatThread, ChatMessage, } from '~/types';
 
-interface Props {
-    purchaseId?: number;
-    threadId?: number;
-    autoLoad?: boolean;
-}
+    interface Props {
+        purchaseId?: number
+        threadId?: number
+        autoLoad?: boolean
+    }
 
-const props = withDefaults(defineProps<Props>(), {
-    autoLoad: true,
-});
+    const props = withDefaults(defineProps<Props>(), {
+        autoLoad: true,
+    });
 
-const authStore = useAuthStore();
-const currentUserId = computed(() => authStore.currentUserId || 0);
+    const authStore = useAuthStore();
+    const currentUserId = computed(() => authStore.currentUserId || 0,);
 
-const collapsed = ref(false);
-const loading = ref(false);
-const error = ref('');
-const thread = ref<ChatThread | null>(null);
-const messages = ref<ChatMessage[]>([]);
-const newMessage = ref('');
-const unreadCount = ref(0);
-const messagesContainer = ref<HTMLElement | null>(null);
-let pollInterval: ReturnType<typeof setInterval> | null = null;
+    const collapsed = ref(false,);
+    const loading = ref(false,);
+    const error = ref('',);
+    const thread = ref<ChatThread | null>(null,);
+    const messages = ref<ChatMessage[]>([],);
+    const newMessage = ref('',);
+    const unreadCount = ref(0,);
+    const messagesContainer = ref<HTMLElement | null>(null,);
+    let pollInterval: ReturnType<typeof setInterval> | null = null;
 
-const fetchThread = async () => {
-    if (props.threadId) {
-        // Загружаем конкретный тред
+    const fetchThread = async () => {
+        if (props.threadId) {
+            // Загружаем конкретный тред
+            try {
+                const response = await $fetch(`/api/chat/threads/${props.threadId}`, {
+                    headers: { Authorization: `Bearer ${authStore.token}`, },
+                });
+                thread.value = response as ChatThread;
+                await fetchMessages();
+            } catch (err) {
+                error.value = 'Не удалось загрузить чат';
+            }
+        } else if (props.purchaseId) {
+            // Ищем тред по purchaseId
+            try {
+                const threads = await $fetch('/api/chat/threads', {
+                    headers: { Authorization: `Bearer ${authStore.token}`, },
+                }) as ChatThread[];
+                const found = threads.find(
+                    (t: ChatThread,) => t.purchase_id === props.purchaseId,
+            );
+                if (found) {
+                    thread.value = found;
+                    await fetchMessages();
+                } else {
+                    thread.value = null;
+                }
+            } catch (err) {
+                error.value = 'Не удалось загрузить список чатов';
+            }
+        }
+    };
+
+    const fetchMessages = async () => {
+        if (!thread.value) return;
         try {
-            const response = await $fetch(`/api/chat/threads/${props.threadId}`, {
-                headers: { Authorization: `Bearer ${authStore.token}` },
+            const response = await $fetch(`/api/chat/threads/${thread.value.id}/messages`, {
+                headers: { Authorization: `Bearer ${authStore.token}`, },
+            });
+            messages.value = response as ChatMessage[];
+            scrollToBottom();
+            updateUnreadCount();
+        } catch (err) {
+            error.value = 'Не удалось загрузить сообщения';
+        }
+    };
+
+    const createThread = async () => {
+        if (!props.purchaseId) return;
+        try {
+            const response = await $fetch('/api/chat/threads', {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${authStore.token}`, },
+                body: { purchase_id: props.purchaseId, },
             });
             thread.value = response as ChatThread;
             await fetchMessages();
         } catch (err) {
-            error.value = 'Не удалось загрузить чат';
+            error.value = 'Не удалось создать чат';
         }
-    } else if (props.purchaseId) {
-        // Ищем тред по purchaseId
+    };
+
+    const sendMessage = async () => {
+        const content = newMessage.value.trim();
+        if (!content || !thread.value) return;
+
         try {
-            const threads = await $fetch('/api/chat/threads', {
-                headers: { Authorization: `Bearer ${authStore.token}` },
-            }) as ChatThread[];
-            const found = threads.find(
-                (t: ChatThread) => t.purchase_id === props.purchaseId
+            await $fetch(`/api/chat/threads/${thread.value.id}/messages`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${authStore.token}`, },
+                body: {
+                    content,
+                    message_type: 'text',
+                },
+            });
+            newMessage.value = '';
+            await fetchMessages();
+        } catch (err) {
+            error.value = 'Не удалось отправить сообщение';
+        }
+    };
+
+    const pollNewMessages = async () => {
+        if (!thread.value) return;
+        try {
+            const response = await $fetch(
+                `/api/chat/poll?thread_id=${thread.value.id}&last_message_id=${lastMessageId.value}`,
+                {
+                    headers: { Authorization: `Bearer ${authStore.token}`, },
+                }
             );
-            if (found) {
-                thread.value = found;
-                await fetchMessages();
-            } else {
-                thread.value = null;
+            const pollResponse = response as { messages?: ChatMessage[] };
+            if (pollResponse.messages && pollResponse.messages.length > 0) {
+                messages.value.push(...pollResponse.messages,);
+                scrollToBottom();
+                updateUnreadCount();
             }
         } catch (err) {
-            error.value = 'Не удалось загрузить список чатов';
-        }
-    }
-};
-
-const fetchMessages = async () => {
-    if (!thread.value) return;
-    try {
-        const response = await $fetch(`/api/chat/threads/${thread.value.id}/messages`, {
-            headers: { Authorization: `Bearer ${authStore.token}` },
-        });
-        messages.value = response as ChatMessage[];
-        scrollToBottom();
-        updateUnreadCount();
-    } catch (err) {
-        error.value = 'Не удалось загрузить сообщения';
-    }
-};
-
-const createThread = async () => {
-    if (!props.purchaseId) return;
-    try {
-        const response = await $fetch('/api/chat/threads', {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${authStore.token}` },
-            body: { purchase_id: props.purchaseId },
-        });
-        thread.value = response as ChatThread;
-        await fetchMessages();
-    } catch (err) {
-        error.value = 'Не удалось создать чат';
-    }
-};
-
-const sendMessage = async () => {
-    const content = newMessage.value.trim();
-    if (!content || !thread.value) return;
-
-    try {
-        await $fetch(`/api/chat/threads/${thread.value.id}/messages`, {
-            method: 'POST',
-            headers: { Authorization: `Bearer ${authStore.token}` },
-            body: {
-                content,
-                message_type: 'text',
-            },
-        });
-        newMessage.value = '';
-        await fetchMessages();
-    } catch (err) {
-        error.value = 'Не удалось отправить сообщение';
-    }
-};
-
-const pollNewMessages = async () => {
-    if (!thread.value) return;
-    try {
-        const response = await $fetch(
-            `/api/chat/poll?thread_id=${thread.value.id}&last_message_id=${lastMessageId}`,
-            {
-                headers: { Authorization: `Bearer ${authStore.token}` },
-            }
-        );
-        const pollResponse = response as { messages?: ChatMessage[] };
-        if (pollResponse.messages && pollResponse.messages.length > 0) {
-            messages.value.push(...pollResponse.messages);
-            scrollToBottom();
-            updateUnreadCount();
-        }
-    } catch (err) {
         // Игнорируем ошибки long-polling
-    }
-};
+        }
+    };
 
-const lastMessageId = computed(() => {
-    if (messages.value.length === 0) return 0;
-    return Math.max(...messages.value.map((m) => m.id));
-});
+    const lastMessageId = computed(() => {
+        if (messages.value.length === 0) return 0;
+        return Math.max(...messages.value.map(m => m.id,),);
+    });
 
-const updateUnreadCount = () => {
-    unreadCount.value = messages.value.filter(
-        (m) => !m.is_read && m.sender_id !== currentUserId.value
+    const updateUnreadCount = () => {
+        unreadCount.value = messages.value.filter(
+            (m,) => !m.is_read && m.sender_id !== currentUserId.value,
     ).length;
-};
+    };
 
-const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-};
+    const formatTime = (dateString: string,) => {
+        const date = new Date(dateString,);
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', },);
+    };
 
-const scrollToBottom = () => {
-    nextTick(() => {
-        if (messagesContainer.value) {
-            messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+    const scrollToBottom = () => {
+        nextTick(() => {
+            if (messagesContainer.value) {
+                messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+            }
+        });
+    };
+
+    const toggleCollapse = () => {
+        collapsed.value = !collapsed.value;
+    };
+
+    onMounted(() => {
+        if (props.autoLoad) {
+            fetchThread();
+        }
+        // Запускаем опрос каждые 10 секунд
+        pollInterval = setInterval(pollNewMessages, 10000,);
+    });
+
+    onUnmounted(() => {
+        if (pollInterval) {
+            clearInterval(pollInterval,);
+            pollInterval = null;
         }
     });
-};
 
-const toggleCollapse = () => {
-    collapsed.value = !collapsed.value;
-};
-
-onMounted(() => {
-    if (props.autoLoad) {
-        fetchThread();
-    }
-    // Запускаем опрос каждые 10 секунд
-    pollInterval = setInterval(pollNewMessages, 10000);
-});
-
-onUnmounted(() => {
-    if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-    }
-});
-
-watch(() => props.threadId, fetchThread);
-watch(() => props.purchaseId, fetchThread);
+    watch(() => props.threadId, fetchThread,);
+    watch(() => props.purchaseId, fetchThread,);
 </script>
 
 <style scoped>
@@ -288,7 +333,7 @@ watch(() => props.purchaseId, fetchThread);
 }
 
 .chat-widget__header {
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background: linear-gradient(135deg, #4B9E90 0%, #73D1BE 100%);
     color: white;
     padding: 16px;
     display: flex;
@@ -362,7 +407,7 @@ watch(() => props.purchaseId, fetchThread);
 .chat-widget__create-button {
     margin-top: 12px;
     padding: 8px 16px;
-    background: #6a11cb;
+    background: var(--color-primary, #4B9E90);
     color: white;
     border: none;
     border-radius: 6px;
@@ -427,7 +472,7 @@ watch(() => props.purchaseId, fetchThread);
 }
 
 .chat-widget__file a {
-    color: #6a11cb;
+    color: var(--color-primary, #4B9E90);
     text-decoration: underline;
 }
 
@@ -456,7 +501,7 @@ watch(() => props.purchaseId, fetchThread);
 
 .chat-widget__send-button {
     padding: 10px 16px;
-    background: #6a11cb;
+    background: var(--color-primary, #4B9E90);
     color: white;
     border: none;
     border-radius: 8px;

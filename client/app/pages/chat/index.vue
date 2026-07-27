@@ -1,242 +1,196 @@
 <template>
-    <div class="chat-page">
-        <div class="chat-page__header">
-            <h1 class="chat-page__title">Мои чаты</h1>
-            <p class="chat-page__subtitle">Общайтесь с преподавателями по вашим курсам</p>
+    <UContainer class="py-8 md:py-12">
+        <!-- Page Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-14 h-14 bg-teal-500 rounded-2xl shadow-lg mb-4">
+                <UIcon
+                    name="i-heroicons-chat-bubble-left-right"
+                    class="w-8 h-8 text-white"
+                />
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                Мои чаты
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400">
+                Общайтесь с преподавателями по вашим курсам
+            </p>
         </div>
 
-        <div v-if="loading" class="chat-page__loading">Загрузка...</div>
-        <div v-else-if="error" class="chat-page__error">{{ error }}</div>
-        <div v-else-if="threads.length === 0" class="chat-page__empty">
-            <p>У вас пока нет активных чатов.</p>
-            <p>После покупки курса вы сможете создать чат с преподавателем.</p>
+        <!-- Loading State -->
+        <div
+            v-if="loading"
+            class="text-center py-16"
+        >
+            <UIcon
+                name="i-heroicons-arrow-path"
+                class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-4 animate-spin"
+            />
+            <p class="text-gray-500 dark:text-gray-400">
+                Загрузка чатов...
+            </p>
         </div>
-        <div v-else class="chat-page__threads">
+
+        <!-- Error State -->
+        <div
+            v-else-if="error"
+            class="text-center py-16"
+        >
+            <UCard class="max-w-md mx-auto">
+                <div class="flex flex-col items-center gap-4">
+                    <UIcon
+                        name="i-heroicons-exclamation-triangle"
+                        class="w-12 h-12 text-red-400"
+                    />
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {{ error }}
+                    </p>
+                    <UButton
+                        color="primary"
+                        variant="outline"
+                        @click="loadThreads"
+                    >
+                        Попробовать снова
+                    </UButton>
+                </div>
+            </UCard>
+        </div>
+
+        <!-- Empty State -->
+        <div
+            v-else-if="threads.length === 0"
+            class="text-center py-16"
+        >
+            <UCard class="max-w-md mx-auto">
+                <div class="flex flex-col items-center gap-4 py-8">
+                    <div class="w-20 h-20 rounded-full bg-teal-50 dark:bg-teal-900/20 flex items-center justify-center">
+                        <UIcon
+                            name="i-heroicons-chat-bubble-left-right"
+                            class="w-10 h-10 text-teal-400"
+                        />
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                        У вас пока нет активных чатов
+                    </h3>
+                    <p class="text-gray-500 dark:text-gray-400 max-w-sm">
+                        После покупки курса вы сможете создать чат с преподавателем.
+                    </p>
+                </div>
+            </UCard>
+        </div>
+
+        <!-- Threads List -->
+        <div
+            v-else
+            class="max-w-3xl mx-auto space-y-4"
+        >
             <div
                 v-for="thread in threads"
                 :key="thread.id"
-                class="chat-page__thread"
-                :class="{ 'chat-page__thread--unread': hasUnread(thread) }"
-                @click="openThread(thread.id)"
+                class="group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-teal-300 dark:hover:border-teal-600"
+                :class="{ 'border-l-4 border-l-teal-500 bg-teal-50/50 dark:bg-teal-900/10': hasUnread(thread,), }"
+                @click="openThread(thread.id,)"
             >
-                <div class="chat-page__thread-avatar">
-                    {{ thread.purchase?.product?.title_ru?.[0] || 'Ч' }}
-                </div>
-                <div class="chat-page__thread-info">
-                    <div class="chat-page__thread-title">
-                        {{ thread.purchase?.product?.title_ru || 'Без названия' }}
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-teal-400 to-green-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                        {{ thread.purchase?.product?.title_ru?.[0] || 'Ч' }}
                     </div>
-                    <div class="chat-page__thread-last-message">
-                        {{ lastMessagePreview(thread) }}
-                    </div>
-                    <div class="chat-page__thread-meta">
-                        <span class="chat-page__thread-date">{{
-                            formatDate(thread.last_message_at)
-                        }}</span>
-                        <span v-if="hasUnread(thread)" class="chat-page__thread-unread"
-                            >Новое</span
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-3 mb-1">
+                            <h3 class="font-semibold text-gray-900 dark:text-white truncate">
+                                {{ thread.purchase?.product?.title_ru || 'Без названия' }}
+                            </h3>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 shrink-0">
+                                {{ formatDate(thread.last_message_at,) }}
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 truncate">
+                            {{ lastMessagePreview(thread,) }}
+                        </p>
+                        <div
+                            v-if="hasUnread(thread,)"
+                            class="mt-2"
                         >
+                            <span class="inline-flex items-center gap-1 text-xs font-medium text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/20 px-2 py-0.5 rounded-full">
+                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                                Новое сообщение
+                            </span>
+                        </div>
                     </div>
+                    <UIcon
+                        name="i-heroicons-chevron-right"
+                        class="w-5 h-5 text-gray-300 dark:text-gray-600 group-hover:text-teal-500 transition-colors shrink-0"
+                    />
                 </div>
-                <div class="chat-page__thread-arrow">→</div>
             </div>
         </div>
-    </div>
+    </UContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '~/stores/AuthStore';
-import type { ChatThread } from '~/types';
+    import { ref, onMounted, computed, } from 'vue';
+    import { useRouter, } from 'vue-router';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import type { ChatThread, } from '~/types';
 
-const router = useRouter();
-const authStore = useAuthStore();
+    const router = useRouter();
+    const authStore = useAuthStore();
 
-const threads = ref<ChatThread[]>([]);
-const loading = ref(true);
-const error = ref('');
+    const threads = ref<ChatThread[]>([],);
+    const loading = ref(true,);
+    const error = ref('',);
 
-const authToken = computed(() => authStore.token);
+    const authToken = computed(() => authStore.token,);
 
-onMounted(async () => {
-    await loadThreads();
-});
+    onMounted(async () => {
+        await loadThreads();
+    });
 
-async function loadThreads() {
-    loading.value = true;
-    error.value = '';
-    try {
-        const response = await $fetch<ChatThread[]>('/api/chat/threads', {
-            headers: { Authorization: `Bearer ${authToken.value}` },
-        });
-        threads.value = response;
-    } catch (err) {
-        error.value = 'Не удалось загрузить чаты';
-        console.error(err);
-    } finally {
-        loading.value = false;
+    async function loadThreads() {
+        loading.value = true;
+        error.value = '';
+        try {
+            const response = await $fetch<ChatThread[]>('/api/chat/threads', {
+                headers: { Authorization: `Bearer ${authToken.value}`, },
+            });
+            threads.value = response;
+        } catch (err) {
+            error.value = 'Не удалось загрузить чаты';
+            console.error(err,);
+        } finally {
+            loading.value = false;
+        }
     }
-}
 
-function hasUnread(thread: ChatThread): boolean {
-    // Простая проверка: если есть сообщения, не прочитанные текущим пользователем
-    // В реальном приложении нужно учитывать поле is_read
-    return false;
-}
-
-function lastMessagePreview(thread: ChatThread): string {
-    if (!thread.messages || thread.messages.length === 0) {
-        return 'Нет сообщений';
+    function hasUnread(thread: ChatThread,): boolean {
+        return false;
     }
-    const last = thread.messages[thread.messages.length - 1];
-    const content = last?.content || '';
-    return content.length > 50 ? content.substring(0, 50) + '...' : content;
-}
 
-function formatDate(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) {
-        return 'Сегодня';
-    } else if (diffDays === 1) {
-        return 'Вчера';
-    } else if (diffDays < 7) {
-        return `${diffDays} дн. назад`;
-    } else {
-        return date.toLocaleDateString();
+    function lastMessagePreview(thread: ChatThread,): string {
+        if (!thread.messages || thread.messages.length === 0) {
+            return 'Нет сообщений';
+        }
+        const last = thread.messages[thread.messages.length - 1];
+        const content = last?.content || '';
+        return content.length > 50 ? content.substring(0, 50,) + '...' : content;
     }
-}
 
-function openThread(threadId: number) {
-    router.push(`/chat/${threadId}`);
-}
+    function formatDate(dateString: string,): string {
+        const date = new Date(dateString,);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24),);
+        if (diffDays === 0) {
+            return 'Сегодня';
+        } else if (diffDays === 1) {
+            return 'Вчера';
+        } else if (diffDays < 7) {
+            return `${diffDays} дн. назад`;
+        } else {
+            return date.toLocaleDateString();
+        }
+    }
+
+    function openThread(threadId: number,) {
+        router.push(`/chat/${threadId}`,);
+    }
 </script>
-
-<style scoped>
-.chat-page {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 40px 20px;
-}
-
-.chat-page__header {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.chat-page__title {
-    font-size: 36px;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 8px;
-}
-
-.chat-page__subtitle {
-    font-size: 16px;
-    color: #666;
-    line-height: 1.5;
-}
-
-.chat-page__loading,
-.chat-page__error,
-.chat-page__empty {
-    text-align: center;
-    padding: 40px;
-    background: #f9f9f9;
-    border-radius: 12px;
-    color: #666;
-}
-
-.chat-page__error {
-    color: #d32f2f;
-    background: #ffebee;
-}
-
-.chat-page__threads {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.chat-page__thread {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 20px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    border: 1px solid #eaeaea;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.chat-page__thread:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #6a11cb;
-}
-
-.chat-page__thread--unread {
-    border-left: 4px solid #6a11cb;
-    background-color: #f9f5ff;
-}
-
-.chat-page__thread-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-
-.chat-page__thread-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.chat-page__thread-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #222;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.chat-page__thread-last-message {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.chat-page__thread-meta {
-    display: flex;
-    gap: 12px;
-    font-size: 12px;
-    color: #999;
-}
-
-.chat-page__thread-unread {
-    color: #6a11cb;
-    font-weight: 600;
-}
-
-.chat-page__thread-arrow {
-    color: #999;
-    font-size: 20px;
-    flex-shrink: 0;
-}
-</style>

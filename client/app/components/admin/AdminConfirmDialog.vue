@@ -1,10 +1,14 @@
 <template>
     <Teleport to="body">
         <Transition name="admin-confirm">
-            <div v-if="visible" class="admin-confirm__overlay" @click.self="onCancel">
+            <div
+                v-if="visible"
+                class="admin-confirm__overlay"
+                @click.self="onCancel"
+            >
                 <div
                     class="admin-confirm__dialog"
-                    :class="{ 'admin-confirm__dialog--dark': isDark }"
+                    :class="{ 'admin-confirm__dialog--dark': isDark, }"
                 >
                     <div class="admin-confirm__header">
                         <div
@@ -20,9 +24,23 @@
                                 width="24"
                                 height="24"
                             >
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="8" x2="12" y2="12" />
-                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                />
+                                <line
+                                    x1="12"
+                                    y1="8"
+                                    x2="12"
+                                    y2="12"
+                                />
+                                <line
+                                    x1="12"
+                                    y1="16"
+                                    x2="12.01"
+                                    y2="16"
+                                />
                             </svg>
                             <svg
                                 v-else-if="type === 'warning'"
@@ -36,8 +54,18 @@
                                 <path
                                     d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
                                 />
-                                <line x1="12" y1="9" x2="12" y2="13" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                                <line
+                                    x1="12"
+                                    y1="9"
+                                    x2="12"
+                                    y2="13"
+                                />
+                                <line
+                                    x1="12"
+                                    y1="17"
+                                    x2="12.01"
+                                    y2="17"
+                                />
                             </svg>
                             <svg
                                 v-else
@@ -48,15 +76,33 @@
                                 width="24"
                                 height="24"
                             >
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="16" x2="12" y2="12" />
-                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                />
+                                <line
+                                    x1="12"
+                                    y1="16"
+                                    x2="12"
+                                    y2="12"
+                                />
+                                <line
+                                    x1="12"
+                                    y1="8"
+                                    x2="12.01"
+                                    y2="8"
+                                />
                             </svg>
                         </div>
-                        <h3 class="admin-confirm__title">{{ title }}</h3>
+                        <h3 class="admin-confirm__title">
+                            {{ title }}
+                        </h3>
                     </div>
 
-                    <p class="admin-confirm__message">{{ message }}</p>
+                    <p class="admin-confirm__message">
+                        {{ message }}
+                    </p>
 
                     <div class="admin-confirm__actions">
                         <button
@@ -71,7 +117,10 @@
                             :disabled="loading"
                             @click="onConfirm"
                         >
-                            <span v-if="loading" class="admin-confirm__spinner" />
+                            <span
+                                v-if="loading"
+                                class="admin-confirm__spinner"
+                            />
                             {{ loading ? loadingText : confirmText }}
                         </button>
                     </div>
@@ -82,19 +131,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        visible: boolean;
-        title?: string;
-        message?: string;
-        type?: 'danger' | 'warning' | 'info';
-        confirmText?: string;
-        cancelText?: string;
-        loadingText?: string;
-        loading?: boolean;
-        isDark?: boolean;
+        visible: boolean
+        title?: string
+        message?: string
+        type?: 'danger' | 'warning' | 'info'
+        confirmText?: string
+        cancelText?: string
+        loadingText?: string
+        loading?: boolean
+        isDark?: boolean
     }>(),
     {
         title: 'Подтверждение',
@@ -109,18 +158,18 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-    confirm: [];
-    cancel: [];
-    'update:visible': [value: boolean];
+    confirm: []
+    cancel: []
+    'update:visible': [value: boolean,]
 }>();
 
 function onConfirm() {
-    emit('confirm');
+    emit('confirm',);
 }
 
 function onCancel() {
-    emit('cancel');
-    emit('update:visible', false);
+    emit('cancel',);
+    emit('update:visible', false,);
 }
 </script>
 

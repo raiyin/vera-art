@@ -10,8 +10,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Пользователи</h1>
-                <p class="admin-page__subtitle">Управление пользователями платформы</p>
+                <h1 class="admin-page__title">
+                    Пользователи
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление пользователями платформы
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -27,7 +31,10 @@
         </div>
 
         <!-- Search & Filters -->
-        <UCard class="admin-page__filters-card" :ui="{ body: 'p-4' }">
+        <UCard
+            class="admin-page__filters-card"
+            :ui="{ body: 'p-4', }"
+        >
             <div class="admin-page__filters">
                 <div class="admin-page__search">
                     <UInput
@@ -59,8 +66,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -71,11 +84,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -84,8 +107,13 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-users" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Пользователи не найдены</h3>
+                <UIcon
+                    name="i-lucide-users"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Пользователи не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     <template v-if="searchQuery || roleFilter || blockedFilter">
                         По заданным критериям ничего не найдено
@@ -98,15 +126,20 @@
         </UCard>
 
         <!-- Data Table -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-page__table-wrapper">
                 <table class="admin-page__table">
                     <thead>
                         <tr>
-                            <th class="admin-page__cell admin-page__cell--head">ID</th>
+                            <th class="admin-page__cell admin-page__cell--head">
+                                ID
+                            </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('u.username')"
+                                @click="toggleSort('u.username',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Username</span>
@@ -123,7 +156,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('u.full_name')"
+                                @click="toggleSort('u.full_name',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Имя</span>
@@ -140,7 +173,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('u.email')"
+                                @click="toggleSort('u.email',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Email</span>
@@ -157,7 +190,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('u.role')"
+                                @click="toggleSort('u.role',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Роль</span>
@@ -183,7 +216,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('u.created_at')"
+                                @click="toggleSort('u.created_at',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Дата рег.</span>
@@ -210,7 +243,7 @@
                             v-for="item in items"
                             :key="item.id"
                             class="admin-page__row"
-                            :class="{ 'admin-page__row--blocked': item.blocked }"
+                            :class="{ 'admin-page__row--blocked': item.blocked, }"
                         >
                             <td class="admin-page__cell admin-page__cell--mono">
                                 #{{ item.id }}
@@ -246,7 +279,12 @@
                                 >
                                     Заблокирован
                                 </UBadge>
-                                <UBadge v-else color="success" variant="soft" size="sm">
+                                <UBadge
+                                    v-else
+                                    color="success"
+                                    variant="soft"
+                                    size="sm"
+                                >
                                     Активен
                                 </UBadge>
                             </td>
@@ -257,7 +295,7 @@
                                 {{ item.reviews_count }}
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
-                                {{ formatDate(item.created_at) }}
+                                {{ formatDate(item.created_at,) }}
                             </td>
                             <td class="admin-page__cell admin-page__cell--actions">
                                 <div class="admin-page__actions">
@@ -267,7 +305,7 @@
                                             color="neutral"
                                             variant="ghost"
                                             size="sm"
-                                            @click="viewUser(item)"
+                                            @click="viewUser(item,)"
                                         />
                                     </UTooltip>
                                     <UTooltip
@@ -286,7 +324,7 @@
                                             color="neutral"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmRoleChange(item)"
+                                            @click="confirmRoleChange(item,)"
                                         />
                                     </UTooltip>
                                     <UTooltip
@@ -305,7 +343,7 @@
                                             :color="item.blocked ? 'success' : 'error'"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmBlockToggle(item)"
+                                            @click="confirmBlockToggle(item,)"
                                         />
                                     </UTooltip>
                                 </div>
@@ -338,8 +376,14 @@
         </UCard>
 
         <!-- User Detail Modal -->
-        <UModal v-model:open="showDetailModal" class="max-w-3xl">
-            <template v-if="selectedUser" #header>
+        <UModal
+            v-model:open="showDetailModal"
+            class="max-w-3xl"
+        >
+            <template
+                v-if="selectedUser"
+                #header
+            >
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">
                         Пользователь: {{ selectedUser.username }}
@@ -354,38 +398,39 @@
                 </div>
             </template>
 
-            <template v-if="selectedUser" #body>
+            <template
+                v-if="selectedUser"
+                #body
+            >
                 <div class="space-y-6">
                     <!-- User Info -->
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >ID</span
-                            >
-                            <p class="font-medium">#{{ selectedUser.id }}</p>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">ID</span>
+                            <p class="font-medium">
+                                #{{ selectedUser.id }}
+                            </p>
                         </div>
                         <div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >Username</span
-                            >
-                            <p class="font-medium">{{ selectedUser.username }}</p>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Username</span>
+                            <p class="font-medium">
+                                {{ selectedUser.username }}
+                            </p>
                         </div>
                         <div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >Полное имя</span
-                            >
-                            <p class="font-medium">{{ selectedUser.full_name || '—' }}</p>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Полное имя</span>
+                            <p class="font-medium">
+                                {{ selectedUser.full_name || '—' }}
+                            </p>
                         </div>
                         <div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >Email</span
-                            >
-                            <p class="font-medium">{{ selectedUser.email || '—' }}</p>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Email</span>
+                            <p class="font-medium">
+                                {{ selectedUser.email || '—' }}
+                            </p>
                         </div>
                         <div>
-                            <span class="text-sm text-gray-500 dark:text-gray-400"
-                                >Роль</span
-                            >
+                            <span class="text-sm text-gray-500 dark:text-gray-400">Роль</span>
                             <p class="font-medium">
                                 <UBadge
                                     :color="
@@ -409,7 +454,7 @@
                                 Дата регистрации
                             </span>
                             <p class="font-medium">
-                                {{ formatDate(selectedUser.created_at) }}
+                                {{ formatDate(selectedUser.created_at,) }}
                             </p>
                         </div>
                     </div>
@@ -417,7 +462,10 @@
                     <!-- Purchases Section -->
                     <div>
                         <h4 class="text-md font-semibold mb-3 flex items-center gap-2">
-                            <UIcon name="i-lucide-shopping-cart" class="size-4" />
+                            <UIcon
+                                name="i-lucide-shopping-cart"
+                                class="size-4"
+                            />
                             Покупки ({{ selectedUser.purchases.length }})
                         </h4>
                         <div
@@ -426,7 +474,10 @@
                         >
                             Нет покупок
                         </div>
-                        <div v-else class="space-y-2">
+                        <div
+                            v-else
+                            class="space-y-2"
+                        >
                             <div
                                 v-for="purchase in selectedUser.purchases"
                                 :key="purchase.id"
@@ -435,14 +486,17 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium truncate">
                                         {{
-                                            purchase.product_title_ru ||
-                                            purchase.product_title_en ||
-                                            '—'
+                                            purchase.product_title_ru
+                                                || purchase.product_title_en
+                                                || '—'
                                         }}
                                     </p>
                                     <p class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ formatDate(purchase.purchase_date) }}
-                                        <span v-if="purchase.product_type" class="ml-2">
+                                        {{ formatDate(purchase.purchase_date,) }}
+                                        <span
+                                            v-if="purchase.product_type"
+                                            class="ml-2"
+                                        >
                                             ·
                                             {{
                                                 purchase.product_type === 'course'
@@ -454,14 +508,14 @@
                                 </div>
                                 <div class="flex items-center gap-3 ml-4">
                                     <span class="text-sm font-medium">
-                                        {{ formatPrice(purchase.price_paid) }}
+                                        {{ formatPrice(purchase.price_paid,) }}
                                     </span>
                                     <UBadge
-                                        :color="purchaseStatusColor(purchase.status)"
+                                        :color="purchaseStatusColor(purchase.status,)"
                                         variant="soft"
                                         size="sm"
                                     >
-                                        {{ purchaseStatusLabel(purchase.status) }}
+                                        {{ purchaseStatusLabel(purchase.status,) }}
                                     </UBadge>
                                 </div>
                             </div>
@@ -471,7 +525,10 @@
                     <!-- Reviews Section -->
                     <div>
                         <h4 class="text-md font-semibold mb-3 flex items-center gap-2">
-                            <UIcon name="i-lucide-star" class="size-4" />
+                            <UIcon
+                                name="i-lucide-star"
+                                class="size-4"
+                            />
                             Отзывы ({{ selectedUser.reviews.length }})
                         </h4>
                         <div
@@ -480,7 +537,10 @@
                         >
                             Нет отзывов
                         </div>
-                        <div v-else class="space-y-2">
+                        <div
+                            v-else
+                            class="space-y-2"
+                        >
                             <div
                                 v-for="review in selectedUser.reviews"
                                 :key="review.id"
@@ -489,9 +549,9 @@
                                 <div class="flex items-center justify-between mb-1">
                                     <p class="text-sm font-medium truncate">
                                         {{
-                                            review.product_title_ru ||
-                                            review.product_title_en ||
-                                            '—'
+                                            review.product_title_ru
+                                                || review.product_title_en
+                                                || '—'
                                         }}
                                     </p>
                                     <div class="flex items-center gap-2">
@@ -531,7 +591,7 @@
                                     </div>
                                 </div>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                                    {{ formatDate(review.created_at) }}
+                                    {{ formatDate(review.created_at,) }}
                                 </p>
                                 <p
                                     v-if="review.comment_ru || review.comment_en"
@@ -607,14 +667,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, } from 'vue';
 import {
     fetchAdminUsers,
     fetchAdminUserDetail,
     updateAdminUserRole,
     toggleAdminUserBlock,
 } from '~/api/admin';
-import type { AdminUserItem, AdminUserDetail } from '~/types';
+import type { AdminUserItem, AdminUserDetail, } from '~/types';
 
 definePageMeta({
     layout: 'admin',
@@ -622,58 +682,58 @@ definePageMeta({
 });
 
 // State
-const items = ref<AdminUserItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const searchQuery = ref('');
-const roleFilter = ref<string | null>(null);
-const blockedFilter = ref<string | null>(null);
-const currentPage = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const totalPages = ref(0);
-const sortBy = ref('u.id');
-const sortDir = ref<'asc' | 'desc'>('desc');
+const items = ref<AdminUserItem[]>([],);
+const loading = ref(false,);
+const error = ref<string | null>(null,);
+const searchQuery = ref('',);
+const roleFilter = ref<string | null>(null,);
+const blockedFilter = ref<string | null>(null,);
+const currentPage = ref(1,);
+const perPage = ref(20,);
+const total = ref(0,);
+const totalPages = ref(0,);
+const sortBy = ref('u.id',);
+const sortDir = ref<'asc' | 'desc'>('desc',);
 
 // Detail modal
-const showDetailModal = ref(false);
-const selectedUser = ref<AdminUserDetail | null>(null);
-const loadingDetail = ref(false);
+const showDetailModal = ref(false,);
+const selectedUser = ref<AdminUserDetail | null>(null,);
+const loadingDetail = ref(false,);
 
 // Role change
-const showRoleModal = ref(false);
-const roleTarget = ref<AdminUserItem | null>(null);
-const updatingRole = ref(false);
+const showRoleModal = ref(false,);
+const roleTarget = ref<AdminUserItem | null>(null,);
+const updatingRole = ref(false,);
 
 // Block toggle
-const showBlockModal = ref(false);
-const blockTarget = ref<AdminUserItem | null>(null);
-const updatingBlock = ref(false);
+const showBlockModal = ref(false,);
+const blockTarget = ref<AdminUserItem | null>(null,);
+const updatingBlock = ref(false,);
 
 // Filter options
 const roleOptions = [
-    { label: 'Все роли', value: null },
-    { label: 'Администраторы', value: 'admin' },
-    { label: 'Пользователи', value: 'user' },
+    { label: 'Все роли', value: null, },
+    { label: 'Администраторы', value: 'admin', },
+    { label: 'Пользователи', value: 'user', },
 ];
 
 const blockedOptions = [
-    { label: 'Все статусы', value: null },
-    { label: 'Активные', value: 'false' },
-    { label: 'Заблокированные', value: 'true' },
+    { label: 'Все статусы', value: null, },
+    { label: 'Активные', value: 'false', },
+    { label: 'Заблокированные', value: 'true', },
 ];
 
 // Computed
 const paginationInfo = computed(() => {
     const start = (currentPage.value - 1) * perPage.value + 1;
-    const end = Math.min(currentPage.value * perPage.value, total.value);
+    const end = Math.min(currentPage.value * perPage.value, total.value,);
     return `${start}–${end} из ${total.value}`;
 });
 
 // Methods
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string,): string {
     if (!dateStr) return '—';
-    const d = new Date(dateStr);
+    const d = new Date(dateStr,);
     return d.toLocaleDateString('ru-RU', {
         day: 'numeric',
         month: 'short',
@@ -681,14 +741,14 @@ function formatDate(dateStr: string): string {
     });
 }
 
-function formatPrice(kopecks: number): string {
+function formatPrice(kopecks: number,): string {
     if (!kopecks && kopecks !== 0) return '—';
-    return `${(kopecks / 100).toLocaleString('ru-RU')} ₽`;
+    return `${(kopecks / 100).toLocaleString('ru-RU',)} ₽`;
 }
 
 function purchaseStatusColor(
-    status: string
-): 'success' | 'warning' | 'error' | 'neutral' {
+    status: string,
+    ): 'success' | 'warning' | 'error' | 'neutral' {
     switch (status) {
         case 'active':
             return 'success';
@@ -701,7 +761,7 @@ function purchaseStatusColor(
     }
 }
 
-function purchaseStatusLabel(status: string): string {
+function purchaseStatusLabel(status: string,): string {
     switch (status) {
         case 'active':
             return 'Активен';
@@ -714,7 +774,7 @@ function purchaseStatusLabel(status: string): string {
     }
 }
 
-function toggleSort(field: string) {
+function toggleSort(field: string,) {
     if (sortBy.value === field) {
         sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
     } else {
@@ -724,7 +784,7 @@ function toggleSort(field: string) {
     loadData();
 }
 
-function onPageChange(page: number) {
+function onPageChange(page: number,) {
     currentPage.value = page;
     loadData();
 }
@@ -752,23 +812,23 @@ async function loadData() {
     }
 }
 
-async function viewUser(item: AdminUserItem) {
+async function viewUser(item: AdminUserItem,) {
     loadingDetail.value = true;
     showDetailModal.value = true;
     selectedUser.value = null;
     try {
-        const detail = await fetchAdminUserDetail(item.id);
+        const detail = await fetchAdminUserDetail(item.id,);
         selectedUser.value = detail;
     } catch (e) {
-        error.value =
-            e instanceof Error ? e.message : 'Ошибка загрузки данных пользователя';
+        error.value
+                = e instanceof Error ? e.message : 'Ошибка загрузки данных пользователя';
         showDetailModal.value = false;
     } finally {
         loadingDetail.value = false;
     }
 }
 
-function confirmRoleChange(item: AdminUserItem) {
+function confirmRoleChange(item: AdminUserItem,) {
     roleTarget.value = item;
     showRoleModal.value = true;
 }
@@ -778,7 +838,7 @@ async function executeRoleChange() {
     updatingRole.value = true;
     try {
         const newRole = roleTarget.value.role === 'admin' ? 'user' : 'admin';
-        await updateAdminUserRole(roleTarget.value.id, newRole);
+        await updateAdminUserRole(roleTarget.value.id, newRole,);
         showRoleModal.value = false;
         roleTarget.value = null;
         await loadData();
@@ -789,7 +849,7 @@ async function executeRoleChange() {
     }
 }
 
-function confirmBlockToggle(item: AdminUserItem) {
+function confirmBlockToggle(item: AdminUserItem,) {
     blockTarget.value = item;
     showBlockModal.value = true;
 }
@@ -798,7 +858,7 @@ async function executeBlockToggle() {
     if (!blockTarget.value) return;
     updatingBlock.value = true;
     try {
-        await toggleAdminUserBlock(blockTarget.value.id, !blockTarget.value.blocked);
+        await toggleAdminUserBlock(blockTarget.value.id, !blockTarget.value.blocked,);
         showBlockModal.value = false;
         blockTarget.value = null;
         await loadData();
@@ -812,11 +872,11 @@ async function executeBlockToggle() {
 // Debounced search
 let searchTimeout: ReturnType<typeof setTimeout>;
 watch(searchQuery, () => {
-    clearTimeout(searchTimeout);
+    clearTimeout(searchTimeout,);
     searchTimeout = setTimeout(() => {
         currentPage.value = 1;
         loadData();
-    }, 400);
+    }, 400,);
 });
 
 onMounted(async () => {

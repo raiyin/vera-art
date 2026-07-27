@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, } from 'vue';
 
-const { t } = useI18n();
+const { t, } = useI18n();
 
 const animatedStats = ref({
     years: 0,
     students: 0,
     works: 0,
 });
-const statsTarget = { years: 22, students: 2000, works: 150 };
-const animationStarted = ref(false);
+const statsTarget = { years: 22, students: 2000, works: 150, };
+const animationStarted = ref(false,);
 
 const animateStats = () => {
     const duration = 2000;
@@ -24,30 +24,30 @@ const animateStats = () => {
     const timer = setInterval(() => {
         currentStep++;
         animatedStats.value.years = Math.min(
-            Math.round(incrementYears * currentStep),
-            statsTarget.years
-        );
+            Math.round(incrementYears * currentStep,),
+            statsTarget.years,
+            );
         animatedStats.value.students = Math.min(
-            Math.round(incrementStudents * currentStep),
-            statsTarget.students
-        );
+            Math.round(incrementStudents * currentStep,),
+            statsTarget.students,
+            );
         animatedStats.value.works = Math.min(
-            Math.round(incrementWorks * currentStep),
-            statsTarget.works
-        );
+            Math.round(incrementWorks * currentStep,),
+            statsTarget.works,
+            );
 
         if (currentStep >= steps) {
-            clearInterval(timer);
+            clearInterval(timer,);
             animatedStats.value.years = statsTarget.years;
             animatedStats.value.students = statsTarget.students;
             animatedStats.value.works = statsTarget.works;
         }
-    }, stepDuration);
+    }, stepDuration,);
 };
 
 const handleScroll = () => {
     if (!animationStarted.value) {
-        const teachingSection = document.querySelector('.teaching-section');
+        const teachingSection = document.querySelector('.teaching-section',);
         if (teachingSection) {
             const rect = teachingSection.getBoundingClientRect();
             if (rect.top < window.innerHeight * 0.8) {
@@ -59,12 +59,12 @@ const handleScroll = () => {
 };
 
 onMounted(() => {
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll,);
     handleScroll();
 });
 
 onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll);
+    window.removeEventListener('scroll', handleScroll,);
 });
 </script>
 
@@ -72,23 +72,39 @@ onUnmounted(() => {
     <div class="content-section teaching-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">{{ t('home.teaching_title') }}</h2>
+                <h2 class="section-title">
+                    {{ t('home.teaching_title',) }}
+                </h2>
                 <div class="section-divider" />
             </div>
             <div class="teaching-content">
-                <p class="teaching-text">{{ t('home.convinced') }}</p>
+                <p class="teaching-text">
+                    {{ t('home.convinced',) }}
+                </p>
                 <div class="teaching-stats">
                     <div class="stat-item">
-                        <div class="stat-number">{{ animatedStats.years }}+</div>
-                        <div class="stat-label">{{ t('home.years_experience') }}</div>
+                        <div class="stat-number">
+                            {{ animatedStats.years }}+
+                        </div>
+                        <div class="stat-label">
+                            {{ t('home.years_experience',) }}
+                        </div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">{{ animatedStats.students }}+</div>
-                        <div class="stat-label">{{ t('home.students') }}</div>
+                        <div class="stat-number">
+                            {{ animatedStats.students }}+
+                        </div>
+                        <div class="stat-label">
+                            {{ t('home.students',) }}
+                        </div>
                     </div>
                     <div class="stat-item">
-                        <div class="stat-number">{{ animatedStats.works }}+</div>
-                        <div class="stat-label">{{ t('home.works') }}</div>
+                        <div class="stat-number">
+                            {{ animatedStats.works }}+
+                        </div>
+                        <div class="stat-label">
+                            {{ t('home.works',) }}
+                        </div>
                     </div>
                 </div>
             </div>

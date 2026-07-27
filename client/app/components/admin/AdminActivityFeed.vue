@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import type { RecentActivityItem } from '~/types/dashboard';
+    import type { RecentActivityItem, } from '~/types/dashboard';
 
-defineProps<{
-    activities: RecentActivityItem[];
-    loading?: boolean;
-}>();
+    defineProps<{
+        activities: RecentActivityItem[]
+        loading?: boolean
+    }>();
 
-const emit = defineEmits<{
-    refresh: [];
-}>();
+    const emit = defineEmits<{
+        refresh: []
+    }>();
 </script>
 
 <template>
     <UCard class="admin-dashboard__activity-card">
         <template #header>
             <div class="admin-dashboard__section-header">
-                <h3 class="admin-dashboard__section-title">Последняя активность</h3>
+                <h3 class="admin-dashboard__section-title">
+                    Последняя активность
+                </h3>
                 <UButton
                     v-if="activities.length > 0"
                     color="neutral"
@@ -23,15 +25,24 @@ const emit = defineEmits<{
                     icon="i-lucide-refresh-cw"
                     size="xs"
                     :loading="loading"
-                    @click="emit('refresh')"
+                    @click="emit('refresh',)"
                 />
             </div>
         </template>
-        <div v-if="activities.length === 0" class="admin-dashboard__activity-empty">
-            <UIcon name="i-lucide-clock" class="size-6 text-gray-400" />
+        <div
+            v-if="activities.length === 0"
+            class="admin-dashboard__activity-empty"
+        >
+            <UIcon
+                name="i-lucide-clock"
+                class="size-6 text-gray-400"
+            />
             <p>Активность пока отсутствует</p>
         </div>
-        <div v-else class="admin-dashboard__activity-list">
+        <div
+            v-else
+            class="admin-dashboard__activity-list"
+        >
             <div
                 v-for="activity in activities"
                 :key="activity.id"

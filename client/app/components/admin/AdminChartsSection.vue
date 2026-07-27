@@ -1,63 +1,63 @@
 <script setup lang="ts">
-import type { DashboardStats } from '~/types/dashboard';
+    import type { DashboardStats, } from '~/types/dashboard';
 
-const props = defineProps<{
-    stats: DashboardStats;
-}>();
+    const props = defineProps<{
+        stats: DashboardStats
+    }>();
 
-function formatPrice(value: number): string {
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(value);
-}
+    function formatPrice(value: number,): string {
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(value,);
+    }
 
-function formatMonth(month: string): string {
-    const [year, m] = month.split('-');
-    const months = [
-        'Янв',
-        'Фев',
-        'Мар',
-        'Апр',
-        'Май',
-        'Июн',
-        'Июл',
-        'Авг',
-        'Сен',
-        'Окт',
-        'Ноя',
-        'Дек',
-    ];
-    return `${months[parseInt(m || '0') - 1] || ''} ${year}`;
-}
+    function formatMonth(month: string,): string {
+        const [year, m,] = month.split('-',);
+        const months = [
+            'Янв',
+            'Фев',
+            'Мар',
+            'Апр',
+            'Май',
+            'Июн',
+            'Июл',
+            'Авг',
+            'Сен',
+            'Окт',
+            'Ноя',
+            'Дек',
+        ];
+        return `${months[parseInt(m || '0',) - 1] || ''} ${year}`;
+    }
 
-function getBarHeight(count: number): string {
-    const maxCount = Math.max(
-        ...(props.stats.sales_by_month ?? []).map((s) => s.count),
-        1
-    );
-    const percentage = (count / maxCount) * 100;
-    return `${Math.max(percentage, 4)}%`;
-}
+    function getBarHeight(count: number,): string {
+        const maxCount = Math.max(
+            ...(props.stats.sales_by_month ?? []).map(s => s.count,),
+            1
+        );
+        const percentage = (count / maxCount) * 100;
+        return `${Math.max(percentage, 4,)}%`;
+    }
 
-function getCategoryWidth(count: number): string {
-    const maxCount = Math.max(
-        ...(props.stats.popular_categories ?? []).map((c) => c.count),
-        1
-    );
-    return `${(count / maxCount) * 100}%`;
-}
+    function getCategoryWidth(count: number,): string {
+        const maxCount = Math.max(
+            ...(props.stats.popular_categories ?? []).map(c => c.count,),
+            1
+        );
+        return `${(count / maxCount) * 100}%`;
+    }
 
-function pluralize(count: number, one: string, few: string, many: string): string {
-    const mod10 = count % 10;
-    const mod100 = count % 100;
-    if (mod100 >= 11 && mod100 <= 19) return many;
-    if (mod10 === 1) return one;
-    if (mod10 >= 2 && mod10 <= 4) return few;
-    return many;
-}
+    function pluralize(count: number, one: string, few: string, many: string,): string {
+        const mod10 = count % 10;
+        const mod100 = count % 100;
+        if (mod100 >= 11 && mod100 <= 19) return many;
+        if (mod10 === 1) return one;
+        if (mod10 >= 2 && mod10 <= 4) return few;
+        return many;
+    }
 </script>
 
 <template>
@@ -66,9 +66,15 @@ function pluralize(count: number, one: string, few: string, many: string): strin
         <UCard class="admin-dashboard__chart-card">
             <template #header>
                 <div class="admin-dashboard__chart-header">
-                    <h3 class="admin-dashboard__chart-title">Продажи по месяцам</h3>
-                    <UBadge v-if="stats.revenue_month > 0" color="success" variant="soft">
-                        +{{ formatPrice(stats.revenue_month) }} в этом месяце
+                    <h3 class="admin-dashboard__chart-title">
+                        Продажи по месяцам
+                    </h3>
+                    <UBadge
+                        v-if="stats.revenue_month > 0"
+                        color="success"
+                        variant="soft"
+                    >
+                        +{{ formatPrice(stats.revenue_month,) }} в этом месяце
                     </UBadge>
                 </div>
             </template>
@@ -77,29 +83,33 @@ function pluralize(count: number, one: string, few: string, many: string): strin
                     v-if="(stats.sales_by_month ?? []).length === 0"
                     class="admin-dashboard__chart-empty"
                 >
-                    <UIcon name="i-lucide-bar-chart-3" class="size-8 text-gray-400" />
+                    <UIcon
+                        name="i-lucide-bar-chart-3"
+                        class="size-8 text-gray-400"
+                    />
                     <p>Данных о продажах пока нет</p>
                 </div>
-                <div v-else class="admin-dashboard__bar-chart">
+                <div
+                    v-else
+                    class="admin-dashboard__bar-chart"
+                >
                     <div
                         v-for="(item, index) in stats.sales_by_month ?? []"
                         :key="item.month"
                         class="admin-dashboard__bar-item"
                     >
                         <div class="admin-dashboard__bar-tooltip">
-                            <span class="admin-dashboard__bar-tooltip-count"
-                                >{{ item.count }} шт.</span
-                            >
+                            <span class="admin-dashboard__bar-tooltip-count">{{ item.count }} шт.</span>
                             <span class="admin-dashboard__bar-tooltip-revenue">{{
-                                formatPrice(item.revenue)
+                                formatPrice(item.revenue,)
                             }}</span>
                         </div>
                         <div
                             class="admin-dashboard__bar"
-                            :style="{ height: getBarHeight(item.count) }"
+                            :style="{ height: getBarHeight(item.count,), }"
                         />
                         <span class="admin-dashboard__bar-label">{{
-                            formatMonth(item.month)
+                            formatMonth(item.month,)
                         }}</span>
                     </div>
                 </div>
@@ -110,7 +120,9 @@ function pluralize(count: number, one: string, few: string, many: string): strin
         <UCard class="admin-dashboard__chart-card">
             <template #header>
                 <div class="admin-dashboard__chart-header">
-                    <h3 class="admin-dashboard__chart-title">Популярные категории</h3>
+                    <h3 class="admin-dashboard__chart-title">
+                        Популярные категории
+                    </h3>
                 </div>
             </template>
             <div class="admin-dashboard__chart-body">
@@ -118,10 +130,16 @@ function pluralize(count: number, one: string, few: string, many: string): strin
                     v-if="(stats.popular_categories ?? []).length === 0"
                     class="admin-dashboard__chart-empty"
                 >
-                    <UIcon name="i-lucide-pie-chart" class="size-8 text-gray-400" />
+                    <UIcon
+                        name="i-lucide-pie-chart"
+                        class="size-8 text-gray-400"
+                    />
                     <p>Категории не найдены</p>
                 </div>
-                <div v-else class="admin-dashboard__category-list">
+                <div
+                    v-else
+                    class="admin-dashboard__category-list"
+                >
                     <div
                         v-for="cat in stats.popular_categories ?? []"
                         :key="cat.name"
@@ -131,22 +149,20 @@ function pluralize(count: number, one: string, few: string, many: string): strin
                             <span class="admin-dashboard__category-name">{{
                                 cat.name
                             }}</span>
-                            <span class="admin-dashboard__category-count"
-                                >{{ cat.count }}
+                            <span class="admin-dashboard__category-count">{{ cat.count }}
                                 {{
                                     pluralize(
                                         cat.count,
                                         'продукт',
                                         'продукта',
-                                        'продуктов'
+                                        'продуктов',
                                     )
-                                }}</span
-                            >
+                                }}</span>
                         </div>
                         <div class="admin-dashboard__category-bar-bg">
                             <div
                                 class="admin-dashboard__category-bar-fill"
-                                :style="{ width: getCategoryWidth(cat.count) }"
+                                :style="{ width: getCategoryWidth(cat.count,), }"
                             />
                         </div>
                     </div>

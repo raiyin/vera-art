@@ -10,8 +10,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Новости</h1>
-                <p class="admin-page__subtitle">Управление новостями</p>
+                <h1 class="admin-page__title">
+                    Новости
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление новостями
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -23,14 +27,21 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" to="/admin/news/add">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    to="/admin/news/add"
+                >
                     Добавить новость
                 </UButton>
             </div>
         </div>
 
         <!-- Search -->
-        <UCard class="admin-page__filters-card" :ui="{ body: 'p-4' }">
+        <UCard
+            class="admin-page__filters-card"
+            :ui="{ body: 'p-4', }"
+        >
             <div class="admin-page__filters">
                 <div class="admin-page__search">
                     <UInput
@@ -47,8 +58,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-image" />
                     <div class="admin-page__skeleton-lines">
@@ -60,11 +77,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -73,19 +100,30 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-newspaper" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Новости не найдены</h3>
+                <UIcon
+                    name="i-lucide-newspaper"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Новости не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     По заданным критериям ничего не найдено
                 </p>
-                <UButton color="primary" to="/admin/news/add">
+                <UButton
+                    color="primary"
+                    to="/admin/news/add"
+                >
                     Добавить первую новость
                 </UButton>
             </div>
         </UCard>
 
         <!-- Data Table -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-page__table-wrapper">
                 <table class="admin-page__table">
                     <thead>
@@ -102,7 +140,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('title_ru')"
+                                @click="toggleSort('title_ru',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Заголовок</span>
@@ -119,7 +157,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('datetime')"
+                                @click="toggleSort('datetime',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Дата</span>
@@ -137,7 +175,9 @@
                             <th class="admin-page__cell admin-page__cell--head">
                                 Изображения
                             </th>
-                            <th class="admin-page__cell admin-page__cell--head">Видео</th>
+                            <th class="admin-page__cell admin-page__cell--head">
+                                Видео
+                            </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--actions"
                             >
@@ -150,25 +190,31 @@
                             v-for="item in items"
                             :key="item.id"
                             class="admin-page__row"
-                            :class="{ 'admin-page__row--selected': isSelected(item.id) }"
+                            :class="{ 'admin-page__row--selected': isSelected(item.id,), }"
                         >
                             <td class="admin-page__cell admin-page__cell--checkbox">
                                 <UCheckbox
-                                    :model-value="isSelected(item.id)"
-                                    @change="toggleSelect(item.id)"
+                                    :model-value="isSelected(item.id,)"
+                                    @change="toggleSelect(item.id,)"
                                 />
                             </td>
                             <td class="admin-page__cell">
                                 <div class="admin-page__preview">
                                     <img
                                         v-if="item.img_back"
-                                        :src="getImageUrl(item)"
+                                        :src="getImageUrl(item,)"
                                         alt="preview"
                                         class="admin-page__thumb"
-                                        @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
-                                    />
-                                    <div v-else class="admin-page__preview-placeholder">
-                                        <UIcon name="i-lucide-image" class="size-4" />
+                                        @error="(e: Event,) => (e.target as HTMLImageElement).style.display = 'none'"
+                                    >
+                                    <div
+                                        v-else
+                                        class="admin-page__preview-placeholder"
+                                    >
+                                        <UIcon
+                                            name="i-lucide-image"
+                                            class="size-4"
+                                        />
                                     </div>
                                 </div>
                             </td>
@@ -183,7 +229,7 @@
                                 </div>
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
-                                {{ formatDate(item.datetime) }}
+                                {{ formatDate(item.datetime,) }}
                             </td>
                             <td class="admin-page__cell">
                                 <UBadge
@@ -194,7 +240,10 @@
                                 >
                                     {{ item.images.length }}
                                 </UBadge>
-                                <span v-else class="admin-page__cell-muted">—</span>
+                                <span
+                                    v-else
+                                    class="admin-page__cell-muted"
+                                >—</span>
                             </td>
                             <td class="admin-page__cell">
                                 <UBadge
@@ -205,7 +254,10 @@
                                 >
                                     {{ item.videos.length }}
                                 </UBadge>
-                                <span v-else class="admin-page__cell-muted">—</span>
+                                <span
+                                    v-else
+                                    class="admin-page__cell-muted"
+                                >—</span>
                             </td>
                             <td class="admin-page__cell admin-page__cell--actions">
                                 <div class="admin-page__actions">
@@ -224,7 +276,7 @@
                                             color="error"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmDelete(item)"
+                                            @click="confirmDelete(item,)"
                                         />
                                     </UTooltip>
                                 </div>
@@ -285,185 +337,185 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, } from 'vue';
-import {
-    fetchAdminNews,
-    deleteAdminNews,
-} from '~/api/admin';
-import type { AdminNewsItem } from '~/types';
+    import { ref, computed, onMounted, watch, } from 'vue';
+    import {
+        fetchAdminNews,
+        deleteAdminNews,
+    } from '~/api/admin';
+    import type { AdminNewsItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-// State
-const items = ref<AdminNewsItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const searchQuery = ref('');
-const currentPage = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const totalPages = ref(0);
-const sortBy = ref('datetime');
-const sortDir = ref<'asc' | 'desc'>('desc');
-const selectedIds = ref<string[]>([]);
-const showDeleteModal = ref(false);
-const deleting = ref(false);
-const deletingSingle = ref<AdminNewsItem | null>(null);
+    // State
+    const items = ref<AdminNewsItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const searchQuery = ref('',);
+    const currentPage = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const totalPages = ref(0,);
+    const sortBy = ref('datetime',);
+    const sortDir = ref<'asc' | 'desc'>('desc',);
+    const selectedIds = ref<string[]>([],);
+    const showDeleteModal = ref(false,);
+    const deleting = ref(false,);
+    const deletingSingle = ref<AdminNewsItem | null>(null,);
 
-// Computed
-const allSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.every((item) => selectedIds.value.includes(item.id));
-});
+    // Computed
+    const allSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.every(item => selectedIds.value.includes(item.id,),);
+    });
 
-const someSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.some((item) => selectedIds.value.includes(item.id)) && !allSelected.value;
-});
+    const someSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.some(item => selectedIds.value.includes(item.id,),) && !allSelected.value;
+    });
 
-const paginationInfo = computed(() => {
-    const start = (currentPage.value - 1) * perPage.value + 1;
-    const end = Math.min(currentPage.value * perPage.value, total.value);
-    return `${start}–${end} из ${total.value}`;
-});
+    const paginationInfo = computed(() => {
+        const start = (currentPage.value - 1) * perPage.value + 1;
+        const end = Math.min(currentPage.value * perPage.value, total.value,);
+        return `${start}–${end} из ${total.value}`;
+    });
 
-const deleteConfirmMessage = computed(() => {
-    if (deletingSingle.value) {
-        return `Вы уверены, что хотите удалить новость «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Это действие нельзя отменить.`;
-    }
-    return `Вы уверены, что хотите удалить ${selectedIds.value.length} новост(и/ей)? Это действие нельзя отменить.`;
-});
-
-// Methods
-function formatDate(datetime: string): string {
-    if (!datetime) return '—';
-    try {
-        const date = new Date(datetime);
-        return new Intl.DateTimeFormat('ru-RU', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        }).format(date);
-    } catch {
-        return datetime;
-    }
-}
-
-function getImageUrl(item: AdminNewsItem): string {
-    if (item.img_back) {
-        return `${item.dir}${item.img_back}`;
-    }
-    if (item.images.length > 0) {
-        return `${item.dir}${item.images[0]}`;
-    }
-    return '';
-}
-
-function isSelected(id: string): boolean {
-    return selectedIds.value.includes(id);
-}
-
-function toggleSelect(id: string) {
-    const idx = selectedIds.value.indexOf(id);
-    if (idx === -1) {
-        selectedIds.value.push(id);
-    } else {
-        selectedIds.value.splice(idx, 1);
-    }
-}
-
-function toggleSelectAll() {
-    if (allSelected.value) {
-        selectedIds.value = [];
-    } else {
-        selectedIds.value = items.value.map((item) => item.id);
-    }
-}
-
-function toggleSort(field: string) {
-    if (sortBy.value === field) {
-        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortBy.value = field;
-        sortDir.value = 'asc';
-    }
-    loadData();
-}
-
-function onPageChange(page: number) {
-    currentPage.value = page;
-    loadData();
-}
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const result = await fetchAdminNews({
-            page: currentPage.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            sort_by: sortBy.value,
-            sort_dir: sortDir.value,
-        });
-        items.value = result.items;
-        total.value = result.total;
-        totalPages.value = result.total_pages;
-        selectedIds.value = [];
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
-    } finally {
-        loading.value = false;
-    }
-}
-
-function confirmDelete(item: AdminNewsItem) {
-    deletingSingle.value = item;
-    showDeleteModal.value = true;
-}
-
-function confirmBulkDelete() {
-    deletingSingle.value = null;
-    showDeleteModal.value = true;
-}
-
-async function executeDelete() {
-    deleting.value = true;
-    try {
+    const deleteConfirmMessage = computed(() => {
         if (deletingSingle.value) {
-            await deleteAdminNews([deletingSingle.value.id]);
-        } else {
-            await deleteAdminNews(selectedIds.value);
+            return `Вы уверены, что хотите удалить новость «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Это действие нельзя отменить.`;
         }
-        showDeleteModal.value = false;
-        selectedIds.value = [];
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
-    } finally {
-        deleting.value = false;
-        deletingSingle.value = null;
+        return `Вы уверены, что хотите удалить ${selectedIds.value.length} новост(и/ей)? Это действие нельзя отменить.`;
+    });
+
+    // Methods
+    function formatDate(datetime: string,): string {
+        if (!datetime) return '—';
+        try {
+            const date = new Date(datetime,);
+            return new Intl.DateTimeFormat('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            }).format(date,);
+        } catch {
+            return datetime;
+        }
     }
-}
 
-// Debounced search
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(searchQuery, () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        currentPage.value = 1;
+    function getImageUrl(item: AdminNewsItem,): string {
+        if (item.img_back) {
+            return `${item.dir}${item.img_back}`;
+        }
+        if (item.images.length > 0) {
+            return `${item.dir}${item.images[0]}`;
+        }
+        return '';
+    }
+
+    function isSelected(id: string,): boolean {
+        return selectedIds.value.includes(id,);
+    }
+
+    function toggleSelect(id: string,) {
+        const idx = selectedIds.value.indexOf(id,);
+        if (idx === -1) {
+            selectedIds.value.push(id,);
+        } else {
+            selectedIds.value.splice(idx, 1,);
+        }
+    }
+
+    function toggleSelectAll() {
+        if (allSelected.value) {
+            selectedIds.value = [];
+        } else {
+            selectedIds.value = items.value.map(item => item.id,);
+        }
+    }
+
+    function toggleSort(field: string,) {
+        if (sortBy.value === field) {
+            sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortDir.value = 'asc';
+        }
         loadData();
-    }, 400);
-});
+    }
 
-onMounted(async () => {
-    await loadData();
-});
+    function onPageChange(page: number,) {
+        currentPage.value = page;
+        loadData();
+    }
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const result = await fetchAdminNews({
+                page: currentPage.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                sort_by: sortBy.value,
+                sort_dir: sortDir.value,
+            });
+            items.value = result.items;
+            total.value = result.total;
+            totalPages.value = result.total_pages;
+            selectedIds.value = [];
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    function confirmDelete(item: AdminNewsItem,) {
+        deletingSingle.value = item;
+        showDeleteModal.value = true;
+    }
+
+    function confirmBulkDelete() {
+        deletingSingle.value = null;
+        showDeleteModal.value = true;
+    }
+
+    async function executeDelete() {
+        deleting.value = true;
+        try {
+            if (deletingSingle.value) {
+                await deleteAdminNews([deletingSingle.value.id,],);
+            } else {
+                await deleteAdminNews(selectedIds.value,);
+            }
+            showDeleteModal.value = false;
+            selectedIds.value = [];
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
+        } finally {
+            deleting.value = false;
+            deletingSingle.value = null;
+        }
+    }
+
+    // Debounced search
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    watch(searchQuery, () => {
+        clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            currentPage.value = 1;
+            loadData();
+        }, 400,);
+    });
+
+    onMounted(async () => {
+        await loadData();
+    });
 </script>
 
 <style scoped>

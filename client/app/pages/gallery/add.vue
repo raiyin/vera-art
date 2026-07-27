@@ -2,61 +2,70 @@
     <div class="add-work-container">
         <div class="header-section">
             <h1 class="page-title">
-                {{ $t('admin_gallery_form.page_title') }}
+                {{ $t('admin_gallery_form.page_title',) }}
             </h1>
             <p class="page-subtitle">
-                {{ $t('admin_gallery_form.page_subtitle') }}
+                {{ $t('admin_gallery_form.page_subtitle',) }}
             </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
-            <p>{{ $t('admin_gallery_form.loading') }}</p>
+            <p>{{ $t('admin_gallery_form.loading',) }}</p>
         </div>
 
-        <form v-else class="work-form" @submit.prevent="submitForm">
+        <form
+            v-else
+            class="work-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.main_info') }}
+                    {{ $t('admin_gallery_form.sections.main_info',) }}
                 </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_ru') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.name_ru',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_ru')"
-                        @blur="validateField('name_ru')"
+                        :class="{ 'is-invalid': errors.name_ru, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.name_ru',)"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_en') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.name_en',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_en')"
-                        @blur="validateField('name_en')"
+                        :class="{ 'is-invalid': errors.name_en, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.name_en',)"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -64,7 +73,7 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.dimensions') }} ({{ $t('admin_gallery_form.units.cm') }})
+                        {{ $t('admin_gallery_form.labels.dimensions',) }} ({{ $t('admin_gallery_form.units.cm',) }})
                         <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
@@ -75,11 +84,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
-                                :placeholder="$t('admin_gallery_form.labels.width')"
-                                @blur="validateField('width')"
+                                :class="{ 'is-invalid': errors.width, }"
+                                :placeholder="$t('admin_gallery_form.labels.width',)"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
@@ -91,11 +103,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
-                                :placeholder="$t('admin_gallery_form.labels.height')"
-                                @blur="validateField('height')"
+                                :class="{ 'is-invalid': errors.height, }"
+                                :placeholder="$t('admin_gallery_form.labels.height',)"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -104,10 +119,8 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.year') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.year',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model.number="work.year"
                         type="number"
@@ -115,11 +128,14 @@
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
-                        :placeholder="$t('admin_gallery_form.placeholders.year')"
-                        @blur="validateField('year')"
+                        :class="{ 'is-invalid': errors.year, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.year',)"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
@@ -128,23 +144,24 @@
             <!-- Основа -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.tech_specs') }}
+                    {{ $t('admin_gallery_form.sections.tech_specs',) }}
                 </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.base') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.base',) }}
+                        <span class="required">*</span></label>
                     <USelect
                         v-model="work.base_id"
                         :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        :placeholder="$t('admin_gallery_form.placeholders.select_base')"
-                        @blur="validateField('base_id')"
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.select_base',)"
+                        @blur="validateField('base_id',)"
                     />
-                    <div v-if="errors.base_id" class="error-message">
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
@@ -153,40 +170,48 @@
             <!-- Описание -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.additional_info') }}
+                    {{ $t('admin_gallery_form.sections.additional_info',) }}
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_ru')
+                        $t('admin_gallery_form.labels.description_ru',)
                     }}</label>
                     <UTextarea
                         v-model="work.descr_ru"
                         class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :placeholder="$t('admin_gallery_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_ru.length }}/500</div>
+                    <div class="char-count">
+                        {{ work.descr_ru.length }}/500
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_en')
+                        $t('admin_gallery_form.labels.description_en',)
                     }}</label>
                     <UTextarea
                         v-model="work.descr_en"
                         class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :placeholder="$t('admin_gallery_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_en.length }}/500</div>
+                    <div class="char-count">
+                        {{ work.descr_en.length }}/500
+                    </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
-                    {{ $t('admin_gallery_form.buttons.clear_form') }}
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
+                    {{ $t('admin_gallery_form.buttons.clear_form',) }}
                 </UButton>
                 <UButton
                     type="submit"
@@ -194,11 +219,11 @@
                     :disabled="isSubmitting || !isFormValid"
                 >
                     <span v-if="!isSubmitting">{{
-                        $t('admin_gallery_form.buttons.add_work')
+                        $t('admin_gallery_form.buttons.add_work',)
                     }}</span>
                     <span v-else>
                         <span class="spinner" />
-                        {{ $t('admin_gallery_form.buttons.submitting') }}
+                        {{ $t('admin_gallery_form.buttons.submitting',) }}
                     </span>
                 </UButton>
             </div>
@@ -207,177 +232,177 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateWorkDto, RequestResult } from '~/types';
-import { useMaterialStore } from '~/stores/MaterialStore';
+    import axios from 'axios';
+    import { ref, reactive, computed, onMounted, } from 'vue';
+    import type { CreateWorkDto, RequestResult, } from '~/types';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
 
-const { t, locale } = useI18n();
-const toast = useToast();
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+    const { t, locale, } = useI18n();
+    const toast = useToast();
+    const config = useRuntimeConfig();
+    const SERVER_URL = config.public.serverUrl;
 
-const materialStore = useMaterialStore();
+    const materialStore = useMaterialStore();
 
-const work = reactive<CreateWorkDto>({
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
-    base_id: 0,
-    descr_ru: '',
-    descr_en: '',
-});
+    const work = reactive<CreateWorkDto>({
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        name_ru: '',
+        name_en: '',
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+    });
 
-const isSubmitting = ref(false);
-const isLoading = ref(true);
+    const isSubmitting = ref(false,);
+    const isLoading = ref(true,);
 
-const errors = reactive<Record<string, string>>({
-    name_ru: '',
-    name_en: '',
-    width: '',
-    height: '',
-    year: '',
-    base_id: '',
-});
+    const errors = reactive<Record<string, string>>({
+        name_ru: '',
+        name_en: '',
+        width: '',
+        height: '',
+        year: '',
+        base_id: '',
+    });
 
-const bases = computed(() => materialStore.bases);
+    const bases = computed(() => materialStore.bases,);
 
-const baseOptions = computed(() => {
-    const options = bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.name_ru : base.name_en,
-        value: base.id,
-    }));
-    return [...options];
-});
+    const baseOptions = computed(() => {
+        const options = bases.value.map(base => ({
+            label: locale.value === 'ru' ? base.name_ru : base.name_en,
+            value: base.id,
+        }),);
+        return [...options,];
+    });
 
-const isFormValid = computed(() => {
-    return (
-        work.name_ru.trim() !== '' &&
-        work.name_en.trim() !== '' &&
-        work.width > 0 &&
-        work.height > 0 &&
-        work.year >= 2000 &&
-        work.year <= new Date().getFullYear() &&
-        work.base_id > 0
-    );
-});
+    const isFormValid = computed(() => {
+        return (
+            work.name_ru.trim() !== ''
+        && work.name_en.trim() !== ''
+            && work.width > 0
+        && work.height > 0
+            && work.year >= 2000
+        && work.year <= new Date().getFullYear()
+            && work.base_id > 0
+        );
+    });
 
-function validateField(fieldName: string) {
-    switch (fieldName) {
-        case 'name_ru':
-            errors.name_ru = !work.name_ru.trim() ? t('admin_gallery_form.errors.name_ru_required') : '';
-            break;
-        case 'name_en':
-            errors.name_en = !work.name_en.trim() ? t('admin_gallery_form.errors.name_en_required') : '';
-            break;
-        case 'width':
-            errors.width = work.width <= 0 ? t('admin_gallery_form.errors.width_required') : '';
-            break;
-        case 'height':
-            errors.height = work.height <= 0 ? t('admin_gallery_form.errors.height_required') : '';
-            break;
-        case 'year':
-            if (work.year < 2000 || work.year > new Date().getFullYear()) {
-                errors.year = t('admin_gallery_form.errors.year_range', {
-                    year: new Date().getFullYear(),
-                });
-            } else {
-                errors.year = '';
-            }
-            break;
-        case 'base_id':
-            errors.base_id = work.base_id <= 0 ? t('admin_gallery_form.errors.base_required') : '';
-            break;
-    }
-}
-
-function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('base_id');
-    return Object.values(errors).every((error) => error === '');
-}
-
-async function submitForm() {
-    if (isSubmitting.value) return;
-
-    if (!validateForm()) {
-        return;
-    }
-
-    try {
-        isSubmitting.value = true;
-
-        const response = await axios.post(SERVER_URL + 'works', work, {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (response.status === 201 || response.status === 200) {
-            toast.add({
-                title: t('toast.success.title'),
-                description: t('toast.success.description'),
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
-                duration: 5000,
+    function validateField(fieldName: string,) {
+        switch (fieldName) {
+    case 'name_ru':
+        errors.name_ru = !work.name_ru.trim() ? t('admin_gallery_form.errors.name_ru_required',) : '';
+        break;
+    case 'name_en':
+        errors.name_en = !work.name_en.trim() ? t('admin_gallery_form.errors.name_en_required',) : '';
+        break;
+    case 'width':
+        errors.width = work.width <= 0 ? t('admin_gallery_form.errors.width_required',) : '';
+        break;
+    case 'height':
+        errors.height = work.height <= 0 ? t('admin_gallery_form.errors.height_required',) : '';
+        break;
+    case 'year':
+        if (work.year < 2000 || work.year > new Date().getFullYear()) {
+            errors.year = t('admin_gallery_form.errors.year_range', {
+                year: new Date().getFullYear(),
             });
-            resetForm();
         } else {
+            errors.year = '';
+        }
+        break;
+    case 'base_id':
+        errors.base_id = work.base_id <= 0 ? t('admin_gallery_form.errors.base_required',) : '';
+        break;
+        }
+    }
+
+    function validateForm() {
+        validateField('name_ru',);
+        validateField('name_en',);
+        validateField('width',);
+        validateField('height',);
+        validateField('year',);
+        validateField('base_id',);
+        return Object.values(errors,).every(error => error === '',);
+    }
+
+    async function submitForm() {
+        if (isSubmitting.value) return;
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            isSubmitting.value = true;
+
+            const response = await axios.post(SERVER_URL + 'works', work, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (response.status === 201 || response.status === 200) {
+                toast.add({
+                    title: t('toast.success.title',),
+                    description: t('toast.success.description',),
+                    icon: 'i-heroicons-check-circle',
+                    color: 'success',
+                    duration: 5000,
+                });
+                resetForm();
+            } else {
+                toast.add({
+                    title: t('toast.error.title',),
+                    description: t('toast.error.description',),
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
+            }
+        } catch (error: any) {
+            console.error('Error submitting form:', error,);
+            let description = t('toast.error.description',);
+            if (error.response?.status === 400) {
+                description = t('admin_gallery_form.messages.invalid_data',);
+            } else {
+                description = t('admin_gallery_form.messages.general_error',);
+            }
             toast.add({
-                title: t('toast.error.title'),
-                description: t('toast.error.description'),
+                title: t('toast.error.title',),
+                description,
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
+        } finally {
+            isSubmitting.value = false;
         }
-    } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description = t('toast.error.description');
-        if (error.response?.status === 400) {
-            description = t('admin_gallery_form.messages.invalid_data');
-        } else {
-            description = t('admin_gallery_form.messages.general_error');
-        }
-        toast.add({
-            title: t('toast.error.title'),
-            description,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
+    }
+
+    function resetForm() {
+        work.width = 0;
+        work.height = 0;
+        work.year = new Date().getFullYear();
+        work.name_ru = '';
+        work.name_en = '';
+        work.base_id = 0;
+        work.descr_ru = '';
+        work.descr_en = '';
+        Object.keys(errors,).forEach((key,) => {
+            errors[key] = '';
         });
-    } finally {
-        isSubmitting.value = false;
     }
-}
 
-function resetForm() {
-    work.width = 0;
-    work.height = 0;
-    work.year = new Date().getFullYear();
-    work.name_ru = '';
-    work.name_en = '';
-    work.base_id = 0;
-    work.descr_ru = '';
-    work.descr_en = '';
-    Object.keys(errors).forEach((key) => {
-        errors[key] = '';
+    // Lifecycle
+    onMounted(async () => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
+        isLoading.value = false;
     });
-}
-
-// Lifecycle
-onMounted(async () => {
-    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-        await materialStore.fetchAll();
-    }
-    isLoading.value = false;
-});
 </script>
 
 <style scoped>

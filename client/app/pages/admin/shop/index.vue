@@ -10,8 +10,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Магазин</h1>
-                <p class="admin-page__subtitle">Управление товарами в магазине</p>
+                <h1 class="admin-page__title">
+                    Магазин
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление товарами в магазине
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -23,14 +27,21 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" to="/admin/shop/add">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    to="/admin/shop/add"
+                >
                     Добавить товар
                 </UButton>
             </div>
         </div>
 
         <!-- Search & Filters -->
-        <UCard class="admin-page__filters-card" :ui="{ body: 'p-4' }">
+        <UCard
+            class="admin-page__filters-card"
+            :ui="{ body: 'p-4', }"
+        >
             <div class="admin-page__filters">
                 <div class="admin-page__search">
                     <UInput
@@ -55,8 +66,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-image" />
                     <div class="admin-page__skeleton-lines">
@@ -68,11 +85,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -81,19 +108,30 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-shopping-bag" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Товары не найдены</h3>
+                <UIcon
+                    name="i-lucide-shopping-bag"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Товары не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     По заданным критериям ничего не найдено
                 </p>
-                <UButton color="primary" to="/admin/shop/add">
+                <UButton
+                    color="primary"
+                    to="/admin/shop/add"
+                >
                     Добавить первый товар
                 </UButton>
             </div>
         </UCard>
 
         <!-- Data Table -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-page__table-wrapper">
                 <table class="admin-page__table">
                     <thead>
@@ -110,7 +148,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('name_ru')"
+                                @click="toggleSort('name_ru',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Название</span>
@@ -127,7 +165,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('year')"
+                                @click="toggleSort('year',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Год</span>
@@ -147,7 +185,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('price')"
+                                @click="toggleSort('price',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Цена</span>
@@ -180,25 +218,31 @@
                             v-for="item in items"
                             :key="item.id"
                             class="admin-page__row"
-                            :class="{ 'admin-page__row--selected': isSelected(item.id) }"
+                            :class="{ 'admin-page__row--selected': isSelected(item.id,), }"
                         >
                             <td class="admin-page__cell admin-page__cell--checkbox">
                                 <UCheckbox
-                                    :model-value="isSelected(item.id)"
-                                    @change="toggleSelect(item.id)"
+                                    :model-value="isSelected(item.id,)"
+                                    @change="toggleSelect(item.id,)"
                                 />
                             </td>
                             <td class="admin-page__cell">
                                 <div class="admin-page__preview">
                                     <img
                                         v-if="item.images.length > 0"
-                                        :src="getImageUrl(item)"
+                                        :src="getImageUrl(item,)"
                                         alt="preview"
                                         class="admin-page__thumb"
-                                        @error="(e: Event) => (e.target as HTMLImageElement).style.display = 'none'"
-                                    />
-                                    <div v-else class="admin-page__preview-placeholder">
-                                        <UIcon name="i-lucide-image" class="size-4" />
+                                        @error="(e: Event,) => (e.target as HTMLImageElement).style.display = 'none'"
+                                    >
+                                    <div
+                                        v-else
+                                        class="admin-page__preview-placeholder"
+                                    >
+                                        <UIcon
+                                            name="i-lucide-image"
+                                            class="size-4"
+                                        />
                                     </div>
                                 </div>
                             </td>
@@ -220,14 +264,16 @@
                             </td>
                             <td class="admin-page__cell">
                                 <span class="admin-page__price">{{
-                                    formatPrice(item.price)
+                                    formatPrice(item.price,)
                                 }}</span>
                             </td>
-                            <td class="admin-page__cell">{{ item.base_ru || '—' }}</td>
+                            <td class="admin-page__cell">
+                                {{ item.base_ru || '—' }}
+                            </td>
                             <td class="admin-page__cell">
                                 <div class="admin-page__materials">
                                     <UBadge
-                                        v-for="mat in item.materials_ru.slice(0, 2)"
+                                        v-for="mat in item.materials_ru.slice(0, 2,)"
                                         :key="mat"
                                         color="neutral"
                                         variant="subtle"
@@ -260,7 +306,7 @@
                                             color="error"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmDelete(item)"
+                                            @click="confirmDelete(item,)"
                                         />
                                     </UTooltip>
                                 </div>
@@ -321,249 +367,249 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, } from 'vue';
-import {
-    fetchAdminSales,
-    deleteAdminSales,
-} from '~/api/admin';
-import type { AdminSaleItem } from '~/types';
+    import { ref, computed, onMounted, watch, } from 'vue';
+    import {
+        fetchAdminSales,
+        deleteAdminSales,
+    } from '~/api/admin';
+    import type { AdminSaleItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+    const config = useRuntimeConfig();
+    const SERVER_URL = config.public.serverUrl;
 
-// State
-const items = ref<AdminSaleItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const searchQuery = ref('');
-const baseFilter = ref<number | null>(null);
-const currentPage = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const totalPages = ref(0);
-const sortBy = ref('id');
-const sortDir = ref<'asc' | 'desc'>('desc');
-const selectedIds = ref<number[]>([]);
-const showDeleteModal = ref(false);
-const deleting = ref(false);
-const deletingSingle = ref<AdminSaleItem | null>(null);
+    // State
+    const items = ref<AdminSaleItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const searchQuery = ref('',);
+    const baseFilter = ref<number | null>(null,);
+    const currentPage = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const totalPages = ref(0,);
+    const sortBy = ref('id',);
+    const sortDir = ref<'asc' | 'desc'>('desc',);
+    const selectedIds = ref<number[]>([],);
+    const showDeleteModal = ref(false,);
+    const deleting = ref(false,);
+    const deletingSingle = ref<AdminSaleItem | null>(null,);
 
-// Base options (will be populated from API)
-const baseOptions = ref<{ label: string; value: number | null }[]>([
-    { label: 'Все основы', value: null },
-]);
+    // Base options (will be populated from API)
+    const baseOptions = ref<{ label: string, value: number | null }[]>([
+        { label: 'Все основы', value: null, },
+    ]);
 
-// Lookup maps for enrichment
-const basesById = ref<Record<number, { name_ru: string; name_en: string }>>({});
-const materialsById = ref<Record<number, { name_ru: string; name_en: string }>>({});
+    // Lookup maps for enrichment
+    const basesById = ref<Record<number, { name_ru: string, name_en: string }>>({},);
+    const materialsById = ref<Record<number, { name_ru: string, name_en: string }>>({},);
 
-// Computed
-const allSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.every((item) => selectedIds.value.includes(item.id));
-});
+    // Computed
+    const allSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.every(item => selectedIds.value.includes(item.id,),);
+    });
 
-const someSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.some((item) => selectedIds.value.includes(item.id)) && !allSelected.value;
-});
+    const someSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.some(item => selectedIds.value.includes(item.id,),) && !allSelected.value;
+    });
 
-const paginationInfo = computed(() => {
-    const start = (currentPage.value - 1) * perPage.value + 1;
-    const end = Math.min(currentPage.value * perPage.value, total.value);
-    return `${start}–${end} из ${total.value}`;
-});
+    const paginationInfo = computed(() => {
+        const start = (currentPage.value - 1) * perPage.value + 1;
+        const end = Math.min(currentPage.value * perPage.value, total.value,);
+        return `${start}–${end} из ${total.value}`;
+    });
 
-const deleteConfirmMessage = computed(() => {
-    if (deletingSingle.value) {
-        return `Вы уверены, что хотите удалить товар «${deletingSingle.value.name_ru || deletingSingle.value.name_en}»? Это действие нельзя отменить.`;
-    }
-    return `Вы уверены, что хотите удалить ${selectedIds.value.length} товар(ов)? Это действие нельзя отменить.`;
-});
-
-// Methods
-function formatPrice(priceKopecks: number): string {
-    const rubles = priceKopecks / 100;
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(rubles);
-}
-
-function getImageUrl(item: AdminSaleItem): string {
-    if (item.images.length > 0) {
-        return `${item.dir}${item.images[0]}`;
-    }
-    return '';
-}
-
-function isSelected(id: number): boolean {
-    return selectedIds.value.includes(id);
-}
-
-function toggleSelect(id: number) {
-    const idx = selectedIds.value.indexOf(id);
-    if (idx === -1) {
-        selectedIds.value.push(id);
-    } else {
-        selectedIds.value.splice(idx, 1);
-    }
-}
-
-function toggleSelectAll() {
-    if (allSelected.value) {
-        selectedIds.value = [];
-    } else {
-        selectedIds.value = items.value.map((item) => item.id);
-    }
-}
-
-function toggleSort(field: string) {
-    if (sortBy.value === field) {
-        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortBy.value = field;
-        sortDir.value = 'asc';
-    }
-    loadData();
-}
-
-function onPageChange(page: number) {
-    currentPage.value = page;
-    loadData();
-}
-
-function enrichSaleItem(item: AdminSaleItem): AdminSaleItem {
-    // Resolve base IDs to names
-    const baseId = item.base_ids?.[0];
-    if (baseId) {
-        const base = basesById.value[baseId];
-        if (base) {
-            item.base_ru = base.name_ru;
-            item.base_en = base.name_en;
-        }
-    }
-    // Resolve material IDs to names
-    if (item.material_ids && item.material_ids.length > 0) {
-        item.materials_ru = item.material_ids
-            .map(id => materialsById.value[id]?.name_ru)
-            .filter(Boolean) as string[];
-        item.materials_en = item.material_ids
-            .map(id => materialsById.value[id]?.name_en)
-            .filter(Boolean) as string[];
-    }
-    return item;
-}
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const result = await fetchAdminSales({
-            page: currentPage.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            base_id: baseFilter.value !== null ? String(baseFilter.value) : undefined,
-            sort_by: sortBy.value,
-            sort_dir: sortDir.value,
-        });
-        items.value = result.items.map(enrichSaleItem);
-        total.value = result.total;
-        totalPages.value = result.total_pages;
-        selectedIds.value = [];
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
-    } finally {
-        loading.value = false;
-    }
-}
-
-function confirmDelete(item: AdminSaleItem) {
-    deletingSingle.value = item;
-    showDeleteModal.value = true;
-}
-
-function confirmBulkDelete() {
-    deletingSingle.value = null;
-    showDeleteModal.value = true;
-}
-
-async function executeDelete() {
-    deleting.value = true;
-    try {
+    const deleteConfirmMessage = computed(() => {
         if (deletingSingle.value) {
-            await deleteAdminSales([deletingSingle.value.id]);
+            return `Вы уверены, что хотите удалить товар «${deletingSingle.value.name_ru || deletingSingle.value.name_en}»? Это действие нельзя отменить.`;
+        }
+        return `Вы уверены, что хотите удалить ${selectedIds.value.length} товар(ов)? Это действие нельзя отменить.`;
+    });
+
+    // Methods
+    function formatPrice(priceKopecks: number,): string {
+        const rubles = priceKopecks / 100;
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(rubles,);
+    }
+
+    function getImageUrl(item: AdminSaleItem,): string {
+        if (item.images.length > 0) {
+            return `${item.dir}${item.images[0]}`;
+        }
+        return '';
+    }
+
+    function isSelected(id: number,): boolean {
+        return selectedIds.value.includes(id,);
+    }
+
+    function toggleSelect(id: number,) {
+        const idx = selectedIds.value.indexOf(id,);
+        if (idx === -1) {
+            selectedIds.value.push(id,);
         } else {
-            await deleteAdminSales(selectedIds.value);
+            selectedIds.value.splice(idx, 1,);
         }
-        showDeleteModal.value = false;
-        selectedIds.value = [];
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
-    } finally {
-        deleting.value = false;
-        deletingSingle.value = null;
     }
-}
 
-// Debounced search
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(searchQuery, () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        currentPage.value = 1;
+    function toggleSelectAll() {
+        if (allSelected.value) {
+            selectedIds.value = [];
+        } else {
+            selectedIds.value = items.value.map(item => item.id,);
+        }
+    }
+
+    function toggleSort(field: string,) {
+        if (sortBy.value === field) {
+            sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortDir.value = 'asc';
+        }
         loadData();
-    }, 400);
-});
+    }
 
-onMounted(async () => {
-    // Load bases for filter and lookup
-    try {
-        const basesResponse = await fetch(`${SERVER_URL}bases`);
-        if (basesResponse.ok) {
-            const basesData = await basesResponse.json();
-            const basesList: { id: number; name_ru: string; name_en: string }[] = basesData.bases || basesData;
-            baseOptions.value = [
-                { label: 'Все основы', value: null },
-                ...basesList.map((b) => ({
-                    label: b.name_ru,
-                    value: b.id,
-                })),
-            ];
-            const map: Record<number, { name_ru: string; name_en: string }> = {};
-            for (const b of basesList) {
-                map[b.id] = { name_ru: b.name_ru, name_en: b.name_en };
+    function onPageChange(page: number,) {
+        currentPage.value = page;
+        loadData();
+    }
+
+    function enrichSaleItem(item: AdminSaleItem,): AdminSaleItem {
+        // Resolve base IDs to names
+        const baseId = item.base_ids?.[0];
+        if (baseId) {
+            const base = basesById.value[baseId];
+            if (base) {
+                item.base_ru = base.name_ru;
+                item.base_en = base.name_en;
             }
-            basesById.value = map;
         }
-    } catch {
+        // Resolve material IDs to names
+        if (item.material_ids && item.material_ids.length > 0) {
+            item.materials_ru = item.material_ids
+                .map(id => materialsById.value[id]?.name_ru,)
+                .filter(Boolean,) as string[];
+            item.materials_en = item.material_ids
+                .map(id => materialsById.value[id]?.name_en,)
+                .filter(Boolean,) as string[];
+        }
+        return item;
+    }
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const result = await fetchAdminSales({
+                page: currentPage.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                base_id: baseFilter.value !== null ? String(baseFilter.value,) : undefined,
+                sort_by: sortBy.value,
+                sort_dir: sortDir.value,
+            });
+            items.value = result.items.map(enrichSaleItem,);
+            total.value = result.total;
+            totalPages.value = result.total_pages;
+            selectedIds.value = [];
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    function confirmDelete(item: AdminSaleItem,) {
+        deletingSingle.value = item;
+        showDeleteModal.value = true;
+    }
+
+    function confirmBulkDelete() {
+        deletingSingle.value = null;
+        showDeleteModal.value = true;
+    }
+
+    async function executeDelete() {
+        deleting.value = true;
+        try {
+            if (deletingSingle.value) {
+                await deleteAdminSales([deletingSingle.value.id,],);
+            } else {
+                await deleteAdminSales(selectedIds.value,);
+            }
+            showDeleteModal.value = false;
+            selectedIds.value = [];
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
+        } finally {
+            deleting.value = false;
+            deletingSingle.value = null;
+        }
+    }
+
+    // Debounced search
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    watch(searchQuery, () => {
+        clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            currentPage.value = 1;
+            loadData();
+        }, 400,);
+    });
+
+    onMounted(async () => {
+        // Load bases for filter and lookup
+        try {
+            const basesResponse = await fetch(`${SERVER_URL}bases`,);
+            if (basesResponse.ok) {
+                const basesData = await basesResponse.json();
+                const basesList: { id: number, name_ru: string, name_en: string }[] = basesData.bases || basesData;
+                baseOptions.value = [
+                    { label: 'Все основы', value: null, },
+                    ...basesList.map(b => ({
+                        label: b.name_ru,
+                        value: b.id,
+                    }),),
+                ];
+                const map: Record<number, { name_ru: string, name_en: string }> = {};
+                for (const b of basesList) {
+                    map[b.id] = { name_ru: b.name_ru, name_en: b.name_en, };
+                }
+                basesById.value = map;
+            }
+        } catch {
         // Ignore errors loading bases
-    }
-    // Load materials for lookup
-    try {
-        const materialsResponse = await fetch(`${SERVER_URL}materials`);
-        if (materialsResponse.ok) {
-            const materialsData = await materialsResponse.json();
-            const materialsList: { id: number; name_ru: string; name_en: string }[] = materialsData.materials || materialsData;
-            const map: Record<number, { name_ru: string; name_en: string }> = {};
-            for (const m of materialsList) {
-                map[m.id] = { name_ru: m.name_ru, name_en: m.name_en };
-            }
-            materialsById.value = map;
         }
-    } catch {
+        // Load materials for lookup
+        try {
+            const materialsResponse = await fetch(`${SERVER_URL}materials`,);
+            if (materialsResponse.ok) {
+                const materialsData = await materialsResponse.json();
+                const materialsList: { id: number, name_ru: string, name_en: string }[] = materialsData.materials || materialsData;
+                const map: Record<number, { name_ru: string, name_en: string }> = {};
+                for (const m of materialsList) {
+                    map[m.id] = { name_ru: m.name_ru, name_en: m.name_en, };
+                }
+                materialsById.value = map;
+            }
+        } catch {
         // Ignore errors loading materials
-    }
-    await loadData();
-});
+        }
+        await loadData();
+    });
 </script>
 
 <style scoped>

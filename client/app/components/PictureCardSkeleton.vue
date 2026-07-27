@@ -1,12 +1,12 @@
 <script lang="ts">
-import { useThemeStore } from '~/stores/ThemeStore';
+    import { useThemeStore, } from '~/stores/ThemeStore';
 
-export default {
-    setup() {
-        const themeStore = useThemeStore();
-        return { themeStore };
-    },
-};
+    export default {
+        setup() {
+            const themeStore = useThemeStore();
+            return { themeStore, };
+        },
+    };
 </script>
 
 <template>

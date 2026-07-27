@@ -1,78 +1,81 @@
 <template>
     <span
         class="admin-badge"
-        :class="[`admin-badge--${variant}`, { 'admin-badge--dark': isDark }]"
+        :class="[`admin-badge--${variant}`, { 'admin-badge--dark': isDark, },]"
     >
-        <span v-if="showDot" class="admin-badge__dot" />
+        <span
+            v-if="showDot"
+            class="admin-badge__dot"
+        />
         {{ label }}
     </span>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+    import { computed, } from 'vue';
 
-const props = withDefaults(
-    defineProps<{
-        status: string;
-        mapping?: Record<
-            string,
-            {
-                label: string;
-                variant: 'success' | 'warning' | 'danger' | 'info' | 'neutral';
-            }
-        >;
-        isDark?: boolean;
-        showDot?: boolean;
-    }>(),
-    {
-        status: '',
-        isDark: false,
-        showDot: true,
-    }
-);
-
-const defaultMapping: Record<
-    string,
-    { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'neutral' }
-> = {
-    published: { label: 'Опубликовано', variant: 'success' },
-    active: { label: 'Активно', variant: 'success' },
-    draft: { label: 'Черновик', variant: 'warning' },
-    pending: { label: 'Ожидает', variant: 'warning' },
-    archived: { label: 'Архив', variant: 'neutral' },
-    cancelled: { label: 'Отменён', variant: 'danger' },
-    refunded: { label: 'Возврат', variant: 'danger' },
-    expired: { label: 'Истёк', variant: 'danger' },
-    blocked: { label: 'Заблокирован', variant: 'danger' },
-    resolved: { label: 'Решён', variant: 'success' },
-    open: { label: 'Открыт', variant: 'info' },
-    approved: { label: 'Одобрен', variant: 'success' },
-    rejected: { label: 'Отклонён', variant: 'danger' },
-    succeeded: { label: 'Успешно', variant: 'success' },
-    beginner: { label: 'Начальный', variant: 'info' },
-    intermediate: { label: 'Средний', variant: 'warning' },
-    advanced: { label: 'Продвинутый', variant: 'danger' },
-    true: { label: 'Да', variant: 'success' },
-    false: { label: 'Нет', variant: 'neutral' },
-};
-
-const resolvedMapping = computed(() => ({
-    ...defaultMapping,
-    ...props.mapping,
-}));
-
-const statusInfo = computed(() => {
-    const key = String(props.status).toLowerCase();
-    return (
-        resolvedMapping.value[key] || {
-            label: props.status || '—',
-            variant: 'neutral' as const,
+    const props = withDefaults(
+        defineProps<{
+            status: string
+            mapping?: Record<
+                string,
+                {
+                    label: string
+                    variant: 'success' | 'warning' | 'danger' | 'info' | 'neutral'
+                }
+            >
+            isDark?: boolean
+            showDot?: boolean
+        }>(),
+        {
+            status: '',
+            isDark: false,
+            showDot: true,
         }
     );
-});
 
-const label = computed(() => statusInfo.value.label);
-const variant = computed(() => statusInfo.value.variant);
+    const defaultMapping: Record<
+        string,
+        { label: string, variant: 'success' | 'warning' | 'danger' | 'info' | 'neutral' }
+    > = {
+        published: { label: 'Опубликовано', variant: 'success', },
+        active: { label: 'Активно', variant: 'success', },
+        draft: { label: 'Черновик', variant: 'warning', },
+        pending: { label: 'Ожидает', variant: 'warning', },
+        archived: { label: 'Архив', variant: 'neutral', },
+        cancelled: { label: 'Отменён', variant: 'danger', },
+        refunded: { label: 'Возврат', variant: 'danger', },
+        expired: { label: 'Истёк', variant: 'danger', },
+        blocked: { label: 'Заблокирован', variant: 'danger', },
+        resolved: { label: 'Решён', variant: 'success', },
+        open: { label: 'Открыт', variant: 'info', },
+        approved: { label: 'Одобрен', variant: 'success', },
+        rejected: { label: 'Отклонён', variant: 'danger', },
+        succeeded: { label: 'Успешно', variant: 'success', },
+        beginner: { label: 'Начальный', variant: 'info', },
+        intermediate: { label: 'Средний', variant: 'warning', },
+        advanced: { label: 'Продвинутый', variant: 'danger', },
+        true: { label: 'Да', variant: 'success', },
+        false: { label: 'Нет', variant: 'neutral', },
+    };
+
+    const resolvedMapping = computed(() => ({
+        ...defaultMapping,
+        ...props.mapping,
+    }),);
+
+    const statusInfo = computed(() => {
+        const key = String(props.status,).toLowerCase();
+        return (
+            resolvedMapping.value[key] || {
+                label: props.status || '—',
+                variant: 'neutral' as const,
+            }
+        );
+    });
+
+    const label = computed(() => statusInfo.value.label,);
+    const variant = computed(() => statusInfo.value.variant,);
 </script>
 
 <style scoped>

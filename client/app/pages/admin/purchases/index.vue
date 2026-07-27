@@ -8,7 +8,9 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Покупки</h1>
+                <h1 class="admin-page__title">
+                    Покупки
+                </h1>
                 <p class="admin-page__subtitle">
                     Управление покупками курсов и мастер-классов
                 </p>
@@ -62,8 +64,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -74,11 +82,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -87,22 +105,36 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-shopping-cart" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Покупки не найдены</h3>
+                <UIcon
+                    name="i-lucide-shopping-cart"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Покупки не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     <template v-if="searchQuery || statusFilter || productTypeFilter">
                         По заданным критериям ничего не найдено. Попробуйте изменить
                         параметры поиска.
                     </template>
-                    <template v-else> Пока нет ни одной покупки. </template>
+                    <template v-else>
+                        Пока нет ни одной покупки.
+                    </template>
                 </p>
             </div>
         </UCard>
 
         <!-- Purchases List -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-purchases__list">
-                <div v-for="item in items" :key="item.id" class="admin-purchases__item">
+                <div
+                    v-for="item in items"
+                    :key="item.id"
+                    class="admin-purchases__item"
+                >
                     <div class="admin-purchases__item-main">
                         <div class="admin-purchases__item-user">
                             <UAvatar
@@ -136,20 +168,18 @@
                             </UBadge>
                         </div>
                         <div class="admin-purchases__item-price">
-                            <span class="admin-purchases__item-price-value"
-                                >{{
-                                    (item.price_paid / 100).toLocaleString('ru-RU')
-                                }}
-                                ₽</span
-                            >
+                            <span class="admin-purchases__item-price-value">{{
+                                (item.price_paid / 100).toLocaleString('ru-RU',)
+                            }}
+                                ₽</span>
                         </div>
                         <div class="admin-purchases__item-status">
                             <UBadge
-                                :color="purchaseStatusColor(item.status) as 'success' | 'error' | 'neutral'"
+                                :color="purchaseStatusColor(item.status,) as 'success' | 'error' | 'neutral'"
                                 variant="soft"
                                 size="sm"
                             >
-                                {{ purchaseStatusLabel(item.status) }}
+                                {{ purchaseStatusLabel(item.status,) }}
                             </UBadge>
                         </div>
                         <div class="admin-purchases__item-dates">
@@ -169,12 +199,15 @@
                                     class="admin-purchases__item-date-icon"
                                 />
                                 <span
-                                    :class="{ 'text-red-500': item.days_remaining <= 7 }"
+                                    :class="{ 'text-red-500': item.days_remaining <= 7, }"
                                 >
                                     {{ item.days_remaining }} дн.
                                 </span>
                             </div>
-                            <div v-else class="admin-purchases__item-days">
+                            <div
+                                v-else
+                                class="admin-purchases__item-days"
+                            >
                                 <UIcon
                                     name="i-lucide-infinity"
                                     class="admin-purchases__item-date-icon"
@@ -190,7 +223,7 @@
                                 color="neutral"
                                 variant="ghost"
                                 size="sm"
-                                @click="openExtendModal(item)"
+                                @click="openExtendModal(item,)"
                             />
                         </UTooltip>
                         <UTooltip text="Отменить доступ">
@@ -200,7 +233,7 @@
                                 variant="ghost"
                                 size="sm"
                                 :disabled="item.status !== 'active'"
-                                @click="confirmCancel(item)"
+                                @click="confirmCancel(item,)"
                             />
                         </UTooltip>
                     </div>
@@ -212,7 +245,7 @@
                 <div class="admin-page__pagination">
                     <span class="admin-page__pagination-info">
                         {{ (page - 1) * perPage + 1 }}–{{
-                            Math.min(page * perPage, total)
+                            Math.min(page * perPage, total,)
                         }}
                         из {{ total }}
                     </span>
@@ -228,10 +261,15 @@
         </UCard>
 
         <!-- Extend Access Modal -->
-        <UModal v-model:open="extendModalOpen" class="max-w-md">
+        <UModal
+            v-model:open="extendModalOpen"
+            class="max-w-md"
+        >
             <template #header>
                 <div class="flex items-center justify-between">
-                    <h3 class="text-lg font-semibold">Продлить доступ</h3>
+                    <h3 class="text-lg font-semibold">
+                        Продлить доступ
+                    </h3>
                     <UButton
                         icon="i-lucide-x"
                         color="neutral"
@@ -244,8 +282,7 @@
             <template #body>
                 <div class="space-y-4">
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                        Пользователь: <strong>{{ extendTarget?.username }}</strong
-                        ><br />
+                        Пользователь: <strong>{{ extendTarget?.username }}</strong><br>
                         Продукт: <strong>{{ extendTarget?.product_title_ru }}</strong>
                     </p>
                     <UInput
@@ -301,141 +338,141 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, } from 'vue';
-import {
-    fetchAdminPurchases,
-    extendAdminPurchaseAccess,
-    cancelAdminPurchase,
-} from '~/api/admin';
-import type { AdminPurchaseItem } from '~/types';
+    import { ref, computed, watch, } from 'vue';
+    import {
+        fetchAdminPurchases,
+        extendAdminPurchaseAccess,
+        cancelAdminPurchase,
+    } from '~/api/admin';
+    import type { AdminPurchaseItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const items = ref<AdminPurchaseItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const page = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const searchQuery = ref('');
-const statusFilter = ref<string | undefined>(undefined);
-const productTypeFilter = ref<string | undefined>(undefined);
+    const items = ref<AdminPurchaseItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const page = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const searchQuery = ref('',);
+    const statusFilter = ref<string | undefined>(undefined,);
+    const productTypeFilter = ref<string | undefined>(undefined,);
 
-const statusOptions = [
-    { label: 'Активен', value: 'active' },
-    { label: 'Истёк', value: 'expired' },
-    { label: 'Отменён', value: 'cancelled' },
-];
+    const statusOptions = [
+        { label: 'Активен', value: 'active', },
+        { label: 'Истёк', value: 'expired', },
+        { label: 'Отменён', value: 'cancelled', },
+    ];
 
-const productTypeOptions = [
-    { label: 'Курсы', value: 'course' },
-    { label: 'Мастер-классы', value: 'masterclass' },
-];
+    const productTypeOptions = [
+        { label: 'Курсы', value: 'course', },
+        { label: 'Мастер-классы', value: 'masterclass', },
+    ];
 
-// Extend modal
-const extendModalOpen = ref(false);
-const extendTarget = ref<AdminPurchaseItem | null>(null);
-const extendDays = ref<number>(30);
-const extending = ref(false);
+    // Extend modal
+    const extendModalOpen = ref(false,);
+    const extendTarget = ref<AdminPurchaseItem | null>(null,);
+    const extendDays = ref<number>(30,);
+    const extending = ref(false,);
 
-// Cancel modal
-const cancelModalOpen = ref(false);
-const cancelTarget = ref<AdminPurchaseItem | null>(null);
-const cancelling = ref(false);
+    // Cancel modal
+    const cancelModalOpen = ref(false,);
+    const cancelTarget = ref<AdminPurchaseItem | null>(null,);
+    const cancelling = ref(false,);
 
-function purchaseStatusColor(status: string): string {
-    const colors: Record<string, string> = {
-        active: 'success',
-        expired: 'neutral',
-        cancelled: 'error',
-    };
-    return colors[status] || 'neutral';
-}
-
-function purchaseStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-        active: 'Активен',
-        expired: 'Истёк',
-        cancelled: 'Отменён',
-    };
-    return labels[status] || status;
-}
-
-let searchTimeout: ReturnType<typeof setTimeout> | null = null;
-watch(searchQuery, () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        page.value = 1;
-        loadData();
-    }, 400);
-});
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const response = await fetchAdminPurchases({
-            page: page.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            status: statusFilter.value || undefined,
-            product_type: productTypeFilter.value || undefined,
-        });
-        items.value = response.items;
-        total.value = response.total;
-        page.value = response.page;
-        perPage.value = response.per_page;
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
-    } finally {
-        loading.value = false;
+    function purchaseStatusColor(status: string,): string {
+        const colors: Record<string, string> = {
+            active: 'success',
+            expired: 'neutral',
+            cancelled: 'error',
+        };
+        return colors[status] || 'neutral';
     }
-}
 
-function openExtendModal(item: AdminPurchaseItem) {
-    extendTarget.value = item;
-    extendDays.value = 30;
-    extendModalOpen.value = true;
-}
-
-async function doExtend() {
-    if (!extendTarget.value || !extendDays.value || extendDays.value < 1) return;
-    extending.value = true;
-    try {
-        await extendAdminPurchaseAccess(extendTarget.value.id, extendDays.value);
-        extendModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка продления доступа';
-    } finally {
-        extending.value = false;
+    function purchaseStatusLabel(status: string,): string {
+        const labels: Record<string, string> = {
+            active: 'Активен',
+            expired: 'Истёк',
+            cancelled: 'Отменён',
+        };
+        return labels[status] || status;
     }
-}
 
-function confirmCancel(item: AdminPurchaseItem) {
-    cancelTarget.value = item;
-    cancelModalOpen.value = true;
-}
+    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+    watch(searchQuery, () => {
+        if (searchTimeout) clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            page.value = 1;
+            loadData();
+        }, 400,);
+    });
 
-async function doCancel() {
-    if (!cancelTarget.value) return;
-    cancelling.value = true;
-    try {
-        await cancelAdminPurchase(cancelTarget.value.id);
-        cancelModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка отмены доступа';
-    } finally {
-        cancelling.value = false;
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await fetchAdminPurchases({
+                page: page.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                status: statusFilter.value || undefined,
+                product_type: productTypeFilter.value || undefined,
+            });
+            items.value = response.items;
+            total.value = response.total;
+            page.value = response.page;
+            perPage.value = response.per_page;
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
+        } finally {
+            loading.value = false;
+        }
     }
-}
 
-// Initial load
-loadData();
+    function openExtendModal(item: AdminPurchaseItem,) {
+        extendTarget.value = item;
+        extendDays.value = 30;
+        extendModalOpen.value = true;
+    }
+
+    async function doExtend() {
+        if (!extendTarget.value || !extendDays.value || extendDays.value < 1) return;
+        extending.value = true;
+        try {
+            await extendAdminPurchaseAccess(extendTarget.value.id, extendDays.value,);
+            extendModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка продления доступа';
+        } finally {
+            extending.value = false;
+        }
+    }
+
+    function confirmCancel(item: AdminPurchaseItem,) {
+        cancelTarget.value = item;
+        cancelModalOpen.value = true;
+    }
+
+    async function doCancel() {
+        if (!cancelTarget.value) return;
+        cancelling.value = true;
+        try {
+            await cancelAdminPurchase(cancelTarget.value.id,);
+            cancelModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка отмены доступа';
+        } finally {
+            cancelling.value = false;
+        }
+    }
+
+    // Initial load
+    loadData();
 </script>
 
 <style scoped>

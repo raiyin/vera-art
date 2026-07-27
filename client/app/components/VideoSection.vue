@@ -1,197 +1,197 @@
 <script lang="ts">
-import { useI18n } from 'vue-i18n';
-import { ref, computed, type PropType, onMounted, onUnmounted, nextTick } from 'vue';
-import type { NewsDesc } from '~/types';
+    import { useI18n, } from 'vue-i18n';
+    import { ref, computed, type PropType, onMounted, onUnmounted, nextTick, } from 'vue';
+    import type { NewsDesc, } from '~/types';
 
-export default {
-    props: {
-        currentNewsItem: {
-            type: Object as PropType<NewsDesc>,
-            default: () => ({} as NewsDesc),
+    export default {
+        props: {
+            currentNewsItem: {
+                type: Object as PropType<NewsDesc>,
+                default: () => ({} as NewsDesc),
+            },
         },
-    },
-    setup(props) {
-        const { t, locale } = useI18n({ useScope: 'global' });
-        const videoPlayer = ref<HTMLVideoElement | null>(null);
-        const videoErrors = ref<Set<number>>(new Set());
-        const currentIndex = ref(0);
-        const isPlaying = ref(false);
-        const isFullscreen = ref(false);
-        const showControls = ref(true);
-        const controlsTimeout = ref<number | null>(null);
+        setup(props,) {
+            const { t, locale, } = useI18n({ useScope: 'global', },);
+            const videoPlayer = ref<HTMLVideoElement | null>(null,);
+            const videoErrors = ref<Set<number>>(new Set(),);
+            const currentIndex = ref(0,);
+            const isPlaying = ref(false,);
+            const isFullscreen = ref(false,);
+            const showControls = ref(true,);
+            const controlsTimeout = ref<number | null>(null,);
 
-        const handleVideoError = (index: number) => {
-            videoErrors.value.add(index);
-        };
+            const handleVideoError = (index: number,) => {
+                videoErrors.value.add(index,);
+            };
 
-        const resetVideoErrors = () => {
-            videoErrors.value.clear();
-        };
+            const resetVideoErrors = () => {
+                videoErrors.value.clear();
+            };
 
-        const nextSlide = () => {
-            if (!props.currentNewsItem?.videos) return;
-            pauseCurrentVideo();
-            currentIndex.value = (currentIndex.value + 1) % props.currentNewsItem.videos.length;
-            resetControlsTimer();
-        };
+            const nextSlide = () => {
+                if (!props.currentNewsItem?.videos) return;
+                pauseCurrentVideo();
+                currentIndex.value = (currentIndex.value + 1) % props.currentNewsItem.videos.length;
+                resetControlsTimer();
+            };
 
-        const prevSlide = () => {
-            if (!props.currentNewsItem?.videos) return;
-            pauseCurrentVideo();
-            currentIndex.value = currentIndex.value === 0
-                ? (props.currentNewsItem.videos.length - 1)
-                : currentIndex.value - 1;
-            resetControlsTimer();
-        };
+            const prevSlide = () => {
+                if (!props.currentNewsItem?.videos) return;
+                pauseCurrentVideo();
+                currentIndex.value = currentIndex.value === 0
+                    ? (props.currentNewsItem.videos.length - 1)
+                    : currentIndex.value - 1;
+                resetControlsTimer();
+            };
 
-        const goToSlide = (index: number) => {
-            if (!props.currentNewsItem?.videos) return;
-            pauseCurrentVideo();
-            currentIndex.value = index;
-            resetControlsTimer();
-        };
+            const goToSlide = (index: number,) => {
+                if (!props.currentNewsItem?.videos) return;
+                pauseCurrentVideo();
+                currentIndex.value = index;
+                resetControlsTimer();
+            };
 
-        const pauseCurrentVideo = () => {
-            if (videoPlayer.value && !videoPlayer.value.paused) {
-                videoPlayer.value.pause();
-                isPlaying.value = false;
-            }
-        };
-
-        const togglePlayPause = () => {
-            if (!videoPlayer.value) return;
-
-            if (videoPlayer.value.paused) {
-                videoPlayer.value.play();
-                isPlaying.value = true;
-            } else {
-                videoPlayer.value.pause();
-                isPlaying.value = false;
-            }
-            resetControlsTimer();
-        };
-
-        const toggleFullscreen = () => {
-            const container = document.querySelector('.video-carousel-container');
-            if (!container) return;
-
-            if (!isFullscreen.value) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen();
+            const pauseCurrentVideo = () => {
+                if (videoPlayer.value && !videoPlayer.value.paused) {
+                    videoPlayer.value.pause();
+                    isPlaying.value = false;
                 }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
+            };
+
+            const togglePlayPause = () => {
+                if (!videoPlayer.value) return;
+
+                if (videoPlayer.value.paused) {
+                    videoPlayer.value.play();
+                    isPlaying.value = true;
+                } else {
+                    videoPlayer.value.pause();
+                    isPlaying.value = false;
                 }
-            }
-            resetControlsTimer();
-        };
+                resetControlsTimer();
+            };
 
-        const resetControlsTimer = () => {
-            showControls.value = true;
-            if (controlsTimeout.value) clearTimeout(controlsTimeout.value);
-            controlsTimeout.value = window.setTimeout(() => {
-                showControls.value = false;
-            }, 3000);
-        };
+            const toggleFullscreen = () => {
+                const container = document.querySelector('.video-carousel-container',);
+                if (!container) return;
 
-        const handleFullscreenChange = () => {
-            isFullscreen.value = !!document.fullscreenElement;
-        };
+                if (!isFullscreen.value) {
+                    if (container.requestFullscreen) {
+                        container.requestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    }
+                }
+                resetControlsTimer();
+            };
 
-        onMounted(() => {
-            // videoPlayer ref will be set by template
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            resetControlsTimer();
-        });
+            const resetControlsTimer = () => {
+                showControls.value = true;
+                if (controlsTimeout.value) clearTimeout(controlsTimeout.value,);
+                controlsTimeout.value = window.setTimeout(() => {
+                    showControls.value = false;
+                }, 3000,);
+            };
 
-        onUnmounted(() => {
-            if (controlsTimeout.value) clearTimeout(controlsTimeout.value);
-            document.removeEventListener('fullscreenchange', handleFullscreenChange);
-        });
+            const handleFullscreenChange = () => {
+                isFullscreen.value = !!document.fullscreenElement;
+            };
 
-        return {
-            t,
-            locale,
-            videoPlayer,
-            videoErrors,
-            currentIndex,
-            isPlaying,
-            isFullscreen,
-            showControls,
-            controlsTimeout,
-            handleVideoError,
-            resetVideoErrors,
-            nextSlide,
-            prevSlide,
-            goToSlide,
-            togglePlayPause,
-            toggleFullscreen,
-            resetControlsTimer,
-        };
-    },
-    computed: {
-        videoCount() {
-            return this.currentNewsItem?.videos?.length || 0;
-        },
-        hasMultipleVideos() {
-            return this.videoCount > 1;
-        },
-        currentVideoSrc() {
-            // Keep for backward compatibility (returns MP4 as default)
-            const base = this.getVideoBaseName(this.currentNewsItem?.videos?.[this.currentIndex] || '');
-            return base ? `${this.currentNewsItem.dir}videos/${base}/${base}.mp4` : '';
-        },
-        thumbnailUrls() {
-            if (!this.currentNewsItem?.videos) return [];
-            return this.currentNewsItem.videos.map(video => {
-                const base = this.getVideoBaseName(video);
-                return `${this.currentNewsItem.dir}videos/${base}/${base}.mp4`;
+            onMounted(() => {
+                // videoPlayer ref will be set by template
+                document.addEventListener('fullscreenchange', handleFullscreenChange,);
+                resetControlsTimer();
             });
-        },
-        currentVideoSources() {
-            const video = this.currentNewsItem?.videos?.[this.currentIndex];
-            if (!video) return [];
-            const base = this.getVideoBaseName(video);
-            const dir = this.currentNewsItem.dir;
-            return [
-                {
-                    src: `${dir}videos/${base}/${base}.m3u8`,
-                    type: 'application/vnd.apple.mpegurl',
-                },
-                {
-                    src: `${dir}videos/${base}/${base}.mp4`,
-                    type: 'video/mp4',
-                },
-            ];
-        },
-    },
-    methods: {
-        makeVideoSlideLabel(index: number) {
-            return this.t('news.videoslide') + ' ' + (index + 1);
-        },
 
-        makeVideoName(fileName: string): string {
-            return this.currentNewsItem.dir + fileName;
-        },
+            onUnmounted(() => {
+                if (controlsTimeout.value) clearTimeout(controlsTimeout.value,);
+                document.removeEventListener('fullscreenchange', handleFullscreenChange,);
+            });
 
-        getVideoBaseName(fileName: string): string {
-            if (!fileName) return '';
-            // Remove any known video extensions
-            return fileName.replace(/\.(mp4|m3u8|webm|ogg|mov|avi)$/i, '');
+            return {
+                t,
+                locale,
+                videoPlayer,
+                videoErrors,
+                currentIndex,
+                isPlaying,
+                isFullscreen,
+                showControls,
+                controlsTimeout,
+                handleVideoError,
+                resetVideoErrors,
+                nextSlide,
+                prevSlide,
+                goToSlide,
+                togglePlayPause,
+                toggleFullscreen,
+                resetControlsTimer,
+            };
         },
+        computed: {
+            videoCount() {
+                return this.currentNewsItem?.videos?.length || 0;
+            },
+            hasMultipleVideos() {
+                return this.videoCount > 1;
+            },
+            currentVideoSrc() {
+                // Keep for backward compatibility (returns MP4 as default)
+                const base = this.getVideoBaseName(this.currentNewsItem?.videos?.[this.currentIndex] || '',);
+                return base ? `${this.currentNewsItem.dir}videos/${base}/${base}.mp4` : '';
+            },
+            thumbnailUrls() {
+                if (!this.currentNewsItem?.videos) return [];
+                return this.currentNewsItem.videos.map((video,) => {
+                    const base = this.getVideoBaseName(video,);
+                    return `${this.currentNewsItem.dir}videos/${base}/${base}.mp4`;
+                });
+            },
+            currentVideoSources() {
+                const video = this.currentNewsItem?.videos?.[this.currentIndex];
+                if (!video) return [];
+                const base = this.getVideoBaseName(video,);
+                const dir = this.currentNewsItem.dir;
+                return [
+                    {
+                        src: `${dir}videos/${base}/${base}.m3u8`,
+                        type: 'application/vnd.apple.mpegurl',
+                    },
+                    {
+                        src: `${dir}videos/${base}/${base}.mp4`,
+                        type: 'video/mp4',
+                    },
+                ];
+            },
+        },
+        methods: {
+            makeVideoSlideLabel(index: number,) {
+                return this.t('news.videoslide',) + ' ' + (index + 1);
+            },
 
-        handleVideoPlay() {
-            this.isPlaying = true;
-            this.resetControlsTimer();
-        },
+            makeVideoName(fileName: string,): string {
+                return this.currentNewsItem.dir + fileName;
+            },
 
-        handleVideoPause() {
-            this.isPlaying = false;
-            this.resetControlsTimer();
+            getVideoBaseName(fileName: string,): string {
+                if (!fileName) return '';
+                // Remove any known video extensions
+                return fileName.replace(/\.(mp4|m3u8|webm|ogg|mov|avi)$/i, '',);
+            },
+
+            handleVideoPlay() {
+                this.isPlaying = true;
+                this.resetControlsTimer();
+            },
+
+            handleVideoPause() {
+                this.isPlaying = false;
+                this.resetControlsTimer();
+            },
         },
-    },
-};
+    };
 </script>
 
 <template>
@@ -202,7 +202,10 @@ export default {
     >
         <!-- Main Video Player -->
         <div class="video-main-container">
-            <div v-if="videoErrors.has(currentIndex)" class="video-error-state">
+            <div
+                v-if="videoErrors.has(currentIndex,)"
+                class="video-error-state"
+            >
                 <svg
                     class="w-16 h-16 text-gray-400 mx-auto mb-4"
                     fill="none"
@@ -215,20 +218,23 @@ export default {
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                    ></path>
+                    />
                 </svg>
                 <p class="text-gray-500 dark:text-gray-400 text-center">
                     Video failed to load
                 </p>
             </div>
 
-            <div v-else class="video-wrapper relative">
+            <div
+                v-else
+                class="video-wrapper relative"
+            >
                 <video
                     ref="videoPlayer"
                     :key="currentIndex"
                     class="video-player"
                     controls
-                    @error="() => handleVideoError(currentIndex)"
+                    @error="() => handleVideoError(currentIndex,)"
                     @play="handleVideoPlay"
                     @pause="handleVideoPause"
                 >
@@ -237,13 +243,16 @@ export default {
                         :key="source.src"
                         :src="source.src"
                         :type="source.type"
-                    />
+                    >
                     <p>Your browser does not support the video tag.</p>
                 </video>
 
                 <!-- Custom Controls Overlay -->
                 <transition name="fade">
-                    <div v-if="showControls" class="video-controls-overlay">
+                    <div
+                        v-if="showControls"
+                        class="video-controls-overlay"
+                    >
                         <div class="controls-top">
                             <div class="video-counter">
                                 <span class="counter-current">{{
@@ -254,9 +263,9 @@ export default {
                             </div>
 
                             <button
-                                @click="toggleFullscreen"
                                 class="control-button"
                                 aria-label="Toggle fullscreen"
+                                @click="toggleFullscreen"
                             >
                                 <svg
                                     class="w-6 h-6"
@@ -285,9 +294,9 @@ export default {
                         <div class="controls-center">
                             <button
                                 v-if="hasMultipleVideos"
-                                @click="prevSlide"
                                 class="nav-button prev"
-                                :aria-label="$t('carousel.back')"
+                                :aria-label="$t('carousel.back',)"
+                                @click="prevSlide"
                             >
                                 <svg
                                     class="w-8 h-8"
@@ -305,9 +314,9 @@ export default {
                             </button>
 
                             <button
-                                @click="togglePlayPause"
                                 class="play-pause-button"
                                 :aria-label="isPlaying ? 'Pause' : 'Play'"
+                                @click="togglePlayPause"
                             >
                                 <svg
                                     v-if="!isPlaying"
@@ -347,9 +356,9 @@ export default {
 
                             <button
                                 v-if="hasMultipleVideos"
-                                @click="nextSlide"
                                 class="nav-button next"
-                                :aria-label="$t('carousel.next')"
+                                :aria-label="$t('carousel.next',)"
+                                @click="nextSlide"
                             >
                                 <svg
                                     class="w-8 h-8"
@@ -369,7 +378,7 @@ export default {
 
                         <div class="controls-bottom">
                             <div class="video-title">
-                                {{ makeVideoSlideLabel(currentIndex) }}
+                                {{ makeVideoSlideLabel(currentIndex,) }}
                             </div>
                         </div>
                     </div>
@@ -378,17 +387,23 @@ export default {
         </div>
 
         <!-- Thumbnail Navigation -->
-        <div v-if="hasMultipleVideos" class="video-thumbnails">
+        <div
+            v-if="hasMultipleVideos"
+            class="video-thumbnails"
+        >
             <div
                 v-for="(thumbnail, index) in thumbnailUrls"
                 :key="index"
                 class="thumbnail-item"
-                :class="{ active: index === currentIndex }"
-                @click="goToSlide(index)"
+                :class="{ active: index === currentIndex, }"
+                @click="goToSlide(index,)"
                 @mouseenter="resetControlsTimer"
             >
                 <div class="thumbnail-image-container">
-                    <div v-if="videoErrors.has(index)" class="thumbnail-error">
+                    <div
+                        v-if="videoErrors.has(index,)"
+                        class="thumbnail-error"
+                    >
                         <svg
                             class="w-6 h-6"
                             fill="none"
@@ -412,7 +427,7 @@ export default {
                             playsinline
                             disablePictureInPicture
                             disableRemotePlayback
-                            @error="() => handleVideoError(index)"
+                            @error="() => handleVideoError(index,)"
                         />
                         <div class="thumbnail-play-overlay">
                             <svg
@@ -438,14 +453,17 @@ export default {
         </div>
 
         <!-- Dot Indicators (Mobile) -->
-        <div v-if="hasMultipleVideos" class="video-dots">
+        <div
+            v-if="hasMultipleVideos"
+            class="video-dots"
+        >
             <button
                 v-for="index in videoCount"
                 :key="index"
                 class="dot"
-                :class="{ active: index - 1 === currentIndex }"
-                @click="goToSlide(index - 1)"
-                :aria-label="makeVideoSlideLabel(index - 1)"
+                :class="{ active: index - 1 === currentIndex, }"
+                :aria-label="makeVideoSlideLabel(index - 1,)"
+                @click="goToSlide(index - 1,)"
             />
         </div>
     </div>

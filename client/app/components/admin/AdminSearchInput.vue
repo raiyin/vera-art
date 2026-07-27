@@ -1,5 +1,8 @@
 <template>
-    <div class="admin-search" :class="{ 'admin-search--dark': isDark }">
+    <div
+        class="admin-search"
+        :class="{ 'admin-search--dark': isDark, }"
+    >
         <svg
             class="admin-search__icon"
             viewBox="0 0 24 24"
@@ -9,8 +12,17 @@
             width="16"
             height="16"
         >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            <circle
+                cx="11"
+                cy="11"
+                r="8"
+            />
+            <line
+                x1="21"
+                y1="21"
+                x2="16.65"
+                y2="16.65"
+            />
         </svg>
         <input
             :value="modelValue"
@@ -19,8 +31,12 @@
             :placeholder="placeholder"
             @input="onInput"
             @keydown.esc="onClear"
-        />
-        <button v-if="modelValue" class="admin-search__clear" @click="onClear">
+        >
+        <button
+            v-if="modelValue"
+            class="admin-search__clear"
+            @click="onClear"
+        >
             <svg
                 viewBox="0 0 24 24"
                 fill="none"
@@ -29,21 +45,31 @@
                 width="14"
                 height="14"
             >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <line
+                    x1="18"
+                    y1="6"
+                    x2="6"
+                    y2="18"
+                />
+                <line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"
+                />
             </svg>
         </button>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        modelValue: string;
-        placeholder?: string;
-        isDark?: boolean;
+        modelValue: string
+        placeholder?: string
+        isDark?: boolean
     }>(),
     {
         placeholder: 'Поиск...',
@@ -52,21 +78,21 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-    'update:modelValue': [value: string];
+    'update:modelValue': [value: string,]
 }>();
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-function onInput(e: Event) {
+function onInput(e: Event,) {
     const val = (e.target as HTMLInputElement).value;
-    if (debounceTimer) clearTimeout(debounceTimer);
+    if (debounceTimer) clearTimeout(debounceTimer,);
     debounceTimer = setTimeout(() => {
-        emit('update:modelValue', val);
-    }, 300);
+        emit('update:modelValue', val,);
+    }, 300,);
 }
 
 function onClear() {
-    emit('update:modelValue', '');
+    emit('update:modelValue', '',);
 }
 </script>
 

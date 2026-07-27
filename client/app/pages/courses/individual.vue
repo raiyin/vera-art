@@ -1,170 +1,174 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+    import { ref, } from 'vue';
 
-interface LessonFormat {
-    id: number;
-    title: string;
-    description: string;
-    duration: string;
-    price: number;
-    features: string[];
-    icon: string;
-    color: string;
-}
+    interface LessonFormat {
+        id: number
+        title: string
+        description: string
+        duration: string
+        price: number
+        features: string[]
+        icon: string
+        color: string
+    }
 
-interface Instructor {
-    id: number;
-    name: string;
-    specialization: string;
-    experience: string;
-    avatar: string;
-    rating: number;
-}
+    interface Instructor {
+        id: number
+        name: string
+        specialization: string
+        experience: string
+        avatar: string
+        rating: number
+    }
 
-const lessonFormats = ref<LessonFormat[]>([
-    {
-        id: 1,
-        title: 'Разовое занятие',
-        description:
-            'Идеально для тех, кто хочет попробовать или решить конкретную задачу',
-        duration: '2 часа',
-        price: 3000,
-        features: [
-            'Индивидуальный подход',
-            'Анализ текущего уровня',
-            'Практическое задание',
-            'Обратная связь по работе',
-            'Рекомендации по материалам',
-        ],
-        icon: 'i-heroicons-calendar',
-        color: 'blue',
-    },
-    {
-        id: 2,
-        title: 'Пакет из 4 занятий',
-        description: 'Базовый курс для освоения новой техники или темы',
-        duration: '2 часа каждое',
-        price: 10000,
-        features: [
-            'Программа из 4 последовательных уроков',
-            'Домашние задания с проверкой',
-            'Постоянная поддержка в чате',
-            'Анализ прогресса',
-            'Сертификат о прохождении',
-        ],
-        icon: 'i-heroicons-academic-cap',
-        color: 'green',
-    },
-    {
-        id: 3,
-        title: 'Интенсивный курс',
-        description: 'Глубокое погружение в тему с быстрым результатом',
-        duration: '8 занятий по 3 часа',
-        price: 22000,
-        features: [
-            'Индивидуальная программа',
-            'Ежедневная практика',
-            'Работа над персональным проектом',
-            'Видеозапись всех занятий',
-            'Портфолио по окончании',
-        ],
-        icon: 'i-heroicons-rocket-launch',
-        color: 'purple',
-    },
-]);
+    const lessonFormats = ref<LessonFormat[]>([
+        {
+            id: 1,
+            title: 'Разовое занятие',
+            description:
+                'Идеально для тех, кто хочет попробовать или решить конкретную задачу',
+            duration: '2 часа',
+            price: 3000,
+            features: [
+                'Индивидуальный подход',
+                'Анализ текущего уровня',
+                'Практическое задание',
+                'Обратная связь по работе',
+                'Рекомендации по материалам',
+            ],
+            icon: 'i-heroicons-calendar',
+            color: 'blue',
+        },
+        {
+            id: 2,
+            title: 'Пакет из 4 занятий',
+            description: 'Базовый курс для освоения новой техники или темы',
+            duration: '2 часа каждое',
+            price: 10000,
+            features: [
+                'Программа из 4 последовательных уроков',
+                'Домашние задания с проверкой',
+                'Постоянная поддержка в чате',
+                'Анализ прогресса',
+                'Сертификат о прохождении',
+            ],
+            icon: 'i-heroicons-academic-cap',
+            color: 'green',
+        },
+        {
+            id: 3,
+            title: 'Интенсивный курс',
+            description: 'Глубокое погружение в тему с быстрым результатом',
+            duration: '8 занятий по 3 часа',
+            price: 22000,
+            features: [
+                'Индивидуальная программа',
+                'Ежедневная практика',
+                'Работа над персональным проектом',
+                'Видеозапись всех занятий',
+                'Портфолио по окончании',
+            ],
+            icon: 'i-heroicons-rocket-launch',
+            color: 'purple',
+        },
+    ]);
 
-const instructors = ref<Instructor[]>([
-    {
-        id: 1,
-        name: 'Анна Петрова',
-        specialization: 'Акварель, ботаническая иллюстрация',
-        experience: '12 лет преподавания',
-        avatar: '/images/instructors/anna.jpg',
-        rating: 4.9,
-    },
-    {
-        id: 2,
-        name: 'Иван Смирнов',
-        specialization: 'Масляная живопись, портрет',
-        experience: '15 лет в академической живописи',
-        avatar: '/images/instructors/ivan.jpg',
-        rating: 4.8,
-    },
-    {
-        id: 3,
-        name: 'Мария Козлова',
-        specialization: 'Цифровая иллюстрация, скетчинг',
-        experience: '8 лет в индустрии дизайна',
-        avatar: '/images/instructors/maria.jpg',
-        rating: 4.7,
-    },
-    {
-        id: 4,
-        name: 'Сергей Волков',
-        specialization: 'Академический рисунок, анатомия',
-        experience: '20 лет преподавания в художественной школе',
-        avatar: '/images/instructors/sergey.jpg',
-        rating: 5.0,
-    },
-]);
+    const instructors = ref<Instructor[]>([
+        {
+            id: 1,
+            name: 'Анна Петрова',
+            specialization: 'Акварель, ботаническая иллюстрация',
+            experience: '12 лет преподавания',
+            avatar: '/images/instructors/anna.jpg',
+            rating: 4.9,
+        },
+        {
+            id: 2,
+            name: 'Иван Смирнов',
+            specialization: 'Масляная живопись, портрет',
+            experience: '15 лет в академической живописи',
+            avatar: '/images/instructors/ivan.jpg',
+            rating: 4.8,
+        },
+        {
+            id: 3,
+            name: 'Мария Козлова',
+            specialization: 'Цифровая иллюстрация, скетчинг',
+            experience: '8 лет в индустрии дизайна',
+            avatar: '/images/instructors/maria.jpg',
+            rating: 4.7,
+        },
+        {
+            id: 4,
+            name: 'Сергей Волков',
+            specialization: 'Академический рисунок, анатомия',
+            experience: '20 лет преподавания в художественной школе',
+            avatar: '/images/instructors/sergey.jpg',
+            rating: 5.0,
+        },
+    ]);
 
-const processSteps = ref([
-    {
-        number: '01',
-        title: 'Консультация',
-        description:
-            'Мы обсуждаем ваши цели, текущий уровень и предпочтения. Определяем направление и формат занятий.',
-    },
-    {
-        number: '02',
-        title: 'Составление программы',
-        description:
-            'Преподаватель разрабатывает индивидуальную программу, учитывающую ваши задачи и сроки.',
-    },
-    {
-        number: '03',
-        title: 'Первое занятие',
-        description:
-            'Знакомство с материалами, базовые упражнения, определение точек роста и дальнейшего плана.',
-    },
-    {
-        number: '04',
-        title: 'Регулярные занятия',
-        description:
-            'Систематическое обучение с домашними заданиями, обратной связью и корректировкой программы.',
-    },
-    {
-        number: '05',
-        title: 'Итоговый проект',
-        description:
-            'Создание завершенной работы, демонстрирующей приобретенные навыки и художественный рост.',
-    },
-    {
-        number: '06',
-        title: 'Дальнейшее развитие',
-        description:
-            'Рекомендации по самостоятельной практике, участие в выставках или продолжение обучения.',
-    },
-]);
+    const processSteps = ref([
+        {
+            number: '01',
+            title: 'Консультация',
+            description:
+                'Мы обсуждаем ваши цели, текущий уровень и предпочтения. Определяем направление и формат занятий.',
+        },
+        {
+            number: '02',
+            title: 'Составление программы',
+            description:
+                'Преподаватель разрабатывает индивидуальную программу, учитывающую ваши задачи и сроки.',
+        },
+        {
+            number: '03',
+            title: 'Первое занятие',
+            description:
+                'Знакомство с материалами, базовые упражнения, определение точек роста и дальнейшего плана.',
+        },
+        {
+            number: '04',
+            title: 'Регулярные занятия',
+            description:
+                'Систематическое обучение с домашними заданиями, обратной связью и корректировкой программы.',
+        },
+        {
+            number: '05',
+            title: 'Итоговый проект',
+            description:
+                'Создание завершенной работы, демонстрирующей приобретенные навыки и художественный рост.',
+        },
+        {
+            number: '06',
+            title: 'Дальнейшее развитие',
+            description:
+                'Рекомендации по самостоятельной практике, участие в выставках или продолжение обучения.',
+        },
+    ]);
 
-const selectedFormat = ref<LessonFormat | null>(null);
-const selectedInstructor = ref<Instructor | null>(null);
+    const selectedFormat = ref<LessonFormat | null>(null,);
+    const selectedInstructor = ref<Instructor | null>(null,);
 
-const selectFormat = (format: LessonFormat) => {
-    selectedFormat.value = format;
-};
+    const selectFormat = (format: LessonFormat,) => {
+        selectedFormat.value = format;
+    };
 
-const selectInstructor = (instructor: Instructor) => {
-    selectedInstructor.value = instructor;
-};
+    const selectInstructor = (instructor: Instructor,) => {
+        selectedInstructor.value = instructor;
+    };
 </script>
 
 <template>
     <UContainer class="py-8 md:py-12">
         <!-- Breadcrumb -->
         <UBreadcrumb class="mb-8">
-            <UBreadcrumbItem to="/">Главная</UBreadcrumbItem>
-            <UBreadcrumbItem to="/services">Услуги</UBreadcrumbItem>
+            <UBreadcrumbItem to="/">
+                Главная
+            </UBreadcrumbItem>
+            <UBreadcrumbItem to="/services">
+                Услуги
+            </UBreadcrumbItem>
             <UBreadcrumbItem>Индивидуальные занятия</UBreadcrumbItem>
         </UBreadcrumb>
 
@@ -187,7 +191,10 @@ const selectInstructor = (instructor: Instructor) => {
                         size="lg"
                         class="font-semibold bg-white text-emerald-600 hover:bg-gray-100"
                     >
-                        <UIcon name="i-heroicons-calendar" class="mr-2" />
+                        <UIcon
+                            name="i-heroicons-calendar"
+                            class="mr-2"
+                        />
                         Записаться на пробный урок
                     </UButton>
                     <UButton
@@ -195,13 +202,16 @@ const selectInstructor = (instructor: Instructor) => {
                         size="lg"
                         class="font-semibold text-white border-white hover:bg-white/10"
                     >
-                        <UIcon name="i-heroicons-chat-bubble-left-right" class="mr-2" />
+                        <UIcon
+                            name="i-heroicons-chat-bubble-left-right"
+                            class="mr-2"
+                        />
                         Бесплатная консультация
                     </UButton>
                 </div>
             </div>
             <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-20">
-                <div class="h-full bg-linear-to-l from-white to-transparent"></div>
+                <div class="h-full bg-linear-to-l from-white to-transparent" />
             </div>
         </div>
 
@@ -236,7 +246,9 @@ const selectInstructor = (instructor: Instructor) => {
                             {{ step.title }}
                         </h3>
                     </div>
-                    <p class="text-gray-600">{{ step.description }}</p>
+                    <p class="text-gray-600">
+                        {{ step.description }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -244,7 +256,9 @@ const selectInstructor = (instructor: Instructor) => {
         <!-- Lesson Formats -->
         <div class="mb-16">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Форматы занятий</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    Форматы занятий
+                </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
                     Выберите подходящий формат в зависимости от ваших целей, доступного
                     времени и бюджета.
@@ -260,8 +274,8 @@ const selectInstructor = (instructor: Instructor) => {
                     <div class="p-8">
                         <div class="flex items-center mb-6">
                             <div
-                                class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4"
                                 v-if="format.color === 'blue'"
+                                class="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mr-4"
                             >
                                 <UIcon
                                     :name="format.icon"
@@ -269,8 +283,8 @@ const selectInstructor = (instructor: Instructor) => {
                                 />
                             </div>
                             <div
-                                class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4"
                                 v-else-if="format.color === 'green'"
+                                class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-4"
                             >
                                 <UIcon
                                     :name="format.icon"
@@ -278,8 +292,8 @@ const selectInstructor = (instructor: Instructor) => {
                                 />
                             </div>
                             <div
-                                class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mr-4"
                                 v-else
+                                class="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mr-4"
                             >
                                 <UIcon
                                     :name="format.icon"
@@ -290,11 +304,15 @@ const selectInstructor = (instructor: Instructor) => {
                                 <h3 class="text-2xl font-bold text-gray-900">
                                     {{ format.title }}
                                 </h3>
-                                <p class="text-gray-600">{{ format.duration }}</p>
+                                <p class="text-gray-600">
+                                    {{ format.duration }}
+                                </p>
                             </div>
                         </div>
 
-                        <p class="text-gray-700 mb-6">{{ format.description }}</p>
+                        <p class="text-gray-700 mb-6">
+                            {{ format.description }}
+                        </p>
 
                         <div class="mb-6">
                             <h4 class="font-semibold text-gray-900 mb-3">
@@ -317,7 +335,7 @@ const selectInstructor = (instructor: Instructor) => {
 
                         <div class="mb-6">
                             <div class="text-3xl font-bold text-gray-900">
-                                {{ format.price.toLocaleString('ru-RU') }} ₽
+                                {{ format.price.toLocaleString('ru-RU',) }} ₽
                             </div>
                             <div class="text-gray-500">
                                 за {{ format.id === 1 ? 'занятие' : 'пакет' }}
@@ -328,7 +346,7 @@ const selectInstructor = (instructor: Instructor) => {
                             color="primary"
                             variant="solid"
                             class="w-full"
-                            @click="selectFormat(format)"
+                            @click="selectFormat(format,)"
                         >
                             Выбрать этот формат
                         </UButton>
@@ -340,7 +358,9 @@ const selectInstructor = (instructor: Instructor) => {
         <!-- Instructors -->
         <div class="mb-16">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Наши преподаватели</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    Наши преподаватели
+                </h2>
                 <p class="text-xl text-gray-600 max-w-3xl mx-auto">
                     Опытные художники-педагоги с академическим образованием и многолетним
                     стажем преподавания.
@@ -383,23 +403,30 @@ const selectInstructor = (instructor: Instructor) => {
                             <div class="text-sm font-semibold text-gray-700 mb-1">
                                 Специализация:
                             </div>
-                            <p class="text-gray-600">{{ instructor.specialization }}</p>
+                            <p class="text-gray-600">
+                                {{ instructor.specialization }}
+                            </p>
                         </div>
 
                         <div class="mb-6">
                             <div class="text-sm font-semibold text-gray-700 mb-1">
                                 Опыт:
                             </div>
-                            <p class="text-gray-600">{{ instructor.experience }}</p>
+                            <p class="text-gray-600">
+                                {{ instructor.experience }}
+                            </p>
                         </div>
 
                         <UButton
                             color="neutral"
                             variant="outline"
                             class="w-full"
-                            @click="selectInstructor(instructor)"
+                            @click="selectInstructor(instructor,)"
                         >
-                            <UIcon name="i-heroicons-eye" class="mr-2" />
+                            <UIcon
+                                name="i-heroicons-eye"
+                                class="mr-2"
+                            />
                             Посмотреть работы
                         </UButton>
                     </div>
@@ -420,7 +447,10 @@ const selectInstructor = (instructor: Instructor) => {
                         <div
                             class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center mr-4 shrink-0"
                         >
-                            <UIcon name="i-heroicons-paint-brush" class="text-blue-600" />
+                            <UIcon
+                                name="i-heroicons-paint-brush"
+                                class="text-blue-600"
+                            />
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
@@ -436,7 +466,10 @@ const selectInstructor = (instructor: Instructor) => {
                         <div
                             class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-4 shrink-0"
                         >
-                            <UIcon name="i-heroicons-light-bulb" class="text-green-600" />
+                            <UIcon
+                                name="i-heroicons-light-bulb"
+                                class="text-green-600"
+                            />
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
@@ -473,7 +506,10 @@ const selectInstructor = (instructor: Instructor) => {
                         <div
                             class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center mr-4 shrink-0"
                         >
-                            <UIcon name="i-heroicons-chart-bar" class="text-amber-600" />
+                            <UIcon
+                                name="i-heroicons-chart-bar"
+                                class="text-amber-600"
+                            />
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
@@ -489,7 +525,10 @@ const selectInstructor = (instructor: Instructor) => {
                         <div
                             class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-4 shrink-0"
                         >
-                            <UIcon name="i-heroicons-briefcase" class="text-red-600" />
+                            <UIcon
+                                name="i-heroicons-briefcase"
+                                class="text-red-600"
+                            />
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
@@ -505,7 +544,10 @@ const selectInstructor = (instructor: Instructor) => {
                         <div
                             class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center mr-4 shrink-0"
                         >
-                            <UIcon name="i-heroicons-heart" class="text-indigo-600" />
+                            <UIcon
+                                name="i-heroicons-heart"
+                                class="text-indigo-600"
+                            />
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900 mb-2">
@@ -574,7 +616,9 @@ const selectInstructor = (instructor: Instructor) => {
         <!-- CTA -->
         <div class="text-center">
             <div class="max-w-2xl mx-auto">
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Готовы начать?</h2>
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                    Готовы начать?
+                </h2>
                 <p class="text-xl text-gray-600 mb-8">
                     Запишитесь на бесплатную консультацию, чтобы обсудить ваши цели и
                     составить индивидуальную программу обучения.
@@ -586,7 +630,10 @@ const selectInstructor = (instructor: Instructor) => {
                         size="xl"
                         class="font-bold px-8 py-4"
                     >
-                        <UIcon name="i-heroicons-calendar" class="mr-3 text-2xl" />
+                        <UIcon
+                            name="i-heroicons-calendar"
+                            class="mr-3 text-2xl"
+                        />
                         Записаться на консультацию
                     </UButton>
                     <UButton
@@ -595,7 +642,10 @@ const selectInstructor = (instructor: Instructor) => {
                         size="xl"
                         class="font-bold px-8 py-4"
                     >
-                        <UIcon name="i-heroicons-phone" class="mr-3 text-2xl" />
+                        <UIcon
+                            name="i-heroicons-phone"
+                            class="mr-3 text-2xl"
+                        />
                         Позвонить нам
                     </UButton>
                 </div>

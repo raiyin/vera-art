@@ -1,26 +1,42 @@
 <template>
     <div class="my-courses-page">
         <div class="container">
-            <h1 class="page-title">Мои курсы</h1>
+            <h1 class="page-title">
+                Мои курсы
+            </h1>
 
-            <div v-if="loading" class="loading">
+            <div
+                v-if="loading"
+                class="loading"
+            >
                 <p>Загрузка...</p>
             </div>
 
-            <div v-else-if="courses.length === 0" class="empty-courses">
+            <div
+                v-else-if="courses.length === 0"
+                class="empty-courses"
+            >
                 <p>У вас пока нет активных курсов.</p>
-                <NuxtLink to="/courses" class="btn btn-primary"
-                    >Перейти к каталогу</NuxtLink
-                >
+                <NuxtLink
+                    to="/courses"
+                    class="btn btn-primary"
+                >Перейти к каталогу</NuxtLink>
             </div>
 
-            <div v-else class="courses-grid">
-                <div v-for="course in courses" :key="course.id" class="course-card">
+            <div
+                v-else
+                class="courses-grid"
+            >
+                <div
+                    v-for="course in courses"
+                    :key="course.id"
+                    class="course-card"
+                >
                     <div class="course-image">
                         <img
                             :src="course.thumbnail_url || '/placeholder.jpg'"
                             :alt="course.title_ru"
-                        />
+                        >
                     </div>
                     <div class="course-info">
                         <h3>{{ course.title_ru }}</h3>
@@ -36,8 +52,8 @@
                         <div class="progress-bar">
                             <div
                                 class="progress-fill"
-                                :style="{ width: course.progress_percentage + '%' }"
-                            ></div>
+                                :style="{ width: course.progress_percentage + '%', }"
+                            />
                         </div>
                         <div class="course-actions">
                             <NuxtLink
@@ -61,50 +77,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+    import { ref, onMounted, } from 'vue';
 
-interface Course {
-    id: number;
-    title_ru: string;
-    type: 'course' | 'masterclass';
-    thumbnail_url?: string;
-    total_lessons: number;
-    completed_lessons: number;
-    progress_percentage: number;
-    purchase_id: number;
-}
-
-const courses = ref<Course[]>([]);
-const loading = ref(true);
-
-onMounted(async () => {
-    await loadCourses();
-});
-
-async function loadCourses() {
-    try {
-        const response = (await $fetch('/api/learning/my-courses')) as any;
-        courses.value = response.map((item: any) => ({
-            id: item.product.id,
-            title_ru: item.product.title_ru,
-            type: item.product.type,
-            thumbnail_url: item.product.thumbnail_url,
-            total_lessons: item.product.total_lessons,
-            completed_lessons: item.completed_lessons || 0,
-            progress_percentage:
-                item.total_lessons > 0
-                    ? Math.round(
-                          ((item.completed_lessons || 0) / item.total_lessons) * 100
-                      )
-                    : 0,
-            purchase_id: item.purchase_id,
-        }));
-    } catch (error) {
-        console.error('Ошибка загрузки курсов', error);
-    } finally {
-        loading.value = false;
+    interface Course {
+        id: number
+        title_ru: string
+        type: 'course' | 'masterclass'
+        thumbnail_url?: string
+        total_lessons: number
+        completed_lessons: number
+        progress_percentage: number
+        purchase_id: number
     }
-}
+
+    const courses = ref<Course[]>([],);
+    const loading = ref(true,);
+
+    onMounted(async () => {
+        await loadCourses();
+    });
+
+    async function loadCourses() {
+        try {
+            const response = (await $fetch('/api/learning/my-courses',)) as any;
+            courses.value = response.map((item: any,) => ({
+                id: item.product.id,
+                title_ru: item.product.title_ru,
+                type: item.product.type,
+                thumbnail_url: item.product.thumbnail_url,
+                total_lessons: item.product.total_lessons,
+                completed_lessons: item.completed_lessons || 0,
+                progress_percentage:
+                    item.total_lessons > 0
+                        ? Math.round(
+                            ((item.completed_lessons || 0) / item.total_lessons) * 100,
+                        )
+                        : 0,
+                purchase_id: item.purchase_id,
+            }),);
+        } catch (error) {
+            console.error('Ошибка загрузки курсов', error,);
+        } finally {
+            loading.value = false;
+        }
+    }
 </script>
 
 <style scoped>

@@ -3,7 +3,9 @@
         <!-- Hero Section -->
         <section class="courses-hero">
             <div class="courses-hero__container">
-                <h1 class="courses-hero__title">Онлайн-курсы по живописи и рисунку</h1>
+                <h1 class="courses-hero__title">
+                    Онлайн-курсы по живописи и рисунку
+                </h1>
                 <p class="courses-hero__subtitle">
                     Профессиональное обучение от ведущих художников. Изучайте в удобном
                     темпе с поддержкой преподавателя.
@@ -28,7 +30,9 @@
         <!-- Categories Filter -->
         <section class="courses-categories">
             <div class="courses-categories__container">
-                <h2 class="courses-categories__title">Категории курсов</h2>
+                <h2 class="courses-categories__title">
+                    Категории курсов
+                </h2>
                 <div class="courses-categories__list">
                     <button
                         v-for="category in categories"
@@ -38,13 +42,13 @@
                             'courses-categories__item--active':
                                 activeCategoryId === category.id,
                         }"
-                        @click="setActiveCategory(category.id)"
+                        @click="setActiveCategory(category.id,)"
                     >
                         <span class="courses-categories__item-name">{{
                             category.name_ru
                         }}</span>
                         <span class="courses-categories__item-count">{{
-                            getProductCountByCategory(category.id)
+                            getProductCountByCategory(category.id,)
                         }}</span>
                     </button>
                     <button
@@ -52,7 +56,7 @@
                         :class="{
                             'courses-categories__item--active': activeCategoryId === null,
                         }"
-                        @click="setActiveCategory(null)"
+                        @click="setActiveCategory(null,)"
                     >
                         <span class="courses-categories__item-name">Все курсы</span>
                         <span class="courses-categories__item-count">{{
@@ -67,36 +71,59 @@
         <section class="courses-grid">
             <div class="courses-grid__container">
                 <div class="courses-grid__header">
-                    <h2 class="courses-grid__title">{{ activeCategoryName }} курсы</h2>
+                    <h2 class="courses-grid__title">
+                        {{ activeCategoryName }} курсы
+                    </h2>
                     <div class="courses-grid__controls">
-                        <select v-model="sortBy" class="courses-grid__sort">
-                            <option value="created_at">По новизне</option>
-                            <option value="price">По цене</option>
-                            <option value="name">По названию</option>
+                        <select
+                            v-model="sortBy"
+                            class="courses-grid__sort"
+                        >
+                            <option value="created_at">
+                                По новизне
+                            </option>
+                            <option value="price">
+                                По цене
+                            </option>
+                            <option value="name">
+                                По названию
+                            </option>
                         </select>
-                        <select v-model="sortOrder" class="courses-grid__sort">
-                            <option value="desc">По убыванию</option>
-                            <option value="asc">По возрастанию</option>
+                        <select
+                            v-model="sortOrder"
+                            class="courses-grid__sort"
+                        >
+                            <option value="desc">
+                                По убыванию
+                            </option>
+                            <option value="asc">
+                                По возрастанию
+                            </option>
                         </select>
                     </div>
                 </div>
 
                 <ProductList
                     :products="filteredProducts"
-                    :isLoading="isLoading"
+                    :is-loading="isLoading"
                     :error="error"
                     :columns="3"
+                    class="courses-grid__list"
                     @select="handleProductSelect"
                     @retry="fetchData"
-                    class="courses-grid__list"
                 />
 
                 <div
                     v-if="!isLoading && filteredProducts.length === 0"
                     class="courses-empty"
                 >
-                    <p class="courses-empty__message">Курсы не найдены</p>
-                    <button @click="resetFilters" class="courses-empty__button">
+                    <p class="courses-empty__message">
+                        Курсы не найдены
+                    </p>
+                    <button
+                        class="courses-empty__button"
+                        @click="resetFilters"
+                    >
                         Сбросить фильтры
                     </button>
                 </div>
@@ -106,7 +133,9 @@
         <!-- FAQ Section -->
         <section class="courses-faq">
             <div class="courses-faq__container">
-                <h2 class="courses-faq__title">Частые вопросы</h2>
+                <h2 class="courses-faq__title">
+                    Частые вопросы
+                </h2>
                 <div class="courses-faq__list">
                     <div class="courses-faq__item">
                         <h3 class="courses-faq__question">
@@ -136,7 +165,9 @@
                         </p>
                     </div>
                     <div class="courses-faq__item">
-                        <h3 class="courses-faq__question">Как происходит оплата?</h3>
+                        <h3 class="courses-faq__question">
+                            Как происходит оплата?
+                        </h3>
                         <p class="courses-faq__answer">
                             Оплатить курс можно банковской картой, через PayPal или
                             Яндекс.Кассу. Доступ открывается мгновенно после оплаты.
@@ -149,48 +180,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useProductStore } from '~/stores/ProductStore';
+import { ref, computed, onMounted, } from 'vue';
+import { useProductStore, } from '~/stores/ProductStore';
 import ProductList from '~/components/ProductList.vue';
-import type { Product } from '~/stores/ProductStore';
+import type { Product, } from '~/stores/ProductStore';
 
 const productStore = useProductStore();
 
 // State
-const activeCategoryId = ref<number | null>(null);
-const sortBy = ref<'created_at' | 'price' | 'name'>('created_at');
-const sortOrder = ref<'asc' | 'desc'>('desc');
+const activeCategoryId = ref<number | null>(null,);
+const sortBy = ref<'created_at' | 'price' | 'name'>('created_at',);
+const sortOrder = ref<'asc' | 'desc'>('desc',);
 
 // Computed
-const categories = computed(() => productStore.activeCategories);
-const products = computed(() => productStore.publishedProducts);
-const isLoading = computed(() => productStore.isLoading);
-const error = computed(() => productStore.error);
+const categories = computed(() => productStore.activeCategories,);
+const products = computed(() => productStore.publishedProducts,);
+const isLoading = computed(() => productStore.isLoading,);
+const error = computed(() => productStore.error,);
 
 const totalCourses = computed(() => {
-    return products.value.filter((p) => p.type === 'course').length;
+    return products.value.filter(p => p.type === 'course',).length;
 });
 
 const totalLessons = computed(() => {
-    return products.value.reduce((sum, product) => sum + product.total_lessons, 0);
+    return products.value.reduce((sum, product,) => sum + product.total_lessons, 0,);
 });
 
 const activeCategoryName = computed(() => {
     if (activeCategoryId.value === null) return 'Все';
-    const category = categories.value.find((c) => c.id === activeCategoryId.value);
+    const category = categories.value.find(c => c.id === activeCategoryId.value,);
     return category?.name_ru || 'Все';
 });
 
 const filteredProducts = computed(() => {
-    let filtered = products.value.filter((p) => p.type === 'course');
+    let filtered = products.value.filter(p => p.type === 'course',);
 
     // Filter by category
     if (activeCategoryId.value !== null) {
-        filtered = filtered.filter((p) => p.category_id === activeCategoryId.value);
+        filtered = filtered.filter(p => p.category_id === activeCategoryId.value,);
     }
 
     // Sort
-    filtered = [...filtered].sort((a, b) => {
+    filtered = [...filtered,].sort((a, b,) => {
         let aValue: any, bValue: any;
 
         if (sortBy.value === 'price') {
@@ -200,8 +231,8 @@ const filteredProducts = computed(() => {
             aValue = a.name_ru || a.name_en;
             bValue = b.name_ru || b.name_en;
         } else {
-            aValue = new Date(a.created_at).getTime();
-            bValue = new Date(b.created_at).getTime();
+            aValue = new Date(a.created_at,).getTime();
+            bValue = new Date(b.created_at,).getTime();
         }
 
         if (sortOrder.value === 'asc') {
@@ -215,19 +246,19 @@ const filteredProducts = computed(() => {
 });
 
 // Methods
-const getProductCountByCategory = (categoryId: number) => {
+const getProductCountByCategory = (categoryId: number,) => {
     return products.value.filter(
-        (p) => p.category_id === categoryId && p.type === 'course'
-    ).length;
+        (p,) => p.category_id === categoryId && p.type === 'course',
+        ).length;
 };
 
-const setActiveCategory = (categoryId: number | null) => {
+const setActiveCategory = (categoryId: number | null,) => {
     activeCategoryId.value = categoryId;
 };
 
-const handleProductSelect = (product: Product) => {
+const handleProductSelect = (product: Product,) => {
     // Navigate to product detail page
-    console.log('Selected product:', product);
+    console.log('Selected product:', product,);
     // In a real app: router.push(`/courses/${product.slug}`)
 };
 
@@ -247,7 +278,7 @@ const fetchData = async () => {
             }),
         ]);
     } catch (err) {
-        console.error('Failed to fetch data:', err);
+        console.error('Failed to fetch data:', err,);
     }
 };
 
@@ -260,12 +291,16 @@ onMounted(() => {
 <style scoped>
 .courses-page {
     min-height: 100vh;
-    background: var(--color-background);
+    background: var(--color-surface, #f8f9fa);
+}
+
+.body_theme_dark .courses-page {
+    background: var(--color-surface, #1a1a1a);
 }
 
 /* Hero Section */
 .courses-hero {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4B9E90 0%, #73D1BE 100%);
     color: white;
     padding: 80px 20px;
     text-align: center;
@@ -319,6 +354,10 @@ onMounted(() => {
 .courses-categories {
     padding: 60px 20px;
     background: #f8f9fa;
+}
+
+.body_theme_dark .courses-categories {
+    background: var(--color-surface, #1a1a1a);
 }
 
 .courses-categories__container {
@@ -461,6 +500,10 @@ onMounted(() => {
 .courses-faq {
     padding: 60px 20px;
     background: #f8f9fa;
+}
+
+.body_theme_dark .courses-faq {
+    background: var(--color-surface, #1a1a1a);
 }
 
 .courses-faq__container {

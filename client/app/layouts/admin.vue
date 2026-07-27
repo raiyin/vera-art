@@ -1,5 +1,8 @@
 <template>
-    <div class="admin-layout" :class="{ 'admin-layout--dark': isDark && mounted }">
+    <div
+        class="admin-layout"
+        :class="{ 'admin-layout--dark': isDark && mounted, }"
+    >
         <!-- Mobile overlay -->
         <div
             v-if="sidebarOpen"
@@ -26,7 +29,10 @@
 
             <!-- Page content — use route.fullPath as key to force re-render on navigation -->
             <main class="admin-layout__content">
-                <div class="admin-layout__page" :key="route.fullPath">
+                <div
+                    :key="route.fullPath"
+                    class="admin-layout__page"
+                >
                     <slot />
                 </div>
             </main>
@@ -35,16 +41,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { useThemeStore } from '~/stores/ThemeStore';
+import { ref, computed, watch, onMounted, } from 'vue';
+import { useRoute, } from 'vue-router';
+import { useThemeStore, } from '~/stores/ThemeStore';
 
 const themeStore = useThemeStore();
 const route = useRoute();
-const sidebarOpen = ref(false);
-const mounted = ref(false);
+const sidebarOpen = ref(false,);
+const mounted = ref(false,);
 
-const isDark = computed(() => themeStore.theme === 'dark');
+const isDark = computed(() => themeStore.theme === 'dark',);
 
 onMounted(() => {
     mounted.value = true;

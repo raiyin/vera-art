@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
 import SideNewsTrailerSkeleton from './SideNewsTrailerSkeleton.vue';
-import type { NewsItem } from '~/api/news';
-import type { PropType } from 'vue';
-import { ref, computed, onMounted, nextTick } from 'vue';
-import { useI18n } from '#imports';
+import type { NewsItem, } from '~/api/news';
+import type { PropType, } from 'vue';
+import { ref, computed, onMounted, nextTick, } from 'vue';
+import { useI18n, } from '#imports';
 
 const props = defineProps({
     sideNewsObject: {
@@ -13,32 +13,32 @@ const props = defineProps({
     },
 });
 
-const { locale } = useI18n();
+const { locale, } = useI18n();
 
 // Reactive state
-const isLoaded = ref(false);
+const isLoaded = ref(false,);
 
 // Computed property
 const imageSrc = computed(
-    () => props.sideNewsObject.image_path
-);
+    () => props.sideNewsObject.image_path,
+    );
 
 // Methods
-const getHumanDate = (inDate: string, locale: string) => {
+const getHumanDate = (inDate: string, locale: string,) => {
     const options = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
     } as const;
-    const date = new Date(inDate);
+    const date = new Date(inDate,);
     const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
-    return date.toLocaleDateString(stdLocale, options);
+    return date.toLocaleDateString(stdLocale, options,);
 };
 
 const onLoad = () => {
     setTimeout(() => {
         isLoaded.value = true;
-    }, 1000);
+    }, 1000,);
 };
 
 // Lifecycle hooks
@@ -52,9 +52,9 @@ onMounted(() => {
 <template>
     <div>
         <router-link
+            v-show="isLoaded"
             :to="sideNewsObject.id.toString()"
             class="other-news-item"
-            v-show="isLoaded"
         >
             <div class="other-news-img">
                 <img
@@ -62,7 +62,7 @@ onMounted(() => {
                     :alt="sideNewsObject.title"
                     width="6.5rem"
                     height="5rem"
-                />
+                >
             </div>
             <div class="other-news-desc">
                 <h6>
@@ -71,7 +71,7 @@ onMounted(() => {
                 <div class="date">
                     <CalendarIcon />
                     <span>
-                        &nbsp;{{ getHumanDate(sideNewsObject.created_at, locale) }}
+                        &nbsp;{{ getHumanDate(sideNewsObject.created_at, locale,) }}
                     </span>
                 </div>
             </div>

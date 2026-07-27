@@ -1,55 +1,70 @@
 <template>
     <div class="edit-work-container">
         <div class="header-section">
-            <h1 class="page-title">Редактировать работу в галерее</h1>
-            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
+            <h1 class="page-title">
+                Редактировать работу в галерее
+            </h1>
+            <p class="page-subtitle">
+                Измените необходимые поля и сохраните изменения
+            </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else class="work-form" @submit.prevent="submitForm">
+        <form
+            v-else
+            class="work-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    Основная информация
+                </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-русски <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-русски <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
+                        :class="{ 'is-invalid': errors.name_ru, }"
                         placeholder="Например: 'Звездная ночь'"
-                        @blur="validateField('name_ru')"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-английски
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-английски
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
+                        :class="{ 'is-invalid': errors.name_en, }"
                         placeholder="Например: 'Starry Night'"
-                        @blur="validateField('name_en')"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -67,11 +82,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
+                                :class="{ 'is-invalid': errors.width, }"
                                 placeholder="Ширина"
-                                @blur="validateField('width')"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
@@ -83,11 +101,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
+                                :class="{ 'is-invalid': errors.height, }"
                                 placeholder="Высота"
-                                @blur="validateField('height')"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -96,9 +117,7 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Год создания <span class="required">*</span></label
-                    >
+                    <label class="form-label">Год создания <span class="required">*</span></label>
                     <UInput
                         v-model.number="work.year"
                         type="number"
@@ -106,11 +125,14 @@
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
+                        :class="{ 'is-invalid': errors.year, }"
                         placeholder="Например: 2023"
-                        @blur="validateField('year')"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
@@ -118,21 +140,24 @@
 
             <!-- Основа -->
             <div class="form-section">
-                <h2 class="section-title">Технические характеристики</h2>
+                <h2 class="section-title">
+                    Технические характеристики
+                </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >Основа <span class="required">*</span></label
-                    >
+                    <label class="form-label">Основа <span class="required">*</span></label>
                     <USelect
                         v-model="work.base_id"
                         :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
+                        :class="{ 'is-invalid': errors.base_id, }"
                         placeholder="Выберите основу"
-                        @blur="validateField('base_id')"
+                        @blur="validateField('base_id',)"
                     />
-                    <div v-if="errors.base_id" class="error-message">
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
@@ -140,7 +165,9 @@
 
             <!-- Описание -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    Дополнительная информация
+                </h2>
                 <div class="form-group">
                     <label class="form-label">Описание (русский)</label>
                     <UTextarea
@@ -150,7 +177,9 @@
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_ru.length }}/500</div>
+                    <div class="char-count">
+                        {{ work.descr_ru.length }}/500
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Описание (английский)</label>
@@ -161,13 +190,19 @@
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_en.length }}/500</div>
+                    <div class="char-count">
+                        {{ work.descr_en.length }}/500
+                    </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -187,211 +222,211 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import type { UpdateWorkRequest } from '~/types';
-import { useMaterialStore } from '~/stores/MaterialStore';
+    import axios from 'axios';
+    import { ref, reactive, computed, onMounted, } from 'vue';
+    import type { UpdateWorkRequest, } from '~/types';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const toast = useToast();
-const config = useRuntimeConfig();
-const route = useRoute();
-const SERVER_URL = config.public.serverUrl;
+    const toast = useToast();
+    const config = useRuntimeConfig();
+    const route = useRoute();
+    const SERVER_URL = config.public.serverUrl;
 
-const materialStore = useMaterialStore();
+    const materialStore = useMaterialStore();
 
-const work = reactive<UpdateWorkRequest>({
-    name_ru: '',
-    name_en: '',
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    base_id: 0,
-    descr_ru: '',
-    descr_en: '',
-});
+    const work = reactive<UpdateWorkRequest>({
+        name_ru: '',
+        name_en: '',
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+    });
 
-const originalWork = reactive<UpdateWorkRequest>({
-    name_ru: '',
-    name_en: '',
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    base_id: 0,
-    descr_ru: '',
-    descr_en: '',
-});
+    const originalWork = reactive<UpdateWorkRequest>({
+        name_ru: '',
+        name_en: '',
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+    });
 
-const isSubmitting = ref(false);
-const isLoading = ref(true);
+    const isSubmitting = ref(false,);
+    const isLoading = ref(true,);
 
-const errors = reactive<Record<string, string>>({
-    name_ru: '',
-    name_en: '',
-    width: '',
-    height: '',
-    year: '',
-    base_id: '',
-});
+    const errors = reactive<Record<string, string>>({
+        name_ru: '',
+        name_en: '',
+        width: '',
+        height: '',
+        year: '',
+        base_id: '',
+    });
 
-const bases = computed(() => materialStore.bases);
+    const bases = computed(() => materialStore.bases,);
 
-const baseOptions = computed(() => {
-    return bases.value.map((base) => ({
-        label: base.name_ru,
-        value: base.id,
-    }));
-});
+    const baseOptions = computed(() => {
+        return bases.value.map(base => ({
+            label: base.name_ru,
+            value: base.id,
+        }),);
+    });
 
-const isFormValid = computed(() => {
-    return (
-        work.name_ru?.trim() !== '' &&
-        work.name_en?.trim() !== '' &&
-        (work.width ?? 0) > 0 &&
-        (work.height ?? 0) > 0 &&
-        (work.year ?? 0) >= 2000 &&
-        (work.year ?? 0) <= new Date().getFullYear() &&
-        (work.base_id ?? 0) > 0
-    );
-});
+    const isFormValid = computed(() => {
+        return (
+            work.name_ru?.trim() !== ''
+        && work.name_en?.trim() !== ''
+            && (work.width ?? 0) > 0
+        && (work.height ?? 0) > 0
+            && (work.year ?? 0) >= 2000
+        && (work.year ?? 0) <= new Date().getFullYear()
+            && (work.base_id ?? 0) > 0
+        );
+    });
 
-async function loadWork() {
-    try {
-        const id = route.params.id;
-        const response = await axios.get(`${SERVER_URL}works/${id}`);
-        const data = response.data;
-        work.name_ru = data.name_ru;
-        work.name_en = data.name_en;
-        work.width = data.width;
-        work.height = data.height;
-        work.year = data.year;
-        work.base_id = data.base_id;
-        work.descr_ru = data.descr_ru ?? '';
-        work.descr_en = data.descr_en ?? '';
-        Object.assign(originalWork, { ...work });
-        isLoading.value = false;
-    } catch (error) {
-        console.error('Ошибка при загрузке работы:', error);
-        isLoading.value = false;
-        toast.add({
-            title: 'Ошибка!',
-            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
-        });
-    }
-}
-
-function validateField(fieldName: string) {
-    switch (fieldName) {
-        case 'name_ru':
-            errors.name_ru = !work.name_ru?.trim() ? 'Пожалуйста, введите название на русском' : '';
-            break;
-        case 'name_en':
-            errors.name_en = !work.name_en?.trim() ? 'Пожалуйста, введите название на английском' : '';
-            break;
-        case 'width':
-            errors.width = (work.width ?? 0) <= 0 ? 'Ширина должна быть больше 0' : '';
-            break;
-        case 'height':
-            errors.height = (work.height ?? 0) <= 0 ? 'Высота должна быть больше 0' : '';
-            break;
-        case 'year':
-            if ((work.year ?? 0) < 2000 || (work.year ?? 0) > new Date().getFullYear()) {
-                errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
-            } else {
-                errors.year = '';
-            }
-            break;
-        case 'base_id':
-            errors.base_id = (work.base_id ?? 0) <= 0 ? 'Пожалуйста, выберите основу' : '';
-            break;
-    }
-}
-
-function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('base_id');
-    return Object.values(errors).every((error) => error === '');
-}
-
-async function submitForm() {
-    if (isSubmitting.value) return;
-
-    if (!validateForm()) {
-        return;
-    }
-
-    try {
-        isSubmitting.value = true;
-
-        const id = route.params.id;
-        const response = await axios.put(SERVER_URL + 'works/' + id, work, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
-
-        if (response.status === 200) {
-            toast.add({
-                title: 'Успешно!',
-                description: 'Работа успешно обновлена в галерее.',
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
-                duration: 5000,
-            });
-            Object.assign(originalWork, { ...work });
-        } else {
+    async function loadWork() {
+        try {
+            const id = route.params.id;
+            const response = await axios.get(`${SERVER_URL}works/${id}`,);
+            const data = response.data;
+            work.name_ru = data.name_ru;
+            work.name_en = data.name_en;
+            work.width = data.width;
+            work.height = data.height;
+            work.year = data.year;
+            work.base_id = data.base_id;
+            work.descr_ru = data.descr_ru ?? '';
+            work.descr_en = data.descr_en ?? '';
+            Object.assign(originalWork, { ...work, },);
+            isLoading.value = false;
+        } catch (error) {
+            console.error('Ошибка при загрузке работы:', error,);
+            isLoading.value = false;
             toast.add({
                 title: 'Ошибка!',
-                description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
         }
-    } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-        if (error.response?.status === 400) {
-            description = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+    }
+
+    function validateField(fieldName: string,) {
+        switch (fieldName) {
+    case 'name_ru':
+        errors.name_ru = !work.name_ru?.trim() ? 'Пожалуйста, введите название на русском' : '';
+        break;
+    case 'name_en':
+        errors.name_en = !work.name_en?.trim() ? 'Пожалуйста, введите название на английском' : '';
+        break;
+    case 'width':
+        errors.width = (work.width ?? 0) <= 0 ? 'Ширина должна быть больше 0' : '';
+        break;
+    case 'height':
+        errors.height = (work.height ?? 0) <= 0 ? 'Высота должна быть больше 0' : '';
+        break;
+    case 'year':
+        if ((work.year ?? 0) < 2000 || (work.year ?? 0) > new Date().getFullYear()) {
+            errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+        } else {
+            errors.year = '';
         }
-        toast.add({
-            title: 'Ошибка!',
-            description,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
+        break;
+    case 'base_id':
+        errors.base_id = (work.base_id ?? 0) <= 0 ? 'Пожалуйста, выберите основу' : '';
+        break;
+        }
+    }
+
+    function validateForm() {
+        validateField('name_ru',);
+        validateField('name_en',);
+        validateField('width',);
+        validateField('height',);
+        validateField('year',);
+        validateField('base_id',);
+        return Object.values(errors,).every(error => error === '',);
+    }
+
+    async function submitForm() {
+        if (isSubmitting.value) return;
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            isSubmitting.value = true;
+
+            const id = route.params.id;
+            const response = await axios.put(SERVER_URL + 'works/' + id, work, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token',)}`,
+                },
+            });
+
+            if (response.status === 200) {
+                toast.add({
+                    title: 'Успешно!',
+                    description: 'Работа успешно обновлена в галерее.',
+                    icon: 'i-heroicons-check-circle',
+                    color: 'success',
+                    duration: 5000,
+                });
+                Object.assign(originalWork, { ...work, },);
+            } else {
+                toast.add({
+                    title: 'Ошибка!',
+                    description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
+            }
+        } catch (error: any) {
+            console.error('Error submitting form:', error,);
+            let description = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+            if (error.response?.status === 400) {
+                description = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+            }
+            toast.add({
+                title: 'Ошибка!',
+                description,
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
+        } finally {
+            isSubmitting.value = false;
+        }
+    }
+
+    function resetForm() {
+        Object.assign(work, { ...originalWork, },);
+        Object.keys(errors,).forEach((key,) => {
+            errors[key] = '';
         });
-    } finally {
-        isSubmitting.value = false;
     }
-}
 
-function resetForm() {
-    Object.assign(work, { ...originalWork });
-    Object.keys(errors).forEach((key) => {
-        errors[key] = '';
+    // Lifecycle
+    onMounted(async () => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
+        await loadWork();
     });
-}
-
-// Lifecycle
-onMounted(async () => {
-    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-        await materialStore.fetchAll();
-    }
-    await loadWork();
-});
 </script>
 
 <style scoped>

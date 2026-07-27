@@ -1,61 +1,64 @@
 <script setup lang="ts">
-import type { PropType } from 'vue';
-import type { NewsDesc } from '~/types';
-import { ref } from 'vue';
+    import type { PropType, } from 'vue';
+    import type { NewsDesc, } from '~/types';
+    import { ref, } from 'vue';
 
-const props = defineProps({
-    image_index: {
-        type: Number,
-        default: 0,
-    },
-    currentNews: {
-        type: Object as PropType<NewsDesc>,
-        default: {} as NewsDesc,
-    },
-    fileName: {
-        type: String,
-        default: '',
-    },
-});
+    const props = defineProps({
+        image_index: {
+            type: Number,
+            default: 0,
+        },
+        currentNews: {
+            type: Object as PropType<NewsDesc>,
+            default: {} as NewsDesc,
+        },
+        fileName: {
+            type: String,
+            default: '',
+        },
+    });
 
-const isLoaded = ref(false);
+    const isLoaded = ref(false,);
 
-const onImgLoad = () => {
-    isLoaded.value = true;
-};
+    const onImgLoad = () => {
+        isLoaded.value = true;
+    };
 
-const makeImageName = (fileName: string) => {
-    return `${props.currentNews?.dir}${fileName}`;
-};
+    const makeImageName = (fileName: string,) => {
+        return `${props.currentNews?.dir}${fileName}`;
+    };
 
-const makeModalIdLink = (index: number) => {
-    if (index === 0) {
-        console.error('Wrong image_index props');
-    }
-    return '#exampleModal' + index;
-};
+    const makeModalIdLink = (index: number,) => {
+        if (index === 0) {
+            console.error('Wrong image_index props',);
+        }
+        return '#exampleModal' + index;
+    };
 
-const makeModalId = (index: number) => {
-    if (index === 0) {
-        console.error('Wrong image_index props');
-    }
-    return 'exampleModal' + index;
-};
+    const makeModalId = (index: number,) => {
+        if (index === 0) {
+            console.error('Wrong image_index props',);
+        }
+        return 'exampleModal' + index;
+    };
 </script>
 
 <template>
-    <div :class="{ loading: !isLoaded }">
-        <div v-if="!isLoaded" class="image-stub" />
+    <div :class="{ loading: !isLoaded, }">
+        <div
+            v-if="!isLoaded"
+            class="image-stub"
+        />
 
         <img
             v-show="isLoaded"
-            v-bind:key="image_index"
-            :src="makeImageName(fileName)"
-            @load="onImgLoad"
+            :key="image_index"
+            :src="makeImageName(fileName,)"
             data-bs-target="#imgNewsModal"
             data-bs-toggle="modal"
             class="w-100 shadow-1-strong rounded mb-4 img-item"
-        />
+            @load="onImgLoad"
+        >
     </div>
 </template>
 

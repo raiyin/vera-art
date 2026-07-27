@@ -1,9 +1,9 @@
 <script setup lang="ts">
-const { locale, setLocale } = useI18n();
+    const { locale, setLocale, } = useI18n();
 
-const switchLocale = (newLocale: 'ru' | 'en') => {
-    setLocale(newLocale);
-};
+    const switchLocale = (newLocale: 'ru' | 'en',) => {
+        setLocale(newLocale,);
+    };
 </script>
 
 <template>
@@ -14,29 +14,67 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
         <div class="content-section intro-section">
             <div class="container">
                 <div class="section-header">
-                    <h2 class="section-title">{{ $t('home.familiarity') }}</h2>
+                    <h2 class="section-title">
+                        {{ $t('home.familiarity',) }}
+                    </h2>
                     <div class="section-divider" />
                 </div>
                 <div class="intro-grid">
                     <div class="intro-card">
-                        <div class="intro-icon">🎨</div>
-                        <h3 class="intro-card-title">{{ $t('home.artist_title') }}</h3>
-                        <p class="intro-card-text">{{ $t('home.whoami') }}</p>
-                    </div>
-                    <div class="intro-card">
-                        <div class="intro-icon">💡</div>
+                        <div class="intro-icon">
+                            <svg
+                                class="icon-svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                            >
+                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
                         <h3 class="intro-card-title">
-                            {{ $t('home.creativity_title') }}
-                        </h3>
-                        <p class="intro-card-text">{{ $t('home.buy') }}</p>
-                    </div>
-                    <div class="intro-card">
-                        <div class="intro-icon">🌟</div>
-                        <h3 class="intro-card-title">
-                            {{ $t('home.development_title') }}
+                            {{ $t('home.artist_title',) }}
                         </h3>
                         <p class="intro-card-text">
-                            {{ $t('home.development_text') }}
+                            {{ $t('home.whoami',) }}
+                        </p>
+                    </div>
+                    <div class="intro-card">
+                        <div class="intro-icon">
+                            <svg
+                                class="icon-svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                            >
+                                <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="intro-card-title">
+                            {{ $t('home.creativity_title',) }}
+                        </h3>
+                        <p class="intro-card-text">
+                            {{ $t('home.buy',) }}
+                        </p>
+                    </div>
+                    <div class="intro-card">
+                        <div class="intro-icon">
+                            <svg
+                                class="icon-svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.5"
+                            >
+                                <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="intro-card-title">
+                            {{ $t('home.development_title',) }}
+                        </h3>
+                        <p class="intro-card-text">
+                            {{ $t('home.development_text',) }}
                         </p>
                     </div>
                 </div>
@@ -47,9 +85,11 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
         <div class="parallax-section parallax-1">
             <div class="parallax-overlay">
                 <div class="parallax-content">
-                    <h2 class="parallax-title">{{ $t('home.draw') }}</h2>
+                    <h2 class="parallax-title">
+                        {{ $t('home.draw',) }}
+                    </h2>
                     <p class="parallax-text">
-                        {{ $t('home.inspiration_text') }}
+                        {{ $t('home.inspiration_text',) }}
                     </p>
                 </div>
             </div>
@@ -60,43 +100,82 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
             <div class="container">
                 <div class="philosophy-content">
                     <div class="philosophy-text">
-                        <h2 class="section-title">{{ $t('home.philosophy_title') }}</h2>
-                        <p class="philosophy-quote">{{ $t('home.world') }}</p>
+                        <h2 class="section-title">
+                            {{ $t('home.philosophy_title',) }}
+                        </h2>
+                        <p class="philosophy-quote">
+                            {{ $t('home.world',) }}
+                        </p>
                         <p class="philosophy-description">
-                            {{ $t('home.philosophy_description') }}
+                            {{ $t('home.philosophy_description',) }}
                         </p>
                     </div>
                     <div class="philosophy-visual">
                         <div class="visual-element visual-1">
                             <div class="visual-content">
-                                <div class="visual-icon">🎨</div>
+                                <div class="visual-icon">
+                                    <svg
+                                        class="icon-svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                    >
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="10"
+                                        />
+                                        <path d="M12 6v6l4 2" />
+                                    </svg>
+                                </div>
                                 <h3 class="visual-title">
-                                    {{ $t('home.expression_title') }}
+                                    {{ $t('home.expression_title',) }}
                                 </h3>
                                 <p class="visual-text">
-                                    {{ $t('home.expression_text') }}
+                                    {{ $t('home.expression_text',) }}
                                 </p>
                             </div>
                         </div>
                         <div class="visual-element visual-2">
                             <div class="visual-content">
-                                <div class="visual-icon">✨</div>
+                                <div class="visual-icon">
+                                    <svg
+                                        class="icon-svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                    >
+                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
                                 <h3 class="visual-title">
-                                    {{ $t('home.harmony_title') }}
+                                    {{ $t('home.harmony_title',) }}
                                 </h3>
                                 <p class="visual-text">
-                                    {{ $t('home.harmony_text') }}
+                                    {{ $t('home.harmony_text',) }}
                                 </p>
                             </div>
                         </div>
                         <div class="visual-element visual-3">
                             <div class="visual-content">
-                                <div class="visual-icon">🌱</div>
+                                <div class="visual-icon">
+                                    <svg
+                                        class="icon-svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.5"
+                                    >
+                                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
                                 <h3 class="visual-title">
-                                    {{ $t('home.growth_title') }}
+                                    {{ $t('home.growth_title',) }}
                                 </h3>
                                 <p class="visual-text">
-                                    {{ $t('home.growth_text') }}
+                                    {{ $t('home.growth_text',) }}
                                 </p>
                             </div>
                         </div>
@@ -109,9 +188,11 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
         <div class="parallax-section parallax-2">
             <div class="parallax-overlay">
                 <div class="parallax-content">
-                    <h2 class="parallax-title">{{ $t('home.givemore') }}</h2>
+                    <h2 class="parallax-title">
+                        {{ $t('home.givemore',) }}
+                    </h2>
                     <p class="parallax-text">
-                        {{ $t('home.sharing_text') }}
+                        {{ $t('home.sharing_text',) }}
                     </p>
                 </div>
             </div>
@@ -124,19 +205,30 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
         <div class="cta-section">
             <div class="container">
                 <div class="cta-content">
-                    <h2 class="cta-title">{{ $t('home.start') }}</h2>
+                    <h2 class="cta-title">
+                        {{ $t('home.start',) }}
+                    </h2>
                     <p class="cta-text">
-                        {{ $t('home.cta_text') }}
+                        {{ $t('home.cta_text',) }}
                     </p>
                     <div class="cta-buttons">
-                        <a href="/all-works" class="btn btn-primary">{{
-                            $t('home.view_works')
+                        <a
+                            href="/all-works"
+                            class="btn btn-primary"
+                        >{{
+                            $t('home.view_works',)
                         }}</a>
-                        <a href="/news" class="btn btn-secondary">{{
-                            $t('home.read_news')
+                        <a
+                            href="/news"
+                            class="btn btn-secondary"
+                        >{{
+                            $t('home.read_news',)
                         }}</a>
-                        <a href="/services" class="btn btn-outline">{{
-                            $t('home.services')
+                        <a
+                            href="/services"
+                            class="btn btn-outline"
+                        >{{
+                            $t('home.services',)
                         }}</a>
                     </div>
                 </div>
@@ -229,7 +321,21 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
 .intro-icon {
     font-size: 3.5rem;
     margin-bottom: 1.5rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(75, 158, 144, 0.1), rgba(115, 209, 190, 0.1));
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.icon-svg {
+    width: 40px;
+    height: 40px;
+    color: var(--color-primary, #4B9E90);
 }
 
 .intro-card-title {
@@ -408,10 +514,20 @@ const switchLocale = (newLocale: 'ru' | 'en') => {
 }
 
 .visual-icon {
-    font-size: 2.2rem;
     margin-bottom: 0.6rem;
-    display: block;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.visual-icon .icon-svg {
+    width: 28px;
+    height: 28px;
+    color: white;
 }
 
 .visual-title {

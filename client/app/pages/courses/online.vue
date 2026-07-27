@@ -1,300 +1,304 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+    import { ref, } from 'vue';
 
-interface CoursePlaylist {
-    id: number;
-    title: string;
-    description: string;
-    level: 'beginner' | 'intermediate' | 'advanced';
-    duration: string;
-    lessonsCount: number;
-    price: number;
-    discountPrice?: number;
-    instructor: string;
-    rating: number;
-    videos: {
-        id: number;
-        title: string;
-        duration: string;
-        thumbnail: string;
-        isLocked: boolean;
-    }[];
-}
-
-const playlists = ref<CoursePlaylist[]>([
-    {
-        id: 1,
-        title: 'Основы акварельной живописи',
-        description:
-            'Полный курс для начинающих: от базовых техник до создания сложных композиций',
-        level: 'beginner',
-        duration: '12 часов',
-        lessonsCount: 24,
-        price: 8900,
-        discountPrice: 6900,
-        instructor: 'Анна Петрова',
-        rating: 4.8,
-        videos: [
-            {
-                id: 1,
-                title: 'Введение в акварель: материалы и инструменты',
-                duration: '25:10',
-                thumbnail: '/images/courses/watercolor-1.jpg',
-                isLocked: false,
-            },
-            {
-                id: 2,
-                title: 'Основные техники: заливка, лессировка',
-                duration: '32:45',
-                thumbnail: '/images/courses/watercolor-2.jpg',
-                isLocked: false,
-            },
-            {
-                id: 3,
-                title: 'Работа с цветом: создание палитры',
-                duration: '28:20',
-                thumbnail: '/images/courses/watercolor-3.jpg',
-                isLocked: true,
-            },
-            {
-                id: 4,
-                title: 'Пейзаж акварелью: небо и облака',
-                duration: '45:15',
-                thumbnail: '/images/courses/watercolor-4.jpg',
-                isLocked: true,
-            },
-            {
-                id: 5,
-                title: 'Ботаническая иллюстрация: цветы и листья',
-                duration: '38:30',
-                thumbnail: '/images/courses/watercolor-5.jpg',
-                isLocked: true,
-            },
-            {
-                id: 6,
-                title: 'Портрет акварелью: основы',
-                duration: '52:10',
-                thumbnail: '/images/courses/watercolor-6.jpg',
-                isLocked: true,
-            },
-        ],
-    },
-    {
-        id: 2,
-        title: 'Масляная живопись: от классики к современности',
-        description:
-            'Освойте технику масляной живописи от натяжки холста до финального лакирования',
-        level: 'intermediate',
-        duration: '18 часов',
-        lessonsCount: 30,
-        price: 11900,
-        discountPrice: 9900,
-        instructor: 'Иван Смирнов',
-        rating: 4.9,
-        videos: [
-            {
-                id: 1,
-                title: 'Подготовка материалов: холсты, краски, медиумы',
-                duration: '30:15',
-                thumbnail: '/images/courses/oil-1.jpg',
-                isLocked: false,
-            },
-            {
-                id: 2,
-                title: 'Техника алла прима: быстрая живопись',
-                duration: '35:40',
-                thumbnail: '/images/courses/oil-2.jpg',
-                isLocked: false,
-            },
-            {
-                id: 3,
-                title: 'Лессировка: создание глубины и объема',
-                duration: '42:20',
-                thumbnail: '/images/courses/oil-3.jpg',
-                isLocked: true,
-            },
-            {
-                id: 4,
-                title: 'Портрет маслом: анатомия и пропорции',
-                duration: '55:30',
-                thumbnail: '/images/courses/oil-4.jpg',
-                isLocked: true,
-            },
-            {
-                id: 5,
-                title: 'Натюрморт с драпировкой',
-                duration: '48:15',
-                thumbnail: '/images/courses/oil-5.jpg',
-                isLocked: true,
-            },
-            {
-                id: 6,
-                title: 'Абстрактная живопись: экспрессия и цвет',
-                duration: '40:50',
-                thumbnail: '/images/courses/oil-6.jpg',
-                isLocked: true,
-            },
-        ],
-    },
-    {
-        id: 3,
-        title: 'Цифровая иллюстрация в Procreate',
-        description:
-            'Создавайте профессиональные иллюстрации на iPad от скетча до финального рендера',
-        level: 'beginner',
-        duration: '15 часов',
-        lessonsCount: 20,
-        price: 9900,
-        discountPrice: 7900,
-        instructor: 'Мария Козлова',
-        rating: 4.7,
-        videos: [
-            {
-                id: 1,
-                title: 'Знакомство с Procreate: интерфейс и кисти',
-                duration: '22:30',
-                thumbnail: '/images/courses/digital-1.jpg',
-                isLocked: false,
-            },
-            {
-                id: 2,
-                title: 'Скетчинг: от идеи до эскиза',
-                duration: '28:15',
-                thumbnail: '/images/courses/digital-2.jpg',
-                isLocked: false,
-            },
-            {
-                id: 3,
-                title: 'Работа со слоями и масками',
-                duration: '35:40',
-                thumbnail: '/images/courses/digital-3.jpg',
-                isLocked: true,
-            },
-            {
-                id: 4,
-                title: 'Колористика и светотень',
-                duration: '40:20',
-                thumbnail: '/images/courses/digital-4.jpg',
-                isLocked: true,
-            },
-            {
-                id: 5,
-                title: 'Создание персонажей: от концепта до детализации',
-                duration: '50:10',
-                thumbnail: '/images/courses/digital-5.jpg',
-                isLocked: true,
-            },
-            {
-                id: 6,
-                title: 'Анимация в Procreate: оживляем иллюстрации',
-                duration: '45:30',
-                thumbnail: '/images/courses/digital-6.jpg',
-                isLocked: true,
-            },
-        ],
-    },
-    {
-        id: 4,
-        title: 'Академический рисунок: от гипсовых голов до натуры',
-        description:
-            'Классическая школа рисунка для серьезного развития художественных навыков',
-        level: 'advanced',
-        duration: '25 часов',
-        lessonsCount: 35,
-        price: 14900,
-        discountPrice: 12900,
-        instructor: 'Сергей Волков',
-        rating: 4.9,
-        videos: [
-            {
-                id: 1,
-                title: 'Основы композиции и построения',
-                duration: '33:25',
-                thumbnail: '/images/courses/drawing-1.jpg',
-                isLocked: false,
-            },
-            {
-                id: 2,
-                title: 'Рисунок гипсовой головы: пропорции и объем',
-                duration: '40:15',
-                thumbnail: '/images/courses/drawing-2.jpg',
-                isLocked: false,
-            },
-            {
-                id: 3,
-                title: 'Анатомия для художников: скелет и мышцы',
-                duration: '48:30',
-                thumbnail: '/images/courses/drawing-3.jpg',
-                isLocked: true,
-            },
-            {
-                id: 4,
-                title: 'Портрет с натуры: работа с моделью',
-                duration: '55:45',
-                thumbnail: '/images/courses/drawing-4.jpg',
-                isLocked: true,
-            },
-            {
-                id: 5,
-                title: 'Фигура человека в движении',
-                duration: '52:20',
-                thumbnail: '/images/courses/drawing-5.jpg',
-                isLocked: true,
-            },
-            {
-                id: 6,
-                title: 'Сложные композиции: групповые портреты',
-                duration: '60:10',
-                thumbnail: '/images/courses/drawing-6.jpg',
-                isLocked: true,
-            },
-        ],
-    },
-]);
-
-const selectedPlaylist = ref<CoursePlaylist | null>(null);
-
-const openPlaylist = (playlist: CoursePlaylist) => {
-    selectedPlaylist.value = playlist;
-};
-
-const closePlaylist = () => {
-    selectedPlaylist.value = null;
-};
-
-const getLevelColor = (level: string) => {
-    switch (level) {
-        case 'beginner':
-            return 'success';
-        case 'intermediate':
-            return 'warning';
-        case 'advanced':
-            return 'error';
-        default:
-            return 'neutral';
+    interface CoursePlaylist {
+        id: number
+        title: string
+        description: string
+        level: 'beginner' | 'intermediate' | 'advanced'
+        duration: string
+        lessonsCount: number
+        price: number
+        discountPrice?: number
+        instructor: string
+        rating: number
+        videos: {
+            id: number
+            title: string
+            duration: string
+            thumbnail: string
+            isLocked: boolean
+        }[]
     }
-};
 
-const getLevelText = (level: string) => {
-    switch (level) {
-        case 'beginner':
-            return 'Начинающий';
-        case 'intermediate':
-            return 'Средний';
-        case 'advanced':
-            return 'Продвинутый';
-        default:
-            return level;
-    }
-};
+    const playlists = ref<CoursePlaylist[]>([
+        {
+            id: 1,
+            title: 'Основы акварельной живописи',
+            description:
+                'Полный курс для начинающих: от базовых техник до создания сложных композиций',
+            level: 'beginner',
+            duration: '12 часов',
+            lessonsCount: 24,
+            price: 8900,
+            discountPrice: 6900,
+            instructor: 'Анна Петрова',
+            rating: 4.8,
+            videos: [
+                {
+                    id: 1,
+                    title: 'Введение в акварель: материалы и инструменты',
+                    duration: '25:10',
+                    thumbnail: '/images/courses/watercolor-1.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 2,
+                    title: 'Основные техники: заливка, лессировка',
+                    duration: '32:45',
+                    thumbnail: '/images/courses/watercolor-2.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 3,
+                    title: 'Работа с цветом: создание палитры',
+                    duration: '28:20',
+                    thumbnail: '/images/courses/watercolor-3.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 4,
+                    title: 'Пейзаж акварелью: небо и облака',
+                    duration: '45:15',
+                    thumbnail: '/images/courses/watercolor-4.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 5,
+                    title: 'Ботаническая иллюстрация: цветы и листья',
+                    duration: '38:30',
+                    thumbnail: '/images/courses/watercolor-5.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 6,
+                    title: 'Портрет акварелью: основы',
+                    duration: '52:10',
+                    thumbnail: '/images/courses/watercolor-6.jpg',
+                    isLocked: true,
+                },
+            ],
+        },
+        {
+            id: 2,
+            title: 'Масляная живопись: от классики к современности',
+            description:
+                'Освойте технику масляной живописи от натяжки холста до финального лакирования',
+            level: 'intermediate',
+            duration: '18 часов',
+            lessonsCount: 30,
+            price: 11900,
+            discountPrice: 9900,
+            instructor: 'Иван Смирнов',
+            rating: 4.9,
+            videos: [
+                {
+                    id: 1,
+                    title: 'Подготовка материалов: холсты, краски, медиумы',
+                    duration: '30:15',
+                    thumbnail: '/images/courses/oil-1.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 2,
+                    title: 'Техника алла прима: быстрая живопись',
+                    duration: '35:40',
+                    thumbnail: '/images/courses/oil-2.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 3,
+                    title: 'Лессировка: создание глубины и объема',
+                    duration: '42:20',
+                    thumbnail: '/images/courses/oil-3.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 4,
+                    title: 'Портрет маслом: анатомия и пропорции',
+                    duration: '55:30',
+                    thumbnail: '/images/courses/oil-4.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 5,
+                    title: 'Натюрморт с драпировкой',
+                    duration: '48:15',
+                    thumbnail: '/images/courses/oil-5.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 6,
+                    title: 'Абстрактная живопись: экспрессия и цвет',
+                    duration: '40:50',
+                    thumbnail: '/images/courses/oil-6.jpg',
+                    isLocked: true,
+                },
+            ],
+        },
+        {
+            id: 3,
+            title: 'Цифровая иллюстрация в Procreate',
+            description:
+                'Создавайте профессиональные иллюстрации на iPad от скетча до финального рендера',
+            level: 'beginner',
+            duration: '15 часов',
+            lessonsCount: 20,
+            price: 9900,
+            discountPrice: 7900,
+            instructor: 'Мария Козлова',
+            rating: 4.7,
+            videos: [
+                {
+                    id: 1,
+                    title: 'Знакомство с Procreate: интерфейс и кисти',
+                    duration: '22:30',
+                    thumbnail: '/images/courses/digital-1.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 2,
+                    title: 'Скетчинг: от идеи до эскиза',
+                    duration: '28:15',
+                    thumbnail: '/images/courses/digital-2.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 3,
+                    title: 'Работа со слоями и масками',
+                    duration: '35:40',
+                    thumbnail: '/images/courses/digital-3.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 4,
+                    title: 'Колористика и светотень',
+                    duration: '40:20',
+                    thumbnail: '/images/courses/digital-4.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 5,
+                    title: 'Создание персонажей: от концепта до детализации',
+                    duration: '50:10',
+                    thumbnail: '/images/courses/digital-5.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 6,
+                    title: 'Анимация в Procreate: оживляем иллюстрации',
+                    duration: '45:30',
+                    thumbnail: '/images/courses/digital-6.jpg',
+                    isLocked: true,
+                },
+            ],
+        },
+        {
+            id: 4,
+            title: 'Академический рисунок: от гипсовых голов до натуры',
+            description:
+                'Классическая школа рисунка для серьезного развития художественных навыков',
+            level: 'advanced',
+            duration: '25 часов',
+            lessonsCount: 35,
+            price: 14900,
+            discountPrice: 12900,
+            instructor: 'Сергей Волков',
+            rating: 4.9,
+            videos: [
+                {
+                    id: 1,
+                    title: 'Основы композиции и построения',
+                    duration: '33:25',
+                    thumbnail: '/images/courses/drawing-1.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 2,
+                    title: 'Рисунок гипсовой головы: пропорции и объем',
+                    duration: '40:15',
+                    thumbnail: '/images/courses/drawing-2.jpg',
+                    isLocked: false,
+                },
+                {
+                    id: 3,
+                    title: 'Анатомия для художников: скелет и мышцы',
+                    duration: '48:30',
+                    thumbnail: '/images/courses/drawing-3.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 4,
+                    title: 'Портрет с натуры: работа с моделью',
+                    duration: '55:45',
+                    thumbnail: '/images/courses/drawing-4.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 5,
+                    title: 'Фигура человека в движении',
+                    duration: '52:20',
+                    thumbnail: '/images/courses/drawing-5.jpg',
+                    isLocked: true,
+                },
+                {
+                    id: 6,
+                    title: 'Сложные композиции: групповые портреты',
+                    duration: '60:10',
+                    thumbnail: '/images/courses/drawing-6.jpg',
+                    isLocked: true,
+                },
+            ],
+        },
+    ]);
+
+    const selectedPlaylist = ref<CoursePlaylist | null>(null,);
+
+    const openPlaylist = (playlist: CoursePlaylist,) => {
+        selectedPlaylist.value = playlist;
+    };
+
+    const closePlaylist = () => {
+        selectedPlaylist.value = null;
+    };
+
+    const getLevelColor = (level: string,) => {
+        switch (level) {
+    case 'beginner':
+        return 'success';
+    case 'intermediate':
+        return 'warning';
+    case 'advanced':
+        return 'error';
+    default:
+        return 'neutral';
+        }
+    };
+
+    const getLevelText = (level: string,) => {
+        switch (level) {
+    case 'beginner':
+        return 'Начинающий';
+    case 'intermediate':
+        return 'Средний';
+    case 'advanced':
+        return 'Продвинутый';
+    default:
+        return level;
+        }
+    };
 </script>
 
 <template>
     <UContainer class="py-8 md:py-12">
         <!-- Breadcrumb -->
         <UBreadcrumb class="mb-8">
-            <UBreadcrumbItem to="/">Главная</UBreadcrumbItem>
-            <UBreadcrumbItem to="/services">Услуги</UBreadcrumbItem>
+            <UBreadcrumbItem to="/">
+                Главная
+            </UBreadcrumbItem>
+            <UBreadcrumbItem to="/services">
+                Услуги
+            </UBreadcrumbItem>
             <UBreadcrumbItem>Онлайн-курсы</UBreadcrumbItem>
         </UBreadcrumb>
 
@@ -316,7 +320,10 @@ const getLevelText = (level: string) => {
                         size="lg"
                         class="font-semibold bg-white text-blue-600 hover:bg-gray-100"
                     >
-                        <UIcon name="i-heroicons-play-circle" class="mr-2" />
+                        <UIcon
+                            name="i-heroicons-play-circle"
+                            class="mr-2"
+                        />
                         Смотреть демо-урок
                     </UButton>
                     <UButton
@@ -329,7 +336,7 @@ const getLevelText = (level: string) => {
                 </div>
             </div>
             <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-20">
-                <div class="h-full bg-linear-to-l from-white to-transparent"></div>
+                <div class="h-full bg-linear-to-l from-white to-transparent" />
             </div>
         </div>
 
@@ -417,16 +424,33 @@ const getLevelText = (level: string) => {
         <!-- Course Playlists -->
         <div class="mb-12">
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-bold text-gray-900">Доступные курсы</h2>
+                <h2 class="text-3xl font-bold text-gray-900">
+                    Доступные курсы
+                </h2>
                 <div class="flex gap-2">
-                    <UButton color="neutral" variant="outline" size="sm">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        size="sm"
+                    >
                         Все уровни
                     </UButton>
-                    <UButton color="neutral" variant="outline" size="sm">
+                    <UButton
+                        color="neutral"
+                        variant="outline"
+                        size="sm"
+                    >
                         По популярности
                     </UButton>
-                    <UButton color="primary" variant="solid" size="sm">
-                        <UIcon name="i-heroicons-funnel" class="mr-2" />
+                    <UButton
+                        color="primary"
+                        variant="solid"
+                        size="sm"
+                    >
+                        <UIcon
+                            name="i-heroicons-funnel"
+                            class="mr-2"
+                        />
                         Фильтры
                     </UButton>
                 </div>
@@ -442,10 +466,10 @@ const getLevelText = (level: string) => {
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <UBadge
-                                    :color="getLevelColor(playlist.level)"
+                                    :color="getLevelColor(playlist.level,)"
                                     class="mb-2"
                                 >
-                                    {{ getLevelText(playlist.level) }}
+                                    {{ getLevelText(playlist.level,) }}
                                 </UBadge>
                                 <h3 class="text-2xl font-bold text-gray-900 mb-2">
                                     {{ playlist.title }}
@@ -472,11 +496,17 @@ const getLevelText = (level: string) => {
 
                         <div class="flex flex-wrap gap-4 mb-6">
                             <div class="flex items-center text-gray-600">
-                                <UIcon name="i-heroicons-clock" class="mr-2" />
+                                <UIcon
+                                    name="i-heroicons-clock"
+                                    class="mr-2"
+                                />
                                 <span>{{ playlist.duration }}</span>
                             </div>
                             <div class="flex items-center text-gray-600">
-                                <UIcon name="i-heroicons-document-text" class="mr-2" />
+                                <UIcon
+                                    name="i-heroicons-document-text"
+                                    class="mr-2"
+                                />
                                 <span>{{ playlist.lessonsCount }} уроков</span>
                             </div>
                         </div>
@@ -488,7 +518,7 @@ const getLevelText = (level: string) => {
                             </h4>
                             <div class="grid grid-cols-2 gap-3">
                                 <div
-                                    v-for="video in playlist.videos.slice(0, 4)"
+                                    v-for="video in playlist.videos.slice(0, 4,)"
                                     :key="video.id"
                                     class="relative rounded-lg overflow-hidden border border-gray-200"
                                 >
@@ -511,7 +541,7 @@ const getLevelText = (level: string) => {
                                                 />
                                             </div>
                                             <div class="text-xs font-medium px-2">
-                                                {{ video.title.substring(0, 20) }}...
+                                                {{ video.title.substring(0, 20,) }}...
                                             </div>
                                         </div>
                                     </div>
@@ -527,8 +557,15 @@ const getLevelText = (level: string) => {
                                             />
                                             Заблокировано
                                         </UBadge>
-                                        <UBadge v-else color="success" size="xs">
-                                            <UIcon name="i-heroicons-play" class="mr-1" />
+                                        <UBadge
+                                            v-else
+                                            color="success"
+                                            size="xs"
+                                        >
+                                            <UIcon
+                                                name="i-heroicons-play"
+                                                class="mr-1"
+                                            />
                                             Доступно
                                         </UBadge>
                                     </div>
@@ -543,13 +580,13 @@ const getLevelText = (level: string) => {
                         <div class="flex justify-between items-center">
                             <div>
                                 <div class="text-2xl font-bold text-gray-900">
-                                    {{ playlist.discountPrice?.toLocaleString('ru-RU') }}
+                                    {{ playlist.discountPrice?.toLocaleString('ru-RU',) }}
                                     ₽
                                     <span
                                         v-if="playlist.discountPrice"
                                         class="text-lg text-gray-500 line-through ml-2"
                                     >
-                                        {{ playlist.price.toLocaleString('ru-RU') }} ₽
+                                        {{ playlist.price.toLocaleString('ru-RU',) }} ₽
                                     </span>
                                 </div>
                                 <div class="text-sm text-gray-500">
@@ -560,12 +597,18 @@ const getLevelText = (level: string) => {
                                 <UButton
                                     color="neutral"
                                     variant="outline"
-                                    @click="openPlaylist(playlist)"
+                                    @click="openPlaylist(playlist,)"
                                 >
-                                    <UIcon name="i-heroicons-eye" class="mr-2" />
+                                    <UIcon
+                                        name="i-heroicons-eye"
+                                        class="mr-2"
+                                    />
                                     Подробнее
                                 </UButton>
-                                <UButton color="primary" variant="solid">
+                                <UButton
+                                    color="primary"
+                                    variant="solid"
+                                >
                                     <UIcon
                                         name="i-heroicons-shopping-cart"
                                         class="mr-2"
@@ -645,7 +688,10 @@ const getLevelText = (level: string) => {
                     size="xl"
                     class="font-bold px-8 py-4"
                 >
-                    <UIcon name="i-heroicons-rocket-launch" class="mr-3 text-2xl" />
+                    <UIcon
+                        name="i-heroicons-rocket-launch"
+                        class="mr-3 text-2xl"
+                    />
                     Начать бесплатное обучение
                 </UButton>
             </div>

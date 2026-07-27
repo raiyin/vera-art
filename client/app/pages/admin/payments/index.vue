@@ -8,8 +8,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Платежи</h1>
-                <p class="admin-page__subtitle">Управление платежами и возвратами</p>
+                <h1 class="admin-page__title">
+                    Платежи
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление платежами и возвратами
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -51,8 +55,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -63,11 +73,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -76,22 +96,36 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-credit-card" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Платежи не найдены</h3>
+                <UIcon
+                    name="i-lucide-credit-card"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Платежи не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     <template v-if="searchQuery || statusFilter">
                         По заданным критериям ничего не найдено. Попробуйте изменить
                         параметры поиска.
                     </template>
-                    <template v-else> Пока нет ни одного платежа. </template>
+                    <template v-else>
+                        Пока нет ни одного платежа.
+                    </template>
                 </p>
             </div>
         </UCard>
 
         <!-- Payments List -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-payments__list">
-                <div v-for="item in items" :key="item.id" class="admin-payments__item">
+                <div
+                    v-for="item in items"
+                    :key="item.id"
+                    class="admin-payments__item"
+                >
                     <div class="admin-payments__item-main">
                         <div class="admin-payments__item-user">
                             <UAvatar
@@ -109,17 +143,15 @@
                             </div>
                         </div>
                         <div class="admin-payments__item-amount">
-                            <span class="admin-payments__item-amount-value"
-                                >{{ (item.amount / 100).toLocaleString('ru-RU') }} ₽</span
-                            >
+                            <span class="admin-payments__item-amount-value">{{ (item.amount / 100).toLocaleString('ru-RU',) }} ₽</span>
                         </div>
                         <div class="admin-payments__item-status">
                             <UBadge
-                                :color="paymentStatusColor(item.status) as 'success' | 'warning' | 'error' | 'neutral' | 'info'"
+                                :color="paymentStatusColor(item.status,) as 'success' | 'warning' | 'error' | 'neutral' | 'info'"
                                 variant="soft"
                                 size="sm"
                             >
-                                {{ paymentStatusLabel(item.status) }}
+                                {{ paymentStatusLabel(item.status,) }}
                             </UBadge>
                         </div>
                         <div class="admin-payments__item-method">
@@ -151,7 +183,7 @@
                                 color="neutral"
                                 variant="ghost"
                                 size="sm"
-                                @click="openDetailModal(item)"
+                                @click="openDetailModal(item,)"
                             />
                         </UTooltip>
                         <UTooltip text="Возврат платежа">
@@ -161,10 +193,10 @@
                                 variant="ghost"
                                 size="sm"
                                 :disabled="
-                                    item.status !== 'succeeded' &&
-                                    item.status !== 'waiting_for_capture'
+                                    item.status !== 'succeeded'
+                                        && item.status !== 'waiting_for_capture'
                                 "
-                                @click="confirmRefund(item)"
+                                @click="confirmRefund(item,)"
                             />
                         </UTooltip>
                     </div>
@@ -176,7 +208,7 @@
                 <div class="admin-page__pagination">
                     <span class="admin-page__pagination-info">
                         {{ (page - 1) * perPage + 1 }}–{{
-                            Math.min(page * perPage, total)
+                            Math.min(page * perPage, total,)
                         }}
                         из {{ total }}
                     </span>
@@ -192,7 +224,10 @@
         </UCard>
 
         <!-- Detail Modal -->
-        <UModal v-model:open="detailModalOpen" class="max-w-lg">
+        <UModal
+            v-model:open="detailModalOpen"
+            class="max-w-lg"
+        >
             <template #header>
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">
@@ -208,30 +243,29 @@
                 </div>
             </template>
             <template #body>
-                <div v-if="detailTarget" class="space-y-3">
+                <div
+                    v-if="detailTarget"
+                    class="space-y-3"
+                >
                     <div class="admin-payments__detail-row">
                         <span class="admin-payments__detail-label">Пользователь</span>
-                        <span class="admin-payments__detail-value"
-                            >{{ detailTarget.username }} ({{
-                                detailTarget.user_email
-                            }})</span
-                        >
+                        <span class="admin-payments__detail-value">{{ detailTarget.username }} ({{
+                            detailTarget.user_email
+                        }})</span>
                     </div>
                     <div class="admin-payments__detail-row">
                         <span class="admin-payments__detail-label">Сумма</span>
-                        <span class="admin-payments__detail-value"
-                            >{{ (detailTarget.amount / 100).toLocaleString('ru-RU') }}
-                            {{ detailTarget.currency }}</span
-                        >
+                        <span class="admin-payments__detail-value">{{ (detailTarget.amount / 100).toLocaleString('ru-RU',) }}
+                            {{ detailTarget.currency }}</span>
                     </div>
                     <div class="admin-payments__detail-row">
                         <span class="admin-payments__detail-label">Статус</span>
                         <UBadge
-                            :color="paymentStatusColor(detailTarget.status) as 'success' | 'warning' | 'error' | 'neutral' | 'info'"
+                            :color="paymentStatusColor(detailTarget.status,) as 'success' | 'warning' | 'error' | 'neutral' | 'info'"
                             variant="soft"
                             size="sm"
                         >
-                            {{ paymentStatusLabel(detailTarget.status) }}
+                            {{ paymentStatusLabel(detailTarget.status,) }}
                         </UBadge>
                     </div>
                     <div class="admin-payments__detail-row">
@@ -286,10 +320,10 @@
             :message="
                 refundTarget
                     ? `Вы уверены, что хотите инициировать возврат платежа #${
-                          refundTarget.id
-                      } на сумму ${(refundTarget.amount / 100).toLocaleString(
-                          'ru-RU'
-                      )} ₽? Доступ к продукту будет отменён.`
+                        refundTarget.id
+                    } на сумму ${(refundTarget.amount / 100).toLocaleString(
+                        'ru-RU',
+                    )} ₽? Доступ к продукту будет отменён.`
                     : ''
             "
             type="danger"
@@ -305,122 +339,122 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, } from 'vue';
-import {
-    fetchAdminPayments,
-    refundAdminPayment,
-} from '~/api/admin';
-import type { AdminPaymentItem } from '~/types';
+    import { ref, watch, } from 'vue';
+    import {
+        fetchAdminPayments,
+        refundAdminPayment,
+    } from '~/api/admin';
+    import type { AdminPaymentItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const items = ref<AdminPaymentItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const page = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const searchQuery = ref('');
-const statusFilter = ref<string | undefined>(undefined);
+    const items = ref<AdminPaymentItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const page = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const searchQuery = ref('',);
+    const statusFilter = ref<string | undefined>(undefined,);
 
-const statusOptions = [
-    { label: 'Ожидает', value: 'pending' },
-    { label: 'Успешен', value: 'succeeded' },
-    { label: 'Отменён', value: 'canceled' },
-    { label: 'Возвращён', value: 'refunded' },
-    { label: 'Ожидает подтверждения', value: 'waiting_for_capture' },
-];
+    const statusOptions = [
+        { label: 'Ожидает', value: 'pending', },
+        { label: 'Успешен', value: 'succeeded', },
+        { label: 'Отменён', value: 'canceled', },
+        { label: 'Возвращён', value: 'refunded', },
+        { label: 'Ожидает подтверждения', value: 'waiting_for_capture', },
+    ];
 
-// Detail modal
-const detailModalOpen = ref(false);
-const detailTarget = ref<AdminPaymentItem | null>(null);
+    // Detail modal
+    const detailModalOpen = ref(false,);
+    const detailTarget = ref<AdminPaymentItem | null>(null,);
 
-// Refund modal
-const refundModalOpen = ref(false);
-const refundTarget = ref<AdminPaymentItem | null>(null);
-const refunding = ref(false);
+    // Refund modal
+    const refundModalOpen = ref(false,);
+    const refundTarget = ref<AdminPaymentItem | null>(null,);
+    const refunding = ref(false,);
 
-function paymentStatusColor(status: string): string {
-    const colors: Record<string, string> = {
-        pending: 'warning',
-        waiting_for_capture: 'info',
-        succeeded: 'success',
-        canceled: 'error',
-        refunded: 'neutral',
-    };
-    return colors[status] || 'neutral';
-}
-
-function paymentStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-        pending: 'Ожидает',
-        waiting_for_capture: 'Ожидает подтверждения',
-        succeeded: 'Успешен',
-        canceled: 'Отменён',
-        refunded: 'Возвращён',
-    };
-    return labels[status] || status;
-}
-
-let searchTimeout: ReturnType<typeof setTimeout> | null = null;
-watch(searchQuery, () => {
-    if (searchTimeout) clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        page.value = 1;
-        loadData();
-    }, 400);
-});
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const response = await fetchAdminPayments({
-            page: page.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            status: statusFilter.value || undefined,
-        });
-        items.value = response.items;
-        total.value = response.total;
-        page.value = response.page;
-        perPage.value = response.per_page;
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
-    } finally {
-        loading.value = false;
+    function paymentStatusColor(status: string,): string {
+        const colors: Record<string, string> = {
+            pending: 'warning',
+            waiting_for_capture: 'info',
+            succeeded: 'success',
+            canceled: 'error',
+            refunded: 'neutral',
+        };
+        return colors[status] || 'neutral';
     }
-}
 
-function openDetailModal(item: AdminPaymentItem) {
-    detailTarget.value = item;
-    detailModalOpen.value = true;
-}
-
-function confirmRefund(item: AdminPaymentItem) {
-    refundTarget.value = item;
-    refundModalOpen.value = true;
-}
-
-async function doRefund() {
-    if (!refundTarget.value) return;
-    refunding.value = true;
-    try {
-        await refundAdminPayment(refundTarget.value.id);
-        refundModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка возврата платежа';
-    } finally {
-        refunding.value = false;
+    function paymentStatusLabel(status: string,): string {
+        const labels: Record<string, string> = {
+            pending: 'Ожидает',
+            waiting_for_capture: 'Ожидает подтверждения',
+            succeeded: 'Успешен',
+            canceled: 'Отменён',
+            refunded: 'Возвращён',
+        };
+        return labels[status] || status;
     }
-}
 
-// Initial load
-loadData();
+    let searchTimeout: ReturnType<typeof setTimeout> | null = null;
+    watch(searchQuery, () => {
+        if (searchTimeout) clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            page.value = 1;
+            loadData();
+        }, 400,);
+    });
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const response = await fetchAdminPayments({
+                page: page.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                status: statusFilter.value || undefined,
+            });
+            items.value = response.items;
+            total.value = response.total;
+            page.value = response.page;
+            perPage.value = response.per_page;
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    function openDetailModal(item: AdminPaymentItem,) {
+        detailTarget.value = item;
+        detailModalOpen.value = true;
+    }
+
+    function confirmRefund(item: AdminPaymentItem,) {
+        refundTarget.value = item;
+        refundModalOpen.value = true;
+    }
+
+    async function doRefund() {
+        if (!refundTarget.value) return;
+        refunding.value = true;
+        try {
+            await refundAdminPayment(refundTarget.value.id,);
+            refundModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка возврата платежа';
+        } finally {
+            refunding.value = false;
+        }
+    }
+
+    // Initial load
+    loadData();
 </script>
 
 <style scoped>

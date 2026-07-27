@@ -8,8 +8,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Промокоды</h1>
-                <p class="admin-page__subtitle">Управление промокодами и скидками</p>
+                <h1 class="admin-page__title">
+                    Промокоды
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление промокодами и скидками
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -21,15 +25,25 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" @click="openCreateModal">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    @click="openCreateModal"
+                >
                     Создать промокод
                 </UButton>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -40,11 +54,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -53,8 +77,13 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-ticket-percent" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Промокоды не найдены</h3>
+                <UIcon
+                    name="i-lucide-ticket-percent"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Промокоды не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     Создайте первый промокод, чтобы начать.
                 </p>
@@ -62,9 +91,16 @@
         </UCard>
 
         <!-- Promo Codes List -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-promocodes__list">
-                <div v-for="item in items" :key="item.id" class="admin-promocodes__item">
+                <div
+                    v-for="item in items"
+                    :key="item.id"
+                    class="admin-promocodes__item"
+                >
                     <div class="admin-promocodes__item-main">
                         <div class="admin-promocodes__item-code-section">
                             <span class="admin-promocodes__item-code">{{
@@ -84,8 +120,8 @@
                                     item.discount_type === 'percentage'
                                         ? `${item.discount_value}%`
                                         : `${(item.discount_value / 100).toLocaleString(
-                                              'ru-RU'
-                                          )} ₽`
+                                            'ru-RU',
+                                        )} ₽`
                                 }}
                             </span>
                             <span class="admin-promocodes__item-discount-type">
@@ -101,9 +137,7 @@
                                 {{ item.used_count
                                 }}{{ item.max_uses ? ` / ${item.max_uses}` : '' }}
                             </span>
-                            <span class="admin-promocodes__item-usage-label"
-                                >использований</span
-                            >
+                            <span class="admin-promocodes__item-usage-label">использований</span>
                         </div>
                         <div class="admin-promocodes__item-dates">
                             <div
@@ -114,7 +148,7 @@
                                     name="i-lucide-calendar"
                                     class="admin-promocodes__item-date-icon"
                                 />
-                                <span>с {{ formatDate(item.valid_from) }}</span>
+                                <span>с {{ formatDate(item.valid_from,) }}</span>
                             </div>
                             <div
                                 v-if="item.valid_until"
@@ -124,7 +158,7 @@
                                     name="i-lucide-calendar"
                                     class="admin-promocodes__item-date-icon"
                                 />
-                                <span>до {{ formatDate(item.valid_until) }}</span>
+                                <span>до {{ formatDate(item.valid_until,) }}</span>
                             </div>
                             <div
                                 v-if="!item.valid_from && !item.valid_until"
@@ -145,7 +179,7 @@
                                 color="neutral"
                                 variant="ghost"
                                 size="sm"
-                                @click="openEditModal(item)"
+                                @click="openEditModal(item,)"
                             />
                         </UTooltip>
                         <UTooltip text="Удалить">
@@ -154,7 +188,7 @@
                                 color="error"
                                 variant="ghost"
                                 size="sm"
-                                @click="confirmDelete(item)"
+                                @click="confirmDelete(item,)"
                             />
                         </UTooltip>
                     </div>
@@ -163,7 +197,10 @@
         </UCard>
 
         <!-- Create/Edit Modal -->
-        <UModal v-model:open="formModalOpen" class="max-w-lg">
+        <UModal
+            v-model:open="formModalOpen"
+            class="max-w-lg"
+        >
             <template #header>
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">
@@ -184,7 +221,10 @@
             </template>
             <template #body>
                 <div class="space-y-4">
-                    <UFormField label="Код промокода" required>
+                    <UFormField
+                        label="Код промокода"
+                        required
+                    >
                         <UInput
                             v-model="form.code"
                             placeholder="Например: SUMMER2024"
@@ -193,7 +233,10 @@
                         />
                     </UFormField>
                     <div class="grid grid-cols-2 gap-4">
-                        <UFormField label="Тип скидки" required>
+                        <UFormField
+                            label="Тип скидки"
+                            required
+                        >
                             <USelect
                                 v-model="form.discount_type"
                                 :items="discountTypeOptions"
@@ -201,7 +244,10 @@
                                 variant="outline"
                             />
                         </UFormField>
-                        <UFormField label="Значение" required>
+                        <UFormField
+                            label="Значение"
+                            required
+                        >
                             <UInput
                                 v-model="form.discount_value"
                                 type="number"
@@ -295,154 +341,154 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import {
-    fetchAdminPromoCodes,
-    createAdminPromoCode,
-    updateAdminPromoCode,
-    deleteAdminPromoCode,
-} from '~/api/admin';
-import type { AdminPromoCodeItem } from '~/types';
+    import { ref, reactive, } from 'vue';
+    import {
+        fetchAdminPromoCodes,
+        createAdminPromoCode,
+        updateAdminPromoCode,
+        deleteAdminPromoCode,
+    } from '~/api/admin';
+    import type { AdminPromoCodeItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
-
-const items = ref<AdminPromoCodeItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
-// Form modal
-const formModalOpen = ref(false);
-const editingItem = ref<AdminPromoCodeItem | null>(null);
-const saving = ref(false);
-
-const form = reactive({
-    code: '',
-    discount_type: 'percentage',
-    discount_value: 10,
-    max_uses: null as number | null,
-    valid_from: '',
-    valid_until: '',
-    is_active: 'true',
-});
-
-const discountTypeOptions = [
-    { label: 'Процент', value: 'percentage' },
-    { label: 'Фиксированная сумма', value: 'fixed' },
-];
-
-const activeOptions = [
-    { label: 'Да', value: 'true' },
-    { label: 'Нет', value: 'false' },
-];
-
-// Delete modal
-const deleteModalOpen = ref(false);
-const deleteTarget = ref<AdminPromoCodeItem | null>(null);
-const deleting = ref(false);
-
-function formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('ru-RU', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
     });
-}
 
-function resetForm() {
-    form.code = '';
-    form.discount_type = 'percentage';
-    form.discount_value = 10;
-    form.max_uses = null;
-    form.valid_from = '';
-    form.valid_until = '';
-    form.is_active = 'true';
-}
+    const items = ref<AdminPromoCodeItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
 
-function openCreateModal() {
-    editingItem.value = null;
-    resetForm();
-    formModalOpen.value = true;
-}
+    // Form modal
+    const formModalOpen = ref(false,);
+    const editingItem = ref<AdminPromoCodeItem | null>(null,);
+    const saving = ref(false,);
 
-function openEditModal(item: AdminPromoCodeItem) {
-    editingItem.value = item;
-    form.code = item.code;
-    form.discount_type = item.discount_type;
-    form.discount_value = item.discount_value;
-    form.max_uses = item.max_uses;
-    form.valid_from = item.valid_from ? item.valid_from.split('T')[0] ?? '' : '';
-    form.valid_until = item.valid_until ? item.valid_until.split('T')[0] ?? '' : '';
-    form.is_active = item.is_active ? 'true' : 'false';
-    formModalOpen.value = true;
-}
+    const form = reactive({
+        code: '',
+        discount_type: 'percentage',
+        discount_value: 10,
+        max_uses: null as number | null,
+        valid_from: '',
+        valid_until: '',
+        is_active: 'true',
+    });
 
-async function savePromoCode() {
-    saving.value = true;
-    try {
-        const data = {
-            code: form.code,
-            discount_type: form.discount_type,
-            discount_value: Number(form.discount_value),
-            max_uses: form.max_uses || null,
-            valid_from: form.valid_from ? new Date(form.valid_from).toISOString() : null,
-            valid_until: form.valid_until
-                ? new Date(form.valid_until).toISOString()
-                : null,
-            is_active: form.is_active === 'true',
-        };
+    const discountTypeOptions = [
+        { label: 'Процент', value: 'percentage', },
+        { label: 'Фиксированная сумма', value: 'fixed', },
+    ];
 
-        if (editingItem.value) {
-            await updateAdminPromoCode(editingItem.value.id, data);
-        } else {
-            await createAdminPromoCode(data);
+    const activeOptions = [
+        { label: 'Да', value: 'true', },
+        { label: 'Нет', value: 'false', },
+    ];
+
+    // Delete modal
+    const deleteModalOpen = ref(false,);
+    const deleteTarget = ref<AdminPromoCodeItem | null>(null,);
+    const deleting = ref(false,);
+
+    function formatDate(dateStr: string,): string {
+        const d = new Date(dateStr,);
+        return d.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+        });
+    }
+
+    function resetForm() {
+        form.code = '';
+        form.discount_type = 'percentage';
+        form.discount_value = 10;
+        form.max_uses = null;
+        form.valid_from = '';
+        form.valid_until = '';
+        form.is_active = 'true';
+    }
+
+    function openCreateModal() {
+        editingItem.value = null;
+        resetForm();
+        formModalOpen.value = true;
+    }
+
+    function openEditModal(item: AdminPromoCodeItem,) {
+        editingItem.value = item;
+        form.code = item.code;
+        form.discount_type = item.discount_type;
+        form.discount_value = item.discount_value;
+        form.max_uses = item.max_uses;
+        form.valid_from = item.valid_from ? item.valid_from.split('T',)[0] ?? '' : '';
+        form.valid_until = item.valid_until ? item.valid_until.split('T',)[0] ?? '' : '';
+        form.is_active = item.is_active ? 'true' : 'false';
+        formModalOpen.value = true;
+    }
+
+    async function savePromoCode() {
+        saving.value = true;
+        try {
+            const data = {
+                code: form.code,
+                discount_type: form.discount_type,
+                discount_value: Number(form.discount_value,),
+                max_uses: form.max_uses || null,
+                valid_from: form.valid_from ? new Date(form.valid_from,).toISOString() : null,
+                valid_until: form.valid_until
+                    ? new Date(form.valid_until,).toISOString()
+                    : null,
+                is_active: form.is_active === 'true',
+            };
+
+            if (editingItem.value) {
+                await updateAdminPromoCode(editingItem.value.id, data,);
+            } else {
+                await createAdminPromoCode(data,);
+            }
+
+            formModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка сохранения';
+        } finally {
+            saving.value = false;
         }
-
-        formModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка сохранения';
-    } finally {
-        saving.value = false;
     }
-}
 
-function confirmDelete(item: AdminPromoCodeItem) {
-    deleteTarget.value = item;
-    deleteModalOpen.value = true;
-}
-
-async function doDelete() {
-    if (!deleteTarget.value) return;
-    deleting.value = true;
-    try {
-        await deleteAdminPromoCode(deleteTarget.value.id);
-        deleteModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка удаления';
-    } finally {
-        deleting.value = false;
+    function confirmDelete(item: AdminPromoCodeItem,) {
+        deleteTarget.value = item;
+        deleteModalOpen.value = true;
     }
-}
 
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        items.value = await fetchAdminPromoCodes();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
-    } finally {
-        loading.value = false;
+    async function doDelete() {
+        if (!deleteTarget.value) return;
+        deleting.value = true;
+        try {
+            await deleteAdminPromoCode(deleteTarget.value.id,);
+            deleteModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка удаления';
+        } finally {
+            deleting.value = false;
+        }
     }
-}
 
-// Initial load
-loadData();
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            items.value = await fetchAdminPromoCodes();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    // Initial load
+    loadData();
 </script>
 
 <style scoped>

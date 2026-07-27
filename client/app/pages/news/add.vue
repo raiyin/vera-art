@@ -1,23 +1,23 @@
 <script setup lang="ts">
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    import { ref, reactive, computed, } from 'vue';
+    import type { NewsDesc, } from '~/types';
+    import { getHttpClient, } from '~/api/http-client';
 
-import { ref, reactive, computed } from 'vue';
-import type { NewsDesc } from '~/types';
-import { getHttpClient } from '~/api/http-client';
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
 const api = getHttpClient();
 
-const { t } = useI18n();
+const { t, } = useI18n();
 const toast = useToast();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 
 interface PreviewItem {
-    file: File;
-    preview: string;
+    file: File
+    preview: string
 }
 
 type NewsForm = Omit<NewsDesc, 'id'>;
@@ -36,19 +36,19 @@ const news = reactive<NewsForm>({
     dir: '',
 });
 
-const images = ref<File[]>([]);
-const videos = ref<File[]>([]);
+const images = ref<File[]>([],);
+const videos = ref<File[]>([],);
 
-const img_back_preview = ref<PreviewItem | null>(null);
-const img_backfull_preview = ref<PreviewItem | null>(null);
+const img_back_preview = ref<PreviewItem | null>(null,);
+const img_backfull_preview = ref<PreviewItem | null>(null,);
 
-const previewImages = ref<PreviewItem[]>([]);
-const previewVideos = ref<string[]>([]);
+const previewImages = ref<PreviewItem[]>([],);
+const previewVideos = ref<string[]>([],);
 
-const previewWidth = ref(400);
-const isSubmitting = ref(false);
-const fileError = ref<string | null>(null);
-const isDragOver = ref(false);
+const previewWidth = ref(400,);
+const isSubmitting = ref(false,);
+const fileError = ref<string | null>(null,);
+const isDragOver = ref(false,);
 
 const errors = reactive<Record<string, string>>({
     title_ru: '',
@@ -61,21 +61,21 @@ const errors = reactive<Record<string, string>>({
 });
 
 // Template refs
-const backFullInput = ref<HTMLInputElement | null>(null);
-const backInput = ref<HTMLInputElement | null>(null);
-const imagesInput = ref<HTMLInputElement | null>(null);
-const videosInput = ref<HTMLInputElement | null>(null);
+const backFullInput = ref<HTMLInputElement | null>(null,);
+const backInput = ref<HTMLInputElement | null>(null,);
+const imagesInput = ref<HTMLInputElement | null>(null,);
+const videosInput = ref<HTMLInputElement | null>(null,);
 
 // Computed
 const isFormValid = computed(() => {
     return (
-        news.title_ru.trim() !== '' &&
-        news.title_en.trim() !== '' &&
-        img_back_preview.value !== null &&
-        img_backfull_preview.value !== null &&
-        previewImages.value.length > 0 &&
-        news.text_ru.trim() !== '' &&
-        news.text_en.trim() !== ''
+        news.title_ru.trim() !== ''
+            && news.title_en.trim() !== ''
+        && img_back_preview.value !== null
+            && img_backfull_preview.value !== null
+        && previewImages.value.length > 0
+            && news.text_ru.trim() !== ''
+        && news.text_en.trim() !== ''
     );
 });
 
@@ -88,37 +88,37 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos') {
+function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos',) {
     isDragOver.value = false;
-    const files = Array.from(event.dataTransfer?.files || []);
+    const files = Array.from(event.dataTransfer?.files || [],);
     if (files.length === 0) return;
 
     switch (target) {
         case 'backFull':
-            handleBackFullImageDrop(files[0]!);
+            handleBackFullImageDrop(files[0]!,);
             break;
         case 'back':
-            handleBackImageDrop(files[0]!);
+            handleBackImageDrop(files[0]!,);
             break;
         case 'images':
-            handleImagesDrop(files);
+            handleImagesDrop(files,);
             break;
         case 'videos':
-            handleVideosDrop(files);
+            handleVideosDrop(files,);
             break;
     }
 }
 
-function handleBackImageDrop(file: File) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+function handleBackImageDrop(file: File,) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(file.type,)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
@@ -126,25 +126,25 @@ function handleBackImageDrop(file: File) {
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e,) => {
         img_back_preview.value = {
             file,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file,);
 }
 
-function handleBackFullImageDrop(file: File) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+function handleBackFullImageDrop(file: File,) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(file.type,)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
@@ -152,59 +152,59 @@ function handleBackFullImageDrop(file: File) {
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e,) => {
         img_backfull_preview.value = {
             file,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file,);
 }
 
-function handleImagesDrop(files: File[]) {
+function handleImagesDrop(files: File[],) {
     if (images.value.length + files.length > 10) {
-        fileError.value = t('admin_news_form.errors.max_images');
+        fileError.value = t('admin_news_form.errors.max_images',);
         return;
     }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = files.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = files.filter(file => !validTypes.includes(file.type,),);
     if (invalidFiles.length > 0) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     const maxSize = 5 * 1024 * 1024;
-    const largeFiles = files.filter((file) => file.size > maxSize);
+    const largeFiles = files.filter(file => file.size > maxSize,);
     if (largeFiles.length > 0) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
     fileError.value = null;
 
-    images.value = [...images.value, ...files];
+    images.value = [...images.value, ...files,];
 
-    files.forEach((file) => {
-        news.images.push(file.name);
+    files.forEach((file,) => {
+        news.images.push(file.name,);
     });
 
-    files.forEach((file) => {
+    files.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-function handleVideosDrop(files: File[]) {
+function handleVideosDrop(files: File[],) {
     for (const file of files) {
-        if (!file.type.startsWith('video/')) {
-            fileError.value = t('admin_news_form.errors.invalid_video_type');
+        if (!file.type.startsWith('video/',)) {
+            fileError.value = t('admin_news_form.errors.invalid_video_type',);
             return;
         }
     }
@@ -212,7 +212,7 @@ function handleVideosDrop(files: File[]) {
     const maxSize = 100 * 1024 * 1024;
     for (const file of files) {
         if (file.size > maxSize) {
-            fileError.value = t('admin_news_form.errors.video_size');
+            fileError.value = t('admin_news_form.errors.video_size',);
             return;
         }
     }
@@ -220,13 +220,13 @@ function handleVideosDrop(files: File[]) {
     fileError.value = null;
 
     for (const file of files) {
-        videos.value.push(file);
-        news.videos.push(file.name);
-        previewVideos.value.push(URL.createObjectURL(file));
+        videos.value.push(file,);
+        news.videos.push(file.name,);
+        previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
 
-function triggerFileInput(refName: string) {
+function triggerFileInput(refName: string,) {
     let input: HTMLInputElement | null = null;
     switch (refName) {
         case 'backFullInput':
@@ -247,23 +247,23 @@ function triggerFileInput(refName: string) {
     }
 }
 
-function handleBackImageSelected(event: Event) {
+function handleBackImageSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const selectedImage = target.files?.[0];
 
     if (!selectedImage) return;
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(selectedImage.type)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(selectedImage.type,)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (selectedImage.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
@@ -272,13 +272,13 @@ function handleBackImageSelected(event: Event) {
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e,) => {
         img_back_preview.value = {
             file: selectedImage,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(selectedImage);
+    reader.readAsDataURL(selectedImage,);
 }
 
 function removeBackImage() {
@@ -286,23 +286,23 @@ function removeBackImage() {
     news.img_back = '';
 }
 
-function handleBackFullImageSelected(event: Event) {
+function handleBackFullImageSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const selectedImage = target.files?.[0];
 
     if (!selectedImage) return;
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(selectedImage.type)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(selectedImage.type,)) {
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     // Validate file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
     if (selectedImage.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
@@ -311,13 +311,13 @@ function handleBackFullImageSelected(event: Event) {
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = (e,) => {
         img_backfull_preview.value = {
             file: selectedImage,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(selectedImage);
+    reader.readAsDataURL(selectedImage,);
 }
 
 function removeBackFullImage() {
@@ -325,58 +325,58 @@ function removeBackFullImage() {
     news.img_backfull = '';
 }
 
-function handleImagesSelected(event: Event) {
+function handleImagesSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
-    const selectedFiles = Array.from(target.files || []);
+    const selectedFiles = Array.from(target.files || [],);
 
     // Проверка на количество файлов
     if (images.value.length + selectedFiles.length > 10) {
-        fileError.value = t('admin_news_form.errors.max_images');
+        fileError.value = t('admin_news_form.errors.max_images',);
         return;
     }
 
     // Проверка типов файлов
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
 
     if (invalidFiles.length > 0) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type');
+        fileError.value = t('admin_news_form.errors.invalid_image_type',);
         return;
     }
 
     // Проверка размера файлов (макс. 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
 
     if (largeFiles.length > 0) {
-        fileError.value = t('admin_news_form.errors.image_size');
+        fileError.value = t('admin_news_form.errors.image_size',);
         return;
     }
 
     fileError.value = null;
 
     // Добавляем новые файлы
-    images.value = [...images.value, ...selectedFiles];
+    images.value = [...images.value, ...selectedFiles,];
 
     // Добавляем имена файлов в news.images
-    selectedFiles.forEach((file) => {
-        news.images.push(file.name);
+    selectedFiles.forEach((file,) => {
+        news.images.push(file.name,);
     });
 
     // Создаем превью для новых изображений
-    selectedFiles.forEach((file) => {
+    selectedFiles.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-async function handleVideosSelected(event: Event) {
+async function handleVideosSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const files = target.files as FileList;
 
@@ -385,8 +385,8 @@ async function handleVideosSelected(event: Event) {
     // Validate file type
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
-        if (!file.type.startsWith('video/')) {
-            fileError.value = t('admin_news_form.errors.invalid_video_type');
+        if (!file.type.startsWith('video/',)) {
+            fileError.value = t('admin_news_form.errors.invalid_video_type',);
             return;
         }
     }
@@ -396,7 +396,7 @@ async function handleVideosSelected(event: Event) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
         if (file.size > maxSize) {
-            fileError.value = t('admin_news_form.errors.video_size');
+            fileError.value = t('admin_news_form.errors.video_size',);
             return;
         }
     }
@@ -406,85 +406,85 @@ async function handleVideosSelected(event: Event) {
     // Populate both arrays
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
-        videos.value.push(file);
-        news.videos.push(file.name);
-        previewVideos.value.push(URL.createObjectURL(file));
+        videos.value.push(file,);
+        news.videos.push(file.name,);
+        previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
 
-function removeImageFromImages(index: number) {
-    previewImages.value.splice(index, 1);
-    images.value.splice(index, 1);
-    news.images.splice(index, 1);
+function removeImageFromImages(index: number,) {
+    previewImages.value.splice(index, 1,);
+    images.value.splice(index, 1,);
+    news.images.splice(index, 1,);
 }
 
-function removeVideoFromVideos(index: number) {
-    previewVideos.value.splice(index, 1);
-    videos.value.splice(index, 1);
-    news.videos.splice(index, 1);
+function removeVideoFromVideos(index: number,) {
+    previewVideos.value.splice(index, 1,);
+    videos.value.splice(index, 1,);
+    news.videos.splice(index, 1,);
 }
 
 function onVideoError() {
     // Video error handling
 }
 
-function validateField(fieldName: string) {
+function validateField(fieldName: string,) {
     switch (fieldName) {
         case 'title_ru':
             if (!news.title_ru.trim()) {
-                errors.title_ru = t('admin_news_form.errors.title_ru_required');
+                errors.title_ru = t('admin_news_form.errors.title_ru_required',);
             } else if (
-                news.title_ru.trim().length < 3 ||
-                news.title_ru.trim().length > 50
+                news.title_ru.trim().length < 3
+            || news.title_ru.trim().length > 50
             ) {
-                errors.title_ru = t('admin_news_form.errors.title_ru_length');
+                errors.title_ru = t('admin_news_form.errors.title_ru_length',);
             } else {
                 errors.title_ru = '';
             }
             break;
         case 'title_en':
             if (!news.title_en.trim()) {
-                errors.title_en = t('admin_news_form.errors.title_en_required');
+                errors.title_en = t('admin_news_form.errors.title_en_required',);
             } else if (
-                news.title_en.trim().length < 3 ||
-                news.title_en.trim().length > 50
+                news.title_en.trim().length < 3
+            || news.title_en.trim().length > 50
             ) {
-                errors.title_en = t('admin_news_form.errors.title_en_length');
+                errors.title_en = t('admin_news_form.errors.title_en_length',);
             } else {
                 errors.title_en = '';
             }
             break;
         case 'img_back':
             if (!img_back_preview.value || !news.img_back) {
-                errors.img_back = t('admin_news_form.errors.preview_image_required');
+                errors.img_back = t('admin_news_form.errors.preview_image_required',);
             } else {
                 errors.img_back = '';
             }
             break;
         case 'img_backfull':
             if (!img_backfull_preview.value || !news.img_backfull) {
-                errors.img_backfull = t('admin_news_form.errors.main_image_required');
+                errors.img_backfull = t('admin_news_form.errors.main_image_required',);
             } else {
                 errors.img_backfull = '';
             }
             break;
         case 'images':
             if (previewImages.value.length === 0) {
-                errors.images = t('admin_news_form.errors.images_required');
+                errors.images = t('admin_news_form.errors.images_required',);
             } else {
                 errors.images = '';
             }
             break;
         case 'text_ru':
             if (!news.text_ru.trim()) {
-                errors.text_ru = t('admin_news_form.errors.text_ru_required');
+                errors.text_ru = t('admin_news_form.errors.text_ru_required',);
             } else {
                 errors.text_ru = '';
             }
             break;
         case 'text_en':
             if (!news.text_en.trim()) {
-                errors.text_en = t('admin_news_form.errors.text_en_required');
+                errors.text_en = t('admin_news_form.errors.text_en_required',);
             } else {
                 errors.text_en = '';
             }
@@ -493,22 +493,22 @@ function validateField(fieldName: string) {
 }
 
 function validateForm() {
-    validateField('title_ru');
-    validateField('title_en');
-    validateField('img_back');
-    validateField('img_backfull');
-    validateField('images');
-    validateField('text_ru');
-    validateField('text_en');
+    validateField('title_ru',);
+    validateField('title_en',);
+    validateField('img_back',);
+    validateField('img_backfull',);
+    validateField('images',);
+    validateField('text_ru',);
+    validateField('text_en',);
 
     // Проверка отсутствия ошибок
-    return Object.values(errors).every((error) => error === '');
+    return Object.values(errors,).every(error => error === '',);
 }
 
 /**
- * Submit the news form data to the server
- * Sends news information along with images and videos
- */
+     * Submit the news form data to the server
+     * Sends news information along with images and videos
+     */
 async function submitForm() {
     if (isSubmitting.value) return;
 
@@ -524,28 +524,28 @@ async function submitForm() {
 
         // Append main images
         if (img_back_preview.value?.file) {
-            formData.append('img_back', img_back_preview.value.file);
+            formData.append('img_back', img_back_preview.value.file,);
         }
 
         if (img_backfull_preview.value?.file) {
-            formData.append('img_backfull', img_backfull_preview.value.file);
+            formData.append('img_backfull', img_backfull_preview.value.file,);
         }
         // Add additional images and videos
-        images.value.forEach((image) => {
-            formData.append('images', image);
+        images.value.forEach((image,) => {
+            formData.append('images', image,);
         });
 
-        videos.value.forEach((video) => {
-            formData.append('videos', video);
+        videos.value.forEach((video,) => {
+            formData.append('videos', video,);
         });
 
         // Add news data as JSON
         const newsData = {
             ...news,
-            datetime: news.datetime || new Date().toISOString().split('T')[0],
+            datetime: news.datetime || new Date().toISOString().split('T',)[0],
         };
 
-        formData.append('data', JSON.stringify(newsData));
+        formData.append('data', JSON.stringify(newsData,),);
 
         // Send data to server
         const response = await api.post(`${SERVER_URL}news`, formData, {
@@ -556,8 +556,8 @@ async function submitForm() {
 
         if (response.status === 200 || response.status === 201) {
             toast.add({
-                title: t('toast.success.title'),
-                description: t('admin_news_form.messages.submit_success'),
+                title: t('toast.success.title',),
+                description: t('admin_news_form.messages.submit_success',),
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
                 duration: 5000,
@@ -565,23 +565,23 @@ async function submitForm() {
             resetForm();
         } else {
             toast.add({
-                title: t('toast.error.title'),
-                description: t('admin_news_form.messages.submit_failed'),
+                title: t('toast.error.title',),
+                description: t('admin_news_form.messages.submit_failed',),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
         }
     } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description = t('admin_news_form.messages.general_error');
+        console.error('Error submitting form:', error,);
+        let description = t('admin_news_form.messages.general_error',);
         if (error.response?.status === 413) {
-            description = t('admin_news_form.messages.file_too_large');
+            description = t('admin_news_form.messages.file_too_large',);
         } else if (error.response?.status === 400) {
-            description = t('admin_news_form.messages.invalid_data');
+            description = t('admin_news_form.messages.invalid_data',);
         }
         toast.add({
-            title: t('toast.error.title'),
+            title: t('toast.error.title',),
             description,
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
@@ -618,7 +618,7 @@ function resetForm() {
     if (videosInput.value) videosInput.value.value = '';
 
     // Сброс ошибок
-    Object.keys(errors).forEach((key) => {
+    Object.keys(errors,).forEach((key,) => {
         errors[key] = '';
     });
     fileError.value = null;
@@ -629,38 +629,43 @@ function resetForm() {
     <div class="add-news-container">
         <div class="header-section">
             <div class="header-content">
-                <h1 class="page-title">{{ $t('admin_news_form.page_title') }}</h1>
+                <h1 class="page-title">
+                    {{ $t('admin_news_form.page_title',) }}
+                </h1>
             </div>
         </div>
 
-        <form @submit.prevent="submitForm" class="news-form">
+        <form
+            class="news-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Изображения новости -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_news_form.sections.images') }}
+                    {{ $t('admin_news_form.sections.images',) }}
                 </h2>
 
                 <!-- Главное изображение -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.main_image') }}
+                        {{ $t('admin_news_form.labels.main_image',) }}
                         <span class="required">*</span>
                     </label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'backFull')"
-                        @click="triggerFileInput('backFullInput')"
+                        @drop.prevent="handleDrop($event, 'backFull',)"
+                        @click="triggerFileInput('backFullInput',)"
                     >
                         <input
+                            ref="backFullInput"
                             type="file"
-                            @change="handleBackFullImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="backFullInput"
-                        />
+                            @change="handleBackFullImageSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -673,33 +678,39 @@ function resetForm() {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_news_form.labels.drag_drop_single') }}
+                                {{ $t('admin_news_form.labels.drag_drop_single',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_news_form.hints.image_formats') }}
+                                {{ $t('admin_news_form.hints.image_formats',) }}
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="errors.img_backfull">
+                    <div
+                        v-if="errors.img_backfull"
+                        class="error-message"
+                    >
                         {{ errors.img_backfull }}
                     </div>
-                    <div class="preview-container" v-if="img_backfull_preview">
+                    <div
+                        v-if="img_backfull_preview"
+                        class="preview-container"
+                    >
                         <div class="image-preview">
                             <img
                                 :src="img_backfull_preview.preview"
                                 class="preview-image"
-                                :alt="$t('admin_news_form.labels.main_image')"
-                            />
+                                :alt="$t('admin_news_form.labels.main_image',)"
+                            >
                             <UButton
                                 type="button"
-                                @click="removeBackFullImage"
                                 class="remove-btn"
                                 :aria-label="
-                                    $t('admin_news_form.aria_labels.remove_main_image')
+                                    $t('admin_news_form.aria_labels.remove_main_image',)
                                 "
+                                @click="removeBackFullImage"
                             >
                                 &times;
                             </UButton>
@@ -710,24 +721,24 @@ function resetForm() {
                 <!-- Превью изображение новости -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.preview_image') }}
+                        {{ $t('admin_news_form.labels.preview_image',) }}
                         <span class="required">*</span>
                     </label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'back')"
-                        @click="triggerFileInput('backInput')"
+                        @drop.prevent="handleDrop($event, 'back',)"
+                        @click="triggerFileInput('backInput',)"
                     >
                         <input
+                            ref="backInput"
                             type="file"
-                            @change="handleBackImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="backInput"
-                        />
+                            @change="handleBackImageSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -740,33 +751,39 @@ function resetForm() {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_news_form.labels.drag_drop_single') }}
+                                {{ $t('admin_news_form.labels.drag_drop_single',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_news_form.hints.image_formats') }}
+                                {{ $t('admin_news_form.hints.image_formats',) }}
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="errors.img_back">
+                    <div
+                        v-if="errors.img_back"
+                        class="error-message"
+                    >
                         {{ errors.img_back }}
                     </div>
-                    <div class="preview-container" v-if="img_back_preview">
+                    <div
+                        v-if="img_back_preview"
+                        class="preview-container"
+                    >
                         <div class="image-preview">
                             <img
                                 :src="img_back_preview.preview"
                                 class="preview-image"
-                                :alt="$t('admin_news_form.labels.preview_image')"
-                            />
+                                :alt="$t('admin_news_form.labels.preview_image',)"
+                            >
                             <UButton
                                 type="button"
-                                @click="removeBackImage"
                                 class="remove-btn"
                                 :aria-label="
-                                    $t('admin_news_form.aria_labels.remove_preview_image')
+                                    $t('admin_news_form.aria_labels.remove_preview_image',)
                                 "
+                                @click="removeBackImage"
                             >
                                 &times;
                             </UButton>
@@ -777,25 +794,25 @@ function resetForm() {
                 <!-- Фотогаллерея -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.photo_gallery') }}
+                        {{ $t('admin_news_form.labels.photo_gallery',) }}
                         <span class="required">*</span>
                     </label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'images')"
-                        @click="triggerFileInput('imagesInput')"
+                        @drop.prevent="handleDrop($event, 'images',)"
+                        @click="triggerFileInput('imagesInput',)"
                     >
                         <input
+                            ref="imagesInput"
                             type="file"
-                            @change="handleImagesSelected"
                             multiple
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="imagesInput"
-                        />
+                            @change="handleImagesSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -808,20 +825,26 @@ function resetForm() {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_news_form.labels.drag_drop_multiple') }}
+                                {{ $t('admin_news_form.labels.drag_drop_multiple',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_news_form.hints.image_formats_multiple') }}
+                                {{ $t('admin_news_form.hints.image_formats_multiple',) }}
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="errors.images">
+                    <div
+                        v-if="errors.images"
+                        class="error-message"
+                    >
                         {{ errors.images }}
                     </div>
-                    <div class="preview-container" v-if="previewImages.length > 0">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -830,19 +853,19 @@ function resetForm() {
                             <img
                                 :src="image.preview"
                                 class="preview-image"
-                                :alt="`${$t('admin_news_form.labels.photo_gallery')} ${
+                                :alt="`${$t('admin_news_form.labels.photo_gallery',)} ${
                                     index + 1
                                 }`"
-                            />
+                            >
                             <UButton
                                 type="button"
-                                @click="removeImageFromImages(index)"
                                 class="remove-btn"
                                 :aria-label="
                                     $t('admin_news_form.aria_labels.remove_image', {
                                         index: index + 1,
-                                    })
+                                    },)
                                 "
+                                @click="removeImageFromImages(index,)"
                             >
                                 &times;
                             </UButton>
@@ -853,24 +876,24 @@ function resetForm() {
                 <!-- Видеогаллерея -->
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_news_form.labels.video_gallery')
+                        $t('admin_news_form.labels.video_gallery',)
                     }}</label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'videos')"
-                        @click="triggerFileInput('videosInput')"
+                        @drop.prevent="handleDrop($event, 'videos',)"
+                        @click="triggerFileInput('videosInput',)"
                     >
                         <input
+                            ref="videosInput"
                             type="file"
-                            @change="handleVideosSelected"
                             multiple
                             accept="video/*"
                             class="file-input"
-                            ref="videosInput"
-                        />
+                            @change="handleVideosSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -883,20 +906,26 @@ function resetForm() {
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_news_form.labels.drag_drop_videos') }}
+                                {{ $t('admin_news_form.labels.drag_drop_videos',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_news_form.hints.video_formats') }}
+                                {{ $t('admin_news_form.hints.video_formats',) }}
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="fileError">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewVideos.length > 0" class="video-previews">
+                    <div
+                        v-if="previewVideos.length > 0"
+                        class="video-previews"
+                    >
                         <div
                             v-for="(videoUrl, index) in previewVideos"
                             :key="index"
@@ -911,13 +940,13 @@ function resetForm() {
                             />
                             <UButton
                                 type="button"
-                                @click="removeVideoFromVideos(index)"
                                 class="remove-btn"
                                 :aria-label="
                                     $t('admin_news_form.aria_labels.remove_video', {
                                         index: index + 1,
-                                    })
+                                    },)
                                 "
+                                @click="removeVideoFromVideos(index,)"
                             >
                                 &times;
                             </UButton>
@@ -929,41 +958,47 @@ function resetForm() {
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_news_form.sections.main_info') }}
+                    {{ $t('admin_news_form.sections.main_info',) }}
                 </h2>
 
                 <!-- Заголовок -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.title_ru') }}
+                        {{ $t('admin_news_form.labels.title_ru',) }}
                         <span class="required">*</span>
                     </label>
                     <UInput
                         v-model="news.title_ru"
-                        @blur="validateField('title_ru')"
                         type="text"
-                        :class="['form-control', { 'is-invalid': errors.title_ru }]"
-                        :placeholder="$t('admin_news_form.placeholders.title_ru')"
+                        :class="['form-control', { 'is-invalid': errors.title_ru, },]"
+                        :placeholder="$t('admin_news_form.placeholders.title_ru',)"
+                        @blur="validateField('title_ru',)"
                     />
-                    <div class="error-message" v-if="errors.title_ru">
+                    <div
+                        v-if="errors.title_ru"
+                        class="error-message"
+                    >
                         {{ errors.title_ru }}
                     </div>
                 </div>
 
-                <!-- Заголовок по английски-->
+                <!-- Заголовок по английски -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.title_en') }}
+                        {{ $t('admin_news_form.labels.title_en',) }}
                         <span class="required">*</span>
                     </label>
                     <UInput
                         v-model="news.title_en"
-                        @blur="validateField('title_en')"
                         type="text"
-                        :class="['form-control', { 'is-invalid': errors.title_en }]"
-                        :placeholder="$t('admin_news_form.placeholders.title_en')"
+                        :class="['form-control', { 'is-invalid': errors.title_en, },]"
+                        :placeholder="$t('admin_news_form.placeholders.title_en',)"
+                        @blur="validateField('title_en',)"
                     />
-                    <div class="error-message" v-if="errors.title_en">
+                    <div
+                        v-if="errors.title_en"
+                        class="error-message"
+                    >
                         {{ errors.title_en }}
                     </div>
                 </div>
@@ -972,20 +1007,20 @@ function resetForm() {
             <!-- Дополнительная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_news_form.sections.additional_info') }}
+                    {{ $t('admin_news_form.sections.additional_info',) }}
                 </h2>
 
                 <!-- Дата -->
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_news_form.labels.date')
+                        $t('admin_news_form.labels.date',)
                     }}</label>
                     <UInput
                         v-model="news.datetime"
                         type="date"
                         required
                         min="2000-01-01"
-                        :max="new Date().toISOString().split('T')[0]"
+                        :max="new Date().toISOString().split('T',)[0]"
                         class="form-control"
                     />
                 </div>
@@ -993,36 +1028,42 @@ function resetForm() {
                 <!-- Текст -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.text_ru') }}
+                        {{ $t('admin_news_form.labels.text_ru',) }}
                         <span class="required">*</span>
                     </label>
                     <UTextarea
                         v-model="news.text_ru"
-                        @blur="validateField('text_ru')"
-                        :class="['form-control', { 'is-invalid': errors.text_ru }]"
-                        :placeholder="$t('admin_news_form.placeholders.text_ru')"
+                        :class="['form-control', { 'is-invalid': errors.text_ru, },]"
+                        :placeholder="$t('admin_news_form.placeholders.text_ru',)"
                         :rows="6"
                         autoresize
+                        @blur="validateField('text_ru',)"
                     />
-                    <div class="error-message" v-if="errors.text_ru">
+                    <div
+                        v-if="errors.text_ru"
+                        class="error-message"
+                    >
                         {{ errors.text_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_news_form.labels.text_en') }}
+                        {{ $t('admin_news_form.labels.text_en',) }}
                         <span class="required">*</span>
                     </label>
                     <UTextarea
                         v-model="news.text_en"
-                        @blur="validateField('text_en')"
-                        :class="['form-control', { 'is-invalid': errors.text_en }]"
-                        :placeholder="$t('admin_news_form.placeholders.text_en')"
+                        :class="['form-control', { 'is-invalid': errors.text_en, },]"
+                        :placeholder="$t('admin_news_form.placeholders.text_en',)"
                         :rows="6"
                         autoresize
+                        @blur="validateField('text_en',)"
                     />
-                    <div class="error-message" v-if="errors.text_en">
+                    <div
+                        v-if="errors.text_en"
+                        class="error-message"
+                    >
                         {{ errors.text_en }}
                     </div>
                 </div>
@@ -1030,8 +1071,12 @@ function resetForm() {
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" @click="resetForm" class="btn btn-secondary">
-                    {{ $t('admin_news_form.buttons.clear_form') }}
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
+                    {{ $t('admin_news_form.buttons.clear_form',) }}
                 </UButton>
                 <UButton
                     type="submit"
@@ -1039,11 +1084,11 @@ function resetForm() {
                     :disabled="isSubmitting || !isFormValid"
                 >
                     <span v-if="!isSubmitting">{{
-                        $t('admin_news_form.buttons.add_news')
+                        $t('admin_news_form.buttons.add_news',)
                     }}</span>
                     <span v-else>
-                        <span class="spinner"></span>
-                        {{ $t('admin_news_form.buttons.submitting') }}
+                        <span class="spinner" />
+                        {{ $t('admin_news_form.buttons.submitting',) }}
                     </span>
                 </UButton>
             </div>

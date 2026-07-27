@@ -57,13 +57,13 @@ export async function fetchAdminWorks(params?: {
         base_id: params?.base_id,
         sort_by: params?.sort_by,
         sort_order: params?.sort_dir,
-        status: params?.type !== undefined ? String(params.type) : undefined,
+        status: params?.type !== undefined ? String(params.type,) : undefined,
     };
     const { data, } = await getHttpClient().get<any>('admin/works', { params: backendParams, },);
 
     const items: AdminWorkItem[] = (data.works || []).map((w: any,) => ({
         id: w.id || 0,
-        str_id: String(w.id || ''),
+        str_id: String(w.id || '',),
         dir: w.image_path || '',
         name_ru: w.title || '',
         name_en: '',
@@ -86,7 +86,7 @@ export async function fetchAdminWorks(params?: {
         total: data.total || items.length,
         page: params?.page || 1,
         per_page: params?.per_page || items.length,
-        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20)),
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20),),
     };
 }
 
@@ -116,7 +116,7 @@ export async function fetchAdminSales(params?: {
 
     const items: AdminSaleItem[] = (data.sales || []).map((s: any,) => ({
         id: s.id || 0,
-        str_id: String(s.id || ''),
+        str_id: String(s.id || '',),
         dir: s.image_path || '',
         name_ru: s.title || '',
         name_en: '',
@@ -139,7 +139,7 @@ export async function fetchAdminSales(params?: {
         total: data.total || items.length,
         page: params?.page || 1,
         per_page: params?.per_page || items.length,
-        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20)),
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20),),
     };
 }
 
@@ -167,22 +167,22 @@ export async function fetchAdminNews(params?: {
 
     const items: AdminNewsItem[] = (data.news || []).map((n: any,) => {
         const imagePath: string = n.image_path || '';
-        const lastSlash = imagePath.lastIndexOf('/');
-        const dir = lastSlash >= 0 ? imagePath.slice(0, lastSlash + 1) : '';
-        const img_back = lastSlash >= 0 ? imagePath.slice(lastSlash + 1) : imagePath;
+        const lastSlash = imagePath.lastIndexOf('/',);
+        const dir = lastSlash >= 0 ? imagePath.slice(0, lastSlash + 1,) : '';
+        const img_back = lastSlash >= 0 ? imagePath.slice(lastSlash + 1,) : imagePath;
 
-        const images: string[] = (n.image_paths || []).map((p: string) => {
-            const idx = p.lastIndexOf('/');
-            return idx >= 0 ? p.slice(idx + 1) : p;
-        });
+        const images: string[] = (n.image_paths || []).map((p: string,) => {
+            const idx = p.lastIndexOf('/',);
+            return idx >= 0 ? p.slice(idx + 1,) : p;
+        },);
 
-        const videos: string[] = (n.video_paths || []).map((p: string) => {
-            const idx = p.lastIndexOf('/');
-            return idx >= 0 ? p.slice(idx + 1) : p;
-        });
+        const videos: string[] = (n.video_paths || []).map((p: string,) => {
+            const idx = p.lastIndexOf('/',);
+            return idx >= 0 ? p.slice(idx + 1,) : p;
+        },);
 
         return {
-            id: String(n.id || ''),
+            id: String(n.id || '',),
             title_ru: n.title || '',
             title_en: '',
             datetime: n.created_at || '',
@@ -194,7 +194,7 @@ export async function fetchAdminNews(params?: {
             images,
             videos,
         };
-    });
+    },);
 
     const perPage = params?.per_page || 20;
     return {
@@ -202,7 +202,7 @@ export async function fetchAdminNews(params?: {
         total: data.total || items.length,
         page: params?.page || 1,
         per_page: perPage,
-        total_pages: Math.ceil((data.total || items.length) / perPage),
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
     };
 }
 
@@ -255,7 +255,7 @@ export async function fetchAdminProducts(params?: {
         certificate_available: p.certificate_available || false,
         created_at: p.created_at || '',
         updated_at: p.updated_at || '',
-    }));
+    }),);
 
     const perPage = params?.per_page || 20;
     return {
@@ -263,7 +263,7 @@ export async function fetchAdminProducts(params?: {
         total: data.total || items.length,
         page: params?.page || 1,
         per_page: perPage,
-        total_pages: Math.ceil((data.total || items.length) / perPage),
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
     };
 }
 
@@ -296,7 +296,7 @@ export async function fetchAdminLessons(params?: {
         total,
         page: currentPage,
         per_page: perPage,
-        total_pages: Math.ceil(total / perPage) || 1,
+        total_pages: Math.ceil(total / perPage,) || 1,
     };
 }
 
@@ -336,7 +336,7 @@ export async function fetchAdminUsers(params?: {
         reviews_count: 0,
         created_at: u.created_at || '',
         updated_at: u.updated_at || '',
-    }));
+    }),);
 
     const perPage = params?.per_page || 20;
     return {
@@ -344,7 +344,7 @@ export async function fetchAdminUsers(params?: {
         total: data.total || items.length,
         page: params?.page || 1,
         per_page: perPage,
-        total_pages: Math.ceil((data.total || items.length) / perPage),
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
     };
 }
 
@@ -395,42 +395,42 @@ export async function fetchAdminReviews(params?: {
         product_title_ru: '',
         product_title_en: '',
         product_type: '',
-    }));
+    }),);
 
     // Apply client-side filters since backend returns all reviews without filtering
     let filtered = allReviews;
     if (params?.status && params.status !== 'all') {
-        filtered = filtered.filter((r) => r.status === params.status);
+        filtered = filtered.filter(r => r.status === params.status,);
     }
     if (params?.rating && params.rating !== 'all') {
-        const ratingNum = parseInt(params.rating, 10);
-        if (!isNaN(ratingNum)) {
-            filtered = filtered.filter((r) => r.rating === ratingNum);
+        const ratingNum = parseInt(params.rating, 10,);
+        if (!isNaN(ratingNum,)) {
+            filtered = filtered.filter(r => r.rating === ratingNum,);
         }
     }
     if (params?.search) {
         const q = params.search.toLowerCase();
         filtered = filtered.filter(
-            (r) => r.comment_ru.toLowerCase().includes(q),
+            r => r.comment_ru.toLowerCase().includes(q,),
         );
     }
 
     // Compute stats from all reviews (not filtered)
     const totalReviews = allReviews.length;
-    const pendingCount = allReviews.filter((r) => r.status === 'pending').length;
-    const approvedCount = allReviews.filter((r) => r.status === 'approved').length;
-    const rejectedCount = allReviews.filter((r) => r.status === 'rejected').length;
-    const totalRating = allReviews.reduce((sum, r) => sum + r.rating, 0);
+    const pendingCount = allReviews.filter(r => r.status === 'pending',).length;
+    const approvedCount = allReviews.filter(r => r.status === 'approved',).length;
+    const rejectedCount = allReviews.filter(r => r.status === 'rejected',).length;
+    const totalRating = allReviews.reduce((sum, r,) => sum + r.rating, 0,);
     const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
-    const fiveStarCount = allReviews.filter((r) => r.rating === 5).length;
+    const fiveStarCount = allReviews.filter(r => r.rating === 5,).length;
 
     // Paginate filtered results
     const perPage = params?.per_page || 20;
     const currentPage = params?.page || 1;
     const total = filtered.length;
-    const totalPages = Math.ceil(total / perPage);
+    const totalPages = Math.ceil(total / perPage,);
     const start = (currentPage - 1) * perPage;
-    const items = filtered.slice(start, start + perPage);
+    const items = filtered.slice(start, start + perPage,);
 
     return {
         items,
@@ -491,9 +491,9 @@ export async function fetchAdminPurchases(params?: {
         const accessEnd = p.access_end || null;
         let daysRemaining = 0;
         if (accessEnd) {
-            const end = new Date(accessEnd);
+            const end = new Date(accessEnd,);
             const now = new Date();
-            daysRemaining = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+            daysRemaining = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),),);
         }
         return {
             id: p.id || 0,
@@ -515,18 +515,18 @@ export async function fetchAdminPurchases(params?: {
             product_type: '',
             days_remaining: daysRemaining,
         };
-    });
+    },);
 
     const perPage = params?.per_page || 20;
     const currentPage = params?.page || 1;
     const total = items.length;
     const start = (currentPage - 1) * perPage;
     return {
-        items: items.slice(start, start + perPage),
+        items: items.slice(start, start + perPage,),
         total,
         page: currentPage,
         per_page: perPage,
-        total_pages: Math.ceil(total / perPage),
+        total_pages: Math.ceil(total / perPage,),
     };
 }
 
@@ -569,12 +569,12 @@ export async function fetchAdminPayments(params?: {
         total: number
     }>('admin/payments/list', { params, },);
     const data = response.data;
-    const items: AdminPaymentItem[] = (data.payments || []).map((p) => ({
+    const items: AdminPaymentItem[] = (data.payments || []).map(p => ({
         id: p.id,
         user_id: p.user_id,
         external_id: p.yookassa_id || '',
         status: p.status,
-        amount: Math.round(p.amount * 100),
+        amount: Math.round(p.amount * 100,),
         currency: p.currency,
         description: p.description,
         payment_method: p.payment_method,
@@ -583,7 +583,7 @@ export async function fetchAdminPayments(params?: {
         username: '',
         user_full_name: '',
         user_email: '',
-    }));
+    }),);
     const page = params?.page || 1;
     const per_page = params?.per_page || 20;
     return {
@@ -591,7 +591,7 @@ export async function fetchAdminPayments(params?: {
         total: data.total,
         page,
         per_page,
-        total_pages: Math.ceil(data.total / per_page) || 1,
+        total_pages: Math.ceil(data.total / per_page,) || 1,
     };
 }
 

@@ -1,16 +1,28 @@
 <template>
-    <div class="admin-skeleton" :class="{ 'admin-skeleton--dark': isDark }">
+    <div
+        class="admin-skeleton"
+        :class="{ 'admin-skeleton--dark': isDark, }"
+    >
         <table class="admin-skeleton__table">
             <thead>
                 <tr>
-                    <th v-for="col in columns" :key="col">
+                    <th
+                        v-for="col in columns"
+                        :key="col"
+                    >
                         <div class="admin-skeleton__cell admin-skeleton__cell--head" />
                     </th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="row in rows" :key="row">
-                    <td v-for="col in columns" :key="col">
+                <tr
+                    v-for="row in rows"
+                    :key="row"
+                >
+                    <td
+                        v-for="col in columns"
+                        :key="col"
+                    >
                         <div
                             class="admin-skeleton__cell"
                             :class="{
@@ -27,18 +39,18 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-    defineProps<{
-        rows?: number;
-        columns?: number;
-        isDark?: boolean;
-    }>(),
-    {
-        rows: 5,
-        columns: 6,
-        isDark: false,
-    }
-);
+    withDefaults(
+        defineProps<{
+            rows?: number
+            columns?: number
+            isDark?: boolean
+        }>(),
+        {
+            rows: 5,
+            columns: 6,
+            isDark: false,
+        }
+    );
 </script>
 
 <style scoped>

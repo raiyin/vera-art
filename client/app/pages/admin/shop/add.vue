@@ -9,5 +9,5 @@ definePageMeta({
 });
 
 // Redirect to the existing shop add page
-await navigateTo('/art-store/add', { external: true });
+await navigateTo('/art-store/add', { external: true, },);
 </script>

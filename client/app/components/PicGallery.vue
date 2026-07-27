@@ -1,191 +1,191 @@
 <script setup lang="ts">
-import type { PropType } from 'vue';
-import type { CommonWork } from '~/types';
-import { useMaterialStore } from '~/stores/MaterialStore';
-import { useAuthStore } from '~/stores/AuthStore';
-import { ref, computed, watch, onBeforeUnmount } from 'vue';
-import { useI18n } from '#imports';
-import { useRouter } from 'vue-router';
-import { useApi } from '~/composables/useApi';
+    import type { PropType, } from 'vue';
+    import type { CommonWork, } from '~/types';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import { ref, computed, watch, onBeforeUnmount, } from 'vue';
+    import { useI18n, } from '#imports';
+    import { useRouter, } from 'vue-router';
+    import { useApi, } from '~/composables/useApi';
 
-const props = defineProps({
-    images: {
-        type: [Array] as PropType<CommonWork[]>,
-        required: true,
-    },
-});
+    const props = defineProps({
+        images: {
+            type: [Array,] as PropType<CommonWork[]>,
+            required: true,
+        },
+    });
 
-const emit = defineEmits<{
-    'work-deleted': [id: string];
-}>();
+    const emit = defineEmits<{
+        'work-deleted': [id: string,]
+    }>();
 
-const showModal = ref(false);
-const selectedWork = ref<CommonWork | null>(null);
-const currentImageIndex = ref(0);
-const showDeleteModal = ref(false);
-const workToDelete = ref<CommonWork | null>(null);
-const deletingId = ref<string | null>(null);
+    const showModal = ref(false,);
+    const selectedWork = ref<CommonWork | null>(null,);
+    const currentImageIndex = ref(0,);
+    const showDeleteModal = ref(false,);
+    const workToDelete = ref<CommonWork | null>(null,);
+    const deletingId = ref<string | null>(null,);
 
-const filteredImages = computed(() => props.images);
+    const filteredImages = computed(() => props.images,);
 
-const { locale } = useI18n();
+    const { locale, } = useI18n();
 
-const materialStore = useMaterialStore();
-const authStore = useAuthStore();
-const router = useRouter();
-const { del } = useApi();
+    const materialStore = useMaterialStore();
+    const authStore = useAuthStore();
+    const router = useRouter();
+    const { del, } = useApi();
 
-const isAdmin = computed(() => {
-    return authStore.isAuthenticated && authStore.isAdmin;
-});
+    const isAdmin = computed(() => {
+        return authStore.isAuthenticated && authStore.isAdmin;
+    });
 
-const handleWorkDeleted = (id: string) => {
-    emit('work-deleted', id);
-};
+    const handleWorkDeleted = (id: string,) => {
+        emit('work-deleted', id,);
+    };
 
-const navigateToEdit = (work: CommonWork) => {
-    const id = work.id.toString();
-    if (work.__type === 'GetSaleDto') {
-        router.push(`/art-store/edit/${id}`);
-    } else {
-        router.push(`/gallery/edit/${id}`);
-    }
-};
+    const navigateToEdit = (work: CommonWork,) => {
+        const id = work.id.toString();
+        if (work.__type === 'GetSaleDto') {
+            router.push(`/art-store/edit/${id}`,);
+        } else {
+            router.push(`/gallery/edit/${id}`,);
+        }
+    };
 
-const confirmDelete = (work: CommonWork) => {
-    workToDelete.value = work;
-    showDeleteModal.value = true;
-};
+    const confirmDelete = (work: CommonWork,) => {
+        workToDelete.value = work;
+        showDeleteModal.value = true;
+    };
 
-const deleteWork = async () => {
-    if (!workToDelete.value) return;
+    const deleteWork = async () => {
+        if (!workToDelete.value) return;
 
-    const id = workToDelete.value.id.toString();
-    deletingId.value = id;
-    showDeleteModal.value = false;
+        const id = workToDelete.value.id.toString();
+        deletingId.value = id;
+        showDeleteModal.value = false;
 
-    try {
-        const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
-        await del<void>(`${endpoint}/${id}`);
-        handleWorkDeleted(id);
-    } catch (e) {
-        console.error('Error deleting work:', e);
-    } finally {
-        deletingId.value = null;
+        try {
+            const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
+            await del<void>(`${endpoint}/${id}`,);
+            handleWorkDeleted(id,);
+        } catch (e) {
+            console.error('Error deleting work:', e,);
+        } finally {
+            deletingId.value = null;
+            workToDelete.value = null;
+        }
+    };
+
+    const cancelDelete = () => {
+        showDeleteModal.value = false;
         workToDelete.value = null;
-    }
-};
+    };
 
-const cancelDelete = () => {
-    showDeleteModal.value = false;
-    workToDelete.value = null;
-};
+    const getWorkDescription = (work: CommonWork,): string => {
+        const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
+        return descr || '';
+    };
 
-const getWorkDescription = (work: CommonWork): string => {
-    const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
-    return descr || '';
-};
+    const hasDescription = (work: CommonWork,): boolean => {
+        const descrRu = (work as any).descr_ru;
+        const descrEn = (work as any).descr_en;
+        return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
+    };
 
-const hasDescription = (work: CommonWork): boolean => {
-    const descrRu = (work as any).descr_ru;
-    const descrEn = (work as any).descr_en;
-    return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
-};
+    const getWorkName = (work: CommonWork,): string => {
+        return locale.value === 'ru' ? work.name_ru : work.name_en;
+    };
 
-const getWorkName = (work: CommonWork): string => {
-    return locale.value === 'ru' ? work.name_ru : work.name_en;
-};
+    const getWorkBase = (work: CommonWork,): string => {
+        return materialStore.getBaseName(work.base_id, locale.value,);
+    };
 
-const getWorkBase = (work: CommonWork): string => {
-    return materialStore.getBaseName(work.base_id, locale.value);
-};
+    const getMainImageUrl = (work: CommonWork,): string => {
+        return work.dir + (work.images?.[0] || '');
+    };
 
-const getMainImageUrl = (work: CommonWork): string => {
-    return work.dir + (work.images?.[0] || '');
-};
+    const getWorkDimensions = (work: CommonWork,): string => {
+        if (work.width && work.width !== 0 && work.height && work.height !== 0) {
+            return `${work.width}×${work.height}`;
+        }
+        return '';
+    };
 
-const getWorkDimensions = (work: CommonWork): string => {
-    if (work.width && work.width !== 0 && work.height && work.height !== 0) {
-        return `${work.width}×${work.height}`;
-    }
-    return '';
-};
+    // Modal methods
+    const openModal = (work: CommonWork,) => {
+        console.log('openModal called with work:', work,);
+        console.log('Work images:', work.images,);
+        console.log('Work dir:', work.dir,);
+        selectedWork.value = work;
+        currentImageIndex.value = 0;
+        showModal.value = true;
+        console.log('showModal set to:', showModal.value,);
+    };
 
-// Modal methods
-const openModal = (work: CommonWork) => {
-    console.log('openModal called with work:', work);
-    console.log('Work images:', work.images);
-    console.log('Work dir:', work.dir);
-    selectedWork.value = work;
-    currentImageIndex.value = 0;
-    showModal.value = true;
-    console.log('showModal set to:', showModal.value);
-};
+    const closeModal = () => {
+        showModal.value = false;
+        selectedWork.value = null;
+        currentImageIndex.value = 0;
+    };
 
-const closeModal = () => {
-    showModal.value = false;
-    selectedWork.value = null;
-    currentImageIndex.value = 0;
-};
+    // Carousel navigation methods
+    const prevImage = () => {
+        if (selectedWork.value && currentImageIndex.value > 0) {
+            currentImageIndex.value--;
+        }
+    };
 
-// Carousel navigation methods
-const prevImage = () => {
-    if (selectedWork.value && currentImageIndex.value > 0) {
-        currentImageIndex.value--;
-    }
-};
+    const nextImage = () => {
+        if (
+            selectedWork.value
+        && currentImageIndex.value < selectedWork.value.images.length - 1
+        ) {
+            currentImageIndex.value++;
+        }
+    };
 
-const nextImage = () => {
-    if (
-        selectedWork.value &&
-        currentImageIndex.value < selectedWork.value.images.length - 1
-    ) {
-        currentImageIndex.value++;
-    }
-};
+    const goToImage = (index: number,) => {
+        if (selectedWork.value && index >= 0 && index < selectedWork.value.images.length) {
+            currentImageIndex.value = index;
+        }
+    };
 
-const goToImage = (index: number) => {
-    if (selectedWork.value && index >= 0 && index < selectedWork.value.images.length) {
-        currentImageIndex.value = index;
-    }
-};
+    // Keyboard navigation for modal
+    const handleKeydown = (event: KeyboardEvent,) => {
+        if (!showModal.value || !selectedWork.value) return;
 
-// Keyboard navigation for modal
-const handleKeydown = (event: KeyboardEvent) => {
-    if (!showModal.value || !selectedWork.value) return;
+        switch (event.key) {
+    case 'Escape':
+        closeModal();
+        break;
+    case 'ArrowLeft':
+        if (currentImageIndex.value > 0) {
+            currentImageIndex.value--;
+        }
+        break;
+    case 'ArrowRight':
+        if (
+            selectedWork.value.images
+                && currentImageIndex.value < selectedWork.value.images.length - 1
+        ) {
+            currentImageIndex.value++;
+        }
+        break;
+        }
+    };
 
-    switch (event.key) {
-        case 'Escape':
-            closeModal();
-            break;
-        case 'ArrowLeft':
-            if (currentImageIndex.value > 0) {
-                currentImageIndex.value--;
-            }
-            break;
-        case 'ArrowRight':
-            if (
-                selectedWork.value.images &&
-                currentImageIndex.value < selectedWork.value.images.length - 1
-            ) {
-                currentImageIndex.value++;
-            }
-            break;
-    }
-};
+    // Watcher
+    watch(showModal, (newVal,) => {
+        if (newVal) {
+            window.addEventListener('keydown', handleKeydown,);
+        } else {
+            window.removeEventListener('keydown', handleKeydown,);
+        }
+    });
 
-// Watcher
-watch(showModal, (newVal) => {
-    if (newVal) {
-        window.addEventListener('keydown', handleKeydown);
-    } else {
-        window.removeEventListener('keydown', handleKeydown);
-    }
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('keydown', handleKeydown);
-});
+    onBeforeUnmount(() => {
+        window.removeEventListener('keydown', handleKeydown,);
+    });
 </script>
 
 <template>
@@ -194,13 +194,13 @@ onBeforeUnmount(() => {
             <UCard
                 v-for="work in filteredImages"
                 :key="work.id"
-                :ui="{ body: 'flex-1 flex flex-col' }"
+                :ui="{ body: 'flex-1 flex flex-col', }"
                 class="work-card flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
             >
                 <template #header>
                     <div class="flex flex-col justify-between items-start">
                         <h3 class="text-lg font-semibold truncate">
-                            {{ getWorkName(work) }}
+                            {{ getWorkName(work,) }}
                         </h3>
                     </div>
                 </template>
@@ -209,26 +209,26 @@ onBeforeUnmount(() => {
                     <!-- Image -->
                     <div
                         class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
-                        @click="() => openModal(work)"
+                        @click="() => openModal(work,)"
                     >
                         <img
-                            :src="getMainImageUrl(work)"
-                            :alt="getWorkName(work)"
+                            :src="getMainImageUrl(work,)"
+                            :alt="getWorkName(work,)"
                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                        />
+                        >
                         <div
                             class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
                         />
 
                         <!-- Description info icon -->
                         <div
-                            v-if="hasDescription(work)"
+                            v-if="hasDescription(work,)"
                             class="absolute top-2 right-2 z-10"
                         >
                             <UPopover
                                 mode="hover"
-                                :content="{ side: 'bottom', sideOffset: 8 }"
+                                :content="{ side: 'bottom', sideOffset: 8, }"
                             >
                                 <UIcon
                                     name="i-heroicons-information-circle"
@@ -239,7 +239,7 @@ onBeforeUnmount(() => {
                                     <div
                                         class="p-4 max-w-xs text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
                                     >
-                                        <p>{{ getWorkDescription(work) }}</p>
+                                        <p>{{ getWorkDescription(work,) }}</p>
                                     </div>
                                 </template>
                             </UPopover>
@@ -249,25 +249,25 @@ onBeforeUnmount(() => {
                     <!-- Details -->
                     <div class="space-y-2 text-sm my-3">
                         <div
-                            v-if="getWorkDimensions(work)"
+                            v-if="getWorkDimensions(work,)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
                         >
                             <UIcon
                                 name="i-heroicons-arrows-pointing-out"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span>{{ getWorkDimensions(work) }}</span>
+                            <span>{{ getWorkDimensions(work,) }}</span>
                         </div>
 
                         <div
-                            v-if="getWorkBase(work)"
+                            v-if="getWorkBase(work,)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
                         >
                             <UIcon
                                 name="i-heroicons-document-text"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span class="truncate">{{ getWorkBase(work) }}</span>
+                            <span class="truncate">{{ getWorkBase(work,) }}</span>
                         </div>
 
                         <div
@@ -296,14 +296,17 @@ onBeforeUnmount(() => {
 
                         <!-- Admin Controls -->
                         <ClientOnly>
-                            <div v-if="isAdmin" class="flex gap-2">
+                            <div
+                                v-if="isAdmin"
+                                class="flex gap-2"
+                            >
                                 <UButton
                                     size="sm"
                                     color="primary"
                                     variant="outline"
-                                    @click.stop="navigateToEdit(work)"
+                                    @click.stop="navigateToEdit(work,)"
                                 >
-                                    {{ $t('admin.edit_work') }}
+                                    {{ $t('admin.edit_work',) }}
                                 </UButton>
                                 <UButton
                                     size="sm"
@@ -311,9 +314,9 @@ onBeforeUnmount(() => {
                                     variant="outline"
                                     :loading="deletingId === work.id.toString()"
                                     :disabled="deletingId === work.id.toString()"
-                                    @click.stop="confirmDelete(work)"
+                                    @click.stop="confirmDelete(work,)"
                                 >
-                                    {{ $t('admin.delete_work') }}
+                                    {{ $t('admin.delete_work',) }}
                                 </UButton>
                             </div>
                         </ClientOnly>
@@ -330,7 +333,7 @@ onBeforeUnmount(() => {
             :transition="true"
             class="delete-modal"
         >
-            <template #header="{ close }">
+            <template #header="{ close, }">
                 <div class="delete-modal-header">
                     <div class="delete-modal-icon-wrapper">
                         <UIcon
@@ -339,7 +342,7 @@ onBeforeUnmount(() => {
                         />
                     </div>
                     <h3 class="delete-modal-title">
-                        {{ $t('admin.delete_work_confirm_title') }}
+                        {{ $t('admin.delete_work_confirm_title',) }}
                     </h3>
                 </div>
             </template>
@@ -349,12 +352,12 @@ onBeforeUnmount(() => {
                     <p class="delete-modal-text">
                         {{
                             $t('admin.delete_work_confirm_text', {
-                                name: workToDelete ? getWorkName(workToDelete) : '',
-                            })
+                                name: workToDelete ? getWorkName(workToDelete,) : '',
+                            },)
                         }}
                     </p>
                     <p class="delete-modal-warning">
-                        {{ $t('admin.delete_work_confirm_warning') }}
+                        {{ $t('admin.delete_work_confirm_warning',) }}
                     </p>
                 </div>
             </template>
@@ -367,7 +370,7 @@ onBeforeUnmount(() => {
                         variant="outline"
                         @click="cancelDelete"
                     >
-                        {{ $t('admin.delete_work_cancel') }}
+                        {{ $t('admin.delete_work_cancel',) }}
                     </UButton>
                     <UButton
                         size="md"
@@ -376,7 +379,7 @@ onBeforeUnmount(() => {
                         :disabled="deletingId !== null"
                         @click="deleteWork"
                     >
-                        {{ $t('admin.delete_work_confirm') }}
+                        {{ $t('admin.delete_work_confirm',) }}
                     </UButton>
                 </div>
             </template>
@@ -393,8 +396,8 @@ onBeforeUnmount(() => {
                     <!-- Close Button -->
                     <button
                         class="custom-modal-close"
-                        @click="closeModal"
                         aria-label="Close"
+                        @click="closeModal"
                     >
                         <svg
                             class="w-6 h-6"
@@ -414,29 +417,32 @@ onBeforeUnmount(() => {
 
                     <!-- Image Container -->
                     <div class="custom-modal-image-container">
-                        <transition name="image-slide" mode="out-in">
+                        <transition
+                            name="image-slide"
+                            mode="out-in"
+                        >
                             <img
                                 :key="currentImageIndex"
                                 :src="
-                                    selectedWork.dir +
-                                    selectedWork.images[currentImageIndex]
+                                    selectedWork.dir
+                                        + selectedWork.images[currentImageIndex]
                                 "
                                 :alt="
-                                    getWorkName(selectedWork) +
-                                    ' - Image ' +
-                                    (currentImageIndex + 1)
+                                    getWorkName(selectedWork,)
+                                        + ' - Image '
+                                        + (currentImageIndex + 1)
                                 "
                                 class="custom-modal-image"
                                 @click="closeModal"
-                            />
+                            >
                         </transition>
 
                         <!-- Navigation Buttons -->
                         <button
                             v-if="currentImageIndex > 0"
-                            @click="prevImage"
                             class="custom-modal-nav-button left"
                             aria-label="Previous image"
+                            @click="prevImage"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -455,9 +461,9 @@ onBeforeUnmount(() => {
                         </button>
                         <button
                             v-if="currentImageIndex < selectedWork.images.length - 1"
-                            @click="nextImage"
                             class="custom-modal-nav-button right"
                             aria-label="Next image"
+                            @click="nextImage"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -496,14 +502,14 @@ onBeforeUnmount(() => {
                             v-for="(image, index) in selectedWork.images"
                             :key="index"
                             class="thumbnail-item"
-                            :class="{ active: index === currentImageIndex }"
-                            @click="goToImage(index)"
+                            :class="{ active: index === currentImageIndex, }"
+                            @click="goToImage(index,)"
                         >
                             <img
                                 :src="selectedWork.dir + image"
                                 :alt="'Thumbnail ' + (index + 1)"
                                 class="thumbnail-image"
-                            />
+                            >
                         </div>
                     </div>
                 </div>
@@ -524,8 +530,6 @@ onBeforeUnmount(() => {
     flex-direction: column;
     flex: 1;
 }
-
-
 
 /* Custom Modal Styles (matching news carousel) */
 .modal-fade-enter-active,

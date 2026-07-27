@@ -8,8 +8,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Чаты</h1>
-                <p class="admin-page__subtitle">Управление обращениями пользователей</p>
+                <h1 class="admin-page__title">
+                    Чаты
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление обращениями пользователей
+                </p>
             </div>
             <div class="admin-chats__header-actions">
                 <UInput
@@ -32,11 +36,21 @@
         <template v-if="loading">
             <div class="admin-chats__layout">
                 <div class="admin-chats__sidebar">
-                    <div v-for="i in 5" :key="i" class="admin-chats__skeleton">
+                    <div
+                        v-for="i in 5"
+                        :key="i"
+                        class="admin-chats__skeleton"
+                    >
                         <div class="admin-chats__skeleton-avatar" />
                         <div class="admin-chats__skeleton-content">
-                            <div class="admin-chats__skeleton-line" style="width: 60%" />
-                            <div class="admin-chats__skeleton-line" style="width: 40%" />
+                            <div
+                                class="admin-chats__skeleton-line"
+                                style="width: 60%"
+                            />
+                            <div
+                                class="admin-chats__skeleton-line"
+                                style="width: 40%"
+                            />
                         </div>
                     </div>
                 </div>
@@ -46,10 +60,16 @@
                             v-for="i in 4"
                             :key="i"
                             class="admin-chats__skeleton-msg"
-                            :class="{ 'admin-chats__skeleton-msg--right': i % 2 === 0 }"
+                            :class="{ 'admin-chats__skeleton-msg--right': i % 2 === 0, }"
                         >
-                            <div class="admin-chats__skeleton-line" style="width: 70%" />
-                            <div class="admin-chats__skeleton-line" style="width: 30%" />
+                            <div
+                                class="admin-chats__skeleton-line"
+                                style="width: 70%"
+                            />
+                            <div
+                                class="admin-chats__skeleton-line"
+                                style="width: 30%"
+                            />
                         </div>
                     </div>
                 </div>
@@ -64,8 +84,14 @@
                         name="i-heroicons-exclamation-triangle"
                         class="admin-page__placeholder-icon admin-page__placeholder-icon--error"
                     />
-                    <p class="admin-page__hint">{{ error }}</p>
-                    <UButton color="primary" variant="solid" @click="loadThreads">
+                    <p class="admin-page__hint">
+                        {{ error }}
+                    </p>
+                    <UButton
+                        color="primary"
+                        variant="solid"
+                        @click="loadThreads"
+                    >
                         Повторить
                     </UButton>
                 </div>
@@ -80,7 +106,9 @@
                         name="i-heroicons-chat-bubble-left-right"
                         class="admin-page__placeholder-icon"
                     />
-                    <p class="admin-page__hint">Нет активных чатов</p>
+                    <p class="admin-page__hint">
+                        Нет активных чатов
+                    </p>
                 </div>
             </UCard>
         </template>
@@ -99,14 +127,14 @@
                                 selectedThread?.id === thread.id,
                             'admin-chats__thread--unresolved': !thread.is_resolved,
                         }"
-                        @click="selectThread(thread)"
+                        @click="selectThread(thread,)"
                     >
                         <UAvatar
                             :text="
                                 (
-                                    (thread.user?.username ||
-                                        thread.user?.full_name ||
-                                        '?')[0] || '?'
+                                    (thread.user?.username
+                                        || thread.user?.full_name
+                                        || '?')[0] || '?'
                                 ).toUpperCase()
                             "
                             size="sm"
@@ -115,20 +143,20 @@
                         <div class="admin-chats__thread-info">
                             <div class="admin-chats__thread-name">
                                 {{
-                                    thread.user?.full_name ||
-                                    thread.user?.username ||
-                                    'Пользователь'
+                                    thread.user?.full_name
+                                        || thread.user?.username
+                                        || 'Пользователь'
                                 }}
                             </div>
                             <div class="admin-chats__thread-product">
                                 {{
-                                    thread.purchase?.product?.title_ru ||
-                                    thread.purchase?.product?.title_en ||
-                                    '—'
+                                    thread.purchase?.product?.title_ru
+                                        || thread.purchase?.product?.title_en
+                                        || '—'
                                 }}
                             </div>
                             <div class="admin-chats__thread-time">
-                                {{ formatDate(thread.last_message_at) }}
+                                {{ formatDate(thread.last_message_at,) }}
                             </div>
                         </div>
                         <div class="admin-chats__thread-status">
@@ -140,7 +168,12 @@
                             >
                                 Закрыт
                             </UBadge>
-                            <UBadge v-else color="success" variant="solid" size="xs">
+                            <UBadge
+                                v-else
+                                color="success"
+                                variant="solid"
+                                size="xs"
+                            >
                                 Открыт
                             </UBadge>
                         </div>
@@ -156,9 +189,9 @@
                                 <UAvatar
                                     :text="
                                         (
-                                            (selectedThread.user?.username ||
-                                                selectedThread.user?.full_name ||
-                                                '?')[0] || '?'
+                                            (selectedThread.user?.username
+                                                || selectedThread.user?.full_name
+                                                || '?')[0] || '?'
                                         ).toUpperCase()
                                     "
                                     size="sm"
@@ -166,16 +199,16 @@
                                 <div>
                                     <div class="admin-chats__main-header-name">
                                         {{
-                                            selectedThread.user?.full_name ||
-                                            selectedThread.user?.username ||
-                                            'Пользователь'
+                                            selectedThread.user?.full_name
+                                                || selectedThread.user?.username
+                                                || 'Пользователь'
                                         }}
                                     </div>
                                     <div class="admin-chats__main-header-product">
                                         {{
-                                            selectedThread.purchase?.product?.title_ru ||
-                                            selectedThread.purchase?.product?.title_en ||
-                                            '—'
+                                            selectedThread.purchase?.product?.title_ru
+                                                || selectedThread.purchase?.product?.title_en
+                                                || '—'
                                         }}
                                     </div>
                                 </div>
@@ -187,7 +220,7 @@
                                     variant="soft"
                                     size="sm"
                                     :loading="resolving"
-                                    @click="resolveThread(selectedThread.id)"
+                                    @click="resolveThread(selectedThread.id,)"
                                 >
                                     <template #leading>
                                         <UIcon name="i-heroicons-check-circle" />
@@ -200,7 +233,7 @@
                                     variant="soft"
                                     size="sm"
                                     :loading="reopening"
-                                    @click="reopenThread(selectedThread.id)"
+                                    @click="reopenThread(selectedThread.id,)"
                                 >
                                     <template #leading>
                                         <UIcon name="i-heroicons-arrow-uturn-left" />
@@ -211,7 +244,10 @@
                         </div>
 
                         <!-- Messages List -->
-                        <div ref="messagesContainer" class="admin-chats__messages">
+                        <div
+                            ref="messagesContainer"
+                            class="admin-chats__messages"
+                        >
                             <div
                                 v-for="msg in messages"
                                 :key="msg.id"
@@ -230,18 +266,18 @@
                                     <div class="admin-chats__message-meta">
                                         <span class="admin-chats__message-sender">
                                             {{
-                                                msg.sender?.full_name ||
-                                                msg.sender?.username ||
-                                                '—'
+                                                msg.sender?.full_name
+                                                    || msg.sender?.username
+                                                    || '—'
                                             }}
                                         </span>
                                         <span class="admin-chats__message-time">{{
-                                            formatMessageTime(msg.created_at)
+                                            formatMessageTime(msg.created_at,)
                                         }}</span>
                                         <span
                                             v-if="
-                                                msg.is_read &&
-                                                msg.sender_id !== selectedThread.user_id
+                                                msg.is_read
+                                                    && msg.sender_id !== selectedThread.user_id
                                             "
                                             class="admin-chats__message-read"
                                         >
@@ -308,7 +344,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, } from 'vue';
 import {
     fetchAdminChatThreads,
     fetchAdminChatMessages,
@@ -316,31 +352,31 @@ import {
     resolveAdminChatThread,
     reopenAdminChatThread,
 } from '~/api/admin';
-import type { AdminChatThread, AdminChatMessage } from '~/types';
+import type { AdminChatThread, AdminChatMessage, } from '~/types';
 
 definePageMeta({
     layout: 'admin',
     middleware: 'admin-auth',
 });
 
-const loading = ref(true);
-const error = ref<string | null>(null);
-const threads = ref<AdminChatThread[]>([]);
-const selectedThread = ref<AdminChatThread | null>(null);
-const messages = ref<AdminChatMessage[]>([]);
-const messagesLoading = ref(false);
-const newMessage = ref('');
-const sending = ref(false);
-const resolving = ref(false);
-const reopening = ref(false);
-const searchQuery = ref('');
-const statusFilter = ref('all');
-const messagesContainer = ref<HTMLElement | null>(null);
+const loading = ref(true,);
+const error = ref<string | null>(null,);
+const threads = ref<AdminChatThread[]>([],);
+const selectedThread = ref<AdminChatThread | null>(null,);
+const messages = ref<AdminChatMessage[]>([],);
+const messagesLoading = ref(false,);
+const newMessage = ref('',);
+const sending = ref(false,);
+const resolving = ref(false,);
+const reopening = ref(false,);
+const searchQuery = ref('',);
+const statusFilter = ref('all',);
+const messagesContainer = ref<HTMLElement | null>(null,);
 
 const statusOptions = [
-    { label: 'Все статусы', value: 'all' },
-    { label: 'Открытые', value: 'open' },
-    { label: 'Закрытые', value: 'resolved' },
+    { label: 'Все статусы', value: 'all', },
+    { label: 'Открытые', value: 'open', },
+    { label: 'Закрытые', value: 'resolved', },
 ];
 
 const filteredThreads = computed(() => {
@@ -348,23 +384,23 @@ const filteredThreads = computed(() => {
 
     // Filter by status
     if (statusFilter.value === 'open') {
-        result = result.filter((t) => !t.is_resolved);
+        result = result.filter(t => !t.is_resolved,);
     } else if (statusFilter.value === 'resolved') {
-        result = result.filter((t) => t.is_resolved);
+        result = result.filter(t => t.is_resolved,);
     }
 
     // Filter by search
     if (searchQuery.value.trim()) {
         const q = searchQuery.value.toLowerCase();
-        result = result.filter((t) => {
+        result = result.filter((t,) => {
             const name = (t.user?.full_name || t.user?.username || '').toLowerCase();
             const email = (t.user?.email || '').toLowerCase();
             const product = (
-                t.purchase?.product?.title_ru ||
-                t.purchase?.product?.title_en ||
-                ''
+                t.purchase?.product?.title_ru
+                    || t.purchase?.product?.title_en
+                || ''
             ).toLowerCase();
-            return name.includes(q) || email.includes(q) || product.includes(q);
+            return name.includes(q,) || email.includes(q,) || product.includes(q,);
         });
     }
 
@@ -383,16 +419,16 @@ async function loadThreads() {
     }
 }
 
-async function selectThread(thread: AdminChatThread) {
+async function selectThread(thread: AdminChatThread,) {
     selectedThread.value = thread;
     messagesLoading.value = true;
     messages.value = [];
     try {
-        messages.value = await fetchAdminChatMessages(thread.id);
+        messages.value = await fetchAdminChatMessages(thread.id,);
         await nextTick();
         scrollToBottom();
     } catch (e) {
-        console.error('Failed to load messages:', e);
+        console.error('Failed to load messages:', e,);
     } finally {
         messagesLoading.value = false;
     }
@@ -405,24 +441,24 @@ async function sendMessage() {
     try {
         const msg = await sendAdminChatMessage(
             selectedThread.value.id,
-            newMessage.value.trim()
-        );
-        messages.value.push(msg);
+            newMessage.value.trim(),
+            );
+        messages.value.push(msg,);
         newMessage.value = '';
         await nextTick();
         scrollToBottom();
     } catch (e) {
-        console.error('Failed to send message:', e);
+        console.error('Failed to send message:', e,);
     } finally {
         sending.value = false;
     }
 }
 
-async function resolveThread(id: number) {
+async function resolveThread(id: number,) {
     resolving.value = true;
     try {
-        await resolveAdminChatThread(id);
-        const thread = threads.value.find((t) => t.id === id);
+        await resolveAdminChatThread(id,);
+        const thread = threads.value.find(t => t.id === id,);
         if (thread) {
             thread.is_resolved = true;
         }
@@ -430,17 +466,17 @@ async function resolveThread(id: number) {
             selectedThread.value.is_resolved = true;
         }
     } catch (e) {
-        console.error('Failed to resolve thread:', e);
+        console.error('Failed to resolve thread:', e,);
     } finally {
         resolving.value = false;
     }
 }
 
-async function reopenThread(id: number) {
+async function reopenThread(id: number,) {
     reopening.value = true;
     try {
-        await reopenAdminChatThread(id);
-        const thread = threads.value.find((t) => t.id === id);
+        await reopenAdminChatThread(id,);
+        const thread = threads.value.find(t => t.id === id,);
         if (thread) {
             thread.is_resolved = false;
         }
@@ -448,7 +484,7 @@ async function reopenThread(id: number) {
             selectedThread.value.is_resolved = false;
         }
     } catch (e) {
-        console.error('Failed to reopen thread:', e);
+        console.error('Failed to reopen thread:', e,);
     } finally {
         reopening.value = false;
     }
@@ -460,27 +496,27 @@ function scrollToBottom() {
     }
 }
 
-function formatDate(dateStr: string): string {
+function formatDate(dateStr: string,): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
+    const d = new Date(dateStr,);
     const now = new Date();
     const diff = now.getTime() - d.getTime();
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24),);
 
     if (days === 0) {
-        return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', },);
     } else if (days === 1) {
         return 'Вчера';
     } else if (days < 7) {
         return `${days} дн. назад`;
     }
-    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', },);
 }
 
-function formatMessageTime(dateStr: string): string {
+function formatMessageTime(dateStr: string,): string {
     if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    const d = new Date(dateStr,);
+    return d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', },);
 }
 
 onMounted(() => {

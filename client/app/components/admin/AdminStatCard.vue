@@ -1,48 +1,54 @@
 <script setup lang="ts">
-import type { DashboardStats } from '~/types/dashboard';
+    import type { DashboardStats, } from '~/types/dashboard';
 
-interface StatCardConfig {
-    key: keyof DashboardStats;
-    label: string;
-    icon: string;
-    color: string;
-    prefix?: string;
-    suffix?: string;
-    format?: 'number' | 'price';
-}
-
-const props = defineProps<{
-    stat: StatCardConfig;
-    stats: DashboardStats;
-}>();
-
-function formatPrice(value: number): string {
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(value);
-}
-
-function formatStatValue(): string {
-    const value = props.stats[props.stat.key];
-    if (value === undefined || value === null) return '0';
-    if (props.stat.format === 'price') {
-        return formatPrice(value as number);
+    interface StatCardConfig {
+        key: keyof DashboardStats
+        label: string
+        icon: string
+        color: string
+        prefix?: string
+        suffix?: string
+        format?: 'number' | 'price'
     }
-    return (value as number).toLocaleString('ru-RU');
-}
+
+    const props = defineProps<{
+        stat: StatCardConfig
+        stats: DashboardStats
+    }>();
+
+    function formatPrice(value: number,): string {
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(value,);
+    }
+
+    function formatStatValue(): string {
+        const value = props.stats[props.stat.key];
+        if (value === undefined || value === null) return '0';
+        if (props.stat.format === 'price') {
+            return formatPrice(value as number,);
+        }
+        return (value as number).toLocaleString('ru-RU',);
+    }
 </script>
 
 <template>
-    <UCard class="admin-dashboard__stat-card" :ui="{ body: 'p-0' }">
+    <UCard
+        class="admin-dashboard__stat-card"
+        :ui="{ body: 'p-0', }"
+    >
         <div class="admin-dashboard__stat-inner">
             <div
                 class="admin-dashboard__stat-icon"
                 :class="`admin-dashboard__stat-icon--${stat.color}`"
             >
-                <UIcon :name="stat.icon" class="size-5" />
+                <UIcon
+                    :name="stat.icon"
+                    class="size-5"
+                />
             </div>
             <div class="admin-dashboard__stat-info">
                 <span class="admin-dashboard__stat-value">{{ formatStatValue() }}</span>

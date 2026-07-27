@@ -1,5 +1,8 @@
 <template>
-    <div class="review-card" :class="{ 'review-card--pending': !review.is_approved }">
+    <div
+        class="review-card"
+        :class="{ 'review-card--pending': !review.is_approved, }"
+    >
         <div class="review-card__header">
             <div class="review-card__user">
                 <div class="review-card__avatar">
@@ -9,7 +12,9 @@
                     <div class="review-card__username">
                         {{ review.user?.full_name || review.user?.username || 'Аноним' }}
                     </div>
-                    <div class="review-card__date">{{ formattedDate }}</div>
+                    <div class="review-card__date">
+                        {{ formattedDate }}
+                    </div>
                 </div>
             </div>
             <div class="review-card__rating">
@@ -18,17 +23,22 @@
                         v-for="star in 5"
                         :key="star"
                         class="review-card__star"
-                        :class="{ 'review-card__star--active': star <= review.rating }"
+                        :class="{ 'review-card__star--active': star <= review.rating, }"
                     >
                         ★
                     </span>
                 </div>
-                <div class="review-card__rating-value">{{ review.rating }}/5</div>
+                <div class="review-card__rating-value">
+                    {{ review.rating }}/5
+                </div>
             </div>
         </div>
 
         <div class="review-card__body">
-            <h4 v-if="review.title_ru || review.title_en" class="review-card__title">
+            <h4
+                v-if="review.title_ru || review.title_en"
+                class="review-card__title"
+            >
                 {{ reviewTitle }}
             </h4>
             <p class="review-card__comment">
@@ -36,29 +46,35 @@
             </p>
         </div>
 
-        <div v-if="!review.is_approved" class="review-card__pending-badge">
+        <div
+            v-if="!review.is_approved"
+            class="review-card__pending-badge"
+        >
             Ожидает модерации
         </div>
 
-        <div v-if="showActions" class="review-card__actions">
+        <div
+            v-if="showActions"
+            class="review-card__actions"
+        >
             <button
                 v-if="canEdit"
                 class="review-card__button review-card__button--edit"
-                @click="$emit('edit', review)"
+                @click="$emit('edit', review,)"
             >
                 Редактировать
             </button>
             <button
                 v-if="canDelete"
                 class="review-card__button review-card__button--delete"
-                @click="$emit('delete', review)"
+                @click="$emit('delete', review,)"
             >
                 Удалить
             </button>
             <button
                 v-if="canApprove && !review.is_approved"
                 class="review-card__button review-card__button--approve"
-                @click="$emit('approve', review)"
+                @click="$emit('approve', review,)"
             >
                 Одобрить
             </button>
@@ -67,59 +83,59 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
-import type { Review } from '~/types';
+    import { computed, } from 'vue';
+    import { useI18n, } from 'vue-i18n';
+    import type { Review, } from '~/types';
 
-interface Props {
-    review: Review;
-    showActions?: boolean;
-    canEdit?: boolean;
-    canDelete?: boolean;
-    canApprove?: boolean;
-}
+    interface Props {
+        review: Review
+        showActions?: boolean
+        canEdit?: boolean
+        canDelete?: boolean
+        canApprove?: boolean
+    }
 
-const props = withDefaults(defineProps<Props>(), {
-    showActions: false,
-    canEdit: false,
-    canDelete: false,
-    canApprove: false,
-});
-
-const emit = defineEmits<{
-    edit: [review: Review];
-    delete: [review: Review];
-    approve: [review: Review];
-}>();
-
-const { locale } = useI18n();
-
-const userInitials = computed(() => {
-    const name = props.review.user?.full_name || props.review.user?.username || 'А';
-    return name
-        .split(' ')
-        .map((part) => part[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-});
-
-const formattedDate = computed(() => {
-    const date = new Date(props.review.created_at);
-    return date.toLocaleDateString(locale.value, {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
+    const props = withDefaults(defineProps<Props>(), {
+        showActions: false,
+        canEdit: false,
+        canDelete: false,
+        canApprove: false,
     });
-});
 
-const reviewTitle = computed(() => {
-    return locale.value === 'ru' ? props.review.title_ru : props.review.title_en;
-});
+    const emit = defineEmits<{
+        edit: [review: Review,]
+        delete: [review: Review,]
+        approve: [review: Review,]
+    }>();
 
-const reviewComment = computed(() => {
-    return locale.value === 'ru' ? props.review.comment_ru : props.review.comment_en;
-});
+    const { locale, } = useI18n();
+
+    const userInitials = computed(() => {
+        const name = props.review.user?.full_name || props.review.user?.username || 'А';
+        return name
+            .split(' ',)
+            .map(part => part[0],)
+            .join('',)
+            .toUpperCase()
+            .slice(0, 2,);
+    });
+
+    const formattedDate = computed(() => {
+        const date = new Date(props.review.created_at,);
+        return date.toLocaleDateString(locale.value, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        });
+    });
+
+    const reviewTitle = computed(() => {
+        return locale.value === 'ru' ? props.review.title_ru : props.review.title_en;
+    });
+
+    const reviewComment = computed(() => {
+        return locale.value === 'ru' ? props.review.comment_ru : props.review.comment_en;
+    });
 </script>
 
 <style scoped>
@@ -154,7 +170,7 @@ const reviewComment = computed(() => {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background: linear-gradient(135deg, #4B9E90 0%, #73D1BE 100%);
     color: white;
     display: flex;
     align-items: center;

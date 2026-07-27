@@ -120,7 +120,7 @@ export default {
     // Update user profile
     async updateProfile(data: { email?: string, full_name?: string },) {
         try {
-            const response = await getHttpClient().put('profile', { name: data.full_name },);
+            const response = await getHttpClient().put('profile', { name: data.full_name, },);
             return response.data;
         } catch (error: any) {
             throw error.response?.data || { error: 'Failed to update profile', };

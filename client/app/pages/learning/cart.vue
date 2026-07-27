@@ -1,33 +1,48 @@
 <template>
     <div class="cart-page">
         <div class="container">
-            <h1 class="page-title">Корзина</h1>
+            <h1 class="page-title">
+                Корзина
+            </h1>
 
-            <div v-if="cartItems.length === 0" class="empty-cart">
+            <div
+                v-if="cartItems.length === 0"
+                class="empty-cart"
+            >
                 <p>Ваша корзина пуста</p>
-                <NuxtLink to="/courses" class="btn btn-primary"
-                    >Перейти к курсам</NuxtLink
-                >
+                <NuxtLink
+                    to="/courses"
+                    class="btn btn-primary"
+                >Перейти к курсам</NuxtLink>
             </div>
 
-            <div v-else class="cart-content">
+            <div
+                v-else
+                class="cart-content"
+            >
                 <div class="cart-items">
-                    <div v-for="item in cartItems" :key="item.id" class="cart-item">
+                    <div
+                        v-for="item in cartItems"
+                        :key="item.id"
+                        class="cart-item"
+                    >
                         <div class="item-image">
                             <img
                                 :src="item.thumbnail_url || '/placeholder.jpg'"
                                 :alt="item.title_ru"
-                            />
+                            >
                         </div>
                         <div class="item-details">
                             <h3>{{ item.title_ru }}</h3>
                             <p class="item-type">
                                 {{ item.type === 'course' ? 'Курс' : 'Мастер-класс' }}
                             </p>
-                            <p class="item-price">{{ formatPrice(item.price) }} ₽</p>
+                            <p class="item-price">
+                                {{ formatPrice(item.price,) }} ₽
+                            </p>
                             <button
                                 class="btn btn-remove"
-                                @click="removeFromCart(item.id)"
+                                @click="removeFromCart(item.id,)"
                             >
                                 Удалить
                             </button>
@@ -39,15 +54,25 @@
                     <h3>Итого</h3>
                     <div class="summary-row">
                         <span>Стоимость:</span>
-                        <span>{{ formatPrice(totalPrice) }} ₽</span>
+                        <span>{{ formatPrice(totalPrice,) }} ₽</span>
                     </div>
-                    <div class="summary-row" v-if="discount > 0">
+                    <div
+                        v-if="discount > 0"
+                        class="summary-row"
+                    >
                         <span>Скидка:</span>
-                        <span class="discount">-{{ formatPrice(discount) }} ₽</span>
+                        <span class="discount">-{{ formatPrice(discount,) }} ₽</span>
                     </div>
                     <div class="promo-code">
-                        <input v-model="promoCode" type="text" placeholder="Промокод" />
-                        <button class="btn btn-secondary" @click="applyPromoCode">
+                        <input
+                            v-model="promoCode"
+                            type="text"
+                            placeholder="Промокод"
+                        >
+                        <button
+                            class="btn btn-secondary"
+                            @click="applyPromoCode"
+                        >
                             Применить
                         </button>
                     </div>
@@ -63,9 +88,12 @@
                     />
                     <div class="summary-row total">
                         <span>К оплате:</span>
-                        <span class="total-price">{{ formatPrice(finalPrice) }} ₽</span>
+                        <span class="total-price">{{ formatPrice(finalPrice,) }} ₽</span>
                     </div>
-                    <button class="btn btn-primary btn-checkout" @click="checkout">
+                    <button
+                        class="btn btn-primary btn-checkout"
+                        @click="checkout"
+                    >
                         Оформить заказ
                     </button>
                 </div>
@@ -75,29 +103,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from '#app';
-import { useAuthStore } from '~/stores/AuthStore';
-import { useProductStore } from '~/stores/ProductStore';
+import { ref, computed, onMounted, } from 'vue';
+import { useRouter, } from '#app';
+import { useAuthStore, } from '~/stores/AuthStore';
+import { useProductStore, } from '~/stores/ProductStore';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const productStore = useProductStore();
 
 interface CartItem {
-    id: number;
-    title_ru: string;
-    title_en: string;
-    type: 'course' | 'masterclass';
-    price: number;
-    thumbnail_url?: string;
+    id: number
+    title_ru: string
+    title_en: string
+    type: 'course' | 'masterclass'
+    price: number
+    thumbnail_url?: string
 }
 
-const cartItems = ref<CartItem[]>([]);
-const promoCode = ref('');
-const discount = ref(0);
-const promoCodeValid = ref(false);
-const promoError = ref('');
+const cartItems = ref<CartItem[]>([],);
+const promoCode = ref('',);
+const discount = ref(0,);
+const promoCodeValid = ref(false,);
+const promoError = ref('',);
 
 onMounted(() => {
     loadCart();
@@ -105,24 +133,24 @@ onMounted(() => {
 
 function loadCart() {
     // В реальности корзина может храниться в localStorage или в сторе
-    const saved = localStorage.getItem('cart');
+    const saved = localStorage.getItem('cart',);
     if (saved) {
-        cartItems.value = JSON.parse(saved);
+        cartItems.value = JSON.parse(saved,);
     }
 }
 
-function formatPrice(price: number) {
+function formatPrice(price: number,) {
     // цена в копейках, переводим в рубли
-    return (price / 100).toFixed(2);
+    return (price / 100).toFixed(2,);
 }
 
-function removeFromCart(productId: number) {
-    cartItems.value = cartItems.value.filter((item) => item.id !== productId);
+function removeFromCart(productId: number,) {
+    cartItems.value = cartItems.value.filter(item => item.id !== productId,);
     saveCart();
 }
 
 function saveCart() {
-    localStorage.setItem('cart', JSON.stringify(cartItems.value));
+    localStorage.setItem('cart', JSON.stringify(cartItems.value,),);
 }
 
 async function applyPromoCode() {
@@ -132,9 +160,9 @@ async function applyPromoCode() {
     try {
         const response = await $fetch('/api/promo-codes/validate', {
             method: 'POST',
-            body: { code: promoCode.value },
+            body: { code: promoCode.value, },
         });
-        const promoResponse = response as { is_valid: boolean; discount_amount?: number };
+        const promoResponse = response as { is_valid: boolean, discount_amount?: number };
         if (promoResponse.is_valid) {
             discount.value = promoResponse.discount_amount || 0;
             promoCodeValid.value = true;
@@ -142,13 +170,13 @@ async function applyPromoCode() {
             promoError.value = 'Промокод недействителен';
         }
     } catch (error) {
-        console.error('Ошибка проверки промокода', error);
+        console.error('Ошибка проверки промокода', error,);
         promoError.value = 'Ошибка проверки промокода';
     }
 }
 
 const totalPrice = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.price, 0);
+    return cartItems.value.reduce((sum, item,) => sum + item.price, 0,);
 });
 
 const finalPrice = computed(() => {
@@ -157,7 +185,7 @@ const finalPrice = computed(() => {
 
 async function checkout() {
     if (!authStore.isAuthenticated) {
-        router.push('/auth/login?redirect=/learning/cart');
+        router.push('/auth/login?redirect=/learning/cart',);
         return;
     }
 
@@ -170,13 +198,13 @@ async function checkout() {
                 promo_code: promoCode.value || undefined,
             },
         });
-        // Перенаправление на страницу оплаты ЮKassa
+            // Перенаправление на страницу оплаты ЮKassa
         const payResponse = response as { confirmation_url?: string };
         if (payResponse.confirmation_url) {
             window.location.href = payResponse.confirmation_url;
         }
     } catch (error) {
-        console.error('Ошибка создания платежа', error);
+        console.error('Ошибка создания платежа', error,);
     }
 }
 </script>

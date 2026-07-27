@@ -8,7 +8,9 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Уроки</h1>
+                <h1 class="admin-page__title">
+                    Уроки
+                </h1>
                 <p class="admin-page__subtitle">
                     <template v-if="productFilterValue">
                         Уроки курса: {{ productTitle }}
@@ -48,7 +50,10 @@
         </div>
 
         <!-- Search & Filters -->
-        <UCard class="admin-page__filters-card" :ui="{ body: 'p-4' }">
+        <UCard
+            class="admin-page__filters-card"
+            :ui="{ body: 'p-4', }"
+        >
             <div class="admin-page__filters">
                 <div class="admin-page__search">
                     <UInput
@@ -73,8 +78,14 @@
         </UCard>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 5" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 5"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -85,11 +96,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -98,13 +119,20 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-book-open-check" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Уроки не найдены</h3>
+                <UIcon
+                    name="i-lucide-book-open-check"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Уроки не найдены
+                </h3>
                 <p class="admin-page__empty-desc">
                     <template v-if="searchQuery || contentTypeFilter">
                         По заданным критериям ничего не найдено
                     </template>
-                    <template v-else> В этом курсе пока нет уроков </template>
+                    <template v-else>
+                        В этом курсе пока нет уроков
+                    </template>
                 </p>
                 <UButton
                     v-if="productFilterValue"
@@ -117,7 +145,10 @@
         </UCard>
 
         <!-- Data Table -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-page__table-wrapper">
                 <table class="admin-page__table">
                     <thead>
@@ -129,7 +160,9 @@
                                     @change="toggleSelectAll"
                                 />
                             </th>
-                            <th class="admin-page__cell admin-page__cell--head">ID</th>
+                            <th class="admin-page__cell admin-page__cell--head">
+                                ID
+                            </th>
                             <th
                                 v-if="!productFilterValue"
                                 class="admin-page__cell admin-page__cell--head"
@@ -138,7 +171,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('l.title_ru')"
+                                @click="toggleSort('l.title_ru',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Название</span>
@@ -155,7 +188,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('l.content_type')"
+                                @click="toggleSort('l.content_type',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Тип</span>
@@ -172,7 +205,7 @@
                             </th>
                             <th
                                 class="admin-page__cell admin-page__cell--head admin-page__cell--sortable"
-                                @click="toggleSort('l.duration_minutes')"
+                                @click="toggleSort('l.duration_minutes',)"
                             >
                                 <div class="admin-page__head-content">
                                     <span>Длительность</span>
@@ -208,18 +241,21 @@
                             v-for="item in items"
                             :key="item.id"
                             class="admin-page__row"
-                            :class="{ 'admin-page__row--selected': isSelected(item.id) }"
+                            :class="{ 'admin-page__row--selected': isSelected(item.id,), }"
                         >
                             <td class="admin-page__cell admin-page__cell--checkbox">
                                 <UCheckbox
-                                    :model-value="isSelected(item.id)"
-                                    @change="toggleSelect(item.id)"
+                                    :model-value="isSelected(item.id,)"
+                                    @change="toggleSelect(item.id,)"
                                 />
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
                                 #{{ item.id }}
                             </td>
-                            <td v-if="!productFilterValue" class="admin-page__cell">
+                            <td
+                                v-if="!productFilterValue"
+                                class="admin-page__cell"
+                            >
                                 <div class="admin-page__name-cell">
                                     <span class="admin-page__name-ru">{{
                                         item.product_title_ru || '—'
@@ -241,15 +277,15 @@
                             </td>
                             <td class="admin-page__cell">
                                 <UBadge
-                                    :color="contentTypeColor(item.content_type)"
+                                    :color="contentTypeColor(item.content_type,)"
                                     variant="subtle"
                                     size="sm"
                                 >
-                                    {{ contentTypeLabel(item.content_type) }}
+                                    {{ contentTypeLabel(item.content_type,) }}
                                 </UBadge>
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
-                                {{ formatDuration(item.duration_minutes) }}
+                                {{ formatDuration(item.duration_minutes,) }}
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
                                 {{ item.sort_order }}
@@ -263,7 +299,10 @@
                                 >
                                     Да
                                 </UBadge>
-                                <span v-else class="admin-page__text-muted">—</span>
+                                <span
+                                    v-else
+                                    class="admin-page__text-muted"
+                                >—</span>
                             </td>
                             <td class="admin-page__cell admin-page__cell--mono">
                                 {{ item.resources_count || '—' }}
@@ -285,7 +324,7 @@
                                             color="error"
                                             variant="ghost"
                                             size="sm"
-                                            @click="confirmDelete(item)"
+                                            @click="confirmDelete(item,)"
                                         />
                                     </UTooltip>
                                 </div>
@@ -346,221 +385,221 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, } from 'vue';
-import { useRoute, } from 'vue-router';
-import {
-    fetchAdminLessons,
-    deleteAdminLessons,
-} from '~/api/admin';
-import type { AdminLessonItem } from '~/types';
+    import { ref, computed, onMounted, watch, } from 'vue';
+    import { useRoute, } from 'vue-router';
+    import {
+        fetchAdminLessons,
+        deleteAdminLessons,
+    } from '~/api/admin';
+    import type { AdminLessonItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const route = useRoute();
+    const route = useRoute();
 
-// State
-const items = ref<AdminLessonItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-const searchQuery = ref('');
-const contentTypeFilter = ref<string | null>(null);
-const currentPage = ref(1);
-const perPage = ref(20);
-const total = ref(0);
-const totalPages = ref(0);
-const sortBy = ref('l.sort_order');
-const sortDir = ref<'asc' | 'desc'>('asc');
-const selectedIds = ref<number[]>([]);
-const showDeleteModal = ref(false);
-const deleting = ref(false);
-const deletingSingle = ref<AdminLessonItem | null>(null);
+    // State
+    const items = ref<AdminLessonItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
+    const searchQuery = ref('',);
+    const contentTypeFilter = ref<string | null>(null,);
+    const currentPage = ref(1,);
+    const perPage = ref(20,);
+    const total = ref(0,);
+    const totalPages = ref(0,);
+    const sortBy = ref('l.sort_order',);
+    const sortDir = ref<'asc' | 'desc'>('asc',);
+    const selectedIds = ref<number[]>([],);
+    const showDeleteModal = ref(false,);
+    const deleting = ref(false,);
+    const deletingSingle = ref<AdminLessonItem | null>(null,);
 
-// Product filter from query param (when navigating from courses page)
-const productFilterValue = computed(() => {
-    const pid = route.query.product_id;
-    return pid ? Number(pid) : null;
-});
+    // Product filter from query param (when navigating from courses page)
+    const productFilterValue = computed(() => {
+        const pid = route.query.product_id;
+        return pid ? Number(pid,) : null;
+    });
 
-const productTitle = computed(() => {
-    if (items.value.length > 0 && productFilterValue.value) {
-        const first = items.value[0];
-        if (first) {
-            return first.product_title_ru || first.product_title_en || `#${first.product_id}`;
+    const productTitle = computed(() => {
+        if (items.value.length > 0 && productFilterValue.value) {
+            const first = items.value[0];
+            if (first) {
+                return first.product_title_ru || first.product_title_en || `#${first.product_id}`;
+            }
         }
-    }
-    return '';
-});
+        return '';
+    });
 
-// Filter options
-const contentTypeOptions = [
-    { label: 'Все типы', value: null },
-    { label: 'Видео', value: 'video' },
-    { label: 'Текст', value: 'text' },
-    { label: 'PDF', value: 'pdf' },
-    { label: 'Тест', value: 'quiz' },
-    { label: 'Задание', value: 'assignment' },
-];
+    // Filter options
+    const contentTypeOptions = [
+        { label: 'Все типы', value: null, },
+        { label: 'Видео', value: 'video', },
+        { label: 'Текст', value: 'text', },
+        { label: 'PDF', value: 'pdf', },
+        { label: 'Тест', value: 'quiz', },
+        { label: 'Задание', value: 'assignment', },
+    ];
 
-// Computed
-const allSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.every((item) => selectedIds.value.includes(item.id));
-});
+    // Computed
+    const allSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.every(item => selectedIds.value.includes(item.id,),);
+    });
 
-const someSelected = computed(() => {
-    if (!items.value.length) return false;
-    return items.value.some((item) => selectedIds.value.includes(item.id)) && !allSelected.value;
-});
+    const someSelected = computed(() => {
+        if (!items.value.length) return false;
+        return items.value.some(item => selectedIds.value.includes(item.id,),) && !allSelected.value;
+    });
 
-const paginationInfo = computed(() => {
-    const start = (currentPage.value - 1) * perPage.value + 1;
-    const end = Math.min(currentPage.value * perPage.value, total.value);
-    return `${start}–${end} из ${total.value}`;
-});
+    const paginationInfo = computed(() => {
+        const start = (currentPage.value - 1) * perPage.value + 1;
+        const end = Math.min(currentPage.value * perPage.value, total.value,);
+        return `${start}–${end} из ${total.value}`;
+    });
 
-const deleteConfirmMessage = computed(() => {
-    if (deletingSingle.value) {
-        return `Вы уверены, что хотите удалить урок «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Это действие нельзя отменить.`;
-    }
-    return `Вы уверены, что хотите удалить ${selectedIds.value.length} урок(ов)? Это действие нельзя отменить.`;
-});
-
-// Methods
-function contentTypeColor(type: string): 'info' | 'success' | 'warning' | 'neutral' | 'error' {
-    switch (type) {
-        case 'video': return 'info';
-        case 'text': return 'success';
-        case 'pdf': return 'warning';
-        case 'quiz': return 'neutral';
-        case 'assignment': return 'error';
-        default: return 'neutral';
-    }
-}
-
-function contentTypeLabel(type: string): string {
-    switch (type) {
-        case 'video': return 'Видео';
-        case 'text': return 'Текст';
-        case 'pdf': return 'PDF';
-        case 'quiz': return 'Тест';
-        case 'assignment': return 'Задание';
-        default: return type || '—';
-    }
-}
-
-function formatDuration(minutes: number): string {
-    if (!minutes && minutes !== 0) return '—';
-    if (minutes < 60) return `${minutes} мин`;
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return m ? `${h}ч ${m}м` : `${h}ч`;
-}
-
-function isSelected(id: number): boolean {
-    return selectedIds.value.includes(id);
-}
-
-function toggleSelect(id: number) {
-    const idx = selectedIds.value.indexOf(id);
-    if (idx === -1) {
-        selectedIds.value.push(id);
-    } else {
-        selectedIds.value.splice(idx, 1);
-    }
-}
-
-function toggleSelectAll() {
-    if (allSelected.value) {
-        selectedIds.value = [];
-    } else {
-        selectedIds.value = items.value.map((item) => item.id);
-    }
-}
-
-function toggleSort(field: string) {
-    if (sortBy.value === field) {
-        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortBy.value = field;
-        sortDir.value = 'asc';
-    }
-    loadData();
-}
-
-function onPageChange(page: number) {
-    currentPage.value = page;
-    loadData();
-}
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const result = await fetchAdminLessons({
-            page: currentPage.value,
-            per_page: perPage.value,
-            search: searchQuery.value || undefined,
-            product_id: productFilterValue.value || undefined,
-            content_type: contentTypeFilter.value || undefined,
-            sort_by: sortBy.value,
-            sort_dir: sortDir.value,
-        });
-        items.value = result.items;
-        total.value = result.total;
-        totalPages.value = result.total_pages;
-        selectedIds.value = [];
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
-    } finally {
-        loading.value = false;
-    }
-}
-
-function confirmDelete(item: AdminLessonItem) {
-    deletingSingle.value = item;
-    showDeleteModal.value = true;
-}
-
-function confirmBulkDelete() {
-    deletingSingle.value = null;
-    showDeleteModal.value = true;
-}
-
-async function executeDelete() {
-    deleting.value = true;
-    try {
+    const deleteConfirmMessage = computed(() => {
         if (deletingSingle.value) {
-            await deleteAdminLessons([deletingSingle.value.id]);
-        } else {
-            await deleteAdminLessons(selectedIds.value);
+            return `Вы уверены, что хотите удалить урок «${deletingSingle.value.title_ru || deletingSingle.value.title_en}»? Это действие нельзя отменить.`;
         }
-        showDeleteModal.value = false;
-        selectedIds.value = [];
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
-    } finally {
-        deleting.value = false;
-        deletingSingle.value = null;
+        return `Вы уверены, что хотите удалить ${selectedIds.value.length} урок(ов)? Это действие нельзя отменить.`;
+    });
+
+    // Methods
+    function contentTypeColor(type: string,): 'info' | 'success' | 'warning' | 'neutral' | 'error' {
+        switch (type) {
+    case 'video': return 'info';
+    case 'text': return 'success';
+    case 'pdf': return 'warning';
+    case 'quiz': return 'neutral';
+    case 'assignment': return 'error';
+    default: return 'neutral';
+        }
     }
-}
 
-// Debounced search
-let searchTimeout: ReturnType<typeof setTimeout>;
-watch(searchQuery, () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-        currentPage.value = 1;
+    function contentTypeLabel(type: string,): string {
+        switch (type) {
+    case 'video': return 'Видео';
+    case 'text': return 'Текст';
+    case 'pdf': return 'PDF';
+    case 'quiz': return 'Тест';
+    case 'assignment': return 'Задание';
+    default: return type || '—';
+        }
+    }
+
+    function formatDuration(minutes: number,): string {
+        if (!minutes && minutes !== 0) return '—';
+        if (minutes < 60) return `${minutes} мин`;
+        const h = Math.floor(minutes / 60,);
+        const m = minutes % 60;
+        return m ? `${h}ч ${m}м` : `${h}ч`;
+    }
+
+    function isSelected(id: number,): boolean {
+        return selectedIds.value.includes(id,);
+    }
+
+    function toggleSelect(id: number,) {
+        const idx = selectedIds.value.indexOf(id,);
+        if (idx === -1) {
+            selectedIds.value.push(id,);
+        } else {
+            selectedIds.value.splice(idx, 1,);
+        }
+    }
+
+    function toggleSelectAll() {
+        if (allSelected.value) {
+            selectedIds.value = [];
+        } else {
+            selectedIds.value = items.value.map(item => item.id,);
+        }
+    }
+
+    function toggleSort(field: string,) {
+        if (sortBy.value === field) {
+            sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortBy.value = field;
+            sortDir.value = 'asc';
+        }
         loadData();
-    }, 400);
-});
+    }
 
-onMounted(async () => {
-    await loadData();
-});
+    function onPageChange(page: number,) {
+        currentPage.value = page;
+        loadData();
+    }
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const result = await fetchAdminLessons({
+                page: currentPage.value,
+                per_page: perPage.value,
+                search: searchQuery.value || undefined,
+                product_id: productFilterValue.value || undefined,
+                content_type: contentTypeFilter.value || undefined,
+                sort_by: sortBy.value,
+                sort_dir: sortDir.value,
+            });
+            items.value = result.items;
+            total.value = result.total;
+            totalPages.value = result.total_pages;
+            selectedIds.value = [];
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки данных';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    function confirmDelete(item: AdminLessonItem,) {
+        deletingSingle.value = item;
+        showDeleteModal.value = true;
+    }
+
+    function confirmBulkDelete() {
+        deletingSingle.value = null;
+        showDeleteModal.value = true;
+    }
+
+    async function executeDelete() {
+        deleting.value = true;
+        try {
+            if (deletingSingle.value) {
+                await deleteAdminLessons([deletingSingle.value.id,],);
+            } else {
+                await deleteAdminLessons(selectedIds.value,);
+            }
+            showDeleteModal.value = false;
+            selectedIds.value = [];
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка при удалении';
+        } finally {
+            deleting.value = false;
+            deletingSingle.value = null;
+        }
+    }
+
+    // Debounced search
+    let searchTimeout: ReturnType<typeof setTimeout>;
+    watch(searchQuery, () => {
+        clearTimeout(searchTimeout,);
+        searchTimeout = setTimeout(() => {
+            currentPage.value = 1;
+            loadData();
+        }, 400,);
+    });
+
+    onMounted(async () => {
+        await loadData();
+    });
 </script>
 
 <style scoped>

@@ -1,10 +1,13 @@
 <template>
-    <div class="admin-pagination" :class="{ 'admin-pagination--dark': isDark }">
+    <div
+        class="admin-pagination"
+        :class="{ 'admin-pagination--dark': isDark, }"
+    >
         <button
             class="admin-pagination__btn"
             :disabled="page <= 1"
-            @click="goTo(page - 1)"
             title="Предыдущая"
+            @click="goTo(page - 1,)"
         >
             <svg
                 viewBox="0 0 24 24"
@@ -18,13 +21,19 @@
             </svg>
         </button>
 
-        <template v-for="(p, idx) in visiblePages" :key="idx">
-            <span v-if="p === '...'" class="admin-pagination__ellipsis">...</span>
+        <template
+            v-for="(p, idx) in visiblePages"
+            :key="idx"
+        >
+            <span
+                v-if="p === '...'"
+                class="admin-pagination__ellipsis"
+            >...</span>
             <button
                 v-else
                 class="admin-pagination__btn"
-                :class="{ 'admin-pagination__btn--active': p === page }"
-                @click="goTo(p as number)"
+                :class="{ 'admin-pagination__btn--active': p === page, }"
+                @click="goTo(p as number,)"
             >
                 {{ p }}
             </button>
@@ -33,8 +42,8 @@
         <button
             class="admin-pagination__btn"
             :disabled="page >= totalPages"
-            @click="goTo(page + 1)"
             title="Следующая"
+            @click="goTo(page + 1,)"
         >
             <svg
                 viewBox="0 0 24 24"
@@ -54,77 +63,85 @@
                 class="admin-pagination__select"
                 @change="onPerPageChange"
             >
-                <option :value="10">10</option>
-                <option :value="20">20</option>
-                <option :value="50">50</option>
-                <option :value="100">100</option>
+                <option :value="10">
+                    10
+                </option>
+                <option :value="20">
+                    20
+                </option>
+                <option :value="50">
+                    50
+                </option>
+                <option :value="100">
+                    100
+                </option>
             </select>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+    import { computed, } from 'vue';
 
-const props = withDefaults(
-    defineProps<{
-        page: number;
-        total: number;
-        perPage?: number;
-        isDark?: boolean;
-    }>(),
-    {
-        perPage: 20,
-        isDark: false,
-    }
-);
+    const props = withDefaults(
+        defineProps<{
+            page: number
+            total: number
+            perPage?: number
+            isDark?: boolean
+        }>(),
+        {
+            perPage: 20,
+            isDark: false,
+        }
+    );
 
-const emit = defineEmits<{
-    'update:page': [page: number];
-    'update:perPage': [perPage: number];
-}>();
+    const emit = defineEmits<{
+        'update:page': [page: number,]
+        'update:perPage': [perPage: number,]
+    }>();
 
-const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.perPage)));
+    const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.perPage,),),);
 
-const visiblePages = computed(() => {
-    const pages: (number | string)[] = [];
-    const total = totalPages.value;
-    const current = props.page;
+    const visiblePages = computed(() => {
+        const pages: (number | string)[] = [];
+        const total = totalPages.value;
+        const current = props.page;
 
-    if (total <= 7) {
-        for (let i = 1; i <= total; i++) pages.push(i);
+        if (total <= 7) {
+            for (let i = 1; i <= total; i++) pages.push(i,);
+            return pages;
+        }
+
+        pages.push(1,);
+
+        if (current > 3) pages.push('...',);
+
+        const start = Math.max(2, current - 1,);
+        const end = Math.min(total - 1, current + 1,);
+
+        for (let i = start; i <= end; i++) {
+            pages.push(i,);
+        }
+
+        if (current < total - 2) pages.push('...',);
+
+        pages.push(total,);
+
         return pages;
+    });
+
+    function goTo(p: number,) {
+        if (p >= 1 && p <= totalPages.value) {
+            emit('update:page', p,);
+        }
     }
 
-    pages.push(1);
-
-    if (current > 3) pages.push('...');
-
-    const start = Math.max(2, current - 1);
-    const end = Math.min(total - 1, current + 1);
-
-    for (let i = start; i <= end; i++) {
-        pages.push(i);
+    function onPerPageChange(e: Event,) {
+        const val = parseInt((e.target as HTMLSelectElement).value,);
+        emit('update:perPage', val,);
+        emit('update:page', 1,);
     }
-
-    if (current < total - 2) pages.push('...');
-
-    pages.push(total);
-
-    return pages;
-});
-
-function goTo(p: number) {
-    if (p >= 1 && p <= totalPages.value) {
-        emit('update:page', p);
-    }
-}
-
-function onPerPageChange(e: Event) {
-    const val = parseInt((e.target as HTMLSelectElement).value);
-    emit('update:perPage', val);
-    emit('update:page', 1);
-}
 </script>
 
 <style scoped>

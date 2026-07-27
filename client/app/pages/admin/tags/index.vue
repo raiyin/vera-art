@@ -8,8 +8,12 @@
         <!-- Page Header -->
         <div class="admin-page__header">
             <div>
-                <h1 class="admin-page__title">Теги</h1>
-                <p class="admin-page__subtitle">Управление тегами продуктов</p>
+                <h1 class="admin-page__title">
+                    Теги
+                </h1>
+                <p class="admin-page__subtitle">
+                    Управление тегами продуктов
+                </p>
             </div>
             <div class="admin-page__header-actions">
                 <UButton
@@ -21,15 +25,25 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" @click="openCreateModal">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    @click="openCreateModal"
+                >
                     Создать тег
                 </UButton>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading && !items.length" class="admin-page__loading">
-            <UCard v-for="i in 4" :key="i">
+        <div
+            v-if="loading && !items.length"
+            class="admin-page__loading"
+        >
+            <UCard
+                v-for="i in 4"
+                :key="i"
+            >
                 <div class="admin-page__skeleton-row">
                     <div class="admin-page__skeleton-lines">
                         <div class="admin-page__skeleton-line w-1/2" />
@@ -40,11 +54,21 @@
         </div>
 
         <!-- Error State -->
-        <UCard v-else-if="error" class="admin-page__error-card">
+        <UCard
+            v-else-if="error"
+            class="admin-page__error-card"
+        >
             <div class="admin-page__error">
-                <UIcon name="i-lucide-alert-circle" class="admin-page__error-icon" />
+                <UIcon
+                    name="i-lucide-alert-circle"
+                    class="admin-page__error-icon"
+                />
                 <p>{{ error }}</p>
-                <UButton color="primary" variant="outline" @click="loadData">
+                <UButton
+                    color="primary"
+                    variant="outline"
+                    @click="loadData"
+                >
                     Повторить загрузку
                 </UButton>
             </div>
@@ -53,16 +77,30 @@
         <!-- Empty State -->
         <UCard v-else-if="!items.length && !loading">
             <div class="admin-page__empty">
-                <UIcon name="i-lucide-tags" class="admin-page__empty-icon" />
-                <h3 class="admin-page__empty-title">Теги не найдены</h3>
-                <p class="admin-page__empty-desc">Создайте первый тег, чтобы начать.</p>
+                <UIcon
+                    name="i-lucide-tags"
+                    class="admin-page__empty-icon"
+                />
+                <h3 class="admin-page__empty-title">
+                    Теги не найдены
+                </h3>
+                <p class="admin-page__empty-desc">
+                    Создайте первый тег, чтобы начать.
+                </p>
             </div>
         </UCard>
 
         <!-- Tags List -->
-        <UCard v-else class="admin-page__table-card">
+        <UCard
+            v-else
+            class="admin-page__table-card"
+        >
             <div class="admin-tags__list">
-                <div v-for="item in items" :key="item.id" class="admin-tags__item">
+                <div
+                    v-for="item in items"
+                    :key="item.id"
+                    class="admin-tags__item"
+                >
                     <div class="admin-tags__item-main">
                         <div class="admin-tags__item-info">
                             <div class="admin-tags__item-name">
@@ -73,7 +111,9 @@
                                     item.name_en
                                 }}</span>
                             </div>
-                            <div class="admin-tags__item-slug">/{{ item.slug }}</div>
+                            <div class="admin-tags__item-slug">
+                                /{{ item.slug }}
+                            </div>
                         </div>
                     </div>
                     <div class="admin-tags__item-actions">
@@ -83,7 +123,7 @@
                                 color="neutral"
                                 variant="ghost"
                                 size="sm"
-                                @click="openEditModal(item)"
+                                @click="openEditModal(item,)"
                             />
                         </UTooltip>
                         <UTooltip text="Удалить">
@@ -92,7 +132,7 @@
                                 color="error"
                                 variant="ghost"
                                 size="sm"
-                                @click="confirmDelete(item)"
+                                @click="confirmDelete(item,)"
                             />
                         </UTooltip>
                     </div>
@@ -101,7 +141,10 @@
         </UCard>
 
         <!-- Create/Edit Modal -->
-        <UModal v-model:open="formModalOpen" class="max-w-lg">
+        <UModal
+            v-model:open="formModalOpen"
+            class="max-w-lg"
+        >
             <template #header>
                 <div class="flex items-center justify-between">
                     <h3 class="text-lg font-semibold">
@@ -118,7 +161,10 @@
             </template>
             <template #body>
                 <div class="space-y-4">
-                    <UFormField label="Название (RU)" required>
+                    <UFormField
+                        label="Название (RU)"
+                        required
+                    >
                         <UInput
                             v-model="form.name_ru"
                             placeholder="Например: Акварель"
@@ -126,7 +172,10 @@
                             variant="outline"
                         />
                     </UFormField>
-                    <UFormField label="Название (EN)" required>
+                    <UFormField
+                        label="Название (EN)"
+                        required
+                    >
                         <UInput
                             v-model="form.name_en"
                             placeholder="Например: Watercolor"
@@ -134,7 +183,10 @@
                             variant="outline"
                         />
                     </UFormField>
-                    <UFormField label="Slug" required>
+                    <UFormField
+                        label="Slug"
+                        required
+                    >
                         <UInput
                             v-model="form.slug"
                             placeholder="Например: watercolor"
@@ -183,117 +235,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import {
-    fetchAdminTags,
-    createAdminTag,
-    updateAdminTag,
-    deleteAdminTag,
-} from '~/api/admin';
-import type { AdminTagItem } from '~/types';
+    import { ref, reactive, } from 'vue';
+    import {
+        fetchAdminTags,
+        createAdminTag,
+        updateAdminTag,
+        deleteAdminTag,
+    } from '~/api/admin';
+    import type { AdminTagItem, } from '~/types';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const items = ref<AdminTagItem[]>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
+    const items = ref<AdminTagItem[]>([],);
+    const loading = ref(false,);
+    const error = ref<string | null>(null,);
 
-// Form modal
-const formModalOpen = ref(false);
-const editingItem = ref<AdminTagItem | null>(null);
-const saving = ref(false);
+    // Form modal
+    const formModalOpen = ref(false,);
+    const editingItem = ref<AdminTagItem | null>(null,);
+    const saving = ref(false,);
 
-const form = reactive({
-    name_ru: '',
-    name_en: '',
-    slug: '',
-});
+    const form = reactive({
+        name_ru: '',
+        name_en: '',
+        slug: '',
+    });
 
-// Delete modal
-const deleteModalOpen = ref(false);
-const deleteTarget = ref<AdminTagItem | null>(null);
-const deleting = ref(false);
+    // Delete modal
+    const deleteModalOpen = ref(false,);
+    const deleteTarget = ref<AdminTagItem | null>(null,);
+    const deleting = ref(false,);
 
-function resetForm() {
-    form.name_ru = '';
-    form.name_en = '';
-    form.slug = '';
-}
+    function resetForm() {
+        form.name_ru = '';
+        form.name_en = '';
+        form.slug = '';
+    }
 
-function openCreateModal() {
-    editingItem.value = null;
-    resetForm();
-    formModalOpen.value = true;
-}
+    function openCreateModal() {
+        editingItem.value = null;
+        resetForm();
+        formModalOpen.value = true;
+    }
 
-function openEditModal(item: AdminTagItem) {
-    editingItem.value = item;
-    form.name_ru = item.name_ru;
-    form.name_en = item.name_en;
-    form.slug = item.slug;
-    formModalOpen.value = true;
-}
+    function openEditModal(item: AdminTagItem,) {
+        editingItem.value = item;
+        form.name_ru = item.name_ru;
+        form.name_en = item.name_en;
+        form.slug = item.slug;
+        formModalOpen.value = true;
+    }
 
-async function saveTag() {
-    saving.value = true;
-    try {
-        const data = {
-            name_ru: form.name_ru,
-            name_en: form.name_en,
-            slug: form.slug,
-        };
+    async function saveTag() {
+        saving.value = true;
+        try {
+            const data = {
+                name_ru: form.name_ru,
+                name_en: form.name_en,
+                slug: form.slug,
+            };
 
-        if (editingItem.value) {
-            await updateAdminTag(editingItem.value.id, data);
-        } else {
-            await createAdminTag(data);
+            if (editingItem.value) {
+                await updateAdminTag(editingItem.value.id, data,);
+            } else {
+                await createAdminTag(data,);
+            }
+
+            formModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка сохранения';
+        } finally {
+            saving.value = false;
         }
-
-        formModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка сохранения';
-    } finally {
-        saving.value = false;
     }
-}
 
-function confirmDelete(item: AdminTagItem) {
-    deleteTarget.value = item;
-    deleteModalOpen.value = true;
-}
-
-async function doDelete() {
-    if (!deleteTarget.value) return;
-    deleting.value = true;
-    try {
-        await deleteAdminTag(deleteTarget.value.id);
-        deleteModalOpen.value = false;
-        await loadData();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка удаления';
-    } finally {
-        deleting.value = false;
+    function confirmDelete(item: AdminTagItem,) {
+        deleteTarget.value = item;
+        deleteModalOpen.value = true;
     }
-}
 
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        items.value = await fetchAdminTags();
-    } catch (e) {
-        error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
-    } finally {
-        loading.value = false;
+    async function doDelete() {
+        if (!deleteTarget.value) return;
+        deleting.value = true;
+        try {
+            await deleteAdminTag(deleteTarget.value.id,);
+            deleteModalOpen.value = false;
+            await loadData();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка удаления';
+        } finally {
+            deleting.value = false;
+        }
     }
-}
 
-// Initial load
-loadData();
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            items.value = await fetchAdminTags();
+        } catch (e) {
+            error.value = e instanceof Error ? e.message : 'Ошибка загрузки';
+        } finally {
+            loading.value = false;
+        }
+    }
+
+    // Initial load
+    loadData();
 </script>
 
 <style scoped>

@@ -3,80 +3,89 @@
         <div v-if="status === 'pending'">
             <h3>Оплата</h3>
             <p>
-                Сумма к оплате: <strong>{{ formatPrice(amount) }} ₽</strong>
+                Сумма к оплате: <strong>{{ formatPrice(amount,) }} ₽</strong>
             </p>
             <p>Описание: {{ description }}</p>
-            <button class="btn btn-primary" @click="initiatePayment">
+            <button
+                class="btn btn-primary"
+                @click="initiatePayment"
+            >
                 Перейти к оплате
             </button>
         </div>
         <div v-else-if="status === 'redirecting'">
             <p>Перенаправление на страницу оплаты...</p>
-            <div class="spinner"></div>
+            <div class="spinner" />
         </div>
         <div v-else-if="status === 'success'">
             <div class="success-message">
                 <h3>Оплата успешно завершена!</h3>
                 <p>Ваш доступ к курсу активирован.</p>
-                <NuxtLink to="/learning/my-courses" class="btn btn-primary"
-                    >Перейти к моим курсам</NuxtLink
-                >
+                <NuxtLink
+                    to="/learning/my-courses"
+                    class="btn btn-primary"
+                >Перейти к моим курсам</NuxtLink>
             </div>
         </div>
         <div v-else-if="status === 'error'">
             <div class="error-message">
                 <h3>Ошибка оплаты</h3>
                 <p>{{ errorMessage }}</p>
-                <button class="btn btn-secondary" @click="retry">Повторить</button>
+                <button
+                    class="btn btn-secondary"
+                    @click="retry"
+                >
+                    Повторить
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+    import { ref, } from 'vue';
 
-const props = defineProps<{
-    paymentId: number;
-    amount: number; // в копейках
-    description: string;
-    confirmationUrl?: string;
-}>();
+    const props = defineProps<{
+        paymentId: number
+        amount: number // в копейках
+        description: string
+        confirmationUrl?: string
+    }>();
 
-const status = ref<'pending' | 'redirecting' | 'success' | 'error'>('pending');
-const errorMessage = ref('');
+    const status = ref<'pending' | 'redirecting' | 'success' | 'error'>('pending',);
+    const errorMessage = ref('',);
 
-function formatPrice(price: number) {
-    return (price / 100).toFixed(2);
-}
-
-async function initiatePayment() {
-    if (props.confirmationUrl) {
-        status.value = 'redirecting';
-        // В реальности здесь может быть открытие iframe или redirect
-        window.location.href = props.confirmationUrl;
-        return;
+    function formatPrice(price: number,) {
+        return (price / 100).toFixed(2,);
     }
 
-    // Имитация успешной оплаты для демо
-    try {
-        const response = await $fetch(`/api/payments/${props.paymentId}/capture`, {
-            method: 'POST',
-        });
-        if ((response as Record<string, boolean>).success) {
-            status.value = 'success';
-        } else {
-            throw new Error('Payment capture failed');
+    async function initiatePayment() {
+        if (props.confirmationUrl) {
+            status.value = 'redirecting';
+            // В реальности здесь может быть открытие iframe или redirect
+            window.location.href = props.confirmationUrl;
+            return;
         }
-    } catch (error) {
-        status.value = 'error';
-        errorMessage.value = 'Не удалось завершить оплату. Попробуйте позже.';
-    }
-}
 
-function retry() {
-    status.value = 'pending';
-}
+        // Имитация успешной оплаты для демо
+        try {
+            const response = await $fetch(`/api/payments/${props.paymentId}/capture`, {
+                method: 'POST',
+            });
+            if ((response as Record<string, boolean>).success) {
+                status.value = 'success';
+            } else {
+                throw new Error('Payment capture failed',);
+            }
+        } catch (error) {
+            status.value = 'error';
+            errorMessage.value = 'Не удалось завершить оплату. Попробуйте позже.';
+        }
+    }
+
+    function retry() {
+        status.value = 'pending';
+    }
 </script>
 
 <style scoped>

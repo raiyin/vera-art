@@ -1,7 +1,13 @@
 <template>
-    <header class="admin-header" :class="{ 'admin-header--dark': isDark }">
+    <header
+        class="admin-header"
+        :class="{ 'admin-header--dark': isDark, }"
+    >
         <div class="admin-header__left">
-            <button class="admin-header__menu-btn" @click="$emit('toggleSidebar')">
+            <button
+                class="admin-header__menu-btn"
+                @click="$emit('toggleSidebar',)"
+            >
                 <svg
                     viewBox="0 0 24 24"
                     fill="none"
@@ -10,9 +16,24 @@
                     width="20"
                     height="20"
                 >
-                    <line x1="3" y1="6" x2="21" y2="6" />
-                    <line x1="3" y1="12" x2="21" y2="12" />
-                    <line x1="3" y1="18" x2="21" y2="18" />
+                    <line
+                        x1="3"
+                        y1="6"
+                        x2="21"
+                        y2="6"
+                    />
+                    <line
+                        x1="3"
+                        y1="12"
+                        x2="21"
+                        y2="12"
+                    />
+                    <line
+                        x1="3"
+                        y1="18"
+                        x2="21"
+                        y2="18"
+                    />
                 </svg>
             </button>
 
@@ -26,8 +47,17 @@
                     width="16"
                     height="16"
                 >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <circle
+                        cx="11"
+                        cy="11"
+                        r="8"
+                    />
+                    <line
+                        x1="21"
+                        y1="21"
+                        x2="16.65"
+                        y2="16.65"
+                    />
                 </svg>
                 <input
                     v-model="searchQuery"
@@ -35,7 +65,7 @@
                     class="admin-header__search-input"
                     placeholder="Поиск..."
                     @input="onSearch"
-                />
+                >
             </div>
         </div>
 
@@ -43,7 +73,7 @@
             <button
                 class="admin-header__icon-btn"
                 :title="isDark ? 'Светлая тема' : 'Тёмная тема'"
-                @click="$emit('toggleTheme')"
+                @click="$emit('toggleTheme',)"
             >
                 <svg
                     v-if="isDark"
@@ -54,15 +84,59 @@
                     width="20"
                     height="20"
                 >
-                    <circle cx="12" cy="12" r="5" />
-                    <line x1="12" y1="1" x2="12" y2="3" />
-                    <line x1="12" y1="21" x2="12" y2="23" />
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-                    <line x1="1" y1="12" x2="3" y2="12" />
-                    <line x1="21" y1="12" x2="23" y2="12" />
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                    <circle
+                        cx="12"
+                        cy="12"
+                        r="5"
+                    />
+                    <line
+                        x1="12"
+                        y1="1"
+                        x2="12"
+                        y2="3"
+                    />
+                    <line
+                        x1="12"
+                        y1="21"
+                        x2="12"
+                        y2="23"
+                    />
+                    <line
+                        x1="4.22"
+                        y1="4.22"
+                        x2="5.64"
+                        y2="5.64"
+                    />
+                    <line
+                        x1="18.36"
+                        y1="18.36"
+                        x2="19.78"
+                        y2="19.78"
+                    />
+                    <line
+                        x1="1"
+                        y1="12"
+                        x2="3"
+                        y2="12"
+                    />
+                    <line
+                        x1="21"
+                        y1="12"
+                        x2="23"
+                        y2="12"
+                    />
+                    <line
+                        x1="4.22"
+                        y1="19.78"
+                        x2="5.64"
+                        y2="18.36"
+                    />
+                    <line
+                        x1="18.36"
+                        y1="5.64"
+                        x2="19.78"
+                        y2="4.22"
+                    />
                 </svg>
                 <svg
                     v-else
@@ -93,7 +167,10 @@
                     <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
                     <path d="M13.73 21a2 2 0 01-3.46 0" />
                 </svg>
-                <span v-if="pendingReviews > 0" class="admin-header__notif-badge">
+                <span
+                    v-if="pendingReviews > 0"
+                    class="admin-header__notif-badge"
+                >
                     {{ pendingReviews > 99 ? '99+' : pendingReviews }}
                 </span>
             </NuxtLink>
@@ -112,22 +189,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { useAuthStore } from '~/stores/AuthStore';
+import { ref, computed, onMounted, } from 'vue';
+import { useAuthStore, } from '~/stores/AuthStore';
 
 const props = defineProps<{
-    isDark: boolean;
-    sidebarOpen: boolean;
+    isDark: boolean
+    sidebarOpen: boolean
 }>();
 
 defineEmits<{
-    toggleSidebar: [];
-    toggleTheme: [];
+    toggleSidebar: []
+    toggleTheme: []
 }>();
 
 const authStore = useAuthStore();
-const searchQuery = ref('');
-const mounted = ref(false);
+const searchQuery = ref('',);
+const mounted = ref(false,);
 
 onMounted(() => {
     mounted.value = true;
@@ -141,10 +218,10 @@ const userName = computed(() => {
 });
 
 const userInitial = computed(() => {
-    return userName.value.charAt(0).toUpperCase();
+    return userName.value.charAt(0,).toUpperCase();
 });
 
-const pendingReviews = ref(0);
+const pendingReviews = ref(0,);
 
 function onSearch() {
     // Will be implemented with global search later

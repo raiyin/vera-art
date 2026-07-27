@@ -1,154 +1,156 @@
 <script setup lang="ts">
-interface NavItem {
-    to: string;
-    label: string;
-    desc: string;
-    icon: string;
-    color: string;
-}
+    interface NavItem {
+        to: string
+        label: string
+        desc: string
+        icon: string
+        color: string
+    }
 
-interface NavSection {
-    label: string;
-    items: NavItem[];
-}
+    interface NavSection {
+        label: string
+        items: NavItem[]
+    }
 
-const navSections: NavSection[] = [
-    {
-        label: 'Контент',
-        items: [
-            {
-                to: '/admin/gallery',
-                label: 'Галерея',
-                desc: 'Управление работами в галерее',
-                icon: 'i-lucide-image',
-                color: 'purple',
-            },
-            {
-                to: '/admin/shop',
-                label: 'Магазин',
-                desc: 'Управление товарами в магазине',
-                icon: 'i-lucide-shopping-bag',
-                color: 'green',
-            },
-            {
-                to: '/admin/news',
-                label: 'Новости',
-                desc: 'Управление новостями',
-                icon: 'i-lucide-newspaper',
-                color: 'blue',
-            },
-            {
-                to: '/admin/courses',
-                label: 'Курсы',
-                desc: 'Управление курсами',
-                icon: 'i-lucide-graduation-cap',
-                color: 'pink',
-            },
-            {
-                to: '/admin/master-classes',
-                label: 'Мастер-классы',
-                desc: 'Управление мастер-классами',
-                icon: 'i-lucide-video',
-                color: 'orange',
-            },
-            {
-                to: '/admin/lessons',
-                label: 'Уроки',
-                desc: 'Управление уроками курсов и МК',
-                icon: 'i-lucide-book-open',
-                color: 'teal',
-            },
-        ],
-    },
-    {
-        label: 'Пользователи',
-        items: [
-            {
-                to: '/admin/users',
-                label: 'Пользователи',
-                desc: 'Управление пользователями',
-                icon: 'i-lucide-users',
-                color: 'orange',
-            },
-            {
-                to: '/admin/reviews',
-                label: 'Отзывы',
-                desc: 'Модерация отзывов пользователей',
-                icon: 'i-lucide-star',
-                color: 'red',
-            },
-        ],
-    },
-    {
-        label: 'Финансы',
-        items: [
-            {
-                to: '/admin/purchases',
-                label: 'Покупки',
-                desc: 'Управление покупками',
-                icon: 'i-lucide-shopping-cart',
-                color: 'teal',
-            },
-            {
-                to: '/admin/payments',
-                label: 'Платежи',
-                desc: 'Управление платежами и возвратами',
-                icon: 'i-lucide-credit-card',
-                color: 'yellow',
-            },
-            {
-                to: '/admin/promo-codes',
-                label: 'Промокоды',
-                desc: 'Управление промокодами и скидками',
-                icon: 'i-lucide-ticket-percent',
-                color: 'green',
-            },
-        ],
-    },
-    {
-        label: 'Коммуникация',
-        items: [
-            {
-                to: '/admin/chats',
-                label: 'Чаты',
-                desc: 'Управление обращениями пользователей',
-                icon: 'i-lucide-message-square',
-                color: 'blue',
-            },
-        ],
-    },
-    {
-        label: 'Справочники',
-        items: [
-            {
-                to: '/admin/categories',
-                label: 'Категории',
-                desc: 'Управление категориями продуктов',
-                icon: 'i-lucide-folder-tree',
-                color: 'purple',
-            },
-            {
-                to: '/admin/tags',
-                label: 'Теги',
-                desc: 'Управление тегами продуктов',
-                icon: 'i-lucide-tags',
-                color: 'pink',
-            },
-            {
-                to: '/admin/settings',
-                label: 'Настройки',
-                desc: 'Управление справочниками',
-                icon: 'i-lucide-settings',
-                color: 'neutral',
-            },
-        ],
-    },
-];
+    const navSections: NavSection[] = [
+        {
+            label: 'Контент',
+            items: [
+                {
+                    to: '/admin/gallery',
+                    label: 'Галерея',
+                    desc: 'Управление работами в галерее',
+                    icon: 'i-lucide-image',
+                    color: 'purple',
+                },
+                {
+                    to: '/admin/shop',
+                    label: 'Магазин',
+                    desc: 'Управление товарами в магазине',
+                    icon: 'i-lucide-shopping-bag',
+                    color: 'green',
+                },
+                {
+                    to: '/admin/news',
+                    label: 'Новости',
+                    desc: 'Управление новостями',
+                    icon: 'i-lucide-newspaper',
+                    color: 'blue',
+                },
+                {
+                    to: '/admin/courses',
+                    label: 'Курсы',
+                    desc: 'Управление курсами',
+                    icon: 'i-lucide-graduation-cap',
+                    color: 'pink',
+                },
+                {
+                    to: '/admin/master-classes',
+                    label: 'Мастер-классы',
+                    desc: 'Управление мастер-классами',
+                    icon: 'i-lucide-video',
+                    color: 'orange',
+                },
+                {
+                    to: '/admin/lessons',
+                    label: 'Уроки',
+                    desc: 'Управление уроками курсов и МК',
+                    icon: 'i-lucide-book-open',
+                    color: 'teal',
+                },
+            ],
+        },
+        {
+            label: 'Пользователи',
+            items: [
+                {
+                    to: '/admin/users',
+                    label: 'Пользователи',
+                    desc: 'Управление пользователями',
+                    icon: 'i-lucide-users',
+                    color: 'orange',
+                },
+                {
+                    to: '/admin/reviews',
+                    label: 'Отзывы',
+                    desc: 'Модерация отзывов пользователей',
+                    icon: 'i-lucide-star',
+                    color: 'red',
+                },
+            ],
+        },
+        {
+            label: 'Финансы',
+            items: [
+                {
+                    to: '/admin/purchases',
+                    label: 'Покупки',
+                    desc: 'Управление покупками',
+                    icon: 'i-lucide-shopping-cart',
+                    color: 'teal',
+                },
+                {
+                    to: '/admin/payments',
+                    label: 'Платежи',
+                    desc: 'Управление платежами и возвратами',
+                    icon: 'i-lucide-credit-card',
+                    color: 'yellow',
+                },
+                {
+                    to: '/admin/promo-codes',
+                    label: 'Промокоды',
+                    desc: 'Управление промокодами и скидками',
+                    icon: 'i-lucide-ticket-percent',
+                    color: 'green',
+                },
+            ],
+        },
+        {
+            label: 'Коммуникация',
+            items: [
+                {
+                    to: '/admin/chats',
+                    label: 'Чаты',
+                    desc: 'Управление обращениями пользователей',
+                    icon: 'i-lucide-message-square',
+                    color: 'blue',
+                },
+            ],
+        },
+        {
+            label: 'Справочники',
+            items: [
+                {
+                    to: '/admin/categories',
+                    label: 'Категории',
+                    desc: 'Управление категориями продуктов',
+                    icon: 'i-lucide-folder-tree',
+                    color: 'purple',
+                },
+                {
+                    to: '/admin/tags',
+                    label: 'Теги',
+                    desc: 'Управление тегами продуктов',
+                    icon: 'i-lucide-tags',
+                    color: 'pink',
+                },
+                {
+                    to: '/admin/settings',
+                    label: 'Настройки',
+                    desc: 'Управление справочниками',
+                    icon: 'i-lucide-settings',
+                    color: 'neutral',
+                },
+            ],
+        },
+    ];
 </script>
 
 <template>
     <div class="admin-dashboard__nav-section">
-        <h3 class="admin-dashboard__nav-section-title">Навигация по разделам</h3>
+        <h3 class="admin-dashboard__nav-section-title">
+            Навигация по разделам
+        </h3>
         <div
             v-for="(section, sIdx) in navSections"
             :key="sIdx"
@@ -166,7 +168,10 @@ const navSections: NavSection[] = [
                         class="admin-dashboard__nav-tile-icon"
                         :class="`admin-dashboard__nav-tile-icon--${item.color}`"
                     >
-                        <UIcon :name="item.icon" class="size-5" />
+                        <UIcon
+                            :name="item.icon"
+                            class="size-5"
+                        />
                     </div>
                     <div class="admin-dashboard__nav-tile-info">
                         <span class="admin-dashboard__nav-tile-label">{{

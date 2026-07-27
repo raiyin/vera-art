@@ -1,29 +1,35 @@
 <template>
-    <nav class="admin-breadcrumbs" :class="{ 'admin-breadcrumbs--dark': isDark }">
+    <nav
+        class="admin-breadcrumbs"
+        :class="{ 'admin-breadcrumbs--dark': isDark, }"
+    >
         <NuxtLink
             v-for="(crumb, idx) in items"
             :key="idx"
             :to="crumb.to"
             class="admin-breadcrumbs__item"
-            :class="{ 'admin-breadcrumbs__item--last': idx === items.length - 1 }"
+            :class="{ 'admin-breadcrumbs__item--last': idx === items.length - 1, }"
         >
-            <span v-if="idx > 0" class="admin-breadcrumbs__sep">/</span>
+            <span
+                v-if="idx > 0"
+                class="admin-breadcrumbs__sep"
+            >/</span>
             {{ crumb.label }}
         </NuxtLink>
     </nav>
 </template>
 
 <script setup lang="ts">
-withDefaults(
-    defineProps<{
-        items: { label: string; to?: string }[];
-        isDark?: boolean;
-    }>(),
-    {
-        items: () => [],
-        isDark: false,
-    }
-);
+    withDefaults(
+        defineProps<{
+            items: { label: string, to?: string }[]
+            isDark?: boolean
+        }>(),
+        {
+            items: () => [],
+            isDark: false,
+        }
+    );
 </script>
 
 <style scoped>

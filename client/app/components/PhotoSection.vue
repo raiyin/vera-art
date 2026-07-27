@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import NewsPhotoItem from './NewsPhotoItem.vue';
-import type { PropType } from 'vue';
-import type { NewsDesc } from '~/types';
-import NewsCarousel from './NewsCarousel.vue';
-import { ref } from 'vue';
+    import NewsPhotoItem from './NewsPhotoItem.vue';
+    import type { PropType, } from 'vue';
+    import type { NewsDesc, } from '~/types';
+    import NewsCarousel from './NewsCarousel.vue';
+    import { ref, } from 'vue';
 
-const props = defineProps({
-    currentNewsItem: {
-        type: Object as PropType<NewsDesc>,
-        default: {} as NewsDesc,
-    },
-});
+    const props = defineProps({
+        currentNewsItem: {
+            type: Object as PropType<NewsDesc>,
+            default: {} as NewsDesc,
+        },
+    });
 
-const selectedIndex = ref(1);
+    const selectedIndex = ref(1,);
 
-const setSelectedIndex = (index: number) => {
-    selectedIndex.value = index - 1;
-};
+    const setSelectedIndex = (index: number,) => {
+        selectedIndex.value = index - 1;
+    };
 </script>
 
 <template>
@@ -29,9 +29,9 @@ const setSelectedIndex = (index: number) => {
                         v-if="image_index % 3 == 1"
                         :key="image_index"
                         :image_index="image_index"
-                        :currentNews="currentNewsItem"
-                        :fileName="currentNewsItem.images[image_index - 1]"
-                        @click="setSelectedIndex(image_index)"
+                        :current-news="currentNewsItem"
+                        :file-name="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index,)"
                     />
                 </template>
             </div>
@@ -42,9 +42,9 @@ const setSelectedIndex = (index: number) => {
                         v-if="image_index % 3 == 2"
                         :key="image_index"
                         :image_index="image_index"
-                        :currentNews="currentNewsItem"
-                        :fileName="currentNewsItem.images[image_index - 1]"
-                        @click="setSelectedIndex(image_index)"
+                        :current-news="currentNewsItem"
+                        :file-name="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index,)"
                     />
                 </template>
             </div>
@@ -55,18 +55,18 @@ const setSelectedIndex = (index: number) => {
                         v-if="image_index % 3 == 0"
                         :key="image_index"
                         :image_index="image_index"
-                        :currentNews="currentNewsItem"
-                        :fileName="currentNewsItem.images[image_index - 1]"
-                        @click="setSelectedIndex(image_index)"
+                        :current-news="currentNewsItem"
+                        :file-name="currentNewsItem.images[image_index - 1]"
+                        @click="setSelectedIndex(image_index,)"
                     />
                 </template>
             </div>
 
-            <UModal modalId="imgNewsModal">
+            <UModal modal-id="imgNewsModal">
                 <NewsCarousel
-                    :imageObject="currentNewsItem"
-                    :selectedIndex="selectedIndex"
-                    :setSelectedIndex="setSelectedIndex"
+                    :image-object="currentNewsItem"
+                    :selected-index="selectedIndex"
+                    :set-selected-index="setSelectedIndex"
                 />
             </UModal>
         </div>

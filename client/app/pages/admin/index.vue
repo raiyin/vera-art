@@ -3,7 +3,9 @@
         <!-- Page Header -->
         <div class="admin-dashboard__header">
             <div>
-                <h1 class="admin-dashboard__title">Dashboard</h1>
+                <h1 class="admin-dashboard__title">
+                    Dashboard
+                </h1>
                 <p class="admin-dashboard__subtitle">
                     Добро пожаловать в панель управления
                 </p>
@@ -18,7 +20,11 @@
                 >
                     Обновить
                 </UButton>
-                <UButton icon="i-lucide-plus" color="primary" to="/admin/gallery/add">
+                <UButton
+                    icon="i-lucide-plus"
+                    color="primary"
+                    to="/admin/gallery/add"
+                >
                     Добавить работу
                 </UButton>
             </div>
@@ -27,7 +33,11 @@
         <!-- Loading State -->
         <template v-if="loading">
             <div class="admin-dashboard__stats-grid">
-                <div v-for="i in 8" :key="i" class="admin-dashboard__skeleton-card">
+                <div
+                    v-for="i in 8"
+                    :key="i"
+                    class="admin-dashboard__skeleton-card"
+                >
                     <div class="admin-dashboard__skeleton-icon" />
                     <div class="admin-dashboard__skeleton-text">
                         <div class="admin-dashboard__skeleton-value" />
@@ -50,7 +60,11 @@
                         class="admin-dashboard__error-icon"
                     />
                     <p>{{ error }}</p>
-                    <UButton color="primary" variant="outline" @click="loadData">
+                    <UButton
+                        color="primary"
+                        variant="outline"
+                        @click="loadData"
+                    >
                         Повторить загрузку
                     </UButton>
                 </div>
@@ -88,145 +102,145 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import { fetchDashboardStats, fetchRecentActivity } from '~/api/admin';
-import type { DashboardStats, RecentActivityItem } from '~/types/dashboard';
-import AdminStatCard from '~/components/admin/AdminStatCard.vue';
-import AdminChartsSection from '~/components/admin/AdminChartsSection.vue';
-import AdminQuickNav from '~/components/admin/AdminQuickNav.vue';
-import AdminActivityFeed from '~/components/admin/AdminActivityFeed.vue';
+    import { ref, computed, onMounted, } from 'vue';
+    import { fetchDashboardStats, fetchRecentActivity, } from '~/api/admin';
+    import type { DashboardStats, RecentActivityItem, } from '~/types/dashboard';
+    import AdminStatCard from '~/components/admin/AdminStatCard.vue';
+    import AdminChartsSection from '~/components/admin/AdminChartsSection.vue';
+    import AdminQuickNav from '~/components/admin/AdminQuickNav.vue';
+    import AdminActivityFeed from '~/components/admin/AdminActivityFeed.vue';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
 
-const loading = ref(true);
-const refreshing = ref(false);
-const error = ref<string | null>(null);
-const stats = ref<DashboardStats>({
-    gallery_works_count: 0,
-    shop_items_count: 0,
-    news_count: 0,
-    users_count: 0,
-    courses_count: 0,
-    master_classes_count: 0,
-    reviews_total: 0,
-    reviews_pending: 0,
-    purchases_total: 0,
-    revenue_total: 0,
-    revenue_month: 0,
-    active_chats: 0,
-    users_registered_month: 0,
-    sales_by_month: [],
-    popular_categories: [],
-});
-const activities = ref<RecentActivityItem[]>([]);
+    const loading = ref(true,);
+    const refreshing = ref(false,);
+    const error = ref<string | null>(null,);
+    const stats = ref<DashboardStats>({
+        gallery_works_count: 0,
+        shop_items_count: 0,
+        news_count: 0,
+        users_count: 0,
+        courses_count: 0,
+        master_classes_count: 0,
+        reviews_total: 0,
+        reviews_pending: 0,
+        purchases_total: 0,
+        revenue_total: 0,
+        revenue_month: 0,
+        active_chats: 0,
+        users_registered_month: 0,
+        sales_by_month: [],
+        popular_categories: [],
+    });
+    const activities = ref<RecentActivityItem[]>([],);
 
-interface StatCard {
-    key: keyof DashboardStats;
-    label: string;
-    icon: string;
-    color: string;
-    prefix?: string;
-    suffix?: string;
-    format?: 'number' | 'price';
-}
-
-const statCards = computed<StatCard[]>(() => [
-    {
-        key: 'gallery_works_count',
-        label: 'Работ в галерее',
-        icon: 'i-lucide-image',
-        color: 'purple',
-    },
-    {
-        key: 'shop_items_count',
-        label: 'Товаров в магазине',
-        icon: 'i-lucide-shopping-bag',
-        color: 'green',
-    },
-    { key: 'news_count', label: 'Новостей', icon: 'i-lucide-newspaper', color: 'blue' },
-    {
-        key: 'users_count',
-        label: 'Пользователей',
-        icon: 'i-lucide-users',
-        color: 'orange',
-    },
-    {
-        key: 'courses_count',
-        label: `Курсов / МК (${stats.value.master_classes_count} МК)`,
-        icon: 'i-lucide-graduation-cap',
-        color: 'pink',
-        format: 'number',
-    },
-    {
-        key: 'reviews_pending',
-        label: `Отзывов ожидает (всего ${stats.value.reviews_total})`,
-        icon: 'i-lucide-star',
-        color: 'red',
-    },
-    {
-        key: 'purchases_total',
-        label: 'Покупок',
-        icon: 'i-lucide-shopping-cart',
-        color: 'teal',
-    },
-    {
-        key: 'revenue_total',
-        label: 'Выручка',
-        icon: 'i-lucide-circle-dollar-sign',
-        color: 'yellow',
-        format: 'price',
-    },
-]);
-
-onMounted(async () => {
-    await loadData();
-});
-
-async function loadData() {
-    loading.value = true;
-    error.value = null;
-    try {
-        const [statsData, activityData] = await Promise.all([
-            fetchDashboardStats(),
-            fetchRecentActivity(),
-        ]);
-        stats.value = statsData;
-        activities.value = activityData;
-    } catch (e) {
-        console.error('Error loading dashboard data:', e);
-        error.value =
-            'Не удалось загрузить данные дашборда. Проверьте подключение к серверу.';
-    } finally {
-        loading.value = false;
+    interface StatCard {
+        key: keyof DashboardStats
+        label: string
+        icon: string
+        color: string
+        prefix?: string
+        suffix?: string
+        format?: 'number' | 'price'
     }
-}
 
-async function refreshData() {
-    refreshing.value = true;
-    try {
-        const [statsData, activityData] = await Promise.all([
-            fetchDashboardStats(),
-            fetchRecentActivity(),
-        ]);
-        stats.value = statsData;
-        activities.value = activityData;
-    } catch (e) {
-        console.error('Error refreshing dashboard data:', e);
-    } finally {
-        refreshing.value = false;
-    }
-}
+    const statCards = computed<StatCard[]>(() => [
+        {
+            key: 'gallery_works_count',
+            label: 'Работ в галерее',
+            icon: 'i-lucide-image',
+            color: 'purple',
+        },
+        {
+            key: 'shop_items_count',
+            label: 'Товаров в магазине',
+            icon: 'i-lucide-shopping-bag',
+            color: 'green',
+        },
+        { key: 'news_count', label: 'Новостей', icon: 'i-lucide-newspaper', color: 'blue', },
+        {
+            key: 'users_count',
+            label: 'Пользователей',
+            icon: 'i-lucide-users',
+            color: 'orange',
+        },
+        {
+            key: 'courses_count',
+            label: `Курсов / МК (${stats.value.master_classes_count} МК)`,
+            icon: 'i-lucide-graduation-cap',
+            color: 'pink',
+            format: 'number',
+        },
+        {
+            key: 'reviews_pending',
+            label: `Отзывов ожидает (всего ${stats.value.reviews_total})`,
+            icon: 'i-lucide-star',
+            color: 'red',
+        },
+        {
+            key: 'purchases_total',
+            label: 'Покупок',
+            icon: 'i-lucide-shopping-cart',
+            color: 'teal',
+        },
+        {
+            key: 'revenue_total',
+            label: 'Выручка',
+            icon: 'i-lucide-circle-dollar-sign',
+            color: 'yellow',
+            format: 'price',
+        },
+    ]);
 
-async function loadActivity() {
-    try {
-        activities.value = await fetchRecentActivity();
-    } catch (e) {
-        console.error('Error loading activity:', e);
+    onMounted(async () => {
+        await loadData();
+    });
+
+    async function loadData() {
+        loading.value = true;
+        error.value = null;
+        try {
+            const [statsData, activityData,] = await Promise.all([
+                fetchDashboardStats(),
+                fetchRecentActivity(),
+            ]);
+            stats.value = statsData;
+            activities.value = activityData;
+        } catch (e) {
+            console.error('Error loading dashboard data:', e,);
+            error.value
+            = 'Не удалось загрузить данные дашборда. Проверьте подключение к серверу.';
+        } finally {
+            loading.value = false;
+        }
     }
-}
+
+    async function refreshData() {
+        refreshing.value = true;
+        try {
+            const [statsData, activityData,] = await Promise.all([
+                fetchDashboardStats(),
+                fetchRecentActivity(),
+            ]);
+            stats.value = statsData;
+            activities.value = activityData;
+        } catch (e) {
+            console.error('Error refreshing dashboard data:', e,);
+        } finally {
+            refreshing.value = false;
+        }
+    }
+
+    async function loadActivity() {
+        try {
+            activities.value = await fetchRecentActivity();
+        } catch (e) {
+            console.error('Error loading activity:', e,);
+        }
+    }
 </script>
 
 <style scoped>

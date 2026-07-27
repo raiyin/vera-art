@@ -9,5 +9,5 @@ definePageMeta({
 });
 
 // Redirect to the existing news add page
-await navigateTo('/news/add', { external: true });
+await navigateTo('/news/add', { external: true, },);
 </script>

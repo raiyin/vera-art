@@ -13,15 +13,6 @@
       "headers": {
         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       }
-    },
-    "ui-expert": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "ui-expert-mcp"
-      ],
-      "enabled": true
     }
   }
 }

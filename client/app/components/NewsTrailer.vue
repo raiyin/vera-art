@@ -1,105 +1,115 @@
 <script setup lang="ts">
-import CalendarIcon from './IconCalendar.vue';
-import { useAuthStore } from '~/stores/AuthStore';
-import { ref, computed } from 'vue';
-import { useRouter, useI18n } from '#imports';
+    import CalendarIcon from './IconCalendar.vue';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import { ref, computed, } from 'vue';
+    import { useRouter, useI18n, } from '#imports';
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+    const config = useRuntimeConfig();
+    const SERVER_URL = config.public.serverUrl;
 
-const props = defineProps<{
-    newsObject: {
-        id: string;
-        dir: string;
-        img_back: string;
-        title_ru: string;
-        title_en: string;
-        datetime: string;
-    };
-}>();
-
-const emit = defineEmits<{
-    'news-deleted': [id: string];
-}>();
-
-const authStore = useAuthStore();
-const router = useRouter();
-const { locale } = useI18n();
-
-// Reactive state
-const isLoaded = ref(false);
-const isDeleting = ref(false);
-const errorMessage = ref('');
-
-// Computed properties
-const newsId = computed(() => '/news/' + props.newsObject.id);
-const bgImage = computed(() => props.newsObject.dir + props.newsObject.img_back);
-
-// Methods
-const onImgLoad = () => {
-    isLoaded.value = true;
-};
-
-const getHumanDate = (inDate: string, locale: string) => {
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    } as const;
-    const date = new Date(inDate);
-    const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
-    return date.toLocaleDateString(stdLocale, options);
-};
-
-const editNews = () => {
-    router.push('/news/edit/' + props.newsObject.id + '/');
-};
-
-const deleteNews = async () => {
-    // Better confirmation dialog
-    if (!window.confirm('Вы уверены, что хотите удалить эту новость?')) {
-        return;
-    }
-
-    // Reset error
-    errorMessage.value = '';
-
-    // Set loading state
-    isDeleting.value = true;
-
-    try {
-        const response = await fetch(`${SERVER_URL}news/${props.newsObject.id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
-
-        if (response.ok) {
-            // Remove the news item from the UI
-            emit('news-deleted', props.newsObject.id);
-        } else {
-            const errorData = await response.json();
-            errorMessage.value = `Ошибка при удалении новости: ${
-                errorData.error || 'Неизвестная ошибка'
-            }`;
+    const props = defineProps<{
+        newsObject: {
+            id: string
+            dir: string
+            img_back: string
+            title_ru: string
+            title_en: string
+            datetime: string
         }
-    } catch (error) {
-        console.error('Error deleting news:', error);
-        errorMessage.value = 'Ошибка при удалении новости:_network_error';
-    } finally {
-        // Reset loading state
-        isDeleting.value = false;
-    }
-};
+    }>();
+
+    const emit = defineEmits<{
+        'news-deleted': [id: string,]
+    }>();
+
+    const authStore = useAuthStore();
+    const router = useRouter();
+    const { locale, } = useI18n();
+
+    // Reactive state
+    const isLoaded = ref(false,);
+    const isDeleting = ref(false,);
+    const errorMessage = ref('',);
+
+    // Computed properties
+    const newsId = computed(() => '/news/' + props.newsObject.id,);
+    const bgImage = computed(() => props.newsObject.dir + props.newsObject.img_back,);
+
+    // Methods
+    const onImgLoad = () => {
+        isLoaded.value = true;
+    };
+
+    const getHumanDate = (inDate: string, locale: string,) => {
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        } as const;
+        const date = new Date(inDate,);
+        const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
+        return date.toLocaleDateString(stdLocale, options,);
+    };
+
+    const editNews = () => {
+        router.push('/news/edit/' + props.newsObject.id + '/',);
+    };
+
+    const deleteNews = async () => {
+        // Better confirmation dialog
+        if (!window.confirm('Вы уверены, что хотите удалить эту новость?',)) {
+            return;
+        }
+
+        // Reset error
+        errorMessage.value = '';
+
+        // Set loading state
+        isDeleting.value = true;
+
+        try {
+            const response = await fetch(`${SERVER_URL}news/${props.newsObject.id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token',)}`,
+                },
+            });
+
+            if (response.ok) {
+                // Remove the news item from the UI
+                emit('news-deleted', props.newsObject.id,);
+            } else {
+                const errorData = await response.json();
+                errorMessage.value = `Ошибка при удалении новости: ${
+                    errorData.error || 'Неизвестная ошибка'
+                }`;
+            }
+        } catch (error) {
+            console.error('Error deleting news:', error,);
+            errorMessage.value = 'Ошибка при удалении новости:_network_error';
+        } finally {
+            // Reset loading state
+            isDeleting.value = false;
+        }
+    };
 </script>
 
 <template>
-    <div class="news-item" :class="{ loading: !isLoaded }">
+    <div
+        class="news-item"
+        :class="{ loading: !isLoaded, }"
+    >
         <div class="img-holder">
             <router-link :to="newsId">
-                <img :src="bgImage" @load="onImgLoad" v-show="isLoaded" />
-                <div v-show="!isLoaded" class="image-stub" />
+                <img
+                    v-show="isLoaded"
+                    :src="bgImage"
+                    @load="onImgLoad"
+                >
+                <div
+                    v-show="!isLoaded"
+                    class="image-stub"
+                />
             </router-link>
         </div>
 
@@ -109,16 +119,19 @@ const deleteNews = async () => {
             </div>
             <div v-show="isLoaded">
                 <CalendarIcon />
-                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale) }} </span>
+                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale,) }} </span>
             </div>
 
             <!-- Skeleton placeholders for SSR consistency -->
-            <div v-show="!isLoaded" class="skeleton-text"></div>
+            <div
+                v-show="!isLoaded"
+                class="skeleton-text"
+            />
             <div
                 v-show="!isLoaded"
                 class="skeleton-text"
                 style="width: 70%; margin-top: 0.5rem"
-            ></div>
+            />
             <div
                 v-show="!isLoaded"
                 class="skeleton-text"
@@ -140,15 +153,22 @@ const deleteNews = async () => {
             @close="errorMessage = ''"
         />
 
-        <div class="image-control" v-if="authStore.isAuthenticated">
-            <UButton class="btn btn-secondary w-100" type="button" v-on:click="editNews">
+        <div
+            v-if="authStore.isAuthenticated"
+            class="image-control"
+        >
+            <UButton
+                class="btn btn-secondary w-100"
+                type="button"
+                @click="editNews"
+            >
                 Редактировать
             </UButton>
             <UButton
                 class="btn btn-secondary w-100"
                 type="button"
-                v-on:click="deleteNews"
                 :disabled="isDeleting"
+                @click="deleteNews"
             >
                 <span v-if="isDeleting">Удаление...</span>
                 <span v-else>Удалить</span>

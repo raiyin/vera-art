@@ -1,23 +1,23 @@
 <script lang="ts">
 export default {
     setup() {
-        const { t, locale } = useI18n();
-        const searchMessage = ref('');
+        const { t, locale, } = useI18n();
+        const searchMessage = ref('',);
 
-        const handleSearch = (event: KeyboardEvent) => {
+        const handleSearch = (event: KeyboardEvent,) => {
             const input = event.target as HTMLInputElement;
             if (input.value.trim()) {
                 // In a real app, you would implement search functionality
-                console.log('Searching for:', input.value);
+                console.log('Searching for:', input.value,);
                 // Show search info via UAlert
-                searchMessage.value =
-                    locale.value === 'ru'
+                searchMessage.value
+                        = locale.value === 'ru'
                         ? `Поиск: ${input.value} (функция поиска в разработке)`
                         : `Search: ${input.value} (search functionality in development)`;
             }
         };
 
-        return { t, locale, handleSearch, searchMessage };
+        return { t, locale, handleSearch, searchMessage, };
     },
 };
 </script>
@@ -29,10 +29,10 @@ export default {
             <div class="relative w-full max-w-4xl mx-auto">
                 <!-- Paint splatter background elements -->
                 <div class="absolute -top-20 -left-20 w-64 h-64">
-                    <div class="w-full h-full rounded-full paint-glow-1 blur-3xl"></div>
+                    <div class="w-full h-full rounded-full paint-glow-1 blur-3xl" />
                 </div>
                 <div class="absolute -bottom-20 -right-20 w-80 h-80">
-                    <div class="w-full h-full rounded-full paint-glow-2 blur-3xl"></div>
+                    <div class="w-full h-full rounded-full paint-glow-2 blur-3xl" />
                 </div>
 
                 <!-- Main content -->
@@ -45,19 +45,19 @@ export default {
                             <span class="relative inline-block">
                                 <span
                                     class="absolute -inset-4 digit-glow-1 rounded-3xl blur-xl"
-                                ></span>
+                                />
                                 <span class="relative">4</span>
                             </span>
                             <span class="relative inline-block mx-2 md:mx-4">
                                 <span
                                     class="absolute -inset-4 digit-glow-2 rounded-3xl blur-xl"
-                                ></span>
+                                />
                                 <span class="relative">0</span>
                             </span>
                             <span class="relative inline-block">
                                 <span
                                     class="absolute -inset-4 digit-glow-3 rounded-3xl blur-xl"
-                                ></span>
+                                />
                                 <span class="relative">4</span>
                             </span>
                         </h1>
@@ -66,10 +66,10 @@ export default {
                         <div class="relative mt-8 mb-12">
                             <div
                                 class="h-2 w-64 mx-auto bg-linear-to-r from-transparent via-green-400 to-transparent rounded-full"
-                            ></div>
+                            />
                             <div
                                 class="h-1 w-48 mx-auto bg-linear-to-r from-transparent via-emerald-500 to-transparent rounded-full mt-1"
-                            ></div>
+                            />
                         </div>
                     </div>
 
@@ -77,14 +77,14 @@ export default {
                     <h2
                         class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6"
                     >
-                        {{ $t('notfound.title') }}
+                        {{ $t('notfound.title',) }}
                     </h2>
 
                     <!-- Description -->
                     <p
                         class="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10"
                     >
-                        {{ $t('notfound.description') }}
+                        {{ $t('notfound.description',) }}
                     </p>
 
                     <!-- Search info alert -->
@@ -109,7 +109,7 @@ export default {
                             variant="solid"
                             class="px-8 py-3 text-lg"
                         >
-                            {{ $t('notfound.back_home') }}
+                            {{ $t('notfound.back_home',) }}
                         </UButton>
 
                         <UButton
@@ -120,7 +120,7 @@ export default {
                             variant="outline"
                             class="px-8 py-3 text-lg"
                         >
-                            {{ $t('notfound.browse_works') }}
+                            {{ $t('notfound.browse_works',) }}
                         </UButton>
 
                         <UButton
@@ -131,7 +131,7 @@ export default {
                             variant="ghost"
                             class="px-8 py-3 text-lg"
                         >
-                            {{ $t('notfound.visit_shop') }}
+                            {{ $t('notfound.visit_shop',) }}
                         </UButton>
                     </div>
 
@@ -140,10 +140,10 @@ export default {
                         <p
                             class="text-lg italic text-gray-500 dark:text-gray-400 max-w-2xl mx-auto"
                         >
-                            "{{ $t('notfound.quote') }}"
+                            "{{ $t('notfound.quote',) }}"
                         </p>
                         <p class="text-gray-400 dark:text-gray-500 mt-2">
-                            — {{ $t('notfound.author') }}
+                            — {{ $t('notfound.author',) }}
                         </p>
                     </div>
                 </div>
