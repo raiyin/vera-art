@@ -184,10 +184,14 @@ export const useAuthStore = defineStore('authStore', () => {
 
             if (storedAccessExpiry) {
                 accessTokenExpiry.value = new Date(storedAccessExpiry,);
+            } else {
+                accessTokenExpiry.value = getTokenExpiry(storedAccessToken,);
             }
 
             if (storedRefreshExpiry) {
                 refreshTokenExpiry.value = new Date(storedRefreshExpiry,);
+            } else {
+                refreshTokenExpiry.value = getTokenExpiry(storedRefreshToken,);
             }
 
             const role = getRoleFromToken(storedAccessToken,);
