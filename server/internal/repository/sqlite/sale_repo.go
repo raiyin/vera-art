@@ -20,19 +20,19 @@ func NewSaleRepository(db *sql.DB) *SaleRepository {
 	return &SaleRepository{db: db}
 }
 
-const saleColumns = `id, title, description, image_path, price, old_price, year, technique, width, height, status, sort_order, sold, created_at, updated_at`
+const saleColumns = `id, name_ru, name_en, description, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at`
 
 func (r *SaleRepository) scanSale(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.Sale, error) {
 	s := &domain.Sale{}
 	var description, technique sql.NullString
-	var oldPrice, year sql.NullFloat64
+	var year sql.NullFloat64
 	var width, height sql.NullInt64
 
 	err := scanner.Scan(
-		&s.ID, &s.Title, &description, &s.ImagePath,
-		&s.Price, &oldPrice, &year, &technique,
+		&s.ID, &s.NameRu, &s.NameEn, &description, &s.ImagePath, &s.SalePath,
+		&s.Price, &year, &technique,
 		&width, &height,
 		&s.Status, &s.SortOrder, &s.Sold,
 		&s.CreatedAt, &s.UpdatedAt,
@@ -53,9 +53,6 @@ func (r *SaleRepository) scanSale(scanner interface {
 	if height.Valid {
 		s.Height = int(height.Int64)
 	}
-	if oldPrice.Valid {
-		s.OldPrice = oldPrice.Float64
-	}
 	if year.Valid {
 		s.Year = int(year.Float64)
 	}
@@ -65,8 +62,8 @@ func (r *SaleRepository) scanSale(scanner interface {
 
 // Create inserts a new sale.
 func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
-	query := `INSERT INTO sales (title, description, image_path, price, old_price, year, technique, width, height, status, sort_order, sold, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO sales (name_ru, name_en, description, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if sale.CreatedAt.IsZero() {
@@ -80,8 +77,8 @@ func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
 	}
 
 	result, err := r.db.ExecContext(ctx, query,
-		sale.Title, nullString(sale.Description), sale.ImagePath,
-		sale.Price, nullFloat(sale.OldPrice), nullInt(int64(sale.Year)),
+		sale.NameRu, sale.NameEn, nullString(sale.Description), sale.ImagePath, sale.SalePath,
+		sale.Price, nullInt(int64(sale.Year)),
 		nullString(sale.Technique),
 		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),
 		sale.Status, sale.SortOrder, sale.Sold,
@@ -141,8 +138,8 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 		args = append(args, filter.Status)
 	}
 	if filter.Query != "" {
-		conditions = append(conditions, "s.title LIKE ?")
-		args = append(args, "%"+filter.Query+"%")
+		conditions = append(conditions, "(s.name_ru LIKE ? OR s.name_en LIKE ?)")
+		args = append(args, "%"+filter.Query+"%", "%"+filter.Query+"%")
 	}
 	if filter.MaterialID > 0 {
 		conditions = append(conditions, "sm.material_id = ?")
@@ -223,14 +220,14 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 
 // Update updates a sale.
 func (r *SaleRepository) Update(ctx context.Context, sale *domain.Sale) error {
-	query := `UPDATE sales SET title = ?, description = ?, image_path = ?, price = ?, old_price = ?,
+	query := `UPDATE sales SET name_ru = ?, name_en = ?, description = ?, image_path = ?, sale_path = ?, price = ?,
 		year = ?, technique = ?, width = ?, height = ?, status = ?, sort_order = ?, sold = ?, updated_at = ? WHERE id = ?`
 
 	sale.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
-		sale.Title, nullString(sale.Description), sale.ImagePath,
-		sale.Price, nullFloat(sale.OldPrice), nullInt(int64(sale.Year)),
+		sale.NameRu, sale.NameEn, nullString(sale.Description), sale.ImagePath, sale.SalePath,
+		sale.Price, nullInt(int64(sale.Year)),
 		nullString(sale.Technique),
 		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),
 		sale.Status, sale.SortOrder, sale.Sold, sale.UpdatedAt, sale.ID,

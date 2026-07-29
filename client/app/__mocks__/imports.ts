@@ -13,6 +13,7 @@ export function useRuntimeConfig() {
         public: {
             serverUrl: 'http://localhost:3000/api/',
             relWorksDir: '/content/works/',
+            relSalesDir: '/content/sales/',
             limit: '20',
         },
     };

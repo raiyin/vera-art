@@ -86,6 +86,11 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             active: route.path.startsWith('/news',),
         },
         {
+            label: t('header.shop',),
+            to: '/art-store',
+            active: route.path.startsWith('/art-store',),
+        },
+        {
             label: t('header.payment',),
             to: '/pay-delivery',
             icon: 'i-heroicons-credit-card',

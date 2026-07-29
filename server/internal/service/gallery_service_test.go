@@ -203,10 +203,10 @@ var testWork = domain.Work{
 }
 
 var testSale = domain.Sale{
-	Title:       "Test Sale",
+	NameRu:      "Test Sale",
+	NameEn:      "Test Sale EN",
 	Description: "Sale description",
 	Price:       1000,
-	OldPrice:    1500,
 	Status:      "available",
 	Sold:        false,
 }
@@ -393,9 +393,9 @@ func TestCreateSale(t *testing.T) {
 		}
 	})
 
-	t.Run("empty title returns ErrInvalidInput", func(t *testing.T) {
+	t.Run("empty name_ru returns ErrInvalidInput", func(t *testing.T) {
 		svc := newGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{})
-		s := domain.Sale{Title: ""}
+		s := domain.Sale{}
 		err := svc.CreateSale(context.Background(), &s, "", nil)
 		if !errors.Is(err, domain.ErrInvalidInput) {
 			t.Errorf("expected ErrInvalidInput, got %v", err)
@@ -415,8 +415,8 @@ func TestGetSaleByID(t *testing.T) {
 		if err != nil {
 			t.Fatalf("GetSaleByID failed: %v", err)
 		}
-		if got.Title != testSale.Title {
-			t.Errorf("Title = %q, want %q", got.Title, testSale.Title)
+		if got.NameRu != testSale.NameRu {
+			t.Errorf("NameRu = %q, want %q", got.NameRu, testSale.NameRu)
 		}
 	})
 
@@ -449,7 +449,7 @@ func TestGetSales(t *testing.T) {
 		svc := newGalleryService(&mockWorkRepo{}, saleRepo, &mockFileRepo{})
 		for i := 0; i < 3; i++ {
 			s := testSale
-			s.Title = "Sale"
+			s.NameRu = "Sale"
 			if err := svc.CreateSale(context.Background(), &s, "", nil); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}
@@ -476,14 +476,14 @@ func TestUpdateSale(t *testing.T) {
 		if err := svc.CreateSale(context.Background(), &s, "test.jpg", nil); err != nil {
 			t.Fatalf("setup failed: %v", err)
 		}
-		s.Title = "Updated Sale"
+		s.NameRu = "Updated Sale"
 		s.ImagePath = "sale_image.jpg"
 		if err := svc.UpdateSale(context.Background(), &s, "", nil); err != nil {
 			t.Fatalf("UpdateSale failed: %v", err)
 		}
 		got, _ := svc.GetSaleByID(context.Background(), s.ID)
-		if got.Title != "Updated Sale" {
-			t.Errorf("Title = %q, want %q", got.Title, "Updated Sale")
+		if got.NameRu != "Updated Sale" {
+			t.Errorf("NameRu = %q, want %q", got.NameRu, "Updated Sale")
 		}
 	})
 }

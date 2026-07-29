@@ -97,6 +97,36 @@ func workToResponse(w *domain.Work) dto.WorkResponse {
 	}
 }
 
+func (h *GalleryHandler) saleToResponse(s *domain.Sale) dto.SaleResponse {
+	images := dto.SplitImages(s.ImagePath)
+	dir := h.relSalesDir
+	if s.SalePath != "" {
+		dir = h.relSalesDir + s.SalePath + "/"
+	}
+	return dto.SaleResponse{
+		ID:          s.ID,
+		NameRu:      s.NameRu,
+		NameEn:      s.NameEn,
+		Description: s.Description,
+		ImagePath:   s.ImagePath,
+		SalePath:    s.SalePath,
+		Dir:         dir,
+		Images:      images,
+		Price:       s.Price,
+		Year:        s.Year,
+		Technique:   s.Technique,
+		Width:       s.Width,
+		Height:      s.Height,
+		Status:      s.Status,
+		SortOrder:   s.SortOrder,
+		Sold:        s.Sold,
+		MaterialIDs: s.MaterialIDs,
+		BaseIDs:     s.BaseIDs,
+		CreatedAt:   s.CreatedAt,
+		UpdatedAt:   s.UpdatedAt,
+	}
+}
+
 // GetWorks returns a list of works.
 func (h *GalleryHandler) GetWorks(c *gin.Context) {
 	filter := domain.WorkFilter{
@@ -330,25 +360,7 @@ func (h *GalleryHandler) GetSales(c *gin.Context) {
 
 	responses := make([]dto.SaleResponse, len(sales))
 	for i, s := range sales {
-		responses[i] = dto.SaleResponse{
-			ID:          s.ID,
-			Title:       s.Title,
-			Description: s.Description,
-			ImagePath:   s.ImagePath,
-			Price:       s.Price,
-			OldPrice:    s.OldPrice,
-			Year:        s.Year,
-			Technique:   s.Technique,
-			Width:       s.Width,
-			Height:      s.Height,
-			Status:      s.Status,
-			SortOrder:   s.SortOrder,
-			Sold:        s.Sold,
-			MaterialIDs: s.MaterialIDs,
-			BaseIDs:     s.BaseIDs,
-			CreatedAt:   s.CreatedAt,
-			UpdatedAt:   s.UpdatedAt,
-		}
+		responses[i] = h.saleToResponse(&s)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -375,25 +387,7 @@ func (h *GalleryHandler) GetSaleByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.SaleResponse{
-		ID:          sale.ID,
-		Title:       sale.Title,
-		Description: sale.Description,
-		ImagePath:   sale.ImagePath,
-		Price:       sale.Price,
-		OldPrice:    sale.OldPrice,
-		Year:        sale.Year,
-		Technique:   sale.Technique,
-		Width:       sale.Width,
-		Height:      sale.Height,
-		Status:      sale.Status,
-		SortOrder:   sale.SortOrder,
-		Sold:        sale.Sold,
-		MaterialIDs: sale.MaterialIDs,
-		BaseIDs:     sale.BaseIDs,
-		CreatedAt:   sale.CreatedAt,
-		UpdatedAt:   sale.UpdatedAt,
-	})
+	c.JSON(http.StatusOK, h.saleToResponse(sale))
 }
 
 // CreateSale creates a new sale.
@@ -412,10 +406,10 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 	}
 
 	sale := &domain.Sale{
-		Title:       req.Title,
+		NameRu:      req.NameRu,
+		NameEn:      req.NameEn,
 		Description: req.Description,
 		Price:       req.Price,
-		OldPrice:    req.OldPrice,
 		Year:        req.Year,
 		Technique:   req.Technique,
 		Width:       req.Width,
@@ -443,7 +437,7 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 
 	if err := h.galleryService.CreateSale(c.Request.Context(), sale, filename, reader); err != nil {
 		slog.Error("CreateSale: failed to create sale",
-			"title", req.Title,
+			"name_ru", req.NameRu,
 			"error", err,
 		)
 		apiErr := apperror.FromError(err)
@@ -453,27 +447,9 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 
 	slog.Info("Sale created successfully",
 		"sale_id", sale.ID,
-		"title", sale.Title,
+		"name_ru", sale.NameRu,
 	)
-	c.JSON(http.StatusCreated, dto.SaleResponse{
-		ID:          sale.ID,
-		Title:       sale.Title,
-		Description: sale.Description,
-		ImagePath:   sale.ImagePath,
-		Price:       sale.Price,
-		OldPrice:    sale.OldPrice,
-		Year:        sale.Year,
-		Technique:   sale.Technique,
-		Width:       sale.Width,
-		Height:      sale.Height,
-		Status:      sale.Status,
-		SortOrder:   sale.SortOrder,
-		Sold:        sale.Sold,
-		MaterialIDs: sale.MaterialIDs,
-		BaseIDs:     sale.BaseIDs,
-		CreatedAt:   sale.CreatedAt,
-		UpdatedAt:   sale.UpdatedAt,
-	})
+	c.JSON(http.StatusCreated, h.saleToResponse(sale))
 }
 
 // UpdateSale updates a sale.
@@ -499,10 +475,10 @@ func (h *GalleryHandler) UpdateSale(c *gin.Context) {
 
 	sale := &domain.Sale{
 		ID:          id,
-		Title:       req.Title,
+		NameRu:      req.NameRu,
+		NameEn:      req.NameEn,
 		Description: req.Description,
 		Price:       req.Price,
-		OldPrice:    req.OldPrice,
 		Year:        req.Year,
 		Technique:   req.Technique,
 		Width:       req.Width,
@@ -537,13 +513,21 @@ func (h *GalleryHandler) UpdateSale(c *gin.Context) {
 	slog.Info("Sale updated successfully",
 		"sale_id", id,
 	)
+	images := dto.SplitImages(sale.ImagePath)
+	dir := h.relSalesDir
+	if sale.SalePath != "" {
+		dir = h.relSalesDir + sale.SalePath + "/"
+	}
 	c.JSON(http.StatusOK, dto.UpdateSaleResponse{
 		ID:          sale.ID,
-		Title:       sale.Title,
+		NameRu:      sale.NameRu,
+		NameEn:      sale.NameEn,
 		Description: sale.Description,
 		ImagePath:   sale.ImagePath,
+		SalePath:    sale.SalePath,
+		Dir:         dir,
+		Images:      images,
 		Price:       sale.Price,
-		OldPrice:    sale.OldPrice,
 		Year:        sale.Year,
 		Technique:   sale.Technique,
 		Width:       sale.Width,

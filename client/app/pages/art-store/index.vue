@@ -4,17 +4,59 @@
     import { useInfiniteScroll, } from '~/composables/useInfiniteScroll';
     import { getHttpClient, } from '~/api/http-client';
 
+    interface SaleResponseItem {
+        id: number
+        name_ru: string
+        name_en: string
+        description?: string
+        image_path: string
+        sale_path: string
+        dir: string
+        images: string[]
+        price: number
+        year?: number
+        technique?: string
+        width: number
+        height: number
+        status: string
+        sort_order: number
+        sold: boolean
+        material_ids?: number[]
+        base_ids?: number[]
+        created_at: string
+        updated_at: string
+    }
+
+    interface SalesResponse {
+        sales: SaleResponseItem[]
+        total: number
+    }
+
     const { items: sales, sentinelRef, loading, } = useInfiniteScroll<Sale>(
         async (page,) => {
             const limit = useRuntimeConfig().public.limit as string;
-            const { data, } = await getHttpClient().get<Sale[]>('sales', {
+            const { data, } = await getHttpClient().get<SalesResponse>('sales', {
                 params: {
-                    offset: page * +limit,
+                    page: page + 1,
                     limit,
                 },
             });
-            return data.map(sale => ({
-                ...sale,
+            return data.sales.map(item => ({
+                id: item.id,
+                str_id: String(item.id),
+                work_path: item.sale_path,
+                dir: item.dir,
+                name_ru: item.name_ru,
+                name_en: item.name_en,
+                year: item.year ?? 0,
+                descr_ru: item.description ?? '',
+                descr_en: item.description ?? '',
+                base_id: item.base_ids?.[0] ?? 0,
+                width: item.width,
+                height: item.height,
+                images: item.images ?? [],
+                material_ids: item.material_ids ?? [],
+                price: item.price,
                 __type: 'GetSaleDto' as const,
             }),);
         },

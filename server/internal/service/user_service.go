@@ -434,22 +434,22 @@ func (s *GalleryService) GetSaleByID(ctx context.Context, id int64) (*domain.Sal
 	}
 	slog.Debug("GalleryService.GetSaleByID: sale retrieved",
 		"sale_id", id,
-		"title", sale.Title,
+		"name_ru", sale.NameRu,
 	)
 	return sale, nil
 }
 
 // CreateSale creates a new sale.
 func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error {
-	if sale.Title == "" {
-		slog.Warn("GalleryService.CreateSale: empty title")
+	if sale.NameRu == "" {
+		slog.Warn("GalleryService.CreateSale: empty name_ru")
 		return domain.ErrInvalidInput
 	}
 
 	imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("sale_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
 	if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
 		slog.Error("GalleryService.CreateSale: failed to save image",
-			"title", sale.Title,
+			"name_ru", sale.NameRu,
 			"image_path", imagePath,
 			"error", err,
 		)
@@ -459,7 +459,7 @@ func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, file
 
 	if err := s.saleRepo.Create(ctx, sale); err != nil {
 		slog.Error("GalleryService.CreateSale: failed to create sale",
-			"title", sale.Title,
+			"name_ru", sale.NameRu,
 			"image_path", imagePath,
 			"error", err,
 		)
@@ -488,7 +488,7 @@ func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, file
 
 	slog.Info("GalleryService.CreateSale: sale created",
 		"sale_id", sale.ID,
-		"title", sale.Title,
+		"name_ru", sale.NameRu,
 	)
 	return nil
 }
@@ -531,7 +531,7 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 	if err := s.saleRepo.Update(ctx, sale); err != nil {
 		slog.Error("GalleryService.UpdateSale: failed to update sale",
 			"sale_id", sale.ID,
-			"title", sale.Title,
+			"name_ru", sale.NameRu,
 			"error", err,
 		)
 		return err
@@ -555,7 +555,7 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 
 	slog.Info("GalleryService.UpdateSale: sale updated",
 		"sale_id", sale.ID,
-		"title", sale.Title,
+		"name_ru", sale.NameRu,
 	)
 	return nil
 }
@@ -584,7 +584,7 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 	if err := s.saleRepo.Delete(ctx, id); err != nil {
 		slog.Error("GalleryService.DeleteSale: failed to delete sale",
 			"sale_id", id,
-			"title", sale.Title,
+			"name_ru", sale.NameRu,
 			"error", err,
 		)
 		return err
@@ -592,7 +592,7 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 
 	slog.Info("GalleryService.DeleteSale: sale deleted",
 		"sale_id", id,
-		"title", sale.Title,
+		"name_ru", sale.NameRu,
 	)
 	return nil
 }

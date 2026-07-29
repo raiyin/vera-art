@@ -81,11 +81,14 @@ func JoinImages(imgs []string) string {
 // SaleResponse represents a sale in API responses.
 type SaleResponse struct {
 	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
+	NameRu      string    `json:"name_ru"`
+	NameEn      string    `json:"name_en"`
 	Description string    `json:"description,omitempty"`
 	ImagePath   string    `json:"image_path"`
+	SalePath    string    `json:"sale_path"`
+	Dir         string    `json:"dir"`
+	Images      []string  `json:"images"`
 	Price       float64   `json:"price"`
-	OldPrice    float64   `json:"old_price,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
 	Width       int       `json:"width,omitempty"`
@@ -102,11 +105,14 @@ type SaleResponse struct {
 // UpdateSaleResponse represents a sale in update API responses.
 type UpdateSaleResponse struct {
 	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
+	NameRu      string    `json:"name_ru"`
+	NameEn      string    `json:"name_en"`
 	Description string    `json:"description,omitempty"`
 	ImagePath   string    `json:"image_path"`
+	SalePath    string    `json:"sale_path"`
+	Dir         string    `json:"dir"`
+	Images      []string  `json:"images"`
 	Price       float64   `json:"price"`
-	OldPrice    float64   `json:"old_price,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
 	Width       int       `json:"width,omitempty"`
@@ -122,10 +128,10 @@ type UpdateSaleResponse struct {
 
 // CreateSaleRequest represents a create sale request.
 type CreateSaleRequest struct {
-	Title       string  `json:"title" form:"title" binding:"required"`
+	NameRu      string  `json:"name_ru" form:"name_ru" binding:"required"`
+	NameEn      string  `json:"name_en" form:"name_en" binding:"required"`
 	Description string  `json:"description" form:"description"`
 	Price       float64 `json:"price" form:"price" binding:"required"`
-	OldPrice    float64 `json:"old_price" form:"old_price"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
 	Width       int     `json:"width" form:"width"`
@@ -139,10 +145,10 @@ type CreateSaleRequest struct {
 
 // UpdateSaleRequest represents an update sale request.
 type UpdateSaleRequest struct {
-	Title       string  `json:"title" form:"title"`
+	NameRu      string  `json:"name_ru" form:"name_ru"`
+	NameEn      string  `json:"name_en" form:"name_en"`
 	Description string  `json:"description" form:"description"`
 	Price       float64 `json:"price" form:"price"`
-	OldPrice    float64 `json:"old_price" form:"old_price"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
 	Width       int     `json:"width" form:"width"`

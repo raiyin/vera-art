@@ -712,6 +712,18 @@ func runMigrations(db *sql.DB) {
 		}
 	}
 
+	// Add sale_path column to sales table
+	var salePathExists int
+	err = db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'sale_path'").Scan(&salePathExists)
+	if err == nil && salePathExists == 0 {
+		_, err = db.Exec("ALTER TABLE sales ADD COLUMN sale_path TEXT DEFAULT ''")
+		if err != nil {
+			slog.Warn("Migration (sale_path): failed to add column", "error", err)
+		} else {
+			slog.Info("Migration (sale_path): column added successfully")
+		}
+	}
+
 	slog.Info("Database migrations completed")
 }
 

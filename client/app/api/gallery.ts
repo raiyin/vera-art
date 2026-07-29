@@ -20,11 +20,11 @@ export interface WorkItem {
 
 export interface SaleItem {
     id: number
-    title: string
+    name_ru: string
+    name_en: string
     description: string | null
     image_path: string
     price: number
-    old_price: number | null
     year: number | null
     technique: string | null
     size: string | null

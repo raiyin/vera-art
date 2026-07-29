@@ -4,11 +4,12 @@ import "time"
 
 type Sale struct {
 	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
+	NameRu      string    `json:"name_ru"`
+	NameEn      string    `json:"name_en"`
 	Description string    `json:"description,omitempty"`
 	ImagePath   string    `json:"image_path"`
+	SalePath    string    `json:"sale_path"`
 	Price       float64   `json:"price"`
-	OldPrice    float64   `json:"old_price,omitempty"`
 	Year        int       `json:"year,omitempty"`
 	Technique   string    `json:"technique,omitempty"`
 	Width       int       `json:"width,omitempty"`
