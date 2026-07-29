@@ -36,11 +36,16 @@ type SMTPConfig struct {
 	FromName string `mapstructure:"from_name"`
 }
 
+type FeaturesConfig struct {
+	RegistrationEnabled bool `mapstructure:"registration_enabled"`
+}
+
 type Config struct {
 	App         AppConfig
 	CORS        CORSConfig
 	Directories DirectoriesConfig
 	SMTP        SMTPConfig
+	Features    FeaturesConfig
 }
 
 var AppConfigInstance Config
@@ -63,6 +68,7 @@ func LoadConfig(configPath string) error {
 	viper.SetDefault("smtp.password", "")
 	viper.SetDefault("smtp.from", "noreply@vera-art.com")
 	viper.SetDefault("smtp.from_name", "Vera Art")
+	viper.SetDefault("features.registration_enabled", true)
 
 	// Read config
 	if err := viper.ReadInConfig(); err != nil {

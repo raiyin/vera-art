@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Repository implements port.FileRepository for local filesystem storage.
@@ -37,7 +38,7 @@ func (r *Repository) Save(_ context.Context, path string, reader io.Reader) erro
 
 // Delete deletes a file at the given path.
 func (r *Repository) Delete(_ context.Context, path string) error {
-	fullPath := filepath.Join(r.baseDir, path)
+	fullPath := filepath.Join(r.baseDir, strings.ReplaceAll(path, "\\", "/"))
 	return os.Remove(fullPath)
 }
 

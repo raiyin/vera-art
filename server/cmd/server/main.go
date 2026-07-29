@@ -40,6 +40,9 @@ func main() {
 	}
 	appConfig := config.AppConfigInstance
 	slog.Info("Starting server", "name", appConfig.App.Name, "port", appConfig.App.Port)
+	if !appConfig.Features.RegistrationEnabled {
+		slog.Warn("Registration is DISABLED by feature flag")
+	}
 
 	// -------------------------------------------------------------------------
 	// Database
@@ -57,8 +60,8 @@ func main() {
 		slog.Warn("Could not set WAL mode", "error", err)
 	}
 
-	// Set busy timeout to 5 seconds to avoid "database is locked" errors
-	_, err = db.Exec("PRAGMA busy_timeout=5000")
+	// Set busy timeout to 10 seconds to avoid "database is locked" errors
+	_, err = db.Exec("PRAGMA busy_timeout=10000")
 	if err != nil {
 		slog.Warn("Could not set busy_timeout", "error", err)
 	}
@@ -76,8 +79,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(1)
+	db.SetMaxOpenConns(3)
+	db.SetMaxIdleConns(3)
 	slog.Info("Database connection established successfully")
 
 	// Run migrations
@@ -193,6 +196,7 @@ func main() {
 		chatHandler,
 		miscHandler,
 		jwtManager,
+		appConfig.Features,
 	)
 
 	// -------------------------------------------------------------------------

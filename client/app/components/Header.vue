@@ -12,6 +12,7 @@ const notificationStore = useNotificationStore();
 const themeStore = useThemeStore();
 
 const route = useRoute();
+const runtimeConfig = useRuntimeConfig();
 
 const avatarUrl = ref('',);
 
@@ -145,6 +146,10 @@ const navigation = computed<NavigationMenuItem[]>(() => {
         });
     }
 
+    if (!runtimeConfig.public.registrationEnabled) {
+        return items.filter(item => item.value !== 'services');
+    }
+
     return items;
 });
 </script>
@@ -242,45 +247,47 @@ const navigation = computed<NavigationMenuItem[]>(() => {
             </div>
 
             <!-- Auth: User dropdown when authenticated -->
-            <UDropdownMenu
-                v-if="authStore.isAuthenticated"
-                :items="userMenuItems"
-            >
-                <UButton
-                    class="text-grey"
-                    variant="ghost"
-                    square
+            <template v-if="runtimeConfig.public.registrationEnabled || authStore.isAuthenticated">
+                <UDropdownMenu
+                    v-if="authStore.isAuthenticated"
+                    :items="userMenuItems"
                 >
-                    <img
-                        v-if="avatarUrl"
-                        :src="avatarUrl"
-                        alt="Avatar"
-                        class="w-5 h-5 rounded-full object-cover"
+                    <UButton
+                        class="text-grey"
+                        variant="ghost"
+                        square
                     >
-                    <Icon
-                        v-else
-                        name="i-heroicons-user-circle"
-                        class="w-5 h-5"
-                    />
-                </UButton>
-            </UDropdownMenu>
+                        <img
+                            v-if="avatarUrl"
+                            :src="avatarUrl"
+                            alt="Avatar"
+                            class="w-5 h-5 rounded-full object-cover"
+                        >
+                        <Icon
+                            v-else
+                            name="i-heroicons-user-circle"
+                            class="w-5 h-5"
+                        />
+                    </UButton>
+                </UDropdownMenu>
 
-            <UTooltip
-                v-else
-                :text="$t('auth.login',)"
-            >
-                <UButton
-                    class="text-grey"
-                    variant="ghost"
-                    square
-                    to="/auth/login"
+                <UTooltip
+                    v-else
+                    :text="$t('auth.login',)"
                 >
-                    <Icon
-                        name="i-heroicons-user-circle"
-                        class="w-5 h-5"
-                    />
-                </UButton>
-            </UTooltip>
+                    <UButton
+                        class="text-grey"
+                        variant="ghost"
+                        square
+                        to="/auth/login"
+                    >
+                        <Icon
+                            name="i-heroicons-user-circle"
+                            class="w-5 h-5"
+                        />
+                    </UButton>
+                </UTooltip>
+            </template>
 
             <!-- Social links (desktop only) -->
             <div class="md:flex items-center space-x-1">

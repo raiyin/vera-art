@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/gin-gonic/gin"
 
+	"github.com/raiyin/artserver/internal/config"
 	"github.com/raiyin/artserver/internal/handler"
 	"github.com/raiyin/artserver/pkg/jwt"
 )
@@ -19,6 +20,7 @@ func NewRouter(
 	chatHandler *handler.ChatHandler,
 	miscHandler *handler.MiscHandler,
 	jwtManager *jwt.Manager,
+	features config.FeaturesConfig,
 ) *gin.Engine {
 	r := gin.New()
 
@@ -39,7 +41,9 @@ func NewRouter(
 	auth := r.Group("/")
 	auth.Use(rateLimitMw)
 	{
-		auth.POST("/register", authHandler.Register)
+		if features.RegistrationEnabled {
+			auth.POST("/register", authHandler.Register)
+		}
 		auth.POST("/login", authHandler.Login)
 		auth.POST("/refresh", authHandler.RefreshToken)
 		auth.POST("/resend-verification", authHandler.ResendVerification)

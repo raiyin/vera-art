@@ -24,6 +24,7 @@ export default defineNuxtConfig({
             limit: process.env.NUXT_PUBLIC_LIMIT || '9',
             relWorksDir: process.env.NUXT_PUBLIC_REL_WORKS_DIR || '/content/works/',
             relSalesDir: process.env.NUXT_PUBLIC_REL_SALES_DIR || '/content/sales/',
+            registrationEnabled: process.env.NUXT_PUBLIC_REGISTRATION_ENABLED !== 'false',
         },
     },
 
