@@ -310,7 +310,7 @@ func (r *SaleRepository) SetBases(ctx context.Context, saleID int64, baseIDs []i
 
 // GetMaterialIDs retrieves material IDs for a sale.
 func (r *SaleRepository) GetMaterialIDs(ctx context.Context, saleID int64) ([]int64, error) {
-	rows, err := r.db.QueryContext(ctx, "SELECT material_id FROM sale_materials WHERE sale_id = ? ORDER BY material_id", saleID)
+	rows, err := r.db.QueryContext(ctx, "SELECT material_id FROM sales_materials WHERE sale_id = ? ORDER BY material_id", saleID)
 	if err != nil {
 		return nil, err
 	}
@@ -357,7 +357,7 @@ func (r *SaleRepository) GetBulkMaterialIDs(ctx context.Context, sales []domain.
 	}
 	result := make(map[int64][]int64, len(sales))
 
-	query := "SELECT sale_id, material_id FROM sale_materials WHERE sale_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY sale_id, material_id"
+	query := "SELECT sale_id, material_id FROM sales_materials WHERE sale_id IN (?" + strings.Repeat(",?", len(ids)-1) + ") ORDER BY sale_id, material_id"
 	args := make([]interface{}, len(ids))
 	for i, id := range ids {
 		args[i] = id

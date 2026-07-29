@@ -3,7 +3,7 @@
     import type { CommonWork, } from '~/types';
     import { useMaterialStore, } from '~/stores/MaterialStore';
     import { useAuthStore, } from '~/stores/AuthStore';
-    import { ref, computed, watch, onBeforeUnmount, } from 'vue';
+    import { ref, computed, watch, onMounted, onBeforeUnmount, } from 'vue';
     import { useI18n, } from '#imports';
     import { useRouter, } from 'vue-router';
     import { useApi, } from '~/composables/useApi';
@@ -34,6 +34,12 @@
     const authStore = useAuthStore();
     const router = useRouter();
     const { del, } = useApi();
+
+    onMounted(() => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            materialStore.fetchAll();
+        }
+    });
 
     const isAdmin = computed(() => {
         return authStore.isAuthenticated && authStore.isAdmin;
@@ -98,6 +104,12 @@
 
     const getWorkBase = (work: CommonWork,): string => {
         return materialStore.getBaseName(work.base_id, locale.value,);
+    };
+
+    const getWorkMaterialNames = (work: CommonWork,): string[] => {
+        const ids = (work as any).material_ids;
+        if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
+        return materialStore.getMaterialNames(ids, locale.value,);
     };
 
     const getMainImageUrl = (work: CommonWork,): string => {
@@ -279,6 +291,19 @@
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
                             <span>{{ work.year }}</span>
+                        </div>
+
+                        <div
+                            v-if="getWorkMaterialNames(work,).length > 0"
+                            class="flex flex-wrap gap-1.5 pt-1"
+                        >
+                            <span
+                                v-for="mat in getWorkMaterialNames(work,)"
+                                :key="mat"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                            >
+                                {{ mat }}
+                            </span>
                         </div>
                     </div>
 

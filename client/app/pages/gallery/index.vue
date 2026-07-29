@@ -64,7 +64,7 @@
 </script>
 
 <template>
-    <UContainer class="main-content">
+    <UContainer class="main-content pt-20">
         <Gallery
             :images="works"
             @work-deleted="handleWorkDeleted"
