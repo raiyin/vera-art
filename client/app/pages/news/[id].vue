@@ -5,6 +5,7 @@
     import { useFormatting, } from '~/composables/useFormatting';
     import type { NewsItem, NewsListResponse, } from '~/api/news';
     import SideNewsTrailer from '~/components/SideNewsTrailer.vue';
+    import SideNewsTrailerSkeleton from '~/components/SideNewsTrailerSkeleton.vue';
     import NewsDescriptionSkeleton from '~/components/NewsDescriptionSkeleton.vue';
 
     const route = useRoute();
@@ -119,12 +120,16 @@
             const { data: otherData, } = await getHttpClient().get<NewsListResponse>('news', {
                 params: {
                     page: 1,
-                    limit: 6,
+                    limit: 50,
                 },
             });
 
-            otherNews.value = (otherData.news || [])
-                .filter((news: NewsItem,) => news.id !== newsId.value,)
+            const filtered = (otherData.news || []).filter(
+                (news: NewsItem,) => news.id !== newsId.value,);
+            otherNews.value = filtered
+                .map((n,) => ({ n, sort: Math.random(), }))
+                .sort((a, b,) => a.sort - b.sort,)
+                .map(({ n, },) => n,)
                 .slice(0, 5,);
         } catch (err) {
             console.error('Error fetching news detail:', err,);
@@ -183,13 +188,15 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div
-            v-else-if="currentNewsItem"
+            v-if="currentNewsItem || loading"
             class="container mx-auto px-4 py-8"
         >
             <!-- Breadcrumb -->
-            <nav class="mb-6">
+            <nav
+                v-if="currentNewsItem"
+                class="mb-6"
+            >
                 <ol class="flex items-center space-x-2 text-sm text-gray-500">
                     <li>
                         <router-link
@@ -237,6 +244,7 @@
                             />
                         </svg>
                         <span
+                            v-if="currentNewsItem"
                             class="text-gray-900 dark:text-white font-medium truncate max-w-xs"
                         >
                             {{ locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en }}
@@ -245,11 +253,11 @@
                 </ol>
             </nav>
 
-            <!-- Top section with main image and sidebar -->
             <div class="flex flex-col lg:flex-row gap-8 mb-8">
                 <!-- Main Image (2/3 width on large screens) -->
                 <div class="lg:w-2/3">
                     <div
+                        v-if="currentNewsItem"
                         class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                     >
                     <div
@@ -281,7 +289,7 @@
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
-                        >
+                        />
                     </div>
                 </div>
 
@@ -295,7 +303,17 @@
                         </h3>
 
                         <div
-                            v-if="otherNews.length > 0"
+                            v-if="loading"
+                            class="space-y-2"
+                        >
+                            <SideNewsTrailerSkeleton
+                                v-for="i in 5"
+                                :key="i"
+                            />
+                        </div>
+
+                        <div
+                            v-else-if="otherNews.length > 0"
                             class="space-y-2 overflow-y-auto sidebar-news-list"
                         >
                             <div
@@ -357,57 +375,58 @@
                 </div>
             </div>
 
-            <!-- News Information -->
-            <div class="news-info mb-8">
-                <!-- Date -->
-                <div
-                    class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4"
-                >
-                    <svg
-                        class="w-5 h-5 mr-2"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
+            <div v-if="currentNewsItem">
+                <!-- News Information -->
+                <div class="news-info mb-8">
+                    <!-- Date -->
+                    <div
+                        class="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4"
                     >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                        />
-                    </svg>
-                    {{ formatDate(currentNewsItem.datetime,) }}
+                        <svg
+                            class="w-5 h-5 mr-2"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                        </svg>
+                        {{ formatDate(currentNewsItem.datetime,) }}
+                    </div>
+
+                    <!-- Title -->
+                    <h1
+                        class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+                    >
+                        {{ locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en }}
+                    </h1>
                 </div>
 
-                <!-- Title -->
-                <h1
-                    class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
+                <!-- News Text -->
+                <div
+                    v-if="currentNewsItem.text_ru || currentNewsItem.text_en"
+                    class="news-text mb-12"
                 >
-                    {{ locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en }}
-                </h1>
-            </div>
-
-            <!-- News Text -->
-            <div
-                v-if="currentNewsItem.text_ru || currentNewsItem.text_en"
-                class="news-text mb-12"
-            >
-                <div class="prose prose-lg dark:prose-invert max-w-none">
-                    <div
-                        class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
-                    >
-                        {{ locale === 'ru' ? currentNewsItem.text_ru : currentNewsItem.text_en }}
+                    <div class="prose prose-lg dark:prose-invert max-w-none">
+                        <div
+                            class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
+                        >
+                            {{ locale === 'ru' ? currentNewsItem.text_ru : currentNewsItem.text_en }}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Video Carousel Section -->
-            <div
-                v-if="allVideoUrls.length > 0"
-                class="video-section mb-12"
-            >
-                <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                <!-- Video Carousel Section -->
+                <div
+                    v-if="allVideoUrls.length > 0"
+                    class="video-section mb-12"
+                >
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                     {{ $t('news.detail.videos.title',) }}
                     <span
                         v-if="hasMultipleVideos"
@@ -415,7 +434,8 @@
                     >
                         ({{ currentVideoIndex + 1 }} / {{ allVideoUrls.length }})
                     </span>
-                </h3>
+                    </h3>
+                </div>
 
                 <div class="video-carousel-container">
                     <!-- Video Player -->
@@ -566,7 +586,7 @@
                                 class="gallery-image"
                                 loading="lazy"
                                 @error="handleGalleryImageError(index,)"
-                            >
+                            />
                         </div>
                     </div>
 
@@ -647,16 +667,16 @@
 
                             <!-- Image -->
                             <div class="gallery-modal-image-wrapper">
-                                <img
-                                    v-if="!galleryImageErrors.has(selectedGalleryIndex,)"
-                                    :key="selectedGalleryIndex"
-                                    :src="galleryImages[selectedGalleryIndex]"
-                                    :alt="`${$t('news.detail.gallery.title',)} ${
-                                        selectedGalleryIndex + 1
-                                    }`"
-                                    class="gallery-modal-image"
-                                    @error="handleGalleryImageError(selectedGalleryIndex,)"
-                                >
+                            <img
+                                v-if="!galleryImageErrors.has(selectedGalleryIndex,)"
+                                :key="selectedGalleryIndex"
+                                :src="galleryImages[selectedGalleryIndex]"
+                                :alt="`${$t('news.detail.gallery.title',)} ${
+                                    selectedGalleryIndex + 1
+                                }`"
+                                class="gallery-modal-image"
+                                @error="handleGalleryImageError(selectedGalleryIndex,)"
+                            />
                                 <div
                                     v-else
                                     class="gallery-modal-error"
