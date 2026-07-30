@@ -5,19 +5,18 @@
     import { useRouter, } from 'vue-router';
     import { ref, onMounted, onUnmounted, } from 'vue';
 
-    /**
-     * News item shape returned by the server's public GET /news endpoint.
-     */
     interface NewsItem {
-        id: number
-        title: string
-        description: string | null
-        content: string | null
-        image_path: string
-        video_path: string | null
-        status: string
-        created_at: string
-        updated_at: string
+        id: string
+        datetime: string
+        title_ru: string
+        title_en: string
+        dir: string
+        img_back: string
+        img_backfull: string
+        text_ru: string
+        text_en: string
+        images: string[]
+        videos: string[]
     }
 
     const showDeleteModal = ref(false,);
@@ -36,7 +35,7 @@
     const hasMore = ref(true,);
     const observer = ref<IntersectionObserver | null>(null,);
     const observerElement = ref<HTMLElement | null>(null,);
-    const deletingId = ref<number | null>(null,);
+    const deletingId = ref<string | null>(null,);
 
     const loadNews = async (initial = false,) => {
         if (loading.value || (!hasMore.value && !initial)) return;
@@ -91,18 +90,18 @@
     };
 
     const getNewsTitle = (newsItem: NewsItem,) => {
-        return newsItem.title;
+        return locale.value === 'ru' ? newsItem.title_ru : newsItem.title_en;
     };
 
     const getImageUrl = (newsItem: NewsItem,) => {
-        return newsItem.image_path;
+        return newsItem.dir + newsItem.img_back;
     };
 
-    const navigateToNews = (id: number,) => {
+    const navigateToNews = (id: string,) => {
         router.push(`/news/${id}`,);
     };
 
-    const editNews = (id: number,) => {
+    const editNews = (id: string,) => {
         router.push(`/news/edit/${id}/`,);
     };
 
@@ -206,7 +205,7 @@
                                 name="i-heroicons-calendar"
                                 class="w-4 h-4 mr-2"
                             />
-                            {{ formatDate(newsItem.created_at,) }}
+                            {{ formatDate(newsItem.datetime,) }}
                         </div>
                         <!-- Title -->
                         <h3

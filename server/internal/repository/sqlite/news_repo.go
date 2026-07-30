@@ -5,97 +5,79 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/raiyin/artserver/internal/domain"
 )
 
-// NewsRepository implements port.NewsRepository.
 type NewsRepository struct {
 	db *sql.DB
 }
 
-// NewNewsRepository creates a new NewsRepository.
 func NewNewsRepository(db *sql.DB) *NewsRepository {
 	return &NewsRepository{db: db}
 }
 
-const newsColumns = `id, title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at`
+const newsColumns = `id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos`
 
 func (r *NewsRepository) scanNews(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.News, error) {
 	n := &domain.News{}
-	var description, content, videoPath, videoPaths, imagePaths sql.NullString
+	var subTitleRu, subTitleEn, imagesStr, videosStr sql.NullString
 
 	err := scanner.Scan(
-		&n.ID, &n.Title, &description, &content,
-		&n.ImagePath, &videoPath, &videoPaths, &imagePaths, &n.Status,
-		&n.CreatedAt, &n.UpdatedAt,
+		&n.ID, &n.DateTime, &n.TitleRu, &n.TitleEn,
+		&subTitleRu, &subTitleEn,
+		&n.Dir, &n.ImgBack, &n.ImgBackfull,
+		&n.TextRu, &n.TextEn,
+		&imagesStr, &videosStr,
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	if description.Valid {
-		n.Description = description.String
+	if subTitleRu.Valid {
+		n.SubTitleRu = subTitleRu.String
 	}
-	if content.Valid {
-		n.Content = content.String
+	if subTitleEn.Valid {
+		n.SubTitleEn = subTitleEn.String
 	}
-	if videoPath.Valid {
-		n.VideoPath = videoPath.String
+	if imagesStr.Valid && imagesStr.String != "" {
+		n.Images = splitAndTrim(imagesStr.String, ";")
 	}
-	if videoPaths.Valid && videoPaths.String != "" {
-		n.VideoPaths = strings.Split(videoPaths.String, ";")
+	if videosStr.Valid && videosStr.String != "" {
+		n.Videos = splitAndTrim(videosStr.String, ";")
 	}
-	if imagePaths.Valid && imagePaths.String != "" {
-		n.ImagePaths = strings.Split(imagePaths.String, ";")
+
+	if n.Images == nil {
+		n.Images = []string{}
+	}
+	if n.Videos == nil {
+		n.Videos = []string{}
 	}
 
 	return n, nil
 }
 
-// Create inserts a new news entry.
 func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
-	query := `INSERT INTO news (title, description, content, image_path, video_path, video_paths, image_paths, status, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO news_legacy (id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
-	now := time.Now()
-	if news.CreatedAt.IsZero() {
-		news.CreatedAt = now
-	}
-	if news.UpdatedAt.IsZero() {
-		news.UpdatedAt = now
-	}
-	if news.Status == "" {
-		news.Status = "draft"
-	}
-
-	videoPathsStr := strings.Join(news.VideoPaths, ";")
-	imagePathsStr := strings.Join(news.ImagePaths, ";")
-
-	result, err := r.db.ExecContext(ctx, query,
-		news.Title, nullString(news.Description), nullString(news.Content),
-		news.ImagePath, nullString(news.VideoPath), nullString(videoPathsStr), nullString(imagePathsStr), news.Status,
-		news.CreatedAt, news.UpdatedAt,
+	_, err := r.db.ExecContext(ctx, query,
+		news.ID, news.DateTime, news.TitleRu, news.TitleEn,
+		nullString(news.SubTitleRu), nullString(news.SubTitleEn),
+		news.Dir, news.ImgBack, news.ImgBackfull,
+		news.TextRu, news.TextEn,
+		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),
 	)
 	if err != nil {
 		return fmt.Errorf("create news: %w", err)
 	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		return fmt.Errorf("get last insert id: %w", err)
-	}
-	news.ID = id
 	return nil
 }
 
-// GetByID retrieves a news entry by ID.
-func (r *NewsRepository) GetByID(ctx context.Context, id int64) (*domain.News, error) {
-	query := fmt.Sprintf("SELECT %s FROM news WHERE id = ?", newsColumns)
-
+func (r *NewsRepository) GetByID(ctx context.Context, id string) (*domain.News, error) {
+	query := fmt.Sprintf("SELECT %s FROM news_legacy WHERE id = ?", newsColumns)
 	news, err := r.scanNews(r.db.QueryRowContext(ctx, query, id))
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrNotFound
@@ -106,18 +88,14 @@ func (r *NewsRepository) GetByID(ctx context.Context, id int64) (*domain.News, e
 	return news, nil
 }
 
-// List retrieves news entries with optional filtering.
 func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error) {
 	var conditions []string
 	var args []interface{}
 
-	if filter.Status != "" {
-		conditions = append(conditions, "status = ?")
-		args = append(args, filter.Status)
-	}
 	if filter.Query != "" {
-		conditions = append(conditions, "title LIKE ?")
-		args = append(args, "%"+filter.Query+"%")
+		conditions = append(conditions, "(title_ru LIKE ? OR title_en LIKE ? OR text_ru LIKE ? OR text_en LIKE ?)")
+		q := "%" + filter.Query + "%"
+		args = append(args, q, q, q, q)
 	}
 
 	whereClause := ""
@@ -125,7 +103,7 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM news %s", whereClause)
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM news_legacy %s", whereClause)
 	var total int
 	if err := r.db.QueryRowContext(ctx, countQuery, args...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count news: %w", err)
@@ -141,11 +119,11 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 	}
 	offset := (page - 1) * limit
 
-	listQuery := fmt.Sprintf(`SELECT %s FROM news %s ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+	listQuery := fmt.Sprintf(`SELECT %s FROM news_legacy %s ORDER BY datetime DESC LIMIT ? OFFSET ?`,
 		newsColumns, whereClause)
-	args = append(args, limit, offset)
+	queryArgs := append(args, limit, offset)
 
-	rows, err := r.db.QueryContext(ctx, listQuery, args...)
+	rows, err := r.db.QueryContext(ctx, listQuery, queryArgs...)
 	if err != nil {
 		return nil, 0, fmt.Errorf("list news: %w", err)
 	}
@@ -163,20 +141,17 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 	return newsList, total, nil
 }
 
-// Update updates a news entry.
 func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
-	query := `UPDATE news SET title = ?, description = ?, content = ?, image_path = ?,
-		video_path = ?, video_paths = ?, image_paths = ?, status = ?, updated_at = ? WHERE id = ?`
-
-	news.UpdatedAt = time.Now()
-
-	videoPathsStr := strings.Join(news.VideoPaths, ";")
-	imagePathsStr := strings.Join(news.ImagePaths, ";")
+	query := `UPDATE news_legacy SET datetime=?, title_ru=?, title_en=?, subTitle_ru=?, subTitle_en=?,
+		dir=?, img_back=?, img_backfull=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
 
 	_, err := r.db.ExecContext(ctx, query,
-		news.Title, nullString(news.Description), nullString(news.Content),
-		news.ImagePath, nullString(news.VideoPath), nullString(videoPathsStr), nullString(imagePathsStr), news.Status,
-		news.UpdatedAt, news.ID,
+		news.DateTime, news.TitleRu, news.TitleEn,
+		nullString(news.SubTitleRu), nullString(news.SubTitleEn),
+		news.Dir, news.ImgBack, news.ImgBackfull,
+		news.TextRu, news.TextEn,
+		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),
+		news.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("update news: %w", err)
@@ -184,9 +159,8 @@ func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
 	return nil
 }
 
-// Delete deletes a news entry by ID.
-func (r *NewsRepository) Delete(ctx context.Context, id int64) error {
-	result, err := r.db.ExecContext(ctx, "DELETE FROM news WHERE id = ?", id)
+func (r *NewsRepository) Delete(ctx context.Context, id string) error {
+	result, err := r.db.ExecContext(ctx, "DELETE FROM news_legacy WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("delete news: %w", err)
 	}
@@ -195,4 +169,23 @@ func (r *NewsRepository) Delete(ctx context.Context, id int64) error {
 		return domain.ErrNotFound
 	}
 	return nil
+}
+
+func splitAndTrim(s, sep string) []string {
+	parts := strings.Split(s, sep)
+	var result []string
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
+}
+
+func joinOrNull(items []string, sep string) interface{} {
+	if len(items) == 0 {
+		return nil
+	}
+	return strings.Join(items, sep)
 }

@@ -64,11 +64,11 @@ type GalleryService interface {
 // NewsService defines the interface for news operations.
 type NewsService interface {
 	GetNews(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error)
-	GetNewsByID(ctx context.Context, id int64) (*domain.News, error)
-	CreateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error
-	UpdateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error
-	DeleteNews(ctx context.Context, id int64) error
-	BulkDeleteNews(ctx context.Context, ids []int64) error
+	GetNewsByID(ctx context.Context, id string) (*domain.News, error)
+	CreateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
+	UpdateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
+	DeleteNews(ctx context.Context, id string) error
+	BulkDeleteNews(ctx context.Context, ids []string) error
 }
 
 // ShopService defines the interface for shop (products, categories, promo codes, reviews) operations.

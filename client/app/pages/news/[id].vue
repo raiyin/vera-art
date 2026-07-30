@@ -9,7 +9,7 @@
 
     const route = useRoute();
     const router = useRouter();
-    const { t, } = useI18n();
+    const { t, locale, } = useI18n();
     const { formatDate, } = useFormatting();
 
     const currentNewsItem = ref<NewsItem | null>(null,);
@@ -18,11 +18,9 @@
     const error = ref<string | null>(null,);
     const mainImageError = ref(false,);
 
-    // Video carousel state
     const currentVideoIndex = ref(0,);
     const videoErrors = ref<Set<number>>(new Set(),);
 
-    // Gallery modal state
     const selectedGalleryIndex = ref<number | null>(null,);
     const galleryImageErrors = ref<Set<number>>(new Set(),);
 
@@ -51,66 +49,12 @@
         galleryImageErrors.value.add(index,);
     };
 
-    const newsId = computed(() => Number(route.params.id,),);
+    const newsId = computed(() => String(route.params.id,),);
 
-    /**
-     * Normalize file paths by replacing backslashes with forward slashes.
-     * The legacy system stored paths with OS-specific separators.
-     */
-    const normalizePath = (path: string | null | undefined,): string | undefined => {
-        if (!path) return undefined;
-        return path.replace(/\\/g, '/',);
-    };
-
-    /**
-     * Resolve a single video path to its actual file URL.
-     * The legacy system stores the video directory name, while the actual
-     * video file is located at `videos/{dirname}/{dirname}.mp4`.
-     */
-    const resolveVideoPath = (videoPath: string,): string | undefined => {
-        const normalizedPath = normalizePath(videoPath,);
-        if (!normalizedPath) return undefined;
-
-        // Check if the path already points to a file with extension
-        if (/\.\w+$/.test(normalizedPath,)) {
-            return normalizedPath;
-        }
-
-        // The path points to a directory — construct the actual video file path
-        // Pattern: /content/news/YYYY/MM/DD/videoplayback
-        // Actual file: /content/news/YYYY/MM/DD/videos/videoplayback/videoplayback.mp4
-        const dirName = normalizedPath.split('/',).pop() || '';
-        const basePath = normalizedPath.substring(0, normalizedPath.lastIndexOf('/',),);
-        return `${basePath}/videos/${dirName}/${dirName}.mp4`;
-    };
-
-    /**
-     * All resolved video URLs for the carousel.
-     * Combines the single video_path (legacy) with the video_paths array.
-     */
     const allVideoUrls = computed<string[]>(() => {
         const item = currentNewsItem.value;
-        if (!item) return [];
-
-        const urls: string[] = [];
-
-        // Add from video_paths array (new system with multiple videos)
-        if (item.video_paths && item.video_paths.length > 0) {
-            for (const vp of item.video_paths) {
-                const resolved = resolveVideoPath(vp,);
-                if (resolved) urls.push(resolved,);
-            }
-        }
-
-        // Add from single video_path if not already included (legacy fallback)
-        if (item.video_path) {
-            const resolved = resolveVideoPath(item.video_path,);
-            if (resolved && !urls.includes(resolved,)) {
-                urls.push(resolved,);
-            }
-        }
-
-        return urls;
+        if (!item || !item.videos || item.videos.length === 0) return [];
+        return item.videos.map(v => `${item.dir}videos/${v}/${v}.mp4`,);
     });
 
     const hasMultipleVideos = computed(() => allVideoUrls.value.length > 1,);
@@ -122,41 +66,20 @@
 
     const isCurrentVideoError = computed(() =>
         videoErrors.value.has(currentVideoIndex.value,),
-);
+    );
 
-    /**
-     * Resolve the actual image file URL from the stored image_path.
-     */
     const resolvedImagePath = computed<string | undefined>(() => {
-        if (!currentNewsItem.value?.image_path) return undefined;
-        return normalizePath(currentNewsItem.value.image_path,);
-    });
-
-    /**
-     * Extract the directory from image_path to construct gallery image URLs.
-     * image_path example: /content/news/2024/11/22/back.jpg
-     * image_paths example: ["1.jpg", "2.jpg", "3.jpg"]
-     * Result: ["/content/news/2024/11/22/1.jpg", "/content/news/2024/11/22/2.jpg", ...]
-     */
-    const imageDir = computed<string>(() => {
-        const path = normalizePath(currentNewsItem.value?.image_path,);
-        if (!path) return '';
-        const lastSlash = path.lastIndexOf('/',);
-        if (lastSlash === -1) return '';
-        return path.substring(0, lastSlash + 1,);
+        const item = currentNewsItem.value;
+        if (!item?.img_backfull) return undefined;
+        return item.dir + item.img_backfull;
     });
 
     const galleryImages = computed<string[]>(() => {
         const item = currentNewsItem.value;
-        if (!item?.image_paths || item.image_paths.length === 0) return [];
-        const dir = imageDir.value;
-        if (!dir) return [];
-        return item.image_paths
-            .map((name: string,) => `${dir}${name}`,)
-            .map((p: string,) => normalizePath(p,) || p,);
+        if (!item || !item.images || item.images.length === 0) return [];
+        return item.images.map(name => item.dir + name,);
     });
 
-    // Video carousel navigation
     const goToPreviousVideo = (): void => {
         if (allVideoUrls.value.length === 0) return;
         currentVideoIndex.value
@@ -193,7 +116,6 @@
         );
             currentNewsItem.value = currentData;
 
-            // Fetch other news for sidebar (excluding current)
             const { data: otherData, } = await getHttpClient().get<NewsListResponse>('news', {
                 params: {
                     page: 1,
@@ -201,7 +123,6 @@
                 },
             });
 
-            // Filter out current news and take first 5
             otherNews.value = (otherData.news || [])
                 .filter((news: NewsItem,) => news.id !== newsId.value,)
                 .slice(0, 5,);
@@ -213,7 +134,7 @@
         }
     };
 
-    const navigateToNews = (id: number,): void => {
+    const navigateToNews = (id: string,): void => {
         router.push(`/news/${id}`,);
     };
 
@@ -318,7 +239,7 @@
                         <span
                             class="text-gray-900 dark:text-white font-medium truncate max-w-xs"
                         >
-                            {{ currentNewsItem.title }}
+                            {{ locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en }}
                         </span>
                     </li>
                 </ol>
@@ -331,9 +252,9 @@
                     <div
                         class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                     >
-                        <div
-                            v-if="mainImageError || !currentNewsItem.image_path"
-                            class="image-error-state"
+                    <div
+                        v-if="mainImageError || !currentNewsItem.img_backfull"
+                        class="image-error-state"
                         >
                             <svg
                                 class="w-16 h-16 text-gray-400 mx-auto mb-4"
@@ -356,7 +277,7 @@
                         <img
                             v-else
                             :src="resolvedImagePath"
-                            :alt="currentNewsItem.title"
+                            :alt="locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en"
                             class="w-full h-auto max-h-150 object-cover"
                             loading="eager"
                             @error="handleMainImageError"
@@ -456,37 +377,28 @@
                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                         />
                     </svg>
-                    {{ formatDate(currentNewsItem.created_at,) }}
+                    {{ formatDate(currentNewsItem.datetime,) }}
                 </div>
 
                 <!-- Title -->
                 <h1
                     class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4"
                 >
-                    {{ currentNewsItem.title }}
+                    {{ locale === 'ru' ? currentNewsItem.title_ru : currentNewsItem.title_en }}
                 </h1>
             </div>
 
-            <!-- News Description -->
+            <!-- News Text -->
             <div
-                v-if="currentNewsItem.description"
-                class="news-description mb-6"
-            >
-                <p class="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {{ currentNewsItem.description }}
-                </p>
-            </div>
-
-            <!-- News Content -->
-            <div
-                v-if="currentNewsItem.content"
+                v-if="currentNewsItem.text_ru || currentNewsItem.text_en"
                 class="news-text mb-12"
             >
                 <div class="prose prose-lg dark:prose-invert max-w-none">
                     <div
                         class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
-                        v-html="currentNewsItem.content"
-                    />
+                    >
+                        {{ locale === 'ru' ? currentNewsItem.text_ru : currentNewsItem.text_en }}
+                    </div>
                 </div>
             </div>
 

@@ -1,33 +1,24 @@
 import { getHttpClient, } from '~/api/http-client';
 
-/**
- * News item as returned by the server API.
- */
 export interface NewsItem {
-    id: number
-    title: string
-    description: string | null
-    content: string | null
-    image_path: string
-    video_path: string | null
-    video_paths: string[] | null
-    image_paths: string[] | null
-    status: string
-    created_at: string
-    updated_at: string
+    id: string
+    datetime: string
+    title_ru: string
+    title_en: string
+    dir: string
+    img_back: string
+    img_backfull: string
+    text_ru: string
+    text_en: string
+    images: string[]
+    videos: string[]
 }
 
-/**
- * Response shape for GET /news (list).
- */
 export interface NewsListResponse {
     news: NewsItem[]
     total: number
 }
 
-/**
- * Fetches a paginated list of news entries.
- */
 export async function fetchNews(params?: {
     status?: string
     page?: number
@@ -42,10 +33,7 @@ export async function fetchNews(params?: {
     }
 }
 
-/**
- * Fetches a single news entry by ID.
- */
-export async function fetchNewsById(id: number,): Promise<NewsItem | null> {
+export async function fetchNewsById(id: string,): Promise<NewsItem | null> {
     try {
         const { data, } = await getHttpClient().get<NewsItem>(`news/${id}`,);
         return data;

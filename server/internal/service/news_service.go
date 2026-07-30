@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"log/slog"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/raiyin/artserver/internal/domain"
 	"github.com/raiyin/artserver/internal/port"
-	"github.com/raiyin/artserver/pkg/validator"
 )
 
-// NewsService implements port.NewsService.
 type NewsService struct {
 	newsRepo port.NewsRepository
 	fileRepo port.FileRepository
 	newsDir  string
 }
 
-// NewNewsService creates a new NewsService.
 func NewNewsService(newsRepo port.NewsRepository, fileRepo port.FileRepository, newsDir string) *NewsService {
 	return &NewsService{
 		newsRepo: newsRepo,
@@ -28,245 +26,212 @@ func NewNewsService(newsRepo port.NewsRepository, fileRepo port.FileRepository, 
 	}
 }
 
-// GetNews retrieves news entries with filtering.
 func (s *NewsService) GetNews(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error) {
 	news, total, err := s.newsRepo.List(ctx, filter)
 	if err != nil {
-		slog.Error("NewsService.GetNews: failed to list news",
-			"filter", filter,
-			"error", err,
-		)
+		slog.Error("NewsService.GetNews: failed", "filter", filter, "error", err)
 		return nil, 0, err
 	}
-	slog.Debug("NewsService.GetNews: news listed",
-		"count", len(news),
-		"total", total,
-	)
 	return news, total, nil
 }
 
-// GetNewsByID retrieves a news entry by ID.
-func (s *NewsService) GetNewsByID(ctx context.Context, id int64) (*domain.News, error) {
+func (s *NewsService) GetNewsByID(ctx context.Context, id string) (*domain.News, error) {
 	news, err := s.newsRepo.GetByID(ctx, id)
 	if err != nil {
-		slog.Error("NewsService.GetNewsByID: failed to get news",
-			"news_id", id,
-			"error", err,
-		)
+		slog.Error("NewsService.GetNewsByID: failed", "news_id", id, "error", err)
 		return nil, err
 	}
-	slog.Debug("NewsService.GetNewsByID: news retrieved",
-		"news_id", id,
-		"title", news.Title,
-	)
 	return news, nil
 }
 
-// CreateNews creates a new news entry.
-func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error {
-	if news.Title == "" {
-		slog.Warn("NewsService.CreateNews: empty title")
+func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
+	if news.TitleRu == "" || news.TitleEn == "" {
 		return domain.ErrInvalidInput
 	}
 
-	newsDir := filepath.Join(s.newsDir, fmt.Sprintf("news_%d", time.Now().UnixNano()))
-
-	if imageFile != nil {
-		if err := validator.ValidateFileExtension(imageFile.Filename, validator.ImageExtensions); err != nil {
-			slog.Warn("NewsService.CreateNews: invalid image extension",
-				"filename", imageFile.Filename,
-				"error", err,
-			)
-			return err
-		}
-		imagePath := filepath.Join(newsDir, imageFile.Filename)
-		if err := s.fileRepo.Save(ctx, imagePath, imageFile.Reader); err != nil {
-			slog.Error("NewsService.CreateNews: failed to save image",
-				"title", news.Title,
-				"image_path", imagePath,
-				"error", err,
-			)
-			return err
-		}
-		news.ImagePath = imagePath
+	if news.DateTime == "" {
+		news.DateTime = time.Now().Format("2006-01-02")
 	}
 
-	if videoFile != nil {
-		if err := validator.ValidateFileExtension(videoFile.Filename, validator.VideoExtensions); err != nil {
-			slog.Warn("NewsService.CreateNews: invalid video extension",
-				"filename", videoFile.Filename,
-				"error", err,
-			)
+	news.ID = s.generateID(news.DateTime)
+	news.Dir = s.generateDir(news.DateTime)
+
+	if imgBackFile != nil {
+		if err := s.saveFile(ctx, imgBackFile, news.Dir); err != nil {
 			return err
 		}
-		videoPath := filepath.Join(newsDir, videoFile.Filename)
-		if err := s.fileRepo.Save(ctx, videoPath, videoFile.Reader); err != nil {
-			slog.Error("NewsService.CreateNews: failed to save video",
-				"title", news.Title,
-				"video_path", videoPath,
-				"error", err,
-			)
+		news.ImgBack = imgBackFile.Filename
+	}
+
+	if imgBackfullFile != nil {
+		if err := s.saveFile(ctx, imgBackfullFile, news.Dir); err != nil {
 			return err
 		}
-		news.VideoPath = videoPath
+		news.ImgBackfull = imgBackfullFile.Filename
+	}
+
+	var savedImageNames []string
+	for _, f := range imageFiles {
+		if err := s.saveFile(ctx, &f, news.Dir); err != nil {
+			continue
+		}
+		savedImageNames = append(savedImageNames, f.Filename)
+	}
+	if len(savedImageNames) > 0 {
+		news.Images = savedImageNames
+	}
+
+	var savedVideoNames []string
+	for _, f := range videoFiles {
+		dirname := strings.TrimSuffix(f.Filename, filepath.Ext(f.Filename))
+		videoSubDir := filepath.Join(news.Dir, "videos", dirname)
+		if err := s.saveFile(ctx, &f, videoSubDir); err != nil {
+			continue
+		}
+		savedVideoNames = append(savedVideoNames, dirname)
+	}
+	if len(savedVideoNames) > 0 {
+		news.Videos = savedVideoNames
 	}
 
 	if err := s.newsRepo.Create(ctx, news); err != nil {
-		slog.Error("NewsService.CreateNews: failed to create news",
-			"title", news.Title,
-			"error", err,
-		)
+		slog.Error("NewsService.CreateNews: failed to create", "error", err)
 		return err
 	}
 
-	slog.Info("NewsService.CreateNews: news created",
-		"news_id", news.ID,
-		"title", news.Title,
-	)
+	slog.Info("NewsService.CreateNews: created", "news_id", news.ID, "title_ru", news.TitleRu)
 	return nil
 }
 
-// UpdateNews updates a news entry.
-func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imageFile *domain.UploadedFile, videoFile *domain.UploadedFile) error {
+func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
 	existing, err := s.newsRepo.GetByID(ctx, news.ID)
 	if err != nil {
-		slog.Error("NewsService.UpdateNews: failed to get existing news",
-			"news_id", news.ID,
-			"error", err,
-		)
+		slog.Error("NewsService.UpdateNews: not found", "news_id", news.ID, "error", err)
 		return err
 	}
 
-	newsDir := filepath.Dir(existing.ImagePath)
-	if newsDir == "." {
-		newsDir = filepath.Join(s.newsDir, fmt.Sprintf("news_%d", news.ID))
-	}
-
-	if imageFile != nil {
-		if existing.ImagePath != "" {
-			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
-				slog.Warn("NewsService.UpdateNews: failed to delete old image",
-					"news_id", news.ID,
-					"image_path", existing.ImagePath,
-					"error", err,
-				)
-			}
+	if imgBackFile != nil {
+		if existing.ImgBack != "" {
+			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, existing.ImgBack))
 		}
-		imagePath := filepath.Join(newsDir, imageFile.Filename)
-		if err := s.fileRepo.Save(ctx, imagePath, imageFile.Reader); err != nil {
-			slog.Error("NewsService.UpdateNews: failed to save new image",
-				"news_id", news.ID,
-				"image_path", imagePath,
-				"error", err,
-			)
+		if err := s.saveFile(ctx, imgBackFile, existing.Dir); err != nil {
 			return err
 		}
-		news.ImagePath = imagePath
+		news.ImgBack = imgBackFile.Filename
 	} else {
-		news.ImagePath = existing.ImagePath
+		news.ImgBack = existing.ImgBack
 	}
 
-	if videoFile != nil {
-		if existing.VideoPath != "" {
-			if err := s.fileRepo.Delete(ctx, existing.VideoPath); err != nil {
-				slog.Warn("NewsService.UpdateNews: failed to delete old video",
-					"news_id", news.ID,
-					"video_path", existing.VideoPath,
-					"error", err,
-				)
-			}
+	if imgBackfullFile != nil {
+		if existing.ImgBackfull != "" {
+			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, existing.ImgBackfull))
 		}
-		videoPath := filepath.Join(newsDir, videoFile.Filename)
-		if err := s.fileRepo.Save(ctx, videoPath, videoFile.Reader); err != nil {
-			slog.Error("NewsService.UpdateNews: failed to save new video",
-				"news_id", news.ID,
-				"video_path", videoPath,
-				"error", err,
-			)
+		if err := s.saveFile(ctx, imgBackfullFile, existing.Dir); err != nil {
 			return err
 		}
-		news.VideoPath = videoPath
+		news.ImgBackfull = imgBackfullFile.Filename
 	} else {
-		news.VideoPath = existing.VideoPath
+		news.ImgBackfull = existing.ImgBackfull
 	}
+
+	if len(imageFiles) > 0 {
+		for _, oldImg := range existing.Images {
+			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, oldImg))
+		}
+		var names []string
+		for _, f := range imageFiles {
+			if err := s.saveFile(ctx, &f, existing.Dir); err != nil {
+				continue
+			}
+			names = append(names, f.Filename)
+		}
+		news.Images = names
+	} else {
+		news.Images = existing.Images
+	}
+
+	if len(videoFiles) > 0 {
+		for _, oldVideo := range existing.Videos {
+			_ = s.fileRepo.RemoveDir(ctx, filepath.Join(existing.Dir, "videos", oldVideo))
+		}
+		var names []string
+		for _, f := range videoFiles {
+			dirname := strings.TrimSuffix(f.Filename, filepath.Ext(f.Filename))
+			videoSubDir := filepath.Join(existing.Dir, "videos", dirname)
+			if err := s.saveFile(ctx, &f, videoSubDir); err != nil {
+				continue
+			}
+			names = append(names, dirname)
+		}
+		news.Videos = names
+	} else {
+		news.Videos = existing.Videos
+	}
+
+	news.Dir = existing.Dir
 
 	if err := s.newsRepo.Update(ctx, news); err != nil {
-		slog.Error("NewsService.UpdateNews: failed to update news",
-			"news_id", news.ID,
-			"title", news.Title,
-			"error", err,
-		)
+		slog.Error("NewsService.UpdateNews: failed to update", "news_id", news.ID, "error", err)
 		return err
 	}
 
-	slog.Info("NewsService.UpdateNews: news updated",
-		"news_id", news.ID,
-		"title", news.Title,
-	)
+	slog.Info("NewsService.UpdateNews: updated", "news_id", news.ID)
 	return nil
 }
 
-// DeleteNews deletes a news entry.
-func (s *NewsService) DeleteNews(ctx context.Context, id int64) error {
+func (s *NewsService) DeleteNews(ctx context.Context, id string) error {
 	news, err := s.newsRepo.GetByID(ctx, id)
 	if err != nil {
-		slog.Error("NewsService.DeleteNews: failed to get news",
-			"news_id", id,
-			"error", err,
-		)
+		slog.Error("NewsService.DeleteNews: not found", "news_id", id, "error", err)
 		return err
 	}
 
-	if news.ImagePath != "" {
-		if err := s.fileRepo.Delete(ctx, news.ImagePath); err != nil {
-			slog.Warn("NewsService.DeleteNews: failed to delete news image",
-				"news_id", id,
-				"image_path", news.ImagePath,
-				"error", err,
-			)
-		}
-	}
-	if news.VideoPath != "" {
-		if err := s.fileRepo.Delete(ctx, news.VideoPath); err != nil {
-			slog.Warn("NewsService.DeleteNews: failed to delete news video",
-				"news_id", id,
-				"video_path", news.VideoPath,
-				"error", err,
-			)
-		}
+	if news.Dir != "" {
+		_ = s.fileRepo.RemoveDir(ctx, news.Dir)
 	}
 
 	if err := s.newsRepo.Delete(ctx, id); err != nil {
-		slog.Error("NewsService.DeleteNews: failed to delete news",
-			"news_id", id,
-			"title", news.Title,
-			"error", err,
-		)
+		slog.Error("NewsService.DeleteNews: failed to delete", "news_id", id, "error", err)
 		return err
 	}
 
-	slog.Info("NewsService.DeleteNews: news deleted",
-		"news_id", id,
-		"title", news.Title,
-	)
+	slog.Info("NewsService.DeleteNews: deleted", "news_id", id)
 	return nil
 }
 
-func (s *NewsService) BulkDeleteNews(ctx context.Context, ids []int64) error {
+func (s *NewsService) BulkDeleteNews(ctx context.Context, ids []string) error {
 	for _, id := range ids {
 		if err := s.DeleteNews(ctx, id); err != nil {
-			slog.Error("NewsService.BulkDeleteNews: failed to delete news",
-				"news_id", id,
-				"error", err,
-			)
 			return err
 		}
 	}
-	slog.Info("NewsService.BulkDeleteNews: news deleted",
-		"count", len(ids),
-	)
 	return nil
 }
 
-// Ensure interface compliance.
-var _ port.NewsService = (*NewsService)(nil)
+func (s *NewsService) saveFile(ctx context.Context, file *domain.UploadedFile, subDir string) error {
+	return s.fileRepo.Save(ctx, filepath.Join(subDir, file.Filename), file.Reader)
+}
+
+func (s *NewsService) generateID(datetime string) string {
+	parts := strings.Split(datetime, "T")
+	datePart := parts[0]
+	id := strings.ReplaceAll(datePart, "-", "")
+	if id == "" {
+		id = time.Now().Format("20060102")
+	}
+	return id
+}
+
+func (s *NewsService) generateDir(datetime string) string {
+	parts := strings.Split(datetime, "T")
+	datePart := parts[0]
+	date, err := time.Parse("2006-01-02", datePart)
+	if err != nil {
+		date = time.Now()
+	}
+	return fmt.Sprintf("/content/news/%s/%s/%s/",
+		date.Format("2006"),
+		date.Format("01"),
+		date.Format("02"),
+	)
+}

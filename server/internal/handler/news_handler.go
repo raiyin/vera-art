@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"io"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -13,17 +13,14 @@ import (
 	"github.com/raiyin/artserver/pkg/apperror"
 )
 
-// NewsHandler handles news HTTP requests.
 type NewsHandler struct {
 	newsService port.NewsService
 }
 
-// NewNewsHandler creates a new NewsHandler.
 func NewNewsHandler(newsService port.NewsService) *NewsHandler {
 	return &NewsHandler{newsService: newsService}
 }
 
-// GetNews returns a list of news entries.
 func (h *NewsHandler) GetNews(c *gin.Context) {
 	filter := domain.NewsFilter{
 		Status: c.Query("status"),
@@ -34,10 +31,7 @@ func (h *NewsHandler) GetNews(c *gin.Context) {
 
 	newsList, total, err := h.newsService.GetNews(c.Request.Context(), filter)
 	if err != nil {
-		slog.Error("GetNews: failed to list news",
-			"error", err,
-			"filter", filter,
-		)
+		slog.Error("GetNews: failed to list news", "error", err, "filter", filter)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -45,19 +39,7 @@ func (h *NewsHandler) GetNews(c *gin.Context) {
 
 	responses := make([]dto.NewsResponse, len(newsList))
 	for i, n := range newsList {
-		responses[i] = dto.NewsResponse{
-			ID:          n.ID,
-			Title:       n.Title,
-			Description: n.Description,
-			Content:     n.Content,
-			ImagePath:   n.ImagePath,
-			VideoPath:   n.VideoPath,
-			VideoPaths:  n.VideoPaths,
-			ImagePaths:  n.ImagePaths,
-			Status:      n.Status,
-			CreatedAt:   n.CreatedAt,
-			UpdatedAt:   n.UpdatedAt,
-		}
+		responses[i] = newsToResponse(&n)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -66,221 +48,271 @@ func (h *NewsHandler) GetNews(c *gin.Context) {
 	})
 }
 
-// GetNewsByID returns a news entry by ID.
 func (h *NewsHandler) GetNewsByID(c *gin.Context) {
-	id, ok := ParseInt64Param(c, "id")
-	if !ok {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_PARAM",
+			Message: "Invalid id",
+		})
 		return
 	}
 
 	news, err := h.newsService.GetNewsByID(c.Request.Context(), id)
 	if err != nil {
-		slog.Error("GetNewsByID: failed to get news",
-			"news_id", id,
-			"error", err,
-		)
+		slog.Error("GetNewsByID: failed to get news", "news_id", id, "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.NewsResponse{
-		ID:          news.ID,
-		Title:       news.Title,
-		Description: news.Description,
-		Content:     news.Content,
-		ImagePath:   news.ImagePath,
-		VideoPath:   news.VideoPath,
-		VideoPaths:  news.VideoPaths,
-		ImagePaths:  news.ImagePaths,
-		Status:      news.Status,
-		CreatedAt:   news.CreatedAt,
-		UpdatedAt:   news.UpdatedAt,
-	})
+	c.JSON(http.StatusOK, newsToResponse(news))
 }
 
-// CreateNews creates a new news entry.
 func (h *NewsHandler) CreateNews(c *gin.Context) {
-	var req dto.CreateNewsRequest
-	if err := c.ShouldBind(&req); err != nil {
-		slog.Warn("CreateNews: invalid request",
-			"error", err,
-		)
+	dataJSON := c.PostForm("data")
+	if dataJSON == "" {
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
-			Message: "Invalid request",
+			Message: "Missing data field",
 		})
 		return
+	}
+
+	var payload dto.NewsDataPayload
+	if err := json.Unmarshal([]byte(dataJSON), &payload); err != nil {
+		slog.Warn("CreateNews: invalid data JSON", "error", err)
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_REQUEST",
+			Message: "Invalid data JSON",
+		})
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		slog.Warn("CreateNews: invalid multipart form", "error", err)
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_REQUEST",
+			Message: "Invalid multipart form",
+		})
+		return
+	}
+
+	var imgBackFile, imgBackfullFile *domain.UploadedFile
+	if files := form.File["img_back"]; len(files) > 0 {
+		f, err := files[0].Open()
+		if err == nil {
+			defer f.Close()
+			imgBackFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+		}
+	}
+	if files := form.File["img_backfull"]; len(files) > 0 {
+		f, err := files[0].Open()
+		if err == nil {
+			defer f.Close()
+			imgBackfullFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+		}
+	}
+
+	var imageFiles []domain.UploadedFile
+	if files := form.File["images"]; len(files) > 0 {
+		for _, fh := range files {
+			f, err := fh.Open()
+			if err != nil {
+				continue
+			}
+			defer f.Close()
+			imageFiles = append(imageFiles, domain.UploadedFile{Filename: fh.Filename, Reader: f})
+		}
+	}
+
+	var videoFiles []domain.UploadedFile
+	if files := form.File["videos"]; len(files) > 0 {
+		for _, fh := range files {
+			f, err := fh.Open()
+			if err != nil {
+				continue
+			}
+			defer f.Close()
+			videoFiles = append(videoFiles, domain.UploadedFile{Filename: fh.Filename, Reader: f})
+		}
 	}
 
 	news := &domain.News{
-		Title:       req.Title,
-		Description: req.Description,
-		Content:     req.Content,
-		Status:      req.Status,
+		DateTime:   payload.Datetime,
+		TitleRu:    payload.TitleRu,
+		TitleEn:    payload.TitleEn,
+		SubTitleRu: payload.SubTitleRu,
+		SubTitleEn: payload.SubTitleEn,
+		Dir:        payload.Dir,
+		ImgBack:    payload.ImgBack,
+		ImgBackfull: payload.ImgBackfull,
+		TextRu:     payload.TextRu,
+		TextEn:     payload.TextEn,
+		Images:     payload.Images,
+		Videos:     payload.Videos,
 	}
 
-	var imageFile *domain.UploadedFile
-	var videoFile *domain.UploadedFile
-
-	if imgFile, imgHeader, err := c.Request.FormFile("image"); err == nil {
-		defer imgFile.Close()
-		imageFile = &domain.UploadedFile{
-			Filename: imgHeader.Filename,
-			Reader:   imgFile,
-		}
-	}
-
-	if vidFile, vidHeader, err := c.Request.FormFile("video"); err == nil {
-		defer vidFile.Close()
-		videoFile = &domain.UploadedFile{
-			Filename: vidHeader.Filename,
-			Reader:   vidFile,
-		}
-	}
-
-	if err := h.newsService.CreateNews(c.Request.Context(), news, imageFile, videoFile); err != nil {
-		slog.Error("CreateNews: failed to create news",
-			"title", req.Title,
-			"error", err,
-		)
+	if err := h.newsService.CreateNews(c.Request.Context(), news, imgBackFile, imgBackfullFile, imageFiles, videoFiles); err != nil {
+		slog.Error("CreateNews: failed", "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
-	slog.Info("News created successfully",
-		"news_id", news.ID,
-		"title", news.Title,
-	)
-	c.JSON(http.StatusCreated, dto.NewsResponse{
-		ID:          news.ID,
-		Title:       news.Title,
-		Description: news.Description,
-		Content:     news.Content,
-		ImagePath:   news.ImagePath,
-		VideoPath:   news.VideoPath,
-		VideoPaths:  news.VideoPaths,
-		ImagePaths:  news.ImagePaths,
-		Status:      news.Status,
-		CreatedAt:   news.CreatedAt,
-		UpdatedAt:   news.UpdatedAt,
-	})
+	slog.Info("News created", "news_id", news.ID, "title_ru", news.TitleRu)
+	c.JSON(http.StatusCreated, newsToResponse(news))
 }
 
-// UpdateNews updates a news entry.
 func (h *NewsHandler) UpdateNews(c *gin.Context) {
-	id, ok := ParseInt64Param(c, "id")
-	if !ok {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_PARAM",
+			Message: "Invalid id",
+		})
 		return
 	}
 
-	var req dto.UpdateNewsRequest
-	if err := c.ShouldBind(&req); err != nil {
-		slog.Warn("UpdateNews: invalid request",
-			"news_id", id,
-			"error", err,
-		)
+	dataJSON := c.PostForm("data")
+	if dataJSON == "" {
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
 			Code:    "INVALID_REQUEST",
-			Message: "Invalid request",
+			Message: "Missing data field",
 		})
 		return
+	}
+
+	var payload dto.NewsDataPayload
+	if err := json.Unmarshal([]byte(dataJSON), &payload); err != nil {
+		slog.Warn("UpdateNews: invalid data JSON", "error", err)
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_REQUEST",
+			Message: "Invalid data JSON",
+		})
+		return
+	}
+
+	payload.ID = id
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		form = nil
+	}
+
+	var imgBackFile, imgBackfullFile *domain.UploadedFile
+	if form != nil {
+		if files := form.File["img_back"]; len(files) > 0 {
+			f, err := files[0].Open()
+			if err == nil {
+				defer f.Close()
+				imgBackFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+			}
+		}
+		if files := form.File["img_backfull"]; len(files) > 0 {
+			f, err := files[0].Open()
+			if err == nil {
+				defer f.Close()
+				imgBackfullFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+			}
+		}
+	}
+
+	var imageFiles []domain.UploadedFile
+	if form != nil {
+		if files := form.File["images"]; len(files) > 0 {
+			for _, fh := range files {
+				f, err := fh.Open()
+				if err != nil {
+					continue
+				}
+				defer f.Close()
+				imageFiles = append(imageFiles, domain.UploadedFile{Filename: fh.Filename, Reader: f})
+			}
+		}
+	}
+
+	var videoFiles []domain.UploadedFile
+	if form != nil {
+		if files := form.File["videos"]; len(files) > 0 {
+			for _, fh := range files {
+				f, err := fh.Open()
+				if err != nil {
+					continue
+				}
+				defer f.Close()
+				videoFiles = append(videoFiles, domain.UploadedFile{Filename: fh.Filename, Reader: f})
+			}
+		}
 	}
 
 	news := &domain.News{
 		ID:          id,
-		Title:       req.Title,
-		Description: req.Description,
-		Content:     req.Content,
-		Status:      req.Status,
+		DateTime:    payload.Datetime,
+		TitleRu:     payload.TitleRu,
+		TitleEn:     payload.TitleEn,
+		SubTitleRu:  payload.SubTitleRu,
+		SubTitleEn:  payload.SubTitleEn,
+		Dir:         payload.Dir,
+		ImgBack:     payload.ImgBack,
+		ImgBackfull: payload.ImgBackfull,
+		TextRu:      payload.TextRu,
+		TextEn:      payload.TextEn,
+		Images:      payload.Images,
+		Videos:      payload.Videos,
 	}
 
-	var imageFile *domain.UploadedFile
-	var videoFile *domain.UploadedFile
-
-	if imgFile, imgHeader, err := c.Request.FormFile("image"); err == nil {
-		defer imgFile.Close()
-		imageFile = &domain.UploadedFile{
-			Filename: imgHeader.Filename,
-			Reader:   imgFile,
-		}
-	}
-
-	if vidFile, vidHeader, err := c.Request.FormFile("video"); err == nil {
-		defer vidFile.Close()
-		videoFile = &domain.UploadedFile{
-			Filename: vidHeader.Filename,
-			Reader:   vidFile,
-		}
-	}
-
-	if err := h.newsService.UpdateNews(c.Request.Context(), news, imageFile, videoFile); err != nil {
-		slog.Error("UpdateNews: failed to update news",
-			"news_id", id,
-			"error", err,
-		)
+	if err := h.newsService.UpdateNews(c.Request.Context(), news, imgBackFile, imgBackfullFile, imageFiles, videoFiles); err != nil {
+		slog.Error("UpdateNews: failed", "news_id", id, "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
-	slog.Info("News updated successfully",
-		"news_id", id,
-	)
-	c.JSON(http.StatusOK, dto.NewsResponse{
-		ID:          news.ID,
-		Title:       news.Title,
-		Description: news.Description,
-		Content:     news.Content,
-		ImagePath:   news.ImagePath,
-		VideoPath:   news.VideoPath,
-		VideoPaths:  news.VideoPaths,
-		ImagePaths:  news.ImagePaths,
-		Status:      news.Status,
-		CreatedAt:   news.CreatedAt,
-		UpdatedAt:   news.UpdatedAt,
-	})
+	slog.Info("News updated", "news_id", id)
+	c.JSON(http.StatusOK, newsToResponse(news))
 }
 
-// DeleteNews deletes a news entry.
 func (h *NewsHandler) DeleteNews(c *gin.Context) {
-	id, ok := ParseInt64Param(c, "id")
-	if !ok {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, apperror.APIError{
+			Status:  http.StatusBadRequest,
+			Code:    "INVALID_PARAM",
+			Message: "Invalid id",
+		})
 		return
 	}
 
 	if err := h.newsService.DeleteNews(c.Request.Context(), id); err != nil {
-		slog.Error("DeleteNews: failed to delete news",
-			"news_id", id,
-			"error", err,
-		)
+		slog.Error("DeleteNews: failed", "news_id", id, "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
 	}
 
-	slog.Info("News deleted successfully",
-		"news_id", id,
-	)
+	slog.Info("News deleted", "news_id", id)
 	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
 }
 
-// BulkDeleteNews deletes multiple news entries.
 func (h *NewsHandler) BulkDeleteNews(c *gin.Context) {
 	var req struct {
-		IDs []int64 `json:"ids"`
+		IDs []string `json:"ids"`
 	}
 	if !BindJSON(c, &req) {
 		return
 	}
 
 	if err := h.newsService.BulkDeleteNews(c.Request.Context(), req.IDs); err != nil {
-		slog.Error("BulkDeleteNews: failed to bulk delete news",
-			"error", err,
-		)
+		slog.Error("BulkDeleteNews: failed", "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
 		return
@@ -289,5 +321,20 @@ func (h *NewsHandler) BulkDeleteNews(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "News deleted successfully"})
 }
 
-// Ensure io is used
-var _ io.Reader
+func newsToResponse(n *domain.News) dto.NewsResponse {
+	return dto.NewsResponse{
+		ID:          n.ID,
+		DateTime:    n.DateTime,
+		TitleRu:     n.TitleRu,
+		TitleEn:     n.TitleEn,
+		SubTitleRu:  n.SubTitleRu,
+		SubTitleEn:  n.SubTitleEn,
+		Dir:         n.Dir,
+		ImgBack:     n.ImgBack,
+		ImgBackfull: n.ImgBackfull,
+		TextRu:      n.TextRu,
+		TextEn:      n.TextEn,
+		Images:      n.Images,
+		Videos:      n.Videos,
+	}
+}

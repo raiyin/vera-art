@@ -20,7 +20,7 @@ const isLoaded = ref(false,);
 
 // Computed property
 const imageSrc = computed(
-    () => props.sideNewsObject.image_path,
+    () => props.sideNewsObject.dir + props.sideNewsObject.img_back,
     );
 
 // Methods
@@ -59,19 +59,19 @@ onMounted(() => {
             <div class="other-news-img">
                 <img
                     :src="imageSrc"
-                    :alt="sideNewsObject.title"
+                    :alt="locale === 'ru' ? sideNewsObject.title_ru : sideNewsObject.title_en"
                     width="6.5rem"
                     height="5rem"
                 >
             </div>
             <div class="other-news-desc">
                 <h6>
-                    {{ sideNewsObject.title }}
+                    {{ locale === 'ru' ? sideNewsObject.title_ru : sideNewsObject.title_en }}
                 </h6>
                 <div class="date">
                     <CalendarIcon />
                     <span>
-                        &nbsp;{{ getHumanDate(sideNewsObject.created_at, locale,) }}
+                        &nbsp;{{ getHumanDate(sideNewsObject.datetime, locale,) }}
                     </span>
                 </div>
             </div>

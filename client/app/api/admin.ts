@@ -66,7 +66,7 @@ export async function fetchAdminWorks(params?: {
         str_id: String(w.id || '',),
         dir: w.dir || '',
         name_ru: w.name_ru || '',
-        name_en: '',
+        name_en: w.name_en || '',
         year: w.year || 0,
         width: w.width || 0,
         height: w.height || 0,
@@ -78,7 +78,7 @@ export async function fetchAdminWorks(params?: {
         materials_en: [],
         created_at: w.created_at || '',
         material_ids: w.material_ids || [],
-        base_ids: w.base_ids || [],
+        base_ids: w.base_id ? [w.base_id] : [],
     }),);
 
     return {
@@ -165,36 +165,19 @@ export async function fetchAdminNews(params?: {
     };
     const { data, } = await getHttpClient().get<any>('admin/news/list', { params: backendParams, },);
 
-    const items: AdminNewsItem[] = (data.news || []).map((n: any,) => {
-        const imagePath: string = n.image_path || '';
-        const lastSlash = imagePath.lastIndexOf('/',);
-        const dir = lastSlash >= 0 ? imagePath.slice(0, lastSlash + 1,) : '';
-        const img_back = lastSlash >= 0 ? imagePath.slice(lastSlash + 1,) : imagePath;
-
-        const images: string[] = (n.image_paths || []).map((p: string,) => {
-            const idx = p.lastIndexOf('/',);
-            return idx >= 0 ? p.slice(idx + 1,) : p;
-        },);
-
-        const videos: string[] = (n.video_paths || []).map((p: string,) => {
-            const idx = p.lastIndexOf('/',);
-            return idx >= 0 ? p.slice(idx + 1,) : p;
-        },);
-
-        return {
-            id: String(n.id || '',),
-            title_ru: n.title || '',
-            title_en: '',
-            datetime: n.created_at || '',
-            dir,
-            img_back,
-            img_backfull: '',
-            text_ru: n.description || '',
-            text_en: '',
-            images,
-            videos,
-        };
-    },);
+    const items: AdminNewsItem[] = (data.news || []).map((n: any,) => ({
+        id: String(n.id || '',),
+        title_ru: n.title_ru || '',
+        title_en: n.title_en || '',
+        datetime: n.datetime || '',
+        dir: n.dir || '',
+        img_back: n.img_back || '',
+        img_backfull: n.img_backfull || '',
+        text_ru: n.text_ru || '',
+        text_en: n.text_en || '',
+        images: n.images || [],
+        videos: n.videos || [],
+    }),);
 
     const perPage = params?.per_page || 20;
     return {

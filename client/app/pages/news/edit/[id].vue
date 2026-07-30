@@ -586,9 +586,7 @@ async function loadNews() {
         // Load existing videos
         if (news.videos && news.videos.length > 0) {
             news.videos.forEach((videoName,) => {
-                const nameOnly = videoName.substring(0, videoName.lastIndexOf('.',),);
-
-                previewVideos.value.push(`${news.dir}videos/${nameOnly}/${videoName}`,);
+                previewVideos.value.push(`${news.dir}videos/${videoName}/${videoName}.mp4`,);
             });
         }
 

@@ -1,19 +1,19 @@
 package domain
 
-import "time"
-
 type News struct {
-	ID          int64     `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description,omitempty"`
-	Content     string    `json:"content,omitempty"`
-	ImagePath   string    `json:"image_path"`
-	VideoPath   string    `json:"video_path,omitempty"`
-	VideoPaths  []string  `json:"video_paths,omitempty"`
-	ImagePaths  []string  `json:"image_paths,omitempty"`
-	Status      string    `json:"status"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID         string   `json:"id"`
+	DateTime   string   `json:"datetime"`
+	TitleRu    string   `json:"title_ru"`
+	TitleEn    string   `json:"title_en"`
+	SubTitleRu string   `json:"sub_title_ru,omitempty"`
+	SubTitleEn string   `json:"sub_title_en,omitempty"`
+	Dir        string   `json:"dir"`
+	ImgBack    string   `json:"img_back"`
+	ImgBackfull string  `json:"img_backfull"`
+	TextRu     string   `json:"text_ru"`
+	TextEn     string   `json:"text_en"`
+	Images     []string `json:"images,omitempty"`
+	Videos     []string `json:"videos,omitempty"`
 }
 
 type NewsFilter struct {

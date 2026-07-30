@@ -210,6 +210,5 @@ func main() {
 	}
 }
 
-// runMigrations applies database schema migrations.
 func runMigrations(db *sql.DB) {
 }

@@ -54,10 +54,10 @@ type SaleRepository interface {
 // NewsRepository defines the interface for news data access.
 type NewsRepository interface {
 	Create(ctx context.Context, news *domain.News) error
-	GetByID(ctx context.Context, id int64) (*domain.News, error)
+	GetByID(ctx context.Context, id string) (*domain.News, error)
 	List(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error)
 	Update(ctx context.Context, news *domain.News) error
-	Delete(ctx context.Context, id int64) error
+	Delete(ctx context.Context, id string) error
 }
 
 // ProductRepository defines the interface for product data access.
