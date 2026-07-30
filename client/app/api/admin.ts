@@ -64,8 +64,8 @@ export async function fetchAdminWorks(params?: {
     const items: AdminWorkItem[] = (data.works || []).map((w: any,) => ({
         id: w.id || 0,
         str_id: String(w.id || '',),
-        dir: w.image_path || '',
-        name_ru: w.title || '',
+        dir: w.dir || '',
+        name_ru: w.name_ru || '',
         name_en: '',
         year: w.year || 0,
         width: w.width || 0,
@@ -117,7 +117,7 @@ export async function fetchAdminSales(params?: {
     const items: AdminSaleItem[] = (data.sales || []).map((s: any,) => ({
         id: s.id || 0,
         str_id: String(s.id || '',),
-        dir: s.image_path || '',
+        dir: s.dir || '',
         name_ru: s.name_ru || '',
         name_en: s.name_en || '',
         year: s.year || 0,

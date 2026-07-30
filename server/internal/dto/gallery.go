@@ -18,6 +18,7 @@ type WorkResponse struct {
 	DescrRu     string   `json:"descr_ru,omitempty"`
 	DescrEn     string   `json:"descr_en,omitempty"`
 	WorkPath    string   `json:"work_path"`
+	Dir         string   `json:"dir"`
 	Images      []string `json:"images,omitempty"`
 	MaterialIDs []int64  `json:"material_ids,omitempty"`
 }
@@ -35,6 +36,7 @@ type UpdateWorkResponse struct {
 	DescrRu     string   `json:"descr_ru,omitempty"`
 	DescrEn     string   `json:"descr_en,omitempty"`
 	WorkPath    string   `json:"work_path"`
+	Dir         string   `json:"dir"`
 	Images      []string `json:"images,omitempty"`
 	MaterialIDs []int64  `json:"material_ids,omitempty"`
 }

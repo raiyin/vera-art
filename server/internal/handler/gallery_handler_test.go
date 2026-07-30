@@ -485,7 +485,8 @@ func TestHandlerWorkToResponseConversion(t *testing.T) {
 		Images:   "img1.jpg;img2.jpg",
 	}
 
-	resp := workToResponse(w)
+	h := NewGalleryHandler(nil, "", "/content/works/", "", "")
+	resp := h.workToResponse(w)
 	if resp.ID != w.ID {
 		t.Errorf("ID = %d, want %d", resp.ID, w.ID)
 	}
@@ -497,6 +498,9 @@ func TestHandlerWorkToResponseConversion(t *testing.T) {
 	}
 	if resp.Images[0] != "img1.jpg" {
 		t.Errorf("Images[0] = %q, want %q", resp.Images[0], "img1.jpg")
+	}
+	if resp.Dir != "/content/works/test/" {
+		t.Errorf("Dir = %q, want %q", resp.Dir, "/content/works/test/")
 	}
 }
 

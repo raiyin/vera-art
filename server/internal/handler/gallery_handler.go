@@ -79,7 +79,7 @@ func (h *GalleryHandler) listImageFiles(imagePath string) []string {
 	return images
 }
 
-func workToResponse(w *domain.Work) dto.WorkResponse {
+func (h *GalleryHandler) workToResponse(w *domain.Work) dto.WorkResponse {
 	return dto.WorkResponse{
 		ID:          w.ID,
 		StrID:       w.StrID,
@@ -92,6 +92,7 @@ func workToResponse(w *domain.Work) dto.WorkResponse {
 		DescrRu:     w.DescrRu,
 		DescrEn:     w.DescrEn,
 		WorkPath:    w.WorkPath,
+		Dir:         h.relWorksDir + w.WorkPath,
 		Images:      dto.SplitImages(w.Images),
 		MaterialIDs: w.MaterialIDs,
 	}
@@ -148,7 +149,7 @@ func (h *GalleryHandler) GetWorks(c *gin.Context) {
 
 	responses := make([]dto.WorkResponse, len(works))
 	for i, w := range works {
-		responses[i] = workToResponse(&w)
+		responses[i] = h.workToResponse(&w)
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -175,7 +176,7 @@ func (h *GalleryHandler) GetWorkByID(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, workToResponse(work))
+	c.JSON(http.StatusOK, h.workToResponse(work))
 }
 
 // CreateWork creates a new work.
@@ -229,7 +230,7 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 		"work_id", work.ID,
 		"name_ru", work.NameRu,
 	)
-	c.JSON(http.StatusCreated, workToResponse(work))
+	c.JSON(http.StatusCreated, h.workToResponse(work))
 }
 
 // UpdateWork updates a work.
@@ -301,6 +302,7 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 			DescrRu:     work.DescrRu,
 			DescrEn:     work.DescrEn,
 			WorkPath:    work.WorkPath,
+			Dir:         h.relWorksDir + work.WorkPath,
 			Images:      dto.SplitImages(work.Images),
 			MaterialIDs: work.MaterialIDs,
 		})
