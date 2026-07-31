@@ -196,6 +196,98 @@
                 </div>
             </div>
 
+            <!-- Изображения -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    Изображения
+                </h2>
+
+                <!-- Текущие изображения -->
+                <div
+                    v-if="work.images.length > 0"
+                    class="form-group"
+                >
+                    <label class="form-label">Текущие изображения</label>
+                    <div class="preview-container">
+                        <div
+                            v-for="(img, idx) in work.images"
+                            :key="idx"
+                            class="image-preview"
+                        >
+                            <img
+                                :src="work.dir + img"
+                                :alt="'Image ' + (idx + 1)"
+                                class="preview-image"
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Загрузка нового изображения -->
+                <div class="form-group">
+                    <label class="form-label">Новое изображение</label>
+                    <div
+                        class="file-drop-area"
+                        @click="triggerFileInput"
+                        @dragover.prevent="onDragOver"
+                        @dragleave.prevent="onDragLeave"
+                        @drop.prevent="onDrop"
+                    >
+                        <input
+                            ref="fileInputRef"
+                            type="file"
+                            accept="image/*"
+                            class="file-input"
+                            @change="onFileSelected"
+                        >
+                        <div class="file-drop-content">
+                            <svg
+                                class="upload-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                />
+                            </svg>
+                            <p class="upload-text">
+                                Нажмите или перетащите файл для загрузки
+                            </p>
+                            <p class="upload-hint">
+                                PNG, JPG до 10MB
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        v-if="selectedFile"
+                        class="preview-container"
+                    >
+                        <div class="image-preview">
+                            <img
+                                :src="selectedFilePreview"
+                                alt="New image preview"
+                                class="preview-image"
+                            >
+                            <button
+                                type="button"
+                                class="remove-btn"
+                                @click="selectedFile = null; selectedFilePreview = '';"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <p class="upload-hint">
+                            {{ selectedFile.name }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Кнопки -->
             <div class="form-actions">
                 <UButton
@@ -224,8 +316,22 @@
 <script setup lang="ts">
     import axios from 'axios';
     import { ref, reactive, computed, onMounted, } from 'vue';
-    import type { UpdateWorkRequest, } from '~/types';
     import { useMaterialStore, } from '~/stores/MaterialStore';
+
+    interface EditWorkData {
+        str_id: string
+        name_ru: string
+        name_en: string
+        width: number
+        height: number
+        year: number
+        base_id: number
+        descr_ru: string
+        descr_en: string
+        work_path: string
+        dir: string
+        images: string[]
+    }
 
     definePageMeta({
         layout: 'admin',
@@ -239,7 +345,8 @@
 
     const materialStore = useMaterialStore();
 
-    const work = reactive<UpdateWorkRequest>({
+    const work = reactive<EditWorkData>({
+        str_id: '',
         name_ru: '',
         name_en: '',
         width: 0,
@@ -248,9 +355,13 @@
         base_id: 0,
         descr_ru: '',
         descr_en: '',
+        work_path: '',
+        dir: '',
+        images: [],
     });
 
-    const originalWork = reactive<UpdateWorkRequest>({
+    const originalWork = reactive<EditWorkData>({
+        str_id: '',
         name_ru: '',
         name_en: '',
         width: 0,
@@ -259,10 +370,15 @@
         base_id: 0,
         descr_ru: '',
         descr_en: '',
+        work_path: '',
+        dir: '',
+        images: [],
     });
 
     const isSubmitting = ref(false,);
     const isLoading = ref(true,);
+    const selectedFile = ref<File | null>(null);
+    const selectedFilePreview = ref<string>('');
 
     const errors = reactive<Record<string, string>>({
         name_ru: '',
@@ -299,6 +415,7 @@
             const id = route.params.id;
             const response = await axios.get(`${SERVER_URL}works/${id}`,);
             const data = response.data;
+            work.str_id = data.str_id ?? '';
             work.name_ru = data.name_ru;
             work.name_en = data.name_en;
             work.width = data.width;
@@ -307,6 +424,9 @@
             work.base_id = data.base_id;
             work.descr_ru = data.descr_ru ?? '';
             work.descr_en = data.descr_en ?? '';
+            work.work_path = data.work_path ?? '';
+            work.dir = data.dir ?? '';
+            work.images = data.images ?? [];
             Object.assign(originalWork, { ...work, },);
             isLoading.value = false;
         } catch (error) {
@@ -370,14 +490,35 @@
             isSubmitting.value = true;
 
             const id = route.params.id;
-            const response = await axios.put(SERVER_URL + 'works/' + id, work, {
+            const formData = new FormData();
+            formData.append('str_id', work.str_id);
+            formData.append('name_ru', work.name_ru);
+            formData.append('name_en', work.name_en);
+            formData.append('width', String(work.width));
+            formData.append('height', String(work.height));
+            formData.append('year', String(work.year));
+            formData.append('base_id', String(work.base_id));
+            formData.append('descr_ru', work.descr_ru);
+            formData.append('descr_en', work.descr_en);
+            if (selectedFile.value) {
+                formData.append('image', selectedFile.value);
+            }
+
+            const response = await axios.put(SERVER_URL + 'works/' + id, formData, {
                 headers: {
-                    'Content-Type': 'application/json',
                     Authorization: `Bearer ${localStorage.getItem('token',)}`,
                 },
             });
 
             if (response.status === 200) {
+                const resData = response.data;
+                work.work_path = resData.work_path ?? work.work_path;
+                work.dir = resData.dir ?? work.dir;
+                work.images = resData.images ?? work.images;
+                work.str_id = resData.str_id ?? work.str_id;
+                selectedFile.value = null;
+                selectedFilePreview.value = '';
+                Object.assign(originalWork, { ...work, },);
                 toast.add({
                     title: 'Успешно!',
                     description: 'Работа успешно обновлена в галерее.',
@@ -385,7 +526,6 @@
                     color: 'success',
                     duration: 5000,
                 });
-                Object.assign(originalWork, { ...work, },);
             } else {
                 toast.add({
                     title: 'Ошибка!',
@@ -413,11 +553,54 @@
         }
     }
 
+    const fileInputRef = ref<HTMLInputElement | null>(null);
+
+    function triggerFileInput() {
+        fileInputRef.value?.click();
+    }
+
+    function onDragOver(e: DragEvent) {
+        const target = e.currentTarget as HTMLElement;
+        target.classList.add('drag-over');
+    }
+
+    function onDragLeave(e: DragEvent) {
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('drag-over');
+    }
+
+    function onDrop(e: DragEvent) {
+        const target = e.currentTarget as HTMLElement;
+        target.classList.remove('drag-over');
+        const file = e.dataTransfer?.files?.[0];
+        if (file && fileInputRef.value) {
+            const dt = new DataTransfer();
+            dt.items.add(file);
+            fileInputRef.value.files = dt.files;
+            onFileSelected({ target: fileInputRef.value } as unknown as Event);
+        }
+    }
+
+    function onFileSelected(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        if (file) {
+            selectedFile.value = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                selectedFilePreview.value = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
     function resetForm() {
         Object.assign(work, { ...originalWork, },);
         Object.keys(errors,).forEach((key,) => {
             errors[key] = '';
         });
+        selectedFile.value = null;
+        selectedFilePreview.value = '';
     }
 
     // Lifecycle
