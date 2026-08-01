@@ -221,7 +221,7 @@ function handleVideosDrop(files: File[],) {
 
     for (const file of files) {
         videos.value.push(file,);
-        news.videos.push(file.name,);
+        news.videos.push(storedVideoName(file.name,),);
         previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
@@ -407,25 +407,40 @@ async function handleVideosSelected(event: Event,) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
         videos.value.push(file,);
-        news.videos.push(file.name,);
+        news.videos.push(storedVideoName(file.name,),);
         previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
 
 function removeImageFromImages(index: number,) {
+    // images.value only contains newly uploaded files, while previewImages
+    // contains both existing (server) and new files. Remove the matching file.
+    const existingCount = news.images.length - images.value.length;
+    if (index >= existingCount) {
+        images.value.splice(index - existingCount, 1,);
+    }
     previewImages.value.splice(index, 1,);
-    images.value.splice(index, 1,);
     news.images.splice(index, 1,);
 }
 
 function removeVideoFromVideos(index: number,) {
+    // videos.value only contains newly uploaded files, while previewVideos
+    // contains both existing (server) and new files. Remove the matching file.
+    const existingCount = news.videos.length - videos.value.length;
+    if (index >= existingCount) {
+        videos.value.splice(index - existingCount, 1,);
+    }
     previewVideos.value.splice(index, 1,);
-    videos.value.splice(index, 1,);
     news.videos.splice(index, 1,);
 }
 
 function onVideoError() {
     // Video error handling
+}
+
+function storedVideoName(filename: string,): string {
+    // The server stores videos in a folder named after the file without extension.
+    return filename.replace(/\.[^/.]+$/, '',);
 }
 
 function validateField(fieldName: string,) {
@@ -1380,7 +1395,7 @@ select:has(option.placeholder:checked) {
     border-color: #334155;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -1389,6 +1404,7 @@ select:has(option.placeholder:checked) {
     border: none;
     width: 24px;
     height: 24px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1398,7 +1414,7 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
 }
 

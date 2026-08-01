@@ -110,6 +110,8 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 		return err
 	}
 
+	news.Dir = existing.Dir
+
 	if imgBackFile != nil {
 		if existing.ImgBack != "" {
 			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBack))
@@ -118,6 +120,12 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 			return err
 		}
 		news.ImgBack = imgBackFile.Filename
+	} else if news.ImgBack == "" {
+		// The user removed the image, delete the stored file as well.
+		if existing.ImgBack != "" {
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBack))
+		}
+		news.ImgBack = ""
 	} else {
 		news.ImgBack = existing.ImgBack
 	}
@@ -130,45 +138,28 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 			return err
 		}
 		news.ImgBackfull = imgBackfullFile.Filename
+	} else if news.ImgBackfull == "" {
+		// The user removed the image, delete the stored file as well.
+		if existing.ImgBackfull != "" {
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBackfull))
+		}
+		news.ImgBackfull = ""
 	} else {
 		news.ImgBackfull = existing.ImgBackfull
 	}
 
-	if len(imageFiles) > 0 {
-		for _, oldImg := range existing.Images {
-			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, oldImg))
-		}
-		var names []string
-		for _, f := range imageFiles {
-			if err := s.saveFile(ctx, &f, existing.Dir); err != nil {
-				continue
-			}
-			names = append(names, f.Filename)
-		}
-		news.Images = names
-	} else {
+	// Only the files the user left on the preview must stay on the server.
+	if news.Images == nil {
 		news.Images = existing.Images
-	}
-
-	if len(videoFiles) > 0 {
-		for _, oldVideo := range existing.Videos {
-			_ = s.fileRepo.RemoveDir(ctx, s.fullPath(existing.Dir, "videos", oldVideo))
-		}
-		var names []string
-		for _, f := range videoFiles {
-			dirname := strings.TrimSuffix(f.Filename, filepath.Ext(f.Filename))
-			videoSubDir := filepath.Join(existing.Dir, "videos", dirname)
-			if err := s.saveFile(ctx, &f, videoSubDir); err != nil {
-				continue
-			}
-			names = append(names, dirname)
-		}
-		news.Videos = names
 	} else {
-		news.Videos = existing.Videos
+		news.Images = s.reconcileFiles(ctx, existing.Dir, existing.Images, news.Images, imageFiles, false)
 	}
 
-	news.Dir = existing.Dir
+	if news.Videos == nil {
+		news.Videos = existing.Videos
+	} else {
+		news.Videos = s.reconcileFiles(ctx, existing.Dir, existing.Videos, news.Videos, videoFiles, true)
+	}
 
 	if err := s.newsRepo.Update(ctx, news); err != nil {
 		slog.Error("NewsService.UpdateNews: failed to update", "news_id", news.ID, "error", err)
@@ -177,6 +168,55 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	slog.Info("NewsService.UpdateNews: updated", "news_id", news.ID)
 	return nil
+}
+
+// reconcileFiles keeps only the files the user left on the preview: it deletes
+// previously stored files that are no longer desired and saves newly uploaded ones.
+func (s *NewsService) reconcileFiles(ctx context.Context, dir string, existingNames, desiredNames []string, newFiles []domain.UploadedFile, isVideo bool) []string {
+	keep := make(map[string]bool)
+	result := make([]string, 0, len(desiredNames)+len(newFiles))
+	for _, name := range desiredNames {
+		name = strings.TrimSpace(name)
+		if name == "" || keep[name] {
+			continue
+		}
+		keep[name] = true
+		result = append(result, name)
+	}
+
+	for _, oldName := range existingNames {
+		if keep[oldName] {
+			continue
+		}
+		if isVideo {
+			_ = s.fileRepo.RemoveDir(ctx, s.fullPath(dir, "videos", oldName))
+		} else {
+			_ = s.fileRepo.Delete(ctx, s.fullPath(dir, oldName))
+		}
+	}
+
+	for _, f := range newFiles {
+		var storedName string
+		if isVideo {
+			storedName = strings.TrimSuffix(f.Filename, filepath.Ext(f.Filename))
+			videoSubDir := filepath.Join(dir, "videos", storedName)
+			if err := s.saveFile(ctx, &f, videoSubDir); err != nil {
+				continue
+			}
+		} else {
+			if err := s.saveFile(ctx, &f, dir); err != nil {
+				continue
+			}
+			storedName = f.Filename
+		}
+		if storedName == "" || keep[storedName] {
+			continue
+		}
+		keep[storedName] = true
+		result = append(result, storedName)
+	}
+
+	return result
 }
 
 func (s *NewsService) DeleteNews(ctx context.Context, id string) error {
