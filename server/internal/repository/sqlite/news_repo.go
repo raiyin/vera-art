@@ -17,17 +17,16 @@ func NewNewsRepository(db *sql.DB) *NewsRepository {
 	return &NewsRepository{db: db}
 }
 
-const newsColumns = `id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos`
+const newsColumns = `id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos`
 
 func (r *NewsRepository) scanNews(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.News, error) {
 	n := &domain.News{}
-	var subTitleRu, subTitleEn, imagesStr, videosStr sql.NullString
+	var imagesStr, videosStr sql.NullString
 
 	err := scanner.Scan(
 		&n.ID, &n.DateTime, &n.TitleRu, &n.TitleEn,
-		&subTitleRu, &subTitleEn,
 		&n.Dir, &n.ImgBack, &n.ImgBackfull,
 		&n.TextRu, &n.TextEn,
 		&imagesStr, &videosStr,
@@ -36,12 +35,6 @@ func (r *NewsRepository) scanNews(scanner interface {
 		return nil, err
 	}
 
-	if subTitleRu.Valid {
-		n.SubTitleRu = subTitleRu.String
-	}
-	if subTitleEn.Valid {
-		n.SubTitleEn = subTitleEn.String
-	}
 	if imagesStr.Valid && imagesStr.String != "" {
 		n.Images = splitAndTrim(imagesStr.String, ";")
 	}
@@ -60,12 +53,11 @@ func (r *NewsRepository) scanNews(scanner interface {
 }
 
 func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
-	query := `INSERT INTO news (id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO news (id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := r.db.ExecContext(ctx, query,
 		news.ID, news.DateTime, news.TitleRu, news.TitleEn,
-		nullString(news.SubTitleRu), nullString(news.SubTitleEn),
 		news.Dir, news.ImgBack, news.ImgBackfull,
 		news.TextRu, news.TextEn,
 		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),
@@ -142,12 +134,10 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 }
 
 func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
-	query := `UPDATE news SET datetime=?, title_ru=?, title_en=?, subTitle_ru=?, subTitle_en=?,
-		dir=?, img_back=?, img_backfull=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
+	query := `UPDATE news SET datetime=?, title_ru=?, title_en=?, dir=?, img_back=?, img_backfull=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
 
 	_, err := r.db.ExecContext(ctx, query,
 		news.DateTime, news.TitleRu, news.TitleEn,
-		nullString(news.SubTitleRu), nullString(news.SubTitleEn),
 		news.Dir, news.ImgBack, news.ImgBackfull,
 		news.TextRu, news.TextEn,
 		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),

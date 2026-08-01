@@ -144,18 +144,16 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 	}
 
 	news := &domain.News{
-		DateTime:   payload.Datetime,
-		TitleRu:    payload.TitleRu,
-		TitleEn:    payload.TitleEn,
-		SubTitleRu: payload.SubTitleRu,
-		SubTitleEn: payload.SubTitleEn,
-		Dir:        payload.Dir,
-		ImgBack:    payload.ImgBack,
+		DateTime:    payload.Datetime,
+		TitleRu:     payload.TitleRu,
+		TitleEn:     payload.TitleEn,
+		Dir:         payload.Dir,
+		ImgBack:     payload.ImgBack,
 		ImgBackfull: payload.ImgBackfull,
-		TextRu:     payload.TextRu,
-		TextEn:     payload.TextEn,
-		Images:     payload.Images,
-		Videos:     payload.Videos,
+		TextRu:      payload.TextRu,
+		TextEn:      payload.TextEn,
+		Images:      payload.Images,
+		Videos:      payload.Videos,
 	}
 
 	if err := h.newsService.CreateNews(c.Request.Context(), news, imgBackFile, imgBackfullFile, imageFiles, videoFiles); err != nil {
@@ -259,8 +257,6 @@ func (h *NewsHandler) UpdateNews(c *gin.Context) {
 		DateTime:    payload.Datetime,
 		TitleRu:     payload.TitleRu,
 		TitleEn:     payload.TitleEn,
-		SubTitleRu:  payload.SubTitleRu,
-		SubTitleEn:  payload.SubTitleEn,
 		Dir:         payload.Dir,
 		ImgBack:     payload.ImgBack,
 		ImgBackfull: payload.ImgBackfull,
@@ -327,8 +323,6 @@ func newsToResponse(n *domain.News) dto.NewsResponse {
 		DateTime:    n.DateTime,
 		TitleRu:     n.TitleRu,
 		TitleEn:     n.TitleEn,
-		SubTitleRu:  n.SubTitleRu,
-		SubTitleEn:  n.SubTitleEn,
 		Dir:         n.Dir,
 		ImgBack:     n.ImgBack,
 		ImgBackfull: n.ImgBackfull,
