@@ -157,7 +157,7 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 
 	joinClause := ""
 	if filter.MaterialID > 0 {
-		joinClause += " JOIN sale_materials sm ON s.id = sm.sale_id"
+		joinClause += " JOIN sales_materials sm ON s.id = sm.sale_id"
 	}
 	if filter.BaseID > 0 {
 		joinClause += " JOIN sales_bases sb ON s.id = sb.sale_id"
@@ -252,7 +252,7 @@ func (r *SaleRepository) Update(ctx context.Context, sale *domain.Sale) error {
 
 // Delete deletes a sale by ID.
 func (r *SaleRepository) Delete(ctx context.Context, id int64) error {
-	if _, err := r.db.ExecContext(ctx, "DELETE FROM sale_materials WHERE sale_id = ?", id); err != nil {
+	if _, err := r.db.ExecContext(ctx, "DELETE FROM sales_materials WHERE sale_id = ?", id); err != nil {
 		return fmt.Errorf("delete sale materials: %w", err)
 	}
 	if _, err := r.db.ExecContext(ctx, "DELETE FROM sales_bases WHERE sale_id = ?", id); err != nil {
@@ -278,11 +278,11 @@ func (r *SaleRepository) SetMaterials(ctx context.Context, saleID int64, materia
 	}
 	defer tx.Rollback()
 
-	if _, err := tx.ExecContext(ctx, "DELETE FROM sale_materials WHERE sale_id = ?", saleID); err != nil {
+	if _, err := tx.ExecContext(ctx, "DELETE FROM sales_materials WHERE sale_id = ?", saleID); err != nil {
 		return fmt.Errorf("delete sale materials: %w", err)
 	}
 	for _, materialID := range materialIDs {
-		if _, err := tx.ExecContext(ctx, "INSERT INTO sale_materials (sale_id, material_id) VALUES (?, ?)", saleID, materialID); err != nil {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO sales_materials (sale_id, material_id) VALUES (?, ?)", saleID, materialID); err != nil {
 			return fmt.Errorf("insert sale material: %w", err)
 		}
 	}

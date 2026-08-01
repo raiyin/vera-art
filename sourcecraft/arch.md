@@ -454,7 +454,7 @@ Polling (Client):
 | `users` | Пользователи (username, password_hash, email, name, role, avatar_path, email_verified, verification_token, verification_sent_at) |
 | `refresh_tokens` | Refresh-токены (user_id, token_hash, expires_at) |
 | `works` | Работы галереи (title, description, image_path) |
-| `sales` | Продажи работ (work_id, price, is_sold) |
+| `sales` | Продаваемые работы (name_ru, name_en, description, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold) |
 | `news` | Новости (title, description, image_path, video_url) |
 | `products` | Товары/курсы (title, slug, price, category_id, status, is_digital) |
 | `categories` | Категории товаров (name, slug) |

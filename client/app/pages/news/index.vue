@@ -426,29 +426,30 @@
             :transition="true"
             class="delete-modal"
         >
-            <template #header="{ close, }">
-                <div class="delete-modal-header">
+            <template #body>
+                <div class="delete-modal-content">
                     <div class="delete-modal-icon-wrapper">
                         <UIcon
                             name="i-heroicons-exclamation-triangle"
                             class="delete-modal-icon"
                         />
                     </div>
-                    <h3 class="delete-modal-title">
-                        Подтверждение удаления
-                    </h3>
-                </div>
-            </template>
-
-            <template #body>
-                <div class="delete-modal-body">
-                    <p class="delete-modal-text">
-                        Вы уверены, что хотите удалить новость
-                        <span class="delete-modal-highlight">«{{ newsToDelete ? getNewsTitle(newsToDelete,) : '' }}»</span>?
-                    </p>
-                    <p class="delete-modal-warning">
-                        Это действие нельзя отменить.
-                    </p>
+                    <div class="delete-modal-main">
+                        <h3 class="delete-modal-title">
+                            Подтверждение удаления
+                        </h3>
+                        <p class="delete-modal-text">
+                            Вы уверены, что хотите удалить новость
+                            <span class="delete-modal-highlight">«{{ newsToDelete ? getNewsTitle(newsToDelete,) : '' }}»</span>?
+                        </p>
+                        <div class="delete-modal-warning">
+                            <UIcon
+                                name="i-heroicons-exclamation-circle"
+                                class="delete-modal-warning-icon"
+                            />
+                            <span>Это действие нельзя отменить.</span>
+                        </div>
+                    </div>
                 </div>
             </template>
 
@@ -457,14 +458,17 @@
                     <UButton
                         size="md"
                         color="neutral"
-                        variant="outline"
+                        variant="ghost"
+                        class="delete-modal-btn"
                         @click="cancelDelete"
                     >
                         Отмена
                     </UButton>
+                    <div class="delete-modal-footer-divider" />
                     <UButton
                         size="md"
                         color="error"
+                        class="delete-modal-btn"
                         :loading="deletingId !== null"
                         :disabled="deletingId !== null"
                         @click="deleteNews"
@@ -619,65 +623,94 @@
 }
 /* Delete Confirmation Modal Styles */
 .delete-modal {
-    --modal-max-width: 420px;
-}
-
-.delete-modal :deep(.ui-modal) {
-    border-radius: 16px;
+    width: min(calc(100vw - 2rem), 520px) !important;
+    max-width: 520px !important;
+    aspect-ratio: 16 / 9;
+    min-height: fit-content;
+    border-radius: 18px;
     overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
 }
 
-.delete-modal-header {
-    text-align: center;
-    padding: 1.5rem 1.5rem 0;
+.delete-modal :deep([data-slot="body"]) {
+    padding: 0;
+}
+
+.delete-modal :deep([data-slot="footer"]) {
+    padding: 0;
+}
+
+.delete-modal-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    height: 100%;
+    padding: 1.75rem 2rem;
 }
 
 .delete-modal-icon-wrapper {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    margin-bottom: 1rem;
+    background: radial-gradient(circle at 30% 25%, #fef2f2 0%, #fee2e2 55%, #fecaca 100%);
+    border: 1px solid rgba(220, 38, 38, 0.12);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 10px 24px -8px rgba(220, 38, 38, 0.4);
 }
 
 .dark .delete-modal-icon-wrapper {
-    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
+    background: radial-gradient(circle at 30% 25%, #450a0a 0%, #7f1d1d 55%, #991b1b 100%);
+    border-color: rgba(248, 113, 113, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px -8px rgba(248, 113, 113, 0.35);
 }
 
 .delete-modal-icon {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     color: #dc2626;
+    animation: delete-modal-icon-pulse 2.6s ease-in-out infinite;
 }
 
 .dark .delete-modal-icon {
     color: #fca5a5;
 }
 
+@keyframes delete-modal-icon-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.07);
+    }
+}
+
+.delete-modal-main {
+    flex: 1;
+    min-width: 0;
+}
+
 .delete-modal-title {
     font-size: 1.25rem;
     font-weight: 700;
+    letter-spacing: -0.01em;
     color: #1e293b;
-    margin: 0;
+    margin: 0 0 0.35rem;
 }
 
 .dark .delete-modal-title {
     color: #f1f5f9;
 }
 
-.delete-modal-body {
-    padding: 1rem 1.5rem;
-    text-align: center;
-}
-
 .delete-modal-text {
     font-size: 0.95rem;
     color: #475569;
     line-height: 1.6;
-    margin: 0 0 0.5rem;
+    margin: 0 0 0.75rem;
 }
 
 .dark .delete-modal-text {
@@ -685,39 +718,83 @@
 }
 
 .delete-modal-highlight {
+    display: inline-block;
     font-weight: 600;
     color: #1e293b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 0.05rem 0.5rem;
+    margin: 0 0.2rem;
+    max-width: 100%;
 }
 
 .dark .delete-modal-highlight {
     color: #e2e8f0;
+    background: #1e293b;
+    border-color: #334155;
 }
 
 .delete-modal-warning {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.85rem;
-    color: #ef4444;
     font-weight: 500;
+    color: #ef4444;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 999px;
+    padding: 0.35rem 0.9rem;
     margin: 0;
 }
 
 .dark .delete-modal-warning {
     color: #fca5a5;
+    background: rgba(127, 29, 29, 0.35);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.delete-modal-warning-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
 }
 
 .delete-modal-footer {
     display: flex;
+    align-items: stretch;
+    width: 100%;
+    padding: 0;
+}
+
+.delete-modal-footer-divider {
+    width: 1px;
+    flex-shrink: 0;
+    background: #e2e8f0;
+}
+
+.dark .delete-modal-footer-divider {
+    background: #334155;
+}
+
+.delete-modal-footer .delete-modal-btn {
+    flex: 1 1 0;
+    border-radius: 0;
     justify-content: center;
-    gap: 0.75rem;
-    padding: 0 1.5rem 1.5rem;
 }
 
 @media (max-width: 480px) {
-    .delete-modal-footer {
-        flex-direction: column-reverse;
+    .delete-modal-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        padding: 1.5rem;
     }
 
-    .delete-modal-footer .UButton {
-        width: 100%;
+    .delete-modal-icon-wrapper {
+        width: 56px;
+        height: 56px;
     }
 }
 </style>
