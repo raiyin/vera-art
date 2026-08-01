@@ -60,7 +60,7 @@ func (r *NewsRepository) scanNews(scanner interface {
 }
 
 func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
-	query := `INSERT INTO news_legacy (id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
+	query := `INSERT INTO news (id, datetime, title_ru, title_en, subTitle_ru, subTitle_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := r.db.ExecContext(ctx, query,
@@ -77,7 +77,7 @@ func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
 }
 
 func (r *NewsRepository) GetByID(ctx context.Context, id string) (*domain.News, error) {
-	query := fmt.Sprintf("SELECT %s FROM news_legacy WHERE id = ?", newsColumns)
+	query := fmt.Sprintf("SELECT %s FROM news WHERE id = ?", newsColumns)
 	news, err := r.scanNews(r.db.QueryRowContext(ctx, query, id))
 	if err == sql.ErrNoRows {
 		return nil, domain.ErrNotFound
@@ -103,7 +103,7 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 		whereClause = "WHERE " + strings.Join(conditions, " AND ")
 	}
 
-	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM news_legacy %s", whereClause)
+	countQuery := fmt.Sprintf("SELECT COUNT(*) FROM news %s", whereClause)
 	var total int
 	if err := r.db.QueryRowContext(ctx, countQuery, args...).Scan(&total); err != nil {
 		return nil, 0, fmt.Errorf("count news: %w", err)
@@ -119,7 +119,7 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 	}
 	offset := (page - 1) * limit
 
-	listQuery := fmt.Sprintf(`SELECT %s FROM news_legacy %s ORDER BY datetime DESC LIMIT ? OFFSET ?`,
+	listQuery := fmt.Sprintf(`SELECT %s FROM news %s ORDER BY datetime DESC LIMIT ? OFFSET ?`,
 		newsColumns, whereClause)
 	queryArgs := append(args, limit, offset)
 
@@ -142,7 +142,7 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 }
 
 func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
-	query := `UPDATE news_legacy SET datetime=?, title_ru=?, title_en=?, subTitle_ru=?, subTitle_en=?,
+	query := `UPDATE news SET datetime=?, title_ru=?, title_en=?, subTitle_ru=?, subTitle_en=?,
 		dir=?, img_back=?, img_backfull=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
 
 	_, err := r.db.ExecContext(ctx, query,
@@ -160,7 +160,7 @@ func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
 }
 
 func (r *NewsRepository) Delete(ctx context.Context, id string) error {
-	result, err := r.db.ExecContext(ctx, "DELETE FROM news_legacy WHERE id = ?", id)
+	result, err := r.db.ExecContext(ctx, "DELETE FROM news WHERE id = ?", id)
 	if err != nil {
 		return fmt.Errorf("delete news: %w", err)
 	}
