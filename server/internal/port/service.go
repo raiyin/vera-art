@@ -47,8 +47,8 @@ type GalleryService interface {
 	// Works
 	GetWorks(ctx context.Context, filter domain.WorkFilter) ([]domain.Work, int, error)
 	GetWorkByID(ctx context.Context, id int64) (*domain.Work, error)
-	CreateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
-	UpdateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
+	CreateWork(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
+	UpdateWork(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
 	DeleteWork(ctx context.Context, id int64) error
 	BulkDeleteWorks(ctx context.Context, ids []int64) error
 

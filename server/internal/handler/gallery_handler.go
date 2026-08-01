@@ -206,17 +206,23 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 		DescrEn: req.DescrEn,
 	}
 
-	var filename string
-	var reader io.ReadCloser
-
-	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		defer file.Close()
-		filename = header.Filename
-		reader = file
+	var files []domain.UploadedFile
+	if c.Request.MultipartForm != nil {
+		for _, headers := range c.Request.MultipartForm.File["image"] {
+			file, err := headers.Open()
+			if err != nil {
+				continue
+			}
+			defer file.Close()
+			files = append(files, domain.UploadedFile{
+				Filename: headers.Filename,
+				Size:     headers.Size,
+				Reader:   file,
+			})
+		}
 	}
 
-	if err := h.galleryService.CreateWork(c.Request.Context(), work, filename, reader); err != nil {
+	if err := h.galleryService.CreateWork(c.Request.Context(), work, files); err != nil {
 		slog.Error("CreateWork: failed to create work",
 			"name_ru", req.NameRu,
 			"error", err,
@@ -267,17 +273,23 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 		DescrEn: req.DescrEn,
 	}
 
-	var filename string
-	var reader io.ReadCloser
-
-	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		defer file.Close()
-		filename = header.Filename
-		reader = file
+	var files []domain.UploadedFile
+	if c.Request.MultipartForm != nil {
+		for _, headers := range c.Request.MultipartForm.File["image"] {
+			file, err := headers.Open()
+			if err != nil {
+				continue
+			}
+			defer file.Close()
+			files = append(files, domain.UploadedFile{
+				Filename: headers.Filename,
+				Size:     headers.Size,
+				Reader:   file,
+			})
+		}
 	}
 
-	if err := h.galleryService.UpdateWork(c.Request.Context(), work, filename, reader); err != nil {
+	if err := h.galleryService.UpdateWork(c.Request.Context(), work, files); err != nil {
 		slog.Error("UpdateWork: failed to update work",
 			"work_id", id,
 			"error", err,

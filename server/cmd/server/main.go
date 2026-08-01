@@ -142,7 +142,7 @@ func main() {
 	// -------------------------------------------------------------------------
 	authService := service.NewAuthService(userRepo, jwtManager, emailSender)
 	userService := service.NewUserService(userRepo, fileRepo, appConfig.Directories.AbsAvatarsDir)
-	galleryService := service.NewGalleryService(workRepo, saleRepo, fileRepo, appConfig.Directories.AbsWorksDir)
+	galleryService := service.NewGalleryService(workRepo, saleRepo, fileRepo, appConfig.Directories.AbsWorksDir, appConfig.Directories.RelWorksDir)
 	newsService := service.NewNewsService(newsRepo, fileRepo, appConfig.Directories.AbsNewsDir)
 	shopService := service.NewShopService(productRepo, categoryRepo, promoRepo, reviewRepo)
 	learningService := service.NewLearningService(lessonRepo, progressRepo, purchaseRepo)

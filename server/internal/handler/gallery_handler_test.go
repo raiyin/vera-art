@@ -18,15 +18,15 @@ import (
 
 // mockGalleryService implements port.GalleryService.
 type mockGalleryService struct {
-	works        []domain.Work
-	sales        []domain.Sale
-	getWorkByID  func(ctx context.Context, id int64) (*domain.Work, error)
-	createWork   func(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
-	updateWork   func(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error
-	deleteWork   func(ctx context.Context, id int64) error
-	createSale   func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
-	updateSale   func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
-	deleteSale   func(ctx context.Context, id int64) error
+	works       []domain.Work
+	sales       []domain.Sale
+	getWorkByID func(ctx context.Context, id int64) (*domain.Work, error)
+	createWork  func(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
+	updateWork  func(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
+	deleteWork  func(ctx context.Context, id int64) error
+	createSale  func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
+	updateSale  func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
+	deleteSale  func(ctx context.Context, id int64) error
 }
 
 func (m *mockGalleryService) GetWorks(_ context.Context, filter domain.WorkFilter) ([]domain.Work, int, error) {
@@ -55,18 +55,18 @@ func (m *mockGalleryService) GetWorkByID(_ context.Context, id int64) (*domain.W
 	return nil, domain.ErrNotFound
 }
 
-func (m *mockGalleryService) CreateWork(_ context.Context, work *domain.Work, _ string, _ io.Reader) error {
+func (m *mockGalleryService) CreateWork(_ context.Context, work *domain.Work, _ []domain.UploadedFile) error {
 	if m.createWork != nil {
-		return m.createWork(context.Background(), work, "", nil)
+		return m.createWork(context.Background(), work, nil)
 	}
 	work.ID = int64(len(m.works) + 1)
 	m.works = append(m.works, *work)
 	return nil
 }
 
-func (m *mockGalleryService) UpdateWork(_ context.Context, work *domain.Work, _ string, _ io.Reader) error {
+func (m *mockGalleryService) UpdateWork(_ context.Context, work *domain.Work, _ []domain.UploadedFile) error {
 	if m.updateWork != nil {
-		return m.updateWork(context.Background(), work, "", nil)
+		return m.updateWork(context.Background(), work, nil)
 	}
 	for i, w := range m.works {
 		if w.ID == work.ID {
@@ -302,7 +302,7 @@ func TestHandlerGetWorkByID(t *testing.T) {
 func TestHandlerCreateWork(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		svc := &mockGalleryService{
-			createWork: func(_ context.Context, work *domain.Work, _ string, _ io.Reader) error {
+			createWork: func(_ context.Context, work *domain.Work, _ []domain.UploadedFile) error {
 				work.ID = 1
 				work.WorkPath = "test/"
 				return nil
@@ -363,7 +363,7 @@ func TestHandlerCreateWork(t *testing.T) {
 
 	t.Run("service error", func(t *testing.T) {
 		svc := &mockGalleryService{
-			createWork: func(_ context.Context, _ *domain.Work, _ string, _ io.Reader) error {
+			createWork: func(_ context.Context, _ *domain.Work, _ []domain.UploadedFile) error {
 				return apperror.ErrInvalidInput
 			},
 		}
@@ -388,7 +388,7 @@ func TestHandlerUpdateWork(t *testing.T) {
 			getWorkByID: func(_ context.Context, id int64) (*domain.Work, error) {
 				return &domain.Work{ID: id, NameRu: "Old", NameEn: "Old"}, nil
 			},
-			updateWork: func(_ context.Context, work *domain.Work, _ string, _ io.Reader) error {
+			updateWork: func(_ context.Context, work *domain.Work, _ []domain.UploadedFile) error {
 				return nil
 			},
 		}
@@ -547,7 +547,7 @@ func TestHandlerGetWorksDefaultPagination(t *testing.T) {
 
 func TestHandlerCreateWorkMultipartForm(t *testing.T) {
 	svc := &mockGalleryService{
-		createWork: func(_ context.Context, work *domain.Work, _ string, _ io.Reader) error {
+		createWork: func(_ context.Context, work *domain.Work, _ []domain.UploadedFile) error {
 			work.ID = 1
 			return nil
 		},

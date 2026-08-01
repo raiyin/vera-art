@@ -6,6 +6,8 @@ import (
 	"io"
 	"log/slog"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/raiyin/artserver/internal/domain"
@@ -299,19 +301,21 @@ func (s *UserService) ToggleUserBlock(ctx context.Context, id int64) error {
 
 // GalleryService implements port.GalleryService.
 type GalleryService struct {
-	workRepo  port.WorkRepository
-	saleRepo  port.SaleRepository
-	fileRepo  port.FileRepository
-	imagesDir string
+	workRepo    port.WorkRepository
+	saleRepo    port.SaleRepository
+	fileRepo    port.FileRepository
+	imagesDir   string
+	relWorksDir string
 }
 
 // NewGalleryService creates a new GalleryService.
-func NewGalleryService(workRepo port.WorkRepository, saleRepo port.SaleRepository, fileRepo port.FileRepository, imagesDir string) *GalleryService {
+func NewGalleryService(workRepo port.WorkRepository, saleRepo port.SaleRepository, fileRepo port.FileRepository, imagesDir, relWorksDir string) *GalleryService {
 	return &GalleryService{
-		workRepo:  workRepo,
-		saleRepo:  saleRepo,
-		fileRepo:  fileRepo,
-		imagesDir: imagesDir,
+		workRepo:    workRepo,
+		saleRepo:    saleRepo,
+		fileRepo:    fileRepo,
+		imagesDir:   imagesDir,
+		relWorksDir: relWorksDir,
 	}
 }
 
@@ -350,10 +354,26 @@ func (s *GalleryService) GetWorkByID(ctx context.Context, id int64) (*domain.Wor
 }
 
 // CreateWork creates a new work.
-func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error {
+func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error {
 	if work.NameRu == "" {
 		slog.Warn("GalleryService.CreateWork: empty name_ru")
 		return domain.ErrInvalidInput
+	}
+
+	if work.WorkPath == "" {
+		work.WorkPath = s.buildWorkPath(work.StrID)
+	}
+
+	if len(files) > 0 {
+		imageNames, err := s.saveWorkImages(ctx, work.WorkPath, "", files)
+		if err != nil {
+			slog.Error("GalleryService.CreateWork: failed to save image",
+				"name_ru", work.NameRu,
+				"error", err,
+			)
+			return err
+		}
+		work.Images = imageNames
 	}
 
 	if err := s.workRepo.Create(ctx, work); err != nil {
@@ -372,7 +392,40 @@ func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, file
 }
 
 // UpdateWork updates a work.
-func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, filename string, reader io.Reader) error {
+func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error {
+	existing, err := s.workRepo.GetByID(ctx, work.ID)
+	if err != nil {
+		slog.Error("GalleryService.UpdateWork: failed to get existing work",
+			"work_id", work.ID,
+			"error", err,
+		)
+		return err
+	}
+
+	workPath := existing.WorkPath
+	if workPath == "" {
+		workPath = s.buildWorkPath(work.StrID)
+	}
+	work.WorkPath = workPath
+
+	if len(files) > 0 {
+		imageNames, err := s.saveWorkImages(ctx, workPath, existing.Images, files)
+		if err != nil {
+			slog.Error("GalleryService.UpdateWork: failed to save image",
+				"work_id", work.ID,
+				"error", err,
+			)
+			return err
+		}
+		if existing.Images != "" {
+			work.Images = existing.Images + ";" + imageNames
+		} else {
+			work.Images = imageNames
+		}
+	} else {
+		work.Images = existing.Images
+	}
+
 	if err := s.workRepo.Update(ctx, work); err != nil {
 		slog.Error("GalleryService.UpdateWork: failed to update work",
 			"work_id", work.ID,
@@ -387,6 +440,70 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 		"name_ru", work.NameRu,
 	)
 	return nil
+}
+
+// buildWorkPath returns a directory path for a work based on its str_id.
+func (s *GalleryService) buildWorkPath(strID string) string {
+	dir := strings.TrimSpace(strID)
+	if dir == "" {
+		dir = fmt.Sprintf("work_%d", time.Now().UnixNano())
+	}
+	return strings.TrimSuffix(dir, "/") + "/"
+}
+
+// saveWorkImages saves uploaded images into a work's directory and returns the semicolon-separated image names.
+func (s *GalleryService) saveWorkImages(ctx context.Context, workPath, currentImages string, files []domain.UploadedFile) (string, error) {
+	current := currentImages
+	var saved []string
+	for _, f := range files {
+		imageName, err := s.saveWorkImage(ctx, workPath, current, f.Filename, f.Reader)
+		if err != nil {
+			return "", err
+		}
+		saved = append(saved, imageName)
+		if current == "" {
+			current = imageName
+		} else {
+			current = current + ";" + imageName
+		}
+	}
+	return strings.Join(saved, ";"), nil
+}
+
+// saveWorkImage saves an uploaded image into a work's directory and returns the image filename.
+func (s *GalleryService) saveWorkImage(ctx context.Context, workPath, currentImages, filename string, reader io.Reader) (string, error) {
+	ext := filepath.Ext(filename)
+	if ext == "" {
+		ext = ".jpg"
+	}
+	imageName := s.nextWorkImageName(currentImages, ext)
+
+	relPath := strings.TrimLeft(filepath.Join(s.relWorksDir, workPath, imageName), "/")
+	fullPath := filepath.Join(s.imagesDir, relPath)
+	if err := s.fileRepo.Save(ctx, fullPath, reader); err != nil {
+		return "", err
+	}
+	return imageName, nil
+}
+
+// nextWorkImageName returns the next sequential image filename for a work directory.
+func (s *GalleryService) nextWorkImageName(currentImages, ext string) string {
+	count := 0
+	maxNum := 0
+	if currentImages != "" {
+		imgs := strings.Split(currentImages, ";")
+		count = len(imgs)
+		for _, img := range imgs {
+			n, err := strconv.Atoi(strings.TrimSuffix(img, filepath.Ext(img)))
+			if err == nil && n > maxNum {
+				maxNum = n
+			}
+		}
+	}
+	if maxNum < count {
+		maxNum = count
+	}
+	return fmt.Sprintf("%d%s", maxNum+1, ext)
 }
 
 // DeleteWork deletes a work.

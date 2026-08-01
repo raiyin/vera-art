@@ -20,7 +20,7 @@ func NewRepository(baseDir string) *Repository {
 
 // Save saves a file to the given path.
 func (r *Repository) Save(_ context.Context, path string, reader io.Reader) error {
-	fullPath := filepath.Join(r.baseDir, path)
+	fullPath := r.absPath(path)
 
 	if err := os.MkdirAll(filepath.Dir(fullPath), 0755); err != nil {
 		return err
@@ -38,18 +38,18 @@ func (r *Repository) Save(_ context.Context, path string, reader io.Reader) erro
 
 // Delete deletes a file at the given path.
 func (r *Repository) Delete(_ context.Context, path string) error {
-	fullPath := filepath.Join(r.baseDir, strings.ReplaceAll(path, "\\", "/"))
+	fullPath := r.absPath(strings.ReplaceAll(path, "\\", "/"))
 	return os.Remove(fullPath)
 }
 
 // GetPath returns the full filesystem path for a given relative path.
 func (r *Repository) GetPath(dir, filename string) string {
-	return filepath.Join(r.baseDir, dir, filename)
+	return r.absPath(filepath.Join(dir, filename))
 }
 
 // Exists checks if a file exists at the given path.
 func (r *Repository) Exists(_ context.Context, path string) (bool, error) {
-	fullPath := filepath.Join(r.baseDir, path)
+	fullPath := r.absPath(path)
 	_, err := os.Stat(fullPath)
 	if err == nil {
 		return true, nil
@@ -62,8 +62,8 @@ func (r *Repository) Exists(_ context.Context, path string) (bool, error) {
 
 // Copy copies a file from src to dst.
 func (r *Repository) Copy(_ context.Context, src, dst string) error {
-	srcPath := filepath.Join(r.baseDir, src)
-	dstPath := filepath.Join(r.baseDir, dst)
+	srcPath := r.absPath(src)
+	dstPath := r.absPath(dst)
 
 	if err := os.MkdirAll(filepath.Dir(dstPath), 0755); err != nil {
 		return err
@@ -87,24 +87,33 @@ func (r *Repository) Copy(_ context.Context, src, dst string) error {
 
 // MkdirAll creates a directory and all parent directories.
 func (r *Repository) MkdirAll(_ context.Context, path string) error {
-	fullPath := filepath.Join(r.baseDir, path)
+	fullPath := r.absPath(path)
 	return os.MkdirAll(fullPath, 0755)
 }
 
 // RemoveDir removes a directory and all its contents.
 func (r *Repository) RemoveDir(_ context.Context, path string) error {
-	fullPath := filepath.Join(r.baseDir, path)
+	fullPath := r.absPath(path)
 	return os.RemoveAll(fullPath)
 }
 
 // RenameDir renames a directory from oldPath to newPath.
 func (r *Repository) RenameDir(_ context.Context, oldPath, newPath string) error {
-	oldFullPath := filepath.Join(r.baseDir, oldPath)
-	newFullPath := filepath.Join(r.baseDir, newPath)
+	oldFullPath := r.absPath(oldPath)
+	newFullPath := r.absPath(newPath)
 
 	if err := os.MkdirAll(filepath.Dir(newFullPath), 0755); err != nil {
 		return err
 	}
 
 	return os.Rename(oldFullPath, newFullPath)
+}
+
+// absPath resolves a path against the repository base directory.
+// Absolute paths are used as-is; relative paths are joined with the base dir.
+func (r *Repository) absPath(path string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(r.baseDir, path)
 }

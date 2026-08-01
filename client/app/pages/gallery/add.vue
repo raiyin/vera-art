@@ -23,6 +23,98 @@
             class="work-form"
             @submit.prevent="submitForm"
         >
+            <!-- Загрузка изображений работы -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    {{ $t('admin_gallery_form.sections.images',) }}
+                </h2>
+                <div class="form-group">
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.select_images',) }}
+                        <span class="required">*</span></label>
+                    <div
+                        class="file-drop-area"
+                        :class="{ 'drag-over': isDragOver, }"
+                        @dragover.prevent="handleDragOver"
+                        @dragleave.prevent="handleDragLeave"
+                        @drop.prevent="handleDrop"
+                        @click="triggerFileInput"
+                    >
+                        <input
+                            ref="fileInput"
+                            type="file"
+                            multiple
+                            accept="image/jpg,image/jpeg,image/png"
+                            class="file-input"
+                            required
+                            @change="handleFileUpload"
+                        >
+                        <div class="file-drop-content">
+                            <svg
+                                class="upload-icon"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
+                            </svg>
+                            <p class="upload-text">
+                                {{ $t('admin_gallery_form.labels.drag_drop_text',) }}
+                            </p>
+                            <p class="upload-hint">
+                                {{ $t('admin_gallery_form.labels.file_formats',) }}
+                            </p>
+                        </div>
+                    </div>
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
+                        {{ fileError }}
+                    </div>
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
+                        <div
+                            v-for="(image, index) in previewImages"
+                            :key="index"
+                            class="image-preview"
+                        >
+                            <img
+                                :src="image.preview"
+                                class="preview-image"
+                                :alt="`Preview ${index + 1}`"
+                            >
+                            <button
+                                type="button"
+                                class="remove-btn"
+                                :aria-label="
+                                    $t('admin_gallery_form.aria_labels.remove_image', {
+                                        index: index + 1,
+                                    },)
+                                "
+                                @click="removeImage(index,)"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
@@ -257,6 +349,11 @@
 
     const isSubmitting = ref(false,);
     const isLoading = ref(true,);
+    const files = ref<File[]>([],);
+    const previewImages = ref<{ file: File, preview: string }[]>([],);
+    const isDragOver = ref(false,);
+    const fileError = ref<string | null>(null,);
+    const fileInput = ref<HTMLInputElement | null>(null,);
 
     const errors = reactive<Record<string, string>>({
         name_ru: '',
@@ -286,8 +383,85 @@
             && work.year >= 2000
         && work.year <= new Date().getFullYear()
             && work.base_id > 0
+            && files.value.length > 0
         );
     });
+
+    function handleDragOver() {
+        isDragOver.value = true;
+    }
+
+    function handleDragLeave() {
+        isDragOver.value = false;
+    }
+
+    function handleDrop(event: DragEvent,) {
+        isDragOver.value = false;
+        if (event.dataTransfer && event.dataTransfer.files.length) {
+            const droppedFiles = Array.from(event.dataTransfer.files,);
+            addImages(droppedFiles,);
+        }
+    }
+
+    function triggerFileInput() {
+        fileInput.value?.click();
+    }
+
+    function handleFileUpload(event: Event,) {
+        const target = event.target as HTMLInputElement;
+        if (target.files && target.files.length) {
+            const selectedFiles = Array.from(target.files,);
+            addImages(selectedFiles,);
+        }
+    }
+
+    function addImages(selectedFiles: File[],) {
+        fileError.value = null;
+
+        // Check max file count
+        if (files.value.length + selectedFiles.length > 10) {
+            fileError.value = t('admin_gallery_form.errors.max_files',);
+            return;
+        }
+
+        // Check file types
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+        const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
+
+        if (invalidFiles.length > 0) {
+            fileError.value = t('admin_gallery_form.errors.invalid_file_type',);
+            return;
+        }
+
+        // Check file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
+
+        if (largeFiles.length > 0) {
+            fileError.value = t('admin_gallery_form.errors.file_size',);
+            return;
+        }
+
+        // Add new files
+        files.value = [...files.value, ...selectedFiles,];
+
+        // Create previews for new images
+        selectedFiles.forEach((file,) => {
+            const reader = new FileReader();
+            reader.onload = (e,) => {
+                previewImages.value.push({
+                    file,
+                    preview: e.target?.result as string,
+                });
+            };
+            reader.readAsDataURL(file,);
+        });
+    }
+
+    function removeImage(index: number,) {
+        previewImages.value.splice(index, 1,);
+        files.value.splice(index, 1,);
+    }
 
     function validateField(fieldName: string,) {
         switch (fieldName) {
@@ -325,6 +499,13 @@
         validateField('height',);
         validateField('year',);
         validateField('base_id',);
+
+        // Check images
+        if (files.value.length === 0) {
+            fileError.value = t('admin_gallery_form.errors.images_required',);
+            return false;
+        }
+
         return Object.values(errors,).every(error => error === '',);
     }
 
@@ -338,9 +519,22 @@
         try {
             isSubmitting.value = true;
 
-            const response = await axios.post(SERVER_URL + 'works', work, {
+            const formData = new FormData();
+            files.value.forEach((file,) => {
+                formData.append('image', file,);
+            });
+            formData.append('name_ru', work.name_ru);
+            formData.append('name_en', work.name_en);
+            formData.append('width', String(work.width));
+            formData.append('height', String(work.height));
+            formData.append('year', String(work.year));
+            formData.append('base_id', String(work.base_id));
+            formData.append('descr_ru', work.descr_ru);
+            formData.append('descr_en', work.descr_en);
+
+            const response = await axios.post(SERVER_URL + 'works', formData, {
                 headers: {
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${localStorage.getItem('token',)}`,
                 },
             });
 
@@ -391,6 +585,12 @@
         work.base_id = 0;
         work.descr_ru = '';
         work.descr_en = '';
+        files.value = [];
+        previewImages.value = [];
+        fileError.value = null;
+        if (fileInput.value) {
+            fileInput.value.value = '';
+        }
         Object.keys(errors,).forEach((key,) => {
             errors[key] = '';
         });

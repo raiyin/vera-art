@@ -112,7 +112,7 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	if imgBackFile != nil {
 		if existing.ImgBack != "" {
-			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, existing.ImgBack))
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBack))
 		}
 		if err := s.saveFile(ctx, imgBackFile, existing.Dir); err != nil {
 			return err
@@ -124,7 +124,7 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	if imgBackfullFile != nil {
 		if existing.ImgBackfull != "" {
-			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, existing.ImgBackfull))
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBackfull))
 		}
 		if err := s.saveFile(ctx, imgBackfullFile, existing.Dir); err != nil {
 			return err
@@ -136,7 +136,7 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	if len(imageFiles) > 0 {
 		for _, oldImg := range existing.Images {
-			_ = s.fileRepo.Delete(ctx, filepath.Join(existing.Dir, oldImg))
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, oldImg))
 		}
 		var names []string
 		for _, f := range imageFiles {
@@ -152,7 +152,7 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	if len(videoFiles) > 0 {
 		for _, oldVideo := range existing.Videos {
-			_ = s.fileRepo.RemoveDir(ctx, filepath.Join(existing.Dir, "videos", oldVideo))
+			_ = s.fileRepo.RemoveDir(ctx, s.fullPath(existing.Dir, "videos", oldVideo))
 		}
 		var names []string
 		for _, f := range videoFiles {
@@ -187,7 +187,7 @@ func (s *NewsService) DeleteNews(ctx context.Context, id string) error {
 	}
 
 	if news.Dir != "" {
-		_ = s.fileRepo.RemoveDir(ctx, news.Dir)
+		_ = s.fileRepo.RemoveDir(ctx, s.fullPath(news.Dir))
 	}
 
 	if err := s.newsRepo.Delete(ctx, id); err != nil {
@@ -209,7 +209,14 @@ func (s *NewsService) BulkDeleteNews(ctx context.Context, ids []string) error {
 }
 
 func (s *NewsService) saveFile(ctx context.Context, file *domain.UploadedFile, subDir string) error {
-	return s.fileRepo.Save(ctx, filepath.Join(subDir, file.Filename), file.Reader)
+	return s.fileRepo.Save(ctx, s.fullPath(subDir, file.Filename), file.Reader)
+}
+
+// fullPath resolves URL-style content paths (e.g. "/content/news/2025/01/01/")
+// against the absolute news directory.
+func (s *NewsService) fullPath(elem ...string) string {
+	rel := strings.TrimLeft(filepath.Join(elem...), "/")
+	return filepath.Join(s.newsDir, rel)
 }
 
 func (s *NewsService) generateID(datetime string) string {
