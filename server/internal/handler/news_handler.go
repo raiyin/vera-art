@@ -103,19 +103,12 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 		return
 	}
 
-	var imgBackFile, imgBackfullFile *domain.UploadedFile
-	if files := form.File["img_back"]; len(files) > 0 {
+	var mainImageFile *domain.UploadedFile
+	if files := form.File["main_image"]; len(files) > 0 {
 		f, err := files[0].Open()
 		if err == nil {
 			defer f.Close()
-			imgBackFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
-		}
-	}
-	if files := form.File["img_backfull"]; len(files) > 0 {
-		f, err := files[0].Open()
-		if err == nil {
-			defer f.Close()
-			imgBackfullFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+			mainImageFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
 		}
 	}
 
@@ -144,19 +137,18 @@ func (h *NewsHandler) CreateNews(c *gin.Context) {
 	}
 
 	news := &domain.News{
-		DateTime:    payload.Datetime,
-		TitleRu:     payload.TitleRu,
-		TitleEn:     payload.TitleEn,
-		Dir:         payload.Dir,
-		ImgBack:     payload.ImgBack,
-		ImgBackfull: payload.ImgBackfull,
-		TextRu:      payload.TextRu,
-		TextEn:      payload.TextEn,
-		Images:      payload.Images,
-		Videos:      payload.Videos,
+		DateTime: payload.Datetime,
+		TitleRu:  payload.TitleRu,
+		TitleEn:  payload.TitleEn,
+		Dir:      payload.Dir,
+		MainImage:  payload.MainImage,
+		TextRu:   payload.TextRu,
+		TextEn:   payload.TextEn,
+		Images:   payload.Images,
+		Videos:   payload.Videos,
 	}
 
-	if err := h.newsService.CreateNews(c.Request.Context(), news, imgBackFile, imgBackfullFile, imageFiles, videoFiles); err != nil {
+	if err := h.newsService.CreateNews(c.Request.Context(), news, mainImageFile, imageFiles, videoFiles); err != nil {
 		slog.Error("CreateNews: failed", "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
@@ -206,20 +198,13 @@ func (h *NewsHandler) UpdateNews(c *gin.Context) {
 		form = nil
 	}
 
-	var imgBackFile, imgBackfullFile *domain.UploadedFile
+	var mainImageFile *domain.UploadedFile
 	if form != nil {
-		if files := form.File["img_back"]; len(files) > 0 {
+		if files := form.File["main_image"]; len(files) > 0 {
 			f, err := files[0].Open()
 			if err == nil {
 				defer f.Close()
-				imgBackFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
-			}
-		}
-		if files := form.File["img_backfull"]; len(files) > 0 {
-			f, err := files[0].Open()
-			if err == nil {
-				defer f.Close()
-				imgBackfullFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
+				mainImageFile = &domain.UploadedFile{Filename: files[0].Filename, Reader: f}
 			}
 		}
 	}
@@ -253,20 +238,19 @@ func (h *NewsHandler) UpdateNews(c *gin.Context) {
 	}
 
 	news := &domain.News{
-		ID:          id,
-		DateTime:    payload.Datetime,
-		TitleRu:     payload.TitleRu,
-		TitleEn:     payload.TitleEn,
-		Dir:         payload.Dir,
-		ImgBack:     payload.ImgBack,
-		ImgBackfull: payload.ImgBackfull,
-		TextRu:      payload.TextRu,
-		TextEn:      payload.TextEn,
-		Images:      payload.Images,
-		Videos:      payload.Videos,
+		ID:       id,
+		DateTime: payload.Datetime,
+		TitleRu:  payload.TitleRu,
+		TitleEn:  payload.TitleEn,
+		Dir:      payload.Dir,
+		MainImage:  payload.MainImage,
+		TextRu:   payload.TextRu,
+		TextEn:   payload.TextEn,
+		Images:   payload.Images,
+		Videos:   payload.Videos,
 	}
 
-	if err := h.newsService.UpdateNews(c.Request.Context(), news, imgBackFile, imgBackfullFile, imageFiles, videoFiles); err != nil {
+	if err := h.newsService.UpdateNews(c.Request.Context(), news, mainImageFile, imageFiles, videoFiles); err != nil {
 		slog.Error("UpdateNews: failed", "news_id", id, "error", err)
 		apiErr := apperror.FromError(err)
 		c.JSON(apiErr.Status, apiErr)
@@ -319,16 +303,15 @@ func (h *NewsHandler) BulkDeleteNews(c *gin.Context) {
 
 func newsToResponse(n *domain.News) dto.NewsResponse {
 	return dto.NewsResponse{
-		ID:          n.ID,
-		DateTime:    n.DateTime,
-		TitleRu:     n.TitleRu,
-		TitleEn:     n.TitleEn,
-		Dir:         n.Dir,
-		ImgBack:     n.ImgBack,
-		ImgBackfull: n.ImgBackfull,
-		TextRu:      n.TextRu,
-		TextEn:      n.TextEn,
-		Images:      n.Images,
-		Videos:      n.Videos,
+		ID:       n.ID,
+		DateTime: n.DateTime,
+		TitleRu:  n.TitleRu,
+		TitleEn:  n.TitleEn,
+		Dir:      n.Dir,
+		MainImage:  n.MainImage,
+		TextRu:   n.TextRu,
+		TextEn:   n.TextEn,
+		Images:   n.Images,
+		Videos:   n.Videos,
 	}
 }

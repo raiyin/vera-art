@@ -44,7 +44,7 @@ func (s *NewsService) GetNewsByID(ctx context.Context, id string) (*domain.News,
 	return news, nil
 }
 
-func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
+func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, mainImageFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
 	if news.TitleRu == "" || news.TitleEn == "" {
 		return domain.ErrInvalidInput
 	}
@@ -56,18 +56,11 @@ func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imgBack
 	news.ID = s.generateID(news.DateTime)
 	news.Dir = s.generateDir(news.DateTime)
 
-	if imgBackFile != nil {
-		if err := s.saveFile(ctx, imgBackFile, news.Dir); err != nil {
+	if mainImageFile != nil {
+		if err := s.saveFile(ctx, mainImageFile, news.Dir); err != nil {
 			return err
 		}
-		news.ImgBack = imgBackFile.Filename
-	}
-
-	if imgBackfullFile != nil {
-		if err := s.saveFile(ctx, imgBackfullFile, news.Dir); err != nil {
-			return err
-		}
-		news.ImgBackfull = imgBackfullFile.Filename
+		news.MainImage = mainImageFile.Filename
 	}
 
 	var savedImageNames []string
@@ -103,7 +96,7 @@ func (s *NewsService) CreateNews(ctx context.Context, news *domain.News, imgBack
 	return nil
 }
 
-func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
+func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, mainImageFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error {
 	existing, err := s.newsRepo.GetByID(ctx, news.ID)
 	if err != nil {
 		slog.Error("NewsService.UpdateNews: not found", "news_id", news.ID, "error", err)
@@ -112,40 +105,22 @@ func (s *NewsService) UpdateNews(ctx context.Context, news *domain.News, imgBack
 
 	news.Dir = existing.Dir
 
-	if imgBackFile != nil {
-		if existing.ImgBack != "" {
-			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBack))
+	if mainImageFile != nil {
+		if existing.MainImage != "" {
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.MainImage))
 		}
-		if err := s.saveFile(ctx, imgBackFile, existing.Dir); err != nil {
+		if err := s.saveFile(ctx, mainImageFile, existing.Dir); err != nil {
 			return err
 		}
-		news.ImgBack = imgBackFile.Filename
-	} else if news.ImgBack == "" {
+		news.MainImage = mainImageFile.Filename
+	} else if news.MainImage == "" {
 		// The user removed the image, delete the stored file as well.
-		if existing.ImgBack != "" {
-			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBack))
+		if existing.MainImage != "" {
+			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.MainImage))
 		}
-		news.ImgBack = ""
+		news.MainImage = ""
 	} else {
-		news.ImgBack = existing.ImgBack
-	}
-
-	if imgBackfullFile != nil {
-		if existing.ImgBackfull != "" {
-			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBackfull))
-		}
-		if err := s.saveFile(ctx, imgBackfullFile, existing.Dir); err != nil {
-			return err
-		}
-		news.ImgBackfull = imgBackfullFile.Filename
-	} else if news.ImgBackfull == "" {
-		// The user removed the image, delete the stored file as well.
-		if existing.ImgBackfull != "" {
-			_ = s.fileRepo.Delete(ctx, s.fullPath(existing.Dir, existing.ImgBackfull))
-		}
-		news.ImgBackfull = ""
-	} else {
-		news.ImgBackfull = existing.ImgBackfull
+		news.MainImage = existing.MainImage
 	}
 
 	// Only the files the user left on the preview must stay on the server.

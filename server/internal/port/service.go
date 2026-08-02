@@ -65,8 +65,8 @@ type GalleryService interface {
 type NewsService interface {
 	GetNews(ctx context.Context, filter domain.NewsFilter) ([]domain.News, int, error)
 	GetNewsByID(ctx context.Context, id string) (*domain.News, error)
-	CreateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
-	UpdateNews(ctx context.Context, news *domain.News, imgBackFile, imgBackfullFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
+	CreateNews(ctx context.Context, news *domain.News, mainImageFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
+	UpdateNews(ctx context.Context, news *domain.News, mainImageFile *domain.UploadedFile, imageFiles, videoFiles []domain.UploadedFile) error
 	DeleteNews(ctx context.Context, id string) error
 	BulkDeleteNews(ctx context.Context, ids []string) error
 }

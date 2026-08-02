@@ -26,8 +26,7 @@ type NewsForm = Omit<NewsDesc, 'id'>;
 const news = reactive<NewsForm>({
     title_en: '',
     title_ru: '',
-    img_back: '',
-    img_backfull: '',
+    main_image: '',
     images: [] as string[],
     videos: [] as string[],
     datetime: '',
@@ -39,8 +38,7 @@ const news = reactive<NewsForm>({
 const images = ref<File[]>([],);
 const videos = ref<File[]>([],);
 
-const img_back_preview = ref<PreviewItem | null>(null,);
-const img_backfull_preview = ref<PreviewItem | null>(null,);
+const main_image_preview = ref<PreviewItem | null>(null,);
 
 const previewImages = ref<PreviewItem[]>([],);
 const previewVideos = ref<string[]>([],);
@@ -53,16 +51,14 @@ const isDragOver = ref(false,);
 const errors = reactive<Record<string, string>>({
     title_ru: '',
     title_en: '',
-    img_back: '',
-    img_backfull: '',
+    main_image: '',
     images: '',
     text_ru: '',
     text_en: '',
 });
 
 // Template refs
-const backFullInput = ref<HTMLInputElement | null>(null,);
-const backInput = ref<HTMLInputElement | null>(null,);
+const mainImgInput = ref<HTMLInputElement | null>(null,);
 const imagesInput = ref<HTMLInputElement | null>(null,);
 const videosInput = ref<HTMLInputElement | null>(null,);
 
@@ -71,8 +67,7 @@ const isFormValid = computed(() => {
     return (
         news.title_ru.trim() !== ''
             && news.title_en.trim() !== ''
-        && img_back_preview.value !== null
-            && img_backfull_preview.value !== null
+        && main_image_preview.value !== null
         && previewImages.value.length > 0
             && news.text_ru.trim() !== ''
         && news.text_en.trim() !== ''
@@ -88,17 +83,14 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos',) {
+function handleDrop(event: DragEvent, target: 'main' | 'images' | 'videos',) {
     isDragOver.value = false;
     const files = Array.from(event.dataTransfer?.files || [],);
     if (files.length === 0) return;
 
     switch (target) {
-        case 'backFull':
-            handleBackFullImageDrop(files[0]!,);
-            break;
-        case 'back':
-            handleBackImageDrop(files[0]!,);
+        case 'main':
+            handleMainImageDrop(files[0]!,);
             break;
         case 'images':
             handleImagesDrop(files,);
@@ -109,7 +101,7 @@ function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | '
     }
 }
 
-function handleBackImageDrop(file: File,) {
+function handleMainImageDrop(file: File,) {
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
     if (!validTypes.includes(file.type,)) {
         fileError.value = t('admin_news_form.errors.invalid_image_type',);
@@ -122,38 +114,12 @@ function handleBackImageDrop(file: File,) {
         return;
     }
 
-    news.img_back = file.name;
+    news.main_image = file.name;
     fileError.value = null;
 
     const reader = new FileReader();
     reader.onload = (e,) => {
-        img_back_preview.value = {
-            file,
-            preview: e.target?.result as string,
-        };
-    };
-    reader.readAsDataURL(file,);
-}
-
-function handleBackFullImageDrop(file: File,) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
-    if (!validTypes.includes(file.type,)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type',);
-        return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size',);
-        return;
-    }
-
-    news.img_backfull = file.name;
-    fileError.value = null;
-
-    const reader = new FileReader();
-    reader.onload = (e,) => {
-        img_backfull_preview.value = {
+        main_image_preview.value = {
             file,
             preview: e.target?.result as string,
         };
@@ -229,11 +195,8 @@ function handleVideosDrop(files: File[],) {
 function triggerFileInput(refName: string,) {
     let input: HTMLInputElement | null = null;
     switch (refName) {
-        case 'backFullInput':
-            input = backFullInput.value;
-            break;
-        case 'backInput':
-            input = backInput.value;
+        case 'mainImgInput':
+            input = mainImgInput.value;
             break;
         case 'imagesInput':
             input = imagesInput.value;
@@ -247,7 +210,7 @@ function triggerFileInput(refName: string,) {
     }
 }
 
-function handleBackImageSelected(event: Event,) {
+function handleMainImageSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const selectedImage = target.files?.[0];
 
@@ -268,12 +231,12 @@ function handleBackImageSelected(event: Event,) {
     }
 
     // Store file object for form submission, but keep string for type compatibility
-    news.img_back = selectedImage.name;
+    news.main_image = selectedImage.name;
     fileError.value = null;
 
     const reader = new FileReader();
     reader.onload = (e,) => {
-        img_back_preview.value = {
+        main_image_preview.value = {
             file: selectedImage,
             preview: e.target?.result as string,
         };
@@ -281,48 +244,9 @@ function handleBackImageSelected(event: Event,) {
     reader.readAsDataURL(selectedImage,);
 }
 
-function removeBackImage() {
-    img_back_preview.value = null;
-    news.img_back = '';
-}
-
-function handleBackFullImageSelected(event: Event,) {
-    const target = event.target as HTMLInputElement;
-    const selectedImage = target.files?.[0];
-
-    if (!selectedImage) return;
-
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
-    if (!validTypes.includes(selectedImage.type,)) {
-        fileError.value = t('admin_news_form.errors.invalid_image_type',);
-        return;
-    }
-
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    if (selectedImage.size > maxSize) {
-        fileError.value = t('admin_news_form.errors.image_size',);
-        return;
-    }
-
-    // Store file name for type compatibility, but keep file object for submission
-    news.img_backfull = selectedImage.name;
-    fileError.value = null;
-
-    const reader = new FileReader();
-    reader.onload = (e,) => {
-        img_backfull_preview.value = {
-            file: selectedImage,
-            preview: e.target?.result as string,
-        };
-    };
-    reader.readAsDataURL(selectedImage,);
-}
-
-function removeBackFullImage() {
-    img_backfull_preview.value = null;
-    news.img_backfull = '';
+function removeMainImage() {
+    main_image_preview.value = null;
+    news.main_image = '';
 }
 
 function handleImagesSelected(event: Event,) {
@@ -469,18 +393,11 @@ function validateField(fieldName: string,) {
                 errors.title_en = '';
             }
             break;
-        case 'img_back':
-            if (!img_back_preview.value || !news.img_back) {
-                errors.img_back = t('admin_news_form.errors.preview_image_required',);
+        case 'main_image':
+            if (!main_image_preview.value || !news.main_image) {
+                errors.main_image = t('admin_news_form.errors.main_image_required',);
             } else {
-                errors.img_back = '';
-            }
-            break;
-        case 'img_backfull':
-            if (!img_backfull_preview.value || !news.img_backfull) {
-                errors.img_backfull = t('admin_news_form.errors.main_image_required',);
-            } else {
-                errors.img_backfull = '';
+                errors.main_image = '';
             }
             break;
         case 'images':
@@ -510,8 +427,7 @@ function validateField(fieldName: string,) {
 function validateForm() {
     validateField('title_ru',);
     validateField('title_en',);
-    validateField('img_back',);
-    validateField('img_backfull',);
+    validateField('main_image',);
     validateField('images',);
     validateField('text_ru',);
     validateField('text_en',);
@@ -537,13 +453,9 @@ async function submitForm() {
         // Формируем данные для отправки
         const formData = new FormData();
 
-        // Append main images
-        if (img_back_preview.value?.file) {
-            formData.append('img_back', img_back_preview.value.file,);
-        }
-
-        if (img_backfull_preview.value?.file) {
-            formData.append('img_backfull', img_backfull_preview.value.file,);
+        // Append main image
+        if (main_image_preview.value?.file) {
+            formData.append('main_image', main_image_preview.value.file,);
         }
         // Add additional images and videos
         images.value.forEach((image,) => {
@@ -612,8 +524,7 @@ function resetForm() {
     news.title_en = '';
     news.title_ru = '';
     news.dir = '';
-    news.img_back = '';
-    news.img_backfull = '';
+    news.main_image = '';
     news.text_en = '';
     news.text_ru = '';
     news.images = [];
@@ -623,12 +534,10 @@ function resetForm() {
     videos.value = [];
     previewImages.value = [];
     previewVideos.value = [];
-    img_back_preview.value = null;
-    img_backfull_preview.value = null;
+    main_image_preview.value = null;
 
     // Сброс input файлов
-    if (backFullInput.value) backFullInput.value.value = '';
-    if (backInput.value) backInput.value.value = '';
+    if (mainImgInput.value) mainImgInput.value.value = '';
     if (imagesInput.value) imagesInput.value.value = '';
     if (videosInput.value) videosInput.value.value = '';
 
@@ -671,15 +580,15 @@ function resetForm() {
                         :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'backFull',)"
-                        @click="triggerFileInput('backFullInput',)"
+                        @drop.prevent="handleDrop($event, 'main',)"
+                        @click="triggerFileInput('mainImgInput',)"
                     >
                         <input
-                            ref="backFullInput"
+                            ref="mainImgInput"
                             type="file"
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            @change="handleBackFullImageSelected"
+                            @change="handleMainImageSelected"
                         >
                         <div class="file-drop-content">
                             <svg
@@ -704,18 +613,18 @@ function resetForm() {
                         </div>
                     </div>
                     <div
-                        v-if="errors.img_backfull"
+                        v-if="errors.main_image"
                         class="error-message"
                     >
-                        {{ errors.img_backfull }}
+                        {{ errors.main_image }}
                     </div>
                     <div
-                        v-if="img_backfull_preview"
+                        v-if="main_image_preview"
                         class="preview-container"
                     >
                         <div class="image-preview">
                             <img
-                                :src="img_backfull_preview.preview"
+                                :src="main_image_preview.preview"
                                 class="preview-image"
                                 :alt="$t('admin_news_form.labels.main_image',)"
                             >
@@ -725,80 +634,7 @@ function resetForm() {
                                 :aria-label="
                                     $t('admin_news_form.aria_labels.remove_main_image',)
                                 "
-                                @click="removeBackFullImage"
-                            >
-                                &times;
-                            </UButton>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Превью изображение новости -->
-                <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_news_form.labels.preview_image',) }}
-                        <span class="required">*</span>
-                    </label>
-                    <div
-                        class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver, }"
-                        @dragover.prevent="handleDragOver"
-                        @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'back',)"
-                        @click="triggerFileInput('backInput',)"
-                    >
-                        <input
-                            ref="backInput"
-                            type="file"
-                            accept="image/jpg,image/jpeg,image/png"
-                            class="file-input"
-                            @change="handleBackImageSelected"
-                        >
-                        <div class="file-drop-content">
-                            <svg
-                                class="upload-icon"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                />
-                            </svg>
-                            <p class="upload-text">
-                                {{ $t('admin_news_form.labels.drag_drop_single',) }}
-                            </p>
-                            <p class="upload-hint">
-                                {{ $t('admin_news_form.hints.image_formats',) }}
-                            </p>
-                        </div>
-                    </div>
-                    <div
-                        v-if="errors.img_back"
-                        class="error-message"
-                    >
-                        {{ errors.img_back }}
-                    </div>
-                    <div
-                        v-if="img_back_preview"
-                        class="preview-container"
-                    >
-                        <div class="image-preview">
-                            <img
-                                :src="img_back_preview.preview"
-                                class="preview-image"
-                                :alt="$t('admin_news_form.labels.preview_image',)"
-                            >
-                            <UButton
-                                type="button"
-                                class="remove-btn"
-                                :aria-label="
-                                    $t('admin_news_form.aria_labels.remove_preview_image',)
-                                "
-                                @click="removeBackImage"
+                                @click="removeMainImage"
                             >
                                 &times;
                             </UButton>

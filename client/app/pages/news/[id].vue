@@ -71,8 +71,8 @@
 
     const resolvedImagePath = computed<string | undefined>(() => {
         const item = currentNewsItem.value;
-        if (!item?.img_backfull) return undefined;
-        return item.dir + item.img_backfull;
+        if (!item?.main_image) return undefined;
+        return item.dir + item.main_image;
     });
 
     const galleryImages = computed<string[]>(() => {
@@ -261,7 +261,7 @@
                         class="main-image-container rounded-2xl overflow-hidden shadow-lg min-h-75 md:min-h-100"
                     >
                     <div
-                        v-if="mainImageError || !currentNewsItem.img_backfull"
+                        v-if="mainImageError || !currentNewsItem.main_image"
                         class="image-error-state"
                         >
                             <svg

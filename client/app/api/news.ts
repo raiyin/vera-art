@@ -6,8 +6,7 @@ export interface NewsItem {
     title_ru: string
     title_en: string
     dir: string
-    img_back: string
-    img_backfull: string
+    main_image: string
     text_ru: string
     text_en: string
     images: string[]

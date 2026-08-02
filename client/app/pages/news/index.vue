@@ -11,8 +11,7 @@
         title_ru: string
         title_en: string
         dir: string
-        img_back: string
-        img_backfull: string
+        main_image: string
         text_ru: string
         text_en: string
         images: string[]
@@ -23,7 +22,7 @@
     const newsToDelete = ref<NewsItem | null>(null,);
     const deleteError = ref('',);
 
-    const { locale, } = useI18n();
+    const { locale, t, } = useI18n();
     const router = useRouter();
     const authStore = useAuthStore();
 
@@ -36,11 +35,13 @@
     const observer = ref<IntersectionObserver | null>(null,);
     const observerElement = ref<HTMLElement | null>(null,);
     const deletingId = ref<string | null>(null,);
+    const error = ref('',);
 
     const loadNews = async (initial = false,) => {
         if (loading.value || (!hasMore.value && !initial)) return;
 
         try {
+            error.value = '';
             loading.value = true;
             const currentPage = initial ? 1 : page.value;
             const { data, } = await getHttpClient().get<{ news: NewsItem[], total: number }>(
@@ -68,6 +69,9 @@
             }
         } catch (e) {
             console.error('Error fetching news', e,);
+            if (news.value.length === 0) {
+                error.value = t('news.error.loadFailed',);
+            }
         } finally {
             loading.value = false;
             initialLoading.value = false;
@@ -94,7 +98,7 @@
     };
 
     const getImageUrl = (newsItem: NewsItem,) => {
-        return newsItem.dir + newsItem.img_back;
+        return newsItem.dir + newsItem.main_image;
     };
 
     const navigateToNews = (id: string,) => {
@@ -319,6 +323,45 @@
                 </div>
             </div>
 
+            <!-- Error State (initial load failed) -->
+            <div
+                v-if="error && !initialLoading && !loading && news.length === 0"
+                class="mt-12 text-center py-12"
+            >
+                <div
+                    class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 mb-6"
+                >
+                    <svg
+                        class="w-10 h-10 text-red-500"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                    {{ $t('news.error.title',) }}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-300 max-w-md mx-auto">
+                    {{ error }}
+                </p>
+                <UButton
+                    class="mt-6"
+                    color="primary"
+                    variant="solid"
+                    @click="loadNews(true)"
+                >
+                    {{ $t('news.error.retryButton',) }}
+                </UButton>
+            </div>
+
             <!-- Skeleton Loading State (for load more) -->
             <div
                 v-if="loading && !initialLoading"
@@ -370,7 +413,7 @@
 
             <!-- No News Message (only after initial load is complete) -->
             <div
-                v-if="!initialLoading && !loading && news.length === 0"
+                v-if="!initialLoading && !loading && news.length === 0 && !error"
                 class="mt-12 text-center py-12"
             >
                 <div

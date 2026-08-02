@@ -11,7 +11,7 @@
         newsObject: {
             id: string
             dir: string
-            img_back: string
+            main_image: string
             title_ru: string
             title_en: string
             datetime: string
@@ -33,7 +33,7 @@
 
     // Computed properties
     const newsId = computed(() => '/news/' + props.newsObject.id,);
-    const bgImage = computed(() => props.newsObject.dir + props.newsObject.img_back,);
+    const bgImage = computed(() => props.newsObject.dir + props.newsObject.main_image,);
 
     // Methods
     const onImgLoad = () => {

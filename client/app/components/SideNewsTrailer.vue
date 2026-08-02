@@ -20,7 +20,7 @@ const isLoaded = ref(false,);
 
 // Computed property
 const imageSrc = computed(
-    () => props.sideNewsObject.dir + props.sideNewsObject.img_back,
+    () => props.sideNewsObject.dir + props.sideNewsObject.main_image,
     );
 
 // Methods

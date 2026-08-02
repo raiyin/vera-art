@@ -201,7 +201,7 @@
                             <td class="admin-page__cell">
                                 <div class="admin-page__preview">
                                     <img
-                                        v-if="item.img_back"
+                                        v-if="item.main_image"
                                         :src="getImageUrl(item,)"
                                         alt="preview"
                                         class="admin-page__thumb"
@@ -407,8 +407,8 @@
     }
 
     function getImageUrl(item: AdminNewsItem,): string {
-        if (item.img_back) {
-            return `${item.dir}${item.img_back}`;
+        if (item.main_image) {
+            return `${item.dir}${item.main_image}`;
         }
         if (item.images.length > 0) {
             return `${item.dir}${item.images[0]}`;

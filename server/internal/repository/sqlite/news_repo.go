@@ -17,7 +17,7 @@ func NewNewsRepository(db *sql.DB) *NewsRepository {
 	return &NewsRepository{db: db}
 }
 
-const newsColumns = `id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos`
+const newsColumns = `id, datetime, title_ru, title_en, dir, main_image, text_ru, text_en, images, videos`
 
 func (r *NewsRepository) scanNews(scanner interface {
 	Scan(dest ...interface{}) error
@@ -27,7 +27,7 @@ func (r *NewsRepository) scanNews(scanner interface {
 
 	err := scanner.Scan(
 		&n.ID, &n.DateTime, &n.TitleRu, &n.TitleEn,
-		&n.Dir, &n.ImgBack, &n.ImgBackfull,
+		&n.Dir, &n.MainImage,
 		&n.TextRu, &n.TextEn,
 		&imagesStr, &videosStr,
 	)
@@ -53,12 +53,12 @@ func (r *NewsRepository) scanNews(scanner interface {
 }
 
 func (r *NewsRepository) Create(ctx context.Context, news *domain.News) error {
-	query := `INSERT INTO news (id, datetime, title_ru, title_en, dir, img_back, img_backfull, text_ru, text_en, images, videos)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO news (id, datetime, title_ru, title_en, dir, main_image, text_ru, text_en, images, videos)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	_, err := r.db.ExecContext(ctx, query,
 		news.ID, news.DateTime, news.TitleRu, news.TitleEn,
-		news.Dir, news.ImgBack, news.ImgBackfull,
+		news.Dir, news.MainImage,
 		news.TextRu, news.TextEn,
 		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),
 	)
@@ -134,11 +134,11 @@ func (r *NewsRepository) List(ctx context.Context, filter domain.NewsFilter) ([]
 }
 
 func (r *NewsRepository) Update(ctx context.Context, news *domain.News) error {
-	query := `UPDATE news SET datetime=?, title_ru=?, title_en=?, dir=?, img_back=?, img_backfull=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
+	query := `UPDATE news SET datetime=?, title_ru=?, title_en=?, dir=?, main_image=?, text_ru=?, text_en=?, images=?, videos=? WHERE id=?`
 
 	_, err := r.db.ExecContext(ctx, query,
 		news.DateTime, news.TitleRu, news.TitleEn,
-		news.Dir, news.ImgBack, news.ImgBackfull,
+		news.Dir, news.MainImage,
 		news.TextRu, news.TextEn,
 		joinOrNull(news.Images, ";"), joinOrNull(news.Videos, ";"),
 		news.ID,

@@ -72,12 +72,11 @@ func newTestNewsService(newsRepo *mockNewsRepo, fileRepo *trackingFileRepo) *New
 
 func existingNews() *domain.News {
 	return &domain.News{
-		ID:          "20240101",
-		Dir:         "/content/news/2024/01/01/",
-		ImgBack:     "back.jpg",
-		ImgBackfull: "back_full.jpg",
-		Images:      []string{"1.jpg", "2.jpg", "3.jpg"},
-		Videos:      []string{"clip1", "clip2"},
+		ID:      "20240101",
+		Dir:     "/content/news/2024/01/01/",
+		MainImage: "main.jpg",
+		Images:  []string{"1.jpg", "2.jpg", "3.jpg"},
+		Videos:  []string{"clip1", "clip2"},
 	}
 }
 
@@ -88,14 +87,13 @@ func TestUpdateNews_RemovesFilesNotLeftOnPreview(t *testing.T) {
 
 	// User removed "2.jpg" and "clip1" from the preview.
 	news := &domain.News{
-		ID:          "20240101",
-		ImgBack:     "back.jpg",
-		ImgBackfull: "back_full.jpg",
-		Images:      []string{"1.jpg", "3.jpg"},
-		Videos:      []string{"clip2"},
+		ID:      "20240101",
+		MainImage: "main.jpg",
+		Images:  []string{"1.jpg", "3.jpg"},
+		Videos:  []string{"clip2"},
 	}
 
-	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil, nil); err != nil {
+	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil); err != nil {
 		t.Fatalf("UpdateNews failed: %v", err)
 	}
 
@@ -127,14 +125,13 @@ func TestUpdateNews_KeepsExistingAndAddsNew(t *testing.T) {
 	// User kept "1.jpg", removed "2.jpg"/"3.jpg" and added "4.jpg".
 	newImage := domain.UploadedFile{Filename: "4.jpg", Reader: strings.NewReader("img")}
 	news := &domain.News{
-		ID:          "20240101",
-		ImgBack:     "back.jpg",
-		ImgBackfull: "back_full.jpg",
-		Images:      []string{"1.jpg", "4.jpg"},
-		Videos:      []string{"clip1", "clip2"},
+		ID:      "20240101",
+		MainImage: "main.jpg",
+		Images:  []string{"1.jpg", "4.jpg"},
+		Videos:  []string{"clip1", "clip2"},
 	}
 
-	if err := svc.UpdateNews(context.Background(), news, nil, nil, []domain.UploadedFile{newImage}, nil); err != nil {
+	if err := svc.UpdateNews(context.Background(), news, nil, []domain.UploadedFile{newImage}, nil); err != nil {
 		t.Fatalf("UpdateNews failed: %v", err)
 	}
 
@@ -162,27 +159,24 @@ func TestUpdateNews_RemovesMainImage(t *testing.T) {
 	fileRepo := &trackingFileRepo{}
 	svc := newTestNewsService(newsRepo, fileRepo)
 
-	// User removed img_back and img_backfull.
+	// User removed the main image.
 	news := &domain.News{
-		ID:          "20240101",
-		ImgBack:     "",
-		ImgBackfull: "",
-		Images:      []string{"1.jpg", "2.jpg", "3.jpg"},
-		Videos:      []string{"clip1", "clip2"},
+		ID:      "20240101",
+		MainImage: "",
+		Images:  []string{"1.jpg", "2.jpg", "3.jpg"},
+		Videos:  []string{"clip1", "clip2"},
 	}
 
-	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil, nil); err != nil {
+	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil); err != nil {
 		t.Fatalf("UpdateNews failed: %v", err)
 	}
 
-	if newsRepo.update.ImgBack != "" || newsRepo.update.ImgBackfull != "" {
-		t.Errorf("ImgBack = %q, ImgBackfull = %q, want both empty", newsRepo.update.ImgBack, newsRepo.update.ImgBackfull)
+	if newsRepo.update.MainImage != "" {
+		t.Errorf("MainImage = %q, want empty", newsRepo.update.MainImage)
 	}
 
-	for _, f := range []string{"/data/news/content/news/2024/01/01/back.jpg", "/data/news/content/news/2024/01/01/back_full.jpg"} {
-		if !contains(fileRepo.deleted, f) {
-			t.Errorf("expected %s to be deleted, deleted = %v", f, fileRepo.deleted)
-		}
+	if !contains(fileRepo.deleted, "/data/news/content/news/2024/01/01/main.jpg") {
+		t.Errorf("expected main.jpg to be deleted, deleted = %v", fileRepo.deleted)
 	}
 }
 
@@ -193,12 +187,11 @@ func TestUpdateNews_KeepsEverythingWhenPayloadNil(t *testing.T) {
 
 	// Payload does not include images/videos fields (nil) -> keep existing.
 	news := &domain.News{
-		ID:          "20240101",
-		ImgBack:     "back.jpg",
-		ImgBackfull: "back_full.jpg",
+		ID:      "20240101",
+		MainImage: "main.jpg",
 	}
 
-	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil, nil); err != nil {
+	if err := svc.UpdateNews(context.Background(), news, nil, nil, nil); err != nil {
 		t.Fatalf("UpdateNews failed: %v", err)
 	}
 

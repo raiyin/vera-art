@@ -73,6 +73,11 @@
         "noNews": "No news yet",
         "noNewsDescription": "Check back later for updates, exhibitions, and new creative projects.",
         "viewAllNews": "View All News",
+        "error": {
+            "title": "Error Loading News",
+            "loadFailed": "Failed to load news. Please try again later.",
+            "retryButton": "Try Again"
+        },
         "detail": {
             "error": {
                 "title": "Error Loading News",
