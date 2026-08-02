@@ -414,10 +414,9 @@
                 >
                     <div class="prose prose-lg dark:prose-invert max-w-none">
                         <div
+                            v-html="locale === 'ru' ? currentNewsItem.text_ru : currentNewsItem.text_en"
                             class="whitespace-pre-line text-gray-700 dark:text-gray-300 leading-relaxed text-justify"
-                        >
-                            {{ locale === 'ru' ? currentNewsItem.text_ru : currentNewsItem.text_en }}
-                        </div>
+                        ></div>
                     </div>
                 </div>
 
