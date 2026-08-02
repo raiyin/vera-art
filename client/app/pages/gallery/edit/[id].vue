@@ -185,15 +185,14 @@
                                 :key="material.id"
                                 class="option-item"
                             >
-                                <UInput
+                                <input
                                     :id="'material-' + material.id"
                                     type="checkbox"
+                                    class="material-checkbox"
                                     :value="material.id"
-                                    :model-value="work.material_ids.includes(material.id,)"
-                                    @update:model-value="
-                                        (checked,) => toggleMaterial(material.id, checked,)
-                                    "
-                                />
+                                    :checked="work.material_ids.includes(material.id,)"
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
                                 <label :for="'material-' + material.id">
                                     {{
                                         $i18n.locale === 'ru'
@@ -742,6 +741,10 @@
         }
     }
 
+    function onMaterialChange(materialId: number, event: Event,) {
+        toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+    }
+
     function resetForm() {
         Object.assign(work, { ...originalWork, },);
         Object.keys(errors,).forEach((key,) => {
@@ -1048,8 +1051,22 @@ select:has(option.placeholder:checked) {
     background-color: #334155;
 }
 
-.option-item input {
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
+}
+
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
     margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .size-inputs {

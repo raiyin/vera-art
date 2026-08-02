@@ -294,17 +294,16 @@
                                 :key="material.id"
                                 class="option-item"
                             >
-                                <UInput
+                                <input
                                     :id="'material-' + material.id"
                                     type="checkbox"
+                                    class="material-checkbox"
                                     :value="material.id"
-                                    :model-value="
+                                    :checked="
                                         sale.materials_ids.includes(material.id,)
                                     "
-                                    @update:model-value="
-                                        (checked,) => toggleMaterial(material.id, checked,)
-                                    "
-                                />
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
                                 <label :for="'material-' + material.id">
                                     {{
                                         $i18n.locale === 'ru'
@@ -836,6 +835,10 @@ function toggleMaterial(materialId: number, checked: boolean,) {
     }
 }
 
+function onMaterialChange(materialId: number, event: Event,) {
+    toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+}
+
 function basesToggleDropdown() {
     basesDropdownOpen.value = !basesDropdownOpen.value;
 }
@@ -1255,8 +1258,18 @@ select:has(option.placeholder:checked) {
     background-color: #f8f9fa;
 }
 
-.option-item input {
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
     margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .arrow {
@@ -1413,6 +1426,10 @@ select:has(option.placeholder:checked) {
 
 :root.dark .option-item:hover {
     background-color: #334155;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
 }
 
 :root.dark .arrow {
