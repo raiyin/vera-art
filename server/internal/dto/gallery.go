@@ -43,28 +43,31 @@ type UpdateWorkResponse struct {
 
 // CreateWorkRequest represents a create work request.
 type CreateWorkRequest struct {
-	StrID   string `json:"str_id" form:"str_id"`
-	Width   int    `json:"width" form:"width"`
-	Height  int    `json:"height" form:"height"`
-	Year    int    `json:"year" form:"year"`
-	NameRu  string `json:"name_ru" form:"name_ru" binding:"required"`
-	NameEn  string `json:"name_en" form:"name_en" binding:"required"`
-	BaseID  int64  `json:"base_id" form:"base_id"`
-	DescrRu string `json:"descr_ru" form:"descr_ru"`
-	DescrEn string `json:"descr_en" form:"descr_en"`
+	StrID       string  `json:"str_id" form:"str_id"`
+	Width       int     `json:"width" form:"width"`
+	Height      int     `json:"height" form:"height"`
+	Year        int     `json:"year" form:"year"`
+	NameRu      string  `json:"name_ru" form:"name_ru" binding:"required"`
+	NameEn      string  `json:"name_en" form:"name_en" binding:"required"`
+	BaseID      int64   `json:"base_id" form:"base_id"`
+	DescrRu     string  `json:"descr_ru" form:"descr_ru"`
+	DescrEn     string  `json:"descr_en" form:"descr_en"`
+	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
 }
 
 // UpdateWorkRequest represents an update work request.
 type UpdateWorkRequest struct {
-	StrID   string `json:"str_id" form:"str_id"`
-	Width   int    `json:"width" form:"width"`
-	Height  int    `json:"height" form:"height"`
-	Year    int    `json:"year" form:"year"`
-	NameRu  string `json:"name_ru" form:"name_ru"`
-	NameEn  string `json:"name_en" form:"name_en"`
-	BaseID  int64  `json:"base_id" form:"base_id"`
-	DescrRu string `json:"descr_ru" form:"descr_ru"`
-	DescrEn string `json:"descr_en" form:"descr_en"`
+	StrID       string   `json:"str_id" form:"str_id"`
+	Width       int      `json:"width" form:"width"`
+	Height      int      `json:"height" form:"height"`
+	Year        int      `json:"year" form:"year"`
+	NameRu      string   `json:"name_ru" form:"name_ru"`
+	NameEn      string   `json:"name_en" form:"name_en"`
+	BaseID      int64    `json:"base_id" form:"base_id"`
+	DescrRu     string   `json:"descr_ru" form:"descr_ru"`
+	DescrEn     string   `json:"descr_en" form:"descr_en"`
+	MaterialIDs []int64  `json:"material_ids" form:"material_ids"`
+	Images      []string `json:"images" form:"images"`
 }
 
 // SplitImages splits a semicolon-separated images string into a slice.

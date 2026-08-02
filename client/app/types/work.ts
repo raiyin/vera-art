@@ -46,6 +46,7 @@ export interface CreateWorkDto {
     base_id: number
     descr_ru: string
     descr_en: string
+    material_ids: number[]
 }
 
 export interface UpdateWorkResponse {
@@ -73,6 +74,8 @@ export interface UpdateWorkRequest {
     base_id?: number
     descr_ru: string
     descr_en: string
+    material_ids?: number[]
+    images?: string[]
 }
 
 // ─── Sale DTOs ──────────────────────────────────────────────────────

@@ -211,4 +211,56 @@ func main() {
 }
 
 func runMigrations(db *sql.DB) {
+	// Align the sales table with the schema expected by the code.
+	// Older databases used `title` (and `old_price`); the code now expects
+	// `name_ru`, `name_en` and `sale_path`.
+	var nameRuExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'name_ru'").Scan(&nameRuExists); err == nil && nameRuExists == 0 {
+		if _, err := db.Exec("ALTER TABLE sales ADD COLUMN name_ru TEXT NOT NULL DEFAULT ''"); err != nil {
+			slog.Warn("Migration (add name_ru to sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (add name_ru to sales): column added successfully")
+			if _, err := db.Exec("UPDATE sales SET name_ru = title WHERE title IS NOT NULL AND title != ''"); err != nil {
+				slog.Warn("Migration (populate sales name_ru from title) failed", "error", err)
+			}
+		}
+	}
+
+	var nameEnExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'name_en'").Scan(&nameEnExists); err == nil && nameEnExists == 0 {
+		if _, err := db.Exec("ALTER TABLE sales ADD COLUMN name_en TEXT NOT NULL DEFAULT ''"); err != nil {
+			slog.Warn("Migration (add name_en to sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (add name_en to sales): column added successfully")
+		}
+	}
+
+	var salePathExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'sale_path'").Scan(&salePathExists); err == nil && salePathExists == 0 {
+		if _, err := db.Exec("ALTER TABLE sales ADD COLUMN sale_path TEXT DEFAULT ''"); err != nil {
+			slog.Warn("Migration (add sale_path to sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (add sale_path to sales): column added successfully")
+		}
+	}
+
+	// Drop legacy sales columns no longer used by the code.
+	var titleExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'title'").Scan(&titleExists); err == nil && titleExists > 0 {
+		if _, err := db.Exec("ALTER TABLE sales DROP COLUMN title"); err != nil {
+			slog.Warn("Migration (drop title from sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (drop title from sales): applied successfully")
+		}
+	}
+	var oldPriceExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'old_price'").Scan(&oldPriceExists); err == nil && oldPriceExists > 0 {
+		if _, err := db.Exec("ALTER TABLE sales DROP COLUMN old_price"); err != nil {
+			slog.Warn("Migration (drop old_price from sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (drop old_price from sales): applied successfully")
+		}
+	}
+
+	slog.Info("Database migrations completed")
 }

@@ -195,15 +195,16 @@ func (h *GalleryHandler) CreateWork(c *gin.Context) {
 	}
 
 	work := &domain.Work{
-		StrID:   req.StrID,
-		Width:   req.Width,
-		Height:  req.Height,
-		Year:    req.Year,
-		NameRu:  req.NameRu,
-		NameEn:  req.NameEn,
-		BaseID:  req.BaseID,
-		DescrRu: req.DescrRu,
-		DescrEn: req.DescrEn,
+		StrID:       req.StrID,
+		Width:       req.Width,
+		Height:      req.Height,
+		Year:        req.Year,
+		NameRu:      req.NameRu,
+		NameEn:      req.NameEn,
+		BaseID:      req.BaseID,
+		DescrRu:     req.DescrRu,
+		DescrEn:     req.DescrEn,
+		MaterialIDs: req.MaterialIDs,
 	}
 
 	var files []domain.UploadedFile
@@ -261,16 +262,18 @@ func (h *GalleryHandler) UpdateWork(c *gin.Context) {
 	}
 
 	work := &domain.Work{
-		ID:      id,
-		StrID:   req.StrID,
-		Width:   req.Width,
-		Height:  req.Height,
-		Year:    req.Year,
-		NameRu:  req.NameRu,
-		NameEn:  req.NameEn,
-		BaseID:  req.BaseID,
-		DescrRu: req.DescrRu,
-		DescrEn: req.DescrEn,
+		ID:          id,
+		StrID:       req.StrID,
+		Width:       req.Width,
+		Height:      req.Height,
+		Year:        req.Year,
+		NameRu:      req.NameRu,
+		NameEn:      req.NameEn,
+		BaseID:      req.BaseID,
+		DescrRu:     req.DescrRu,
+		DescrEn:     req.DescrEn,
+		MaterialIDs: req.MaterialIDs,
+		Images:      dto.JoinImages(req.Images),
 	}
 
 	var files []domain.UploadedFile

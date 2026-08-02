@@ -85,6 +85,10 @@ func (m *mockWorkRepo) Delete(_ context.Context, id int64) error {
 	return domain.ErrNotFound
 }
 
+func (m *mockWorkRepo) SetMaterials(_ context.Context, _ int64, _ []int64) error {
+	return m.err
+}
+
 // mockSaleRepo implements port.SaleRepository.
 type mockSaleRepo struct {
 	sales []domain.Sale
@@ -462,6 +466,44 @@ func TestUpdateWorkSavesFileToDisk(t *testing.T) {
 	}
 	if got.WorkPath != "flora_fauna/" {
 		t.Errorf("WorkPath = %q, want %q", got.WorkPath, "flora_fauna/")
+	}
+}
+
+func TestUpdateWorkRemovesDeletedImages(t *testing.T) {
+	imagesDir := filepath.Join(t.TempDir(), "public")
+	fileRepo := file.NewRepository(imagesDir)
+	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, fileRepo, imagesDir, "/content/works/")
+
+	workRepo := &mockWorkRepo{}
+	workRepo.works = append(workRepo.works, domain.Work{ID: 1, StrID: "removed", WorkPath: "removed/", Images: "1.jpg;2.jpg", NameRu: "Test"})
+	svc.workRepo = workRepo
+
+	base := filepath.Join(imagesDir, "content", "works", "removed")
+	if err := os.MkdirAll(base, 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(base, "1.jpg"), []byte("data"), 0o644); err != nil {
+		t.Fatalf("write 1.jpg: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(base, "2.jpg"), []byte("data"), 0o644); err != nil {
+		t.Fatalf("write 2.jpg: %v", err)
+	}
+
+	up := domain.Work{ID: 1, StrID: "removed", NameRu: "Test", Images: "2.jpg"}
+	if err := svc.UpdateWork(context.Background(), &up, nil); err != nil {
+		t.Fatalf("UpdateWork failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(base, "1.jpg")); !os.IsNotExist(err) {
+		t.Errorf("1.jpg should be deleted, stat err: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(base, "2.jpg")); err != nil {
+		t.Errorf("2.jpg should still exist: %v", err)
+	}
+
+	got, _ := svc.GetWorkByID(context.Background(), 1)
+	if got.Images != "2.jpg" {
+		t.Errorf("Images = %q, want %q", got.Images, "2.jpg")
 	}
 }
 

@@ -470,8 +470,39 @@ func TestWorkRepoCreateAllFields(t *testing.T) {
 	}
 }
 
-func TestWorkRepoDeleteRemovesFromList(t *testing.T) {
+func TestWorkRepoSetMaterials(t *testing.T) {
 	db := setupWorkDB(t)
+	repo := NewWorkRepository(db)
+	ctx := context.Background()
+
+	w := newWork(t, repo, &domain.Work{NameRu: "Materials", NameEn: "Materials"})
+
+	if err := repo.SetMaterials(ctx, w.ID, []int64{1, 2, 3}); err != nil {
+		t.Fatalf("SetMaterials: %v", err)
+	}
+
+	got, err := repo.GetByID(ctx, w.ID)
+	if err != nil {
+		t.Fatalf("GetByID: %v", err)
+	}
+	if len(got.MaterialIDs) != 3 {
+		t.Fatalf("expected 3 material ids, got %v", got.MaterialIDs)
+	}
+
+	if err := repo.SetMaterials(ctx, w.ID, []int64{2}); err != nil {
+		t.Fatalf("SetMaterials replace: %v", err)
+	}
+
+	got, err = repo.GetByID(ctx, w.ID)
+	if err != nil {
+		t.Fatalf("GetByID after replace: %v", err)
+	}
+	if len(got.MaterialIDs) != 1 || got.MaterialIDs[0] != 2 {
+		t.Errorf("expected material ids [2], got %v", got.MaterialIDs)
+	}
+}
+
+func TestWorkRepoDeleteRemovesFromList(t *testing.T) {	db := setupWorkDB(t)
 	repo := NewWorkRepository(db)
 	ctx := context.Background()
 

@@ -161,6 +161,56 @@
                         {{ errors.base_id }}
                     </div>
                 </div>
+
+                <!-- Материалы -->
+                <div class="form-group">
+                    <label class="form-label">Материалы <span class="required">*</span></label>
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.material_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('material_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || 'Выберите материалы' }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <UInput
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    :value="material.id"
+                                    :model-value="work.material_ids.includes(material.id,)"
+                                    @update:model-value="
+                                        (checked,) => toggleMaterial(material.id, checked,)
+                                    "
+                                />
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        $i18n.locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.material_ids"
+                            class="error-message"
+                        >
+                            {{ errors.material_ids }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Описание -->
@@ -202,88 +252,84 @@
                     Изображения
                 </h2>
 
-                <!-- Текущие изображения -->
-                <div
-                    v-if="work.images.length > 0"
-                    class="form-group"
-                >
-                    <label class="form-label">Текущие изображения</label>
-                    <div class="preview-container">
-                        <div
-                            v-for="(img, idx) in work.images"
-                            :key="idx"
-                            class="image-preview"
-                        >
-                            <img
-                                :src="work.dir + img"
-                                :alt="'Image ' + (idx + 1)"
-                                class="preview-image"
-                            >
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Загрузка нового изображения -->
+                <!-- Загрузка изображений -->
                 <div class="form-group">
-                    <label class="form-label">Новое изображение</label>
+                    <label class="form-label">Изображения <span class="required">*</span></label>
                     <div
                         class="file-drop-area"
+                        :class="{ 'drag-over': isDragOver, }"
+                        @dragover.prevent="handleDragOver"
+                        @dragleave.prevent="handleDragLeave"
+                        @drop.prevent="handleDrop"
                         @click="triggerFileInput"
-                        @dragover.prevent="onDragOver"
-                        @dragleave.prevent="onDragLeave"
-                        @drop.prevent="onDrop"
                     >
                         <input
-                            ref="fileInputRef"
+                            ref="fileInput"
                             type="file"
-                            accept="image/*"
+                            multiple
+                            accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            @change="onFileSelected"
+                            @change="handleFileUpload"
                         >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
                                 xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
+                                width="24"
+                                height="24"
                                 viewBox="0 0 24 24"
+                                fill="none"
                                 stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
                             >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                <polyline points="17 8 12 3 7 8" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
                                 />
                             </svg>
                             <p class="upload-text">
-                                Нажмите или перетащите файл для загрузки
+                                Нажмите или перетащите файлы для загрузки
                             </p>
                             <p class="upload-hint">
-                                PNG, JPG до 10MB
+                                Поддерживаются форматы: JPG, JPEG, PNG (макс. 10 файлов)
                             </p>
                         </div>
                     </div>
                     <div
-                        v-if="selectedFile"
+                        v-if="fileError"
+                        class="error-message"
+                    >
+                        {{ fileError }}
+                    </div>
+                    <div
+                        v-if="previewImages.length > 0"
                         class="preview-container"
                     >
-                        <div class="image-preview">
+                        <div
+                            v-for="(image, index) in previewImages"
+                            :key="index"
+                            class="image-preview"
+                        >
                             <img
-                                :src="selectedFilePreview"
-                                alt="New image preview"
+                                :src="image.preview"
+                                :alt="`Image ${index + 1}`"
                                 class="preview-image"
                             >
-                            <button
+                            <UButton
                                 type="button"
                                 class="remove-btn"
-                                @click="selectedFile = null; selectedFilePreview = '';"
+                                :aria-label="`Удалить изображение ${index + 1}`"
+                                @click="removeImage(index,)"
                             >
-                                ×
-                            </button>
+                                &times;
+                            </UButton>
                         </div>
-                        <p class="upload-hint">
-                            {{ selectedFile.name }}
-                        </p>
                     </div>
                 </div>
             </div>
@@ -331,6 +377,14 @@
         work_path: string
         dir: string
         images: string[]
+        material_ids: number[]
+    }
+
+    interface PreviewImage {
+        file?: File
+        preview: string
+        isExisting?: boolean
+        filename?: string
     }
 
     definePageMeta({
@@ -341,6 +395,7 @@
     const toast = useToast();
     const config = useRuntimeConfig();
     const route = useRoute();
+    const { locale, } = useI18n();
     const SERVER_URL = config.public.serverUrl;
 
     const materialStore = useMaterialStore();
@@ -358,6 +413,7 @@
         work_path: '',
         dir: '',
         images: [],
+        material_ids: [],
     });
 
     const originalWork = reactive<EditWorkData>({
@@ -373,12 +429,18 @@
         work_path: '',
         dir: '',
         images: [],
+        material_ids: [],
     });
 
     const isSubmitting = ref(false,);
     const isLoading = ref(true,);
-    const selectedFile = ref<File | null>(null);
-    const selectedFilePreview = ref<string>('');
+    const files = ref<File[]>([],);
+    const previewImages = ref<PreviewImage[]>([],);
+    const imagesToDelete = ref<string[]>([],);
+    const fileError = ref<string | null>(null,);
+    const isDragOver = ref(false,);
+    const fileInput = ref<HTMLInputElement | null>(null,);
+    const materialsDropdownOpen = ref(false,);
 
     const errors = reactive<Record<string, string>>({
         name_ru: '',
@@ -387,15 +449,25 @@
         height: '',
         year: '',
         base_id: '',
+        material_ids: '',
     });
 
     const bases = computed(() => materialStore.bases,);
+    const materials = computed(() => materialStore.materials,);
 
     const baseOptions = computed(() => {
         return bases.value.map(base => ({
             label: base.name_ru,
             value: base.id,
         }),);
+    });
+
+    const selectedMaterialsDisplay = computed(() => {
+        if (work.material_ids.length === 0) return '';
+        const selectedNames = materialStore.materials
+            .filter(material => work.material_ids.includes(material.id,),)
+            .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+        return selectedNames.join(', ',);
     });
 
     const isFormValid = computed(() => {
@@ -407,6 +479,8 @@
             && (work.year ?? 0) >= 2000
         && (work.year ?? 0) <= new Date().getFullYear()
             && (work.base_id ?? 0) > 0
+            && work.material_ids.length > 0
+            && previewImages.value.length > 0
         );
     });
 
@@ -427,6 +501,12 @@
             work.work_path = data.work_path ?? '';
             work.dir = data.dir ?? '';
             work.images = data.images ?? [];
+            work.material_ids = data.material_ids ?? [];
+            previewImages.value = (data.images ?? []).map((filename: string,) => ({
+                preview: `${SERVER_URL}${data.dir}${filename}`,
+                isExisting: true,
+                filename,
+            }),);
             Object.assign(originalWork, { ...work, },);
             isLoading.value = false;
         } catch (error) {
@@ -466,6 +546,9 @@
     case 'base_id':
         errors.base_id = (work.base_id ?? 0) <= 0 ? 'Пожалуйста, выберите основу' : '';
         break;
+    case 'material_ids':
+        errors.material_ids = work.material_ids.length === 0 ? 'Пожалуйста, выберите хотя бы один материал' : '';
+        break;
         }
     }
 
@@ -476,7 +559,13 @@
         validateField('height',);
         validateField('year',);
         validateField('base_id',);
-        return Object.values(errors,).every(error => error === '',);
+        validateField('material_ids',);
+        if (previewImages.value.length === 0) {
+            fileError.value = 'Добавьте хотя бы одно изображение';
+        } else {
+            fileError.value = null;
+        }
+        return Object.values(errors,).every(error => error === '',) && fileError.value === null;
     }
 
     async function submitForm() {
@@ -500,9 +589,20 @@
             formData.append('base_id', String(work.base_id));
             formData.append('descr_ru', work.descr_ru);
             formData.append('descr_en', work.descr_en);
-            if (selectedFile.value) {
-                formData.append('image', selectedFile.value);
-            }
+            const keptImages = previewImages.value
+                .filter(image => image.isExisting,)
+                .map(image => image.filename as string,);
+            keptImages.forEach((filename,) => {
+                formData.append('images', filename,);
+            });
+            previewImages.value
+                .filter(image => !image.isExisting && image.file,)
+                .forEach(image => {
+                    formData.append('image', image.file as File,);
+                },);
+            work.material_ids.forEach((materialId,) => {
+                formData.append('material_ids', String(materialId),);
+            });
 
             const response = await axios.put(SERVER_URL + 'works/' + id, formData, {
                 headers: {
@@ -516,8 +616,26 @@
                 work.dir = resData.dir ?? work.dir;
                 work.images = resData.images ?? work.images;
                 work.str_id = resData.str_id ?? work.str_id;
-                selectedFile.value = null;
-                selectedFilePreview.value = '';
+                const keptFilenames = previewImages.value
+                    .filter(image => image.isExisting,)
+                    .map(image => image.filename as string,);
+                const addedFiles = previewImages.value
+                    .filter(image => !image.isExisting && image.file,)
+                    .map(image => image.file as File,);
+                files.value = addedFiles;
+                previewImages.value = [
+                    ...keptFilenames.map(filename => ({
+                        preview: `${SERVER_URL}${work.dir}${filename}`,
+                        isExisting: true,
+                        filename,
+                    }),),
+                    ...addedFiles.map(file => ({
+                        file,
+                        preview: URL.createObjectURL(file),
+                        isExisting: false,
+                    }),),
+                ];
+                imagesToDelete.value = [];
                 Object.assign(originalWork, { ...work, },);
                 toast.add({
                     title: 'Успешно!',
@@ -553,44 +671,79 @@
         }
     }
 
-    const fileInputRef = ref<HTMLInputElement | null>(null);
-
     function triggerFileInput() {
-        fileInputRef.value?.click();
+        fileInput.value?.click();
     }
 
-    function onDragOver(e: DragEvent) {
-        const target = e.currentTarget as HTMLElement;
-        target.classList.add('drag-over');
+    function handleDragOver() {
+        isDragOver.value = true;
     }
 
-    function onDragLeave(e: DragEvent) {
-        const target = e.currentTarget as HTMLElement;
-        target.classList.remove('drag-over');
+    function handleDragLeave() {
+        isDragOver.value = false;
     }
 
-    function onDrop(e: DragEvent) {
-        const target = e.currentTarget as HTMLElement;
-        target.classList.remove('drag-over');
-        const file = e.dataTransfer?.files?.[0];
-        if (file && fileInputRef.value) {
-            const dt = new DataTransfer();
-            dt.items.add(file);
-            fileInputRef.value.files = dt.files;
-            onFileSelected({ target: fileInputRef.value } as unknown as Event);
+    function handleDrop(e: DragEvent) {
+        isDragOver.value = false;
+        const droppedFiles = Array.from(e.dataTransfer?.files ?? [],);
+        if (droppedFiles.length > 0) {
+            addImages(droppedFiles,);
         }
     }
 
-    function onFileSelected(event: Event) {
+    function handleFileUpload(event: Event) {
         const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        if (file) {
-            selectedFile.value = file;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                selectedFilePreview.value = e.target?.result as string;
-            };
-            reader.readAsDataURL(file);
+        const selectedFiles = Array.from(input.files ?? [],);
+        if (selectedFiles.length > 0) {
+            addImages(selectedFiles,);
+        }
+        input.value = '';
+    }
+
+    function addImages(newFiles: File[]) {
+        const imageFiles = newFiles.filter(file => file.type.startsWith('image/',),);
+        const invalidFiles = newFiles.filter(file => !file.type.startsWith('image/',),);
+        if (invalidFiles.length > 0) {
+            fileError.value = 'Можно загружать только изображения (JPG, PNG)';
+            return;
+        }
+        if (previewImages.value.length + imageFiles.length > 10) {
+            fileError.value = 'Максимум 10 изображений';
+            return;
+        }
+        imageFiles.forEach(file => {
+            files.value.push(file);
+            previewImages.value.push({
+                file,
+                preview: URL.createObjectURL(file),
+                isExisting: false,
+            },);
+        },);
+        fileError.value = null;
+    }
+
+    function removeImage(index: number,) {
+        const image = previewImages.value[index];
+        if (image?.isExisting && image.filename) {
+            imagesToDelete.value.push(image.filename,);
+        }
+        previewImages.value.splice(index, 1,);
+    }
+
+    function materialsToggleDropdown() {
+        materialsDropdownOpen.value = !materialsDropdownOpen.value;
+    }
+
+    function toggleMaterial(materialId: number, checked: boolean,) {
+        if (checked) {
+            if (!work.material_ids.includes(materialId,)) {
+                work.material_ids.push(materialId,);
+            }
+        } else {
+            const index = work.material_ids.indexOf(materialId,);
+            if (index > -1) {
+                work.material_ids.splice(index, 1,);
+            }
         }
     }
 
@@ -599,8 +752,15 @@
         Object.keys(errors,).forEach((key,) => {
             errors[key] = '';
         });
-        selectedFile.value = null;
-        selectedFilePreview.value = '';
+        files.value = [];
+        previewImages.value = (work.images ?? []).map((filename: string,) => ({
+            preview: `${SERVER_URL}${work.dir}${filename}`,
+            isExisting: true,
+            filename,
+        }),);
+        imagesToDelete.value = [];
+        fileError.value = null;
+        materialsDropdownOpen.value = false;
     }
 
     // Lifecycle
@@ -800,7 +960,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -818,8 +978,83 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+.option-item input {
+    margin-right: 8px;
 }
 
 .size-inputs {

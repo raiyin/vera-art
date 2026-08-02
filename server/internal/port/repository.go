@@ -36,6 +36,7 @@ type WorkRepository interface {
 	List(ctx context.Context, filter domain.WorkFilter) ([]domain.Work, int, error)
 	Update(ctx context.Context, work *domain.Work) error
 	Delete(ctx context.Context, id int64) error
+	SetMaterials(ctx context.Context, workID int64, materialIDs []int64) error
 }
 
 // SaleRepository defines the interface for sale data access.

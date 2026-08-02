@@ -207,6 +207,25 @@ func (r *WorkRepository) GetMaterialIDs(ctx context.Context, workID int64) ([]in
 	return ids, nil
 }
 
+// SetMaterials replaces all material associations for a work.
+func (r *WorkRepository) SetMaterials(ctx context.Context, workID int64, materialIDs []int64) error {
+	tx, err := r.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, "DELETE FROM works_materials WHERE work_id = ?", workID); err != nil {
+		return fmt.Errorf("delete work materials: %w", err)
+	}
+	for _, materialID := range materialIDs {
+		if _, err := tx.ExecContext(ctx, "INSERT INTO works_materials (work_id, material_id) VALUES (?, ?)", workID, materialID); err != nil {
+			return fmt.Errorf("insert work material: %w", err)
+		}
+	}
+	return tx.Commit()
+}
+
 // GetBulkMaterialIDs retrieves material IDs for multiple works at once.
 func (r *WorkRepository) GetBulkMaterialIDs(ctx context.Context, works []domain.Work) (map[int64][]int64, error) {
 	if len(works) == 0 {

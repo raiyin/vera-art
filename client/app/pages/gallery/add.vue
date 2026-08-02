@@ -98,7 +98,7 @@
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
                             >
-                            <button
+                            <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="
@@ -108,8 +108,8 @@
                                 "
                                 @click="removeImage(index,)"
                             >
-                                ×
-                            </button>
+                                &times;
+                            </UButton>
                         </div>
                     </div>
                 </div>
@@ -257,6 +257,57 @@
                         {{ errors.base_id }}
                     </div>
                 </div>
+
+                <!-- Материалы -->
+                <div class="form-group">
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.materials',) }}
+                        <span class="required">*</span></label>
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.material_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('material_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || $t('admin_gallery_form.placeholders.select_materials',) }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <UInput
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    :value="material.id"
+                                    :model-value="work.material_ids.includes(material.id,)"
+                                    @update:model-value="
+                                        (checked,) => toggleMaterial(material.id, checked,)
+                                    "
+                                />
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.material_ids"
+                            class="error-message"
+                        >
+                            {{ errors.material_ids }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Описание -->
@@ -345,6 +396,7 @@
         base_id: 0,
         descr_ru: '',
         descr_en: '',
+        material_ids: [],
     });
 
     const isSubmitting = ref(false,);
@@ -354,6 +406,7 @@
     const isDragOver = ref(false,);
     const fileError = ref<string | null>(null,);
     const fileInput = ref<HTMLInputElement | null>(null,);
+    const materialsDropdownOpen = ref(false,);
 
     const errors = reactive<Record<string, string>>({
         name_ru: '',
@@ -362,9 +415,11 @@
         height: '',
         year: '',
         base_id: '',
+        material_ids: '',
     });
 
     const bases = computed(() => materialStore.bases,);
+    const materials = computed(() => materialStore.materials,);
 
     const baseOptions = computed(() => {
         const options = bases.value.map(base => ({
@@ -372,6 +427,14 @@
             value: base.id,
         }),);
         return [...options,];
+    });
+
+    const selectedMaterialsDisplay = computed(() => {
+        if (work.material_ids.length === 0) return '';
+        const selectedNames = materialStore.materials
+            .filter(material => work.material_ids.includes(material.id,),)
+            .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+        return selectedNames.join(', ',);
     });
 
     const isFormValid = computed(() => {
@@ -383,6 +446,7 @@
             && work.year >= 2000
         && work.year <= new Date().getFullYear()
             && work.base_id > 0
+            && work.material_ids.length > 0
             && files.value.length > 0
         );
     });
@@ -463,6 +527,23 @@
         files.value.splice(index, 1,);
     }
 
+    function materialsToggleDropdown() {
+        materialsDropdownOpen.value = !materialsDropdownOpen.value;
+    }
+
+    function toggleMaterial(materialId: number, checked: boolean,) {
+        if (checked) {
+            if (!work.material_ids.includes(materialId,)) {
+                work.material_ids.push(materialId,);
+            }
+        } else {
+            const index = work.material_ids.indexOf(materialId,);
+            if (index > -1) {
+                work.material_ids.splice(index, 1,);
+            }
+        }
+    }
+
     function validateField(fieldName: string,) {
         switch (fieldName) {
     case 'name_ru':
@@ -489,6 +570,9 @@
     case 'base_id':
         errors.base_id = work.base_id <= 0 ? t('admin_gallery_form.errors.base_required',) : '';
         break;
+    case 'material_ids':
+        errors.material_ids = work.material_ids.length === 0 ? t('admin_gallery_form.errors.materials_required',) : '';
+        break;
         }
     }
 
@@ -499,6 +583,7 @@
         validateField('height',);
         validateField('year',);
         validateField('base_id',);
+        validateField('material_ids',);
 
         // Check images
         if (files.value.length === 0) {
@@ -531,6 +616,9 @@
             formData.append('base_id', String(work.base_id));
             formData.append('descr_ru', work.descr_ru);
             formData.append('descr_en', work.descr_en);
+            work.material_ids.forEach((materialId,) => {
+                formData.append('material_ids', String(materialId),);
+            });
 
             const response = await axios.post(SERVER_URL + 'works', formData, {
                 headers: {
@@ -585,6 +673,7 @@
         work.base_id = 0;
         work.descr_ru = '';
         work.descr_en = '';
+        work.material_ids = [];
         files.value = [];
         previewImages.value = [];
         fileError.value = null;
@@ -879,7 +968,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -888,6 +977,7 @@ select:has(option.placeholder:checked) {
     border: none;
     width: 24px;
     height: 24px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -897,8 +987,83 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+.option-item input {
+    margin-right: 8px;
 }
 
 .size-inputs {

@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/raiyin/artserver/internal/domain"
+	"github.com/raiyin/artserver/internal/dto"
 	"github.com/raiyin/artserver/internal/port"
 	"github.com/raiyin/artserver/pkg/validator"
 )
@@ -384,6 +385,16 @@ func (s *GalleryService) CreateWork(ctx context.Context, work *domain.Work, file
 		return err
 	}
 
+	if len(work.MaterialIDs) > 0 {
+		if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
+			slog.Error("GalleryService.CreateWork: failed to set materials",
+				"work_id", work.ID,
+				"error", err,
+			)
+			return err
+		}
+	}
+
 	slog.Info("GalleryService.CreateWork: work created",
 		"work_id", work.ID,
 		"name_ru", work.NameRu,
@@ -408,8 +419,19 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 	}
 	work.WorkPath = workPath
 
+	// keptImages is the list of image filenames the user left in the preview.
+	// When it is not provided, fall back to the existing list for backward compatibility.
+	keptImages := work.Images
+	if keptImages == "" {
+		keptImages = existing.Images
+	}
+
+	// Delete files that were removed from the preview.
+	s.removeDeletedImages(ctx, workPath, existing.Images, keptImages)
+
+	// Save newly uploaded images and append them to the kept list.
 	if len(files) > 0 {
-		imageNames, err := s.saveWorkImages(ctx, workPath, existing.Images, files)
+		imageNames, err := s.saveWorkImages(ctx, workPath, keptImages, files)
 		if err != nil {
 			slog.Error("GalleryService.UpdateWork: failed to save image",
 				"work_id", work.ID,
@@ -417,13 +439,13 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 			)
 			return err
 		}
-		if existing.Images != "" {
-			work.Images = existing.Images + ";" + imageNames
+		if keptImages != "" {
+			work.Images = keptImages + ";" + imageNames
 		} else {
 			work.Images = imageNames
 		}
 	} else {
-		work.Images = existing.Images
+		work.Images = keptImages
 	}
 
 	if err := s.workRepo.Update(ctx, work); err != nil {
@@ -435,11 +457,51 @@ func (s *GalleryService) UpdateWork(ctx context.Context, work *domain.Work, file
 		return err
 	}
 
+	if err := s.workRepo.SetMaterials(ctx, work.ID, work.MaterialIDs); err != nil {
+		slog.Error("GalleryService.UpdateWork: failed to set materials",
+			"work_id", work.ID,
+			"error", err,
+		)
+		return err
+	}
+
 	slog.Info("GalleryService.UpdateWork: work updated",
 		"work_id", work.ID,
 		"name_ru", work.NameRu,
 	)
 	return nil
+}
+
+// removeDeletedImages deletes image files that exist on disk but are no longer present in the kept list.
+func (s *GalleryService) removeDeletedImages(ctx context.Context, workPath, existingImages, keptImages string) {
+	existing := dto.SplitImages(existingImages)
+	kept := dto.SplitImages(keptImages)
+
+	keptSet := make(map[string]struct{}, len(kept))
+	for _, img := range kept {
+		keptSet[img] = struct{}{}
+	}
+
+	for _, img := range existing {
+		if img == "" {
+			continue
+		}
+		if _, ok := keptSet[img]; ok {
+			continue
+		}
+		relPath := strings.TrimLeft(filepath.Join(s.relWorksDir, workPath, img), "/")
+		fullPath := filepath.Join(s.imagesDir, relPath)
+		if err := s.fileRepo.Delete(ctx, fullPath); err != nil {
+			slog.Warn("GalleryService.UpdateWork: failed to delete removed image",
+				"image", img,
+				"error", err,
+			)
+			continue
+		}
+		slog.Debug("GalleryService.UpdateWork: removed image",
+			"image", img,
+		)
+	}
 }
 
 // buildWorkPath returns a directory path for a work based on its str_id.
