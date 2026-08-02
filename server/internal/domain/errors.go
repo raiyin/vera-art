@@ -1,24 +1,35 @@
 package domain
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/raiyin/artserver/pkg/apperror"
+)
 
 var (
-	ErrNotFound          = errors.New("not found")
-	ErrUnauthorized      = errors.New("unauthorized")
-	ErrForbidden         = errors.New("forbidden")
-	ErrValidation        = errors.New("validation error")
-	ErrConflict          = errors.New("conflict")
-	ErrDuplicate         = errors.New("duplicate entry")
-	ErrInvalidInput      = errors.New("invalid input")
+	// Shared sentinels are aliases of the ones in pkg/apperror. Keeping a single
+	// canonical value lets apperror.FromError (which uses errors.Is) map a domain
+	// error to the correct HTTP status — a domain copy would silently degrade to
+	// a generic 500.
+	ErrNotFound          = apperror.ErrNotFound
+	ErrUnauthorized      = apperror.ErrUnauthorized
+	ErrForbidden         = apperror.ErrForbidden
+	ErrValidation        = apperror.ErrValidation
+	ErrConflict          = apperror.ErrConflict
+	ErrDuplicate         = apperror.ErrDuplicate
+	ErrInvalidInput      = apperror.ErrInvalidInput
+	ErrEmailNotVerified  = apperror.ErrEmailNotVerified
+	ErrInvalidToken      = apperror.ErrInvalidToken
+	ErrTokenExpired      = apperror.ErrTokenExpired
+	ErrPaymentFailed     = apperror.ErrPaymentFailed
+	ErrPromoCodeInvalid  = apperror.ErrPromoCodeInvalid
+	ErrPromoCodeUsed     = apperror.ErrPromoCodeUsed
+	ErrFileTooLarge      = apperror.ErrFileTooLarge
+	ErrInvalidFileType   = apperror.ErrInvalidFileType
+	ErrRateLimited       = apperror.ErrRateLimited
+
+	// Domain-only errors without a dedicated HTTP mapping in apperror.FromError;
+	// they fall through to a generic 500.
 	ErrInternal          = errors.New("internal error")
-	ErrEmailNotVerified  = errors.New("email not verified")
-	ErrInvalidToken      = errors.New("invalid token")
-	ErrTokenExpired      = errors.New("token expired")
 	ErrInsufficientStock = errors.New("insufficient stock")
-	ErrPaymentFailed     = errors.New("payment failed")
-	ErrPromoCodeInvalid  = errors.New("promo code invalid or expired")
-	ErrPromoCodeUsed     = errors.New("promo code already used")
-	ErrFileTooLarge      = errors.New("file too large")
-	ErrInvalidFileType   = errors.New("invalid file type")
-	ErrRateLimited       = errors.New("rate limited")
 )
