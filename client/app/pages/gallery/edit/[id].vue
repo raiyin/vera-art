@@ -387,11 +387,6 @@
         filename?: string
     }
 
-    definePageMeta({
-        layout: 'admin',
-        middleware: 'admin-auth',
-    });
-
     const toast = useToast();
     const config = useRuntimeConfig();
     const route = useRoute();
@@ -503,7 +498,7 @@
             work.images = data.images ?? [];
             work.material_ids = data.material_ids ?? [];
             previewImages.value = (data.images ?? []).map((filename: string,) => ({
-                preview: `${SERVER_URL}${data.dir}${filename}`,
+                preview: `${data.dir}${filename}`,
                 isExisting: true,
                 filename,
             }),);
@@ -625,7 +620,7 @@
                 files.value = addedFiles;
                 previewImages.value = [
                     ...keptFilenames.map(filename => ({
-                        preview: `${SERVER_URL}${work.dir}${filename}`,
+                        preview: `${work.dir}${filename}`,
                         isExisting: true,
                         filename,
                     }),),
@@ -754,7 +749,7 @@
         });
         files.value = [];
         previewImages.value = (work.images ?? []).map((filename: string,) => ({
-            preview: `${SERVER_URL}${work.dir}${filename}`,
+            preview: `${work.dir}${filename}`,
             isExisting: true,
             filename,
         }),);
