@@ -123,7 +123,7 @@ func (r *WorkRepository) List(ctx context.Context, filter domain.WorkFilter) ([]
 	}
 	offset := (page - 1) * limit
 
-	listQuery := fmt.Sprintf("SELECT %s FROM works %s ORDER BY id ASC LIMIT ? OFFSET ?",
+	listQuery := fmt.Sprintf("SELECT %s FROM works %s ORDER BY year DESC, id DESC LIMIT ? OFFSET ?",
 		workColumns, whereClause)
 	listArgs := append(args, limit, offset)
 

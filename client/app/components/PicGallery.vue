@@ -609,7 +609,8 @@
     flex-direction: column;
 }
 
-.dark .custom-modal-container {
+.dark .custom-modal-container,
+.body_theme_dark .custom-modal-container {
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -859,7 +860,8 @@
     margin-bottom: 1rem;
 }
 
-.dark .delete-modal-icon-wrapper {
+.dark .delete-modal-icon-wrapper,
+.body_theme_dark .delete-modal-icon-wrapper {
     background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
 }
 
@@ -869,7 +871,8 @@
     color: #dc2626;
 }
 
-.dark .delete-modal-icon {
+.dark .delete-modal-icon,
+.body_theme_dark .delete-modal-icon {
     color: #fca5a5;
 }
 
@@ -880,7 +883,8 @@
     margin: 0;
 }
 
-.dark .delete-modal-title {
+.dark .delete-modal-title,
+.body_theme_dark .delete-modal-title {
     color: #f1f5f9;
 }
 
@@ -896,7 +900,8 @@
     margin: 0 0 0.5rem;
 }
 
-.dark .delete-modal-text {
+.dark .delete-modal-text,
+.body_theme_dark .delete-modal-text {
     color: #94a3b8;
 }
 
@@ -907,13 +912,14 @@
     margin: 0;
 }
 
-.dark .delete-modal-warning {
+.dark .delete-modal-warning,
+.body_theme_dark .delete-modal-warning {
     color: #fca5a5;
 }
 
 .delete-modal-footer {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.75rem;
     padding: 0 1.5rem 1.5rem;
 }
@@ -921,6 +927,7 @@
 @media (max-width: 480px) {
     .delete-modal-footer {
         flex-direction: column-reverse;
+        justify-content: flex-start;
     }
 
     .delete-modal-footer .UButton {

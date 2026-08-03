@@ -510,7 +510,6 @@
                     >
                         {{ $t('common.cancel',) }}
                     </UButton>
-                    <div class="delete-modal-footer-divider" />
                     <UButton
                         size="md"
                         color="error"
@@ -708,7 +707,8 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 10px 24px -8px rgba(220, 38, 38, 0.4);
 }
 
-.dark .delete-modal-icon-wrapper {
+.dark .delete-modal-icon-wrapper,
+.body_theme_dark .delete-modal-icon-wrapper {
     background: radial-gradient(circle at 30% 25%, #450a0a 0%, #7f1d1d 55%, #991b1b 100%);
     border-color: rgba(248, 113, 113, 0.18);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 10px 24px -8px rgba(248, 113, 113, 0.35);
@@ -721,7 +721,8 @@
     animation: delete-modal-icon-pulse 2.6s ease-in-out infinite;
 }
 
-.dark .delete-modal-icon {
+.dark .delete-modal-icon,
+.body_theme_dark .delete-modal-icon {
     color: #fca5a5;
 }
 
@@ -748,7 +749,8 @@
     margin: 0 0 0.35rem;
 }
 
-.dark .delete-modal-title {
+.dark .delete-modal-title,
+.body_theme_dark .delete-modal-title {
     color: #f1f5f9;
 }
 
@@ -759,7 +761,8 @@
     margin: 0 0 0.75rem;
 }
 
-.dark .delete-modal-text {
+.dark .delete-modal-text,
+.body_theme_dark .delete-modal-text {
     color: #94a3b8;
 }
 
@@ -775,7 +778,8 @@
     max-width: 100%;
 }
 
-.dark .delete-modal-highlight {
+.dark .delete-modal-highlight,
+.body_theme_dark .delete-modal-highlight {
     color: #e2e8f0;
     background: #1e293b;
     border-color: #334155;
@@ -795,7 +799,8 @@
     margin: 0;
 }
 
-.dark .delete-modal-warning {
+.dark .delete-modal-warning,
+.body_theme_dark .delete-modal-warning {
     color: #fca5a5;
     background: rgba(127, 29, 29, 0.35);
     border-color: rgba(239, 68, 68, 0.3);
@@ -809,25 +814,14 @@
 
 .delete-modal-footer {
     display: flex;
-    align-items: stretch;
+    justify-content: flex-end;
+    gap: 0.75rem;
     width: 100%;
     padding: 0;
 }
 
-.delete-modal-footer-divider {
-    width: 1px;
-    flex-shrink: 0;
-    background: #e2e8f0;
-}
-
-.dark .delete-modal-footer-divider {
-    background: #334155;
-}
-
-.delete-modal-footer .delete-modal-btn {
-    flex: 1 1 0;
-    border-radius: 0;
-    justify-content: center;
+.delete-modal-btn {
+    border-radius: 0.5rem;
 }
 
 @media (max-width: 480px) {

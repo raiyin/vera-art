@@ -386,24 +386,33 @@ func TestWorkRepoDeleteNotFound(t *testing.T) {
 	}
 }
 
-func TestWorkRepoOrderByIDAscending(t *testing.T) {
+func TestWorkRepoOrderByYearDescending(t *testing.T) {
 	db := setupWorkDB(t)
 	repo := NewWorkRepository(db)
 	ctx := context.Background()
 
-	var ids []int64
-	for i := 0; i < 5; i++ {
-		w := newWork(t, repo, &domain.Work{NameRu: "Test", NameEn: "Test"})
-		ids = append(ids, w.ID)
+	years := []int{2020, 2024, 2022, 2024, 2021}
+	var works []*domain.Work
+	for _, y := range years {
+		w := newWork(t, repo, &domain.Work{NameRu: "Test", NameEn: "Test", Year: y})
+		works = append(works, w)
 	}
 
-	works, _, err := repo.List(ctx, domain.WorkFilter{})
+	got, _, err := repo.List(ctx, domain.WorkFilter{})
 	if err != nil {
 		t.Fatalf("List: %v", err)
 	}
-	for i, w := range works {
-		if w.ID != ids[i] {
-			t.Errorf("position %d: expected ID %d, got %d", i, ids[i], w.ID)
+
+	expected := []int64{
+		works[3].ID, // 2024, inserted fourth
+		works[1].ID, // 2024, inserted second
+		works[2].ID, // 2022
+		works[4].ID, // 2021
+		works[0].ID, // 2020
+	}
+	for i, id := range expected {
+		if got[i].ID != id {
+			t.Errorf("position %d: expected ID %d, got %d", i, id, got[i].ID)
 		}
 	}
 }
@@ -524,8 +533,8 @@ func TestWorkRepoDeleteRemovesFromList(t *testing.T) {	db := setupWorkDB(t)
 	if len(works) != 2 {
 		t.Errorf("expected 2 works, got %d", len(works))
 	}
-	if works[0].ID != w1.ID || works[1].ID != w3.ID {
-		t.Error("expected remaining works to be A and C in order")
+	if works[0].ID != w3.ID || works[1].ID != w1.ID {
+		t.Error("expected remaining works to be C and A (year desc, id desc)")
 	}
 }
 
