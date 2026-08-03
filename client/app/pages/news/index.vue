@@ -131,16 +131,16 @@
             if (error && typeof error === 'object' && 'response' in error) {
                 const axiosError = error as { response?: { status?: number } };
                 if (axiosError.response?.status === 401) {
-                    deleteError.value = 'Сессия истекла. Пожалуйста, войдите снова.';
+                    deleteError.value = t('news.sessionExpired',);
                     authStore.clearTokens();
                     setTimeout(() => {
                         router.push('/auth/login',);
                     }, 2000,);
                 } else {
-                    deleteError.value = 'Ошибка при удалении новости';
+                    deleteError.value = t('news.deleteErrorGeneric',);
                 }
             } else {
-                deleteError.value = 'Ошибка при удалении новости';
+                deleteError.value = t('news.deleteErrorGeneric',);
             }
         } finally {
             deletingId.value = null;
@@ -260,7 +260,7 @@
                                         variant="outline"
                                         @click="editNews(newsItem.id,)"
                                     >
-                                        Редактировать
+                                        {{ $t('news.edit',) }}
                                     </UButton>
                                     <UButton
                                         size="sm"
@@ -270,7 +270,7 @@
                                         :disabled="deletingId === newsItem.id"
                                         @click="confirmDelete(newsItem,)"
                                     >
-                                        Удалить
+                                        {{ $t('news.delete',) }}
                                     </UButton>
                                 </div>
                             </div>
@@ -444,7 +444,7 @@
             <!-- Delete Error Alert -->
             <UAlert
                 v-if="deleteError"
-                :title="'Ошибка'"
+                :title="$t('common.error',)"
                 :description="deleteError"
                 icon="i-heroicons-exclamation-triangle"
                 color="error"
@@ -479,18 +479,21 @@
                     </div>
                     <div class="delete-modal-main">
                         <h3 class="delete-modal-title">
-                            Подтверждение удаления
+                            {{ $t('news.deleteConfirmTitle',) }}
                         </h3>
                         <p class="delete-modal-text">
-                            Вы уверены, что хотите удалить новость
-                            <span class="delete-modal-highlight">«{{ newsToDelete ? getNewsTitle(newsToDelete,) : '' }}»</span>?
+                            <template v-if="newsToDelete">
+                                {{ $t('news.deleteConfirmBefore',) }}
+                                <span class="delete-modal-highlight">«{{ getNewsTitle(newsToDelete,) }}»</span>
+                                {{ $t('news.deleteConfirmAfter',) }}
+                            </template>
                         </p>
                         <div class="delete-modal-warning">
                             <UIcon
                                 name="i-heroicons-exclamation-circle"
                                 class="delete-modal-warning-icon"
                             />
-                            <span>Это действие нельзя отменить.</span>
+                            <span>{{ $t('news.deleteIrreversible',) }}</span>
                         </div>
                     </div>
                 </div>
@@ -505,7 +508,7 @@
                         class="delete-modal-btn"
                         @click="cancelDelete"
                     >
-                        Отмена
+                        {{ $t('common.cancel',) }}
                     </UButton>
                     <div class="delete-modal-footer-divider" />
                     <UButton
@@ -516,7 +519,7 @@
                         :disabled="deletingId !== null"
                         @click="deleteNews"
                     >
-                        Удалить
+                        {{ $t('common.delete',) }}
                     </UButton>
                 </div>
             </template>

@@ -1,25 +1,26 @@
 <script lang="ts">
     import { useI18n, } from 'vue-i18n';
+    import { computed, } from 'vue';
 
     export default {
         setup() {
             const { t, locale, } = useI18n({ useScope: 'global', },);
             const currentYear = new Date().getFullYear();
 
-            const navLinks = [
+            const navLinks = computed(() => [
                 { label: t('header.main',), to: '/', },
                 { label: t('header.all_works',), to: '/gallery', },
                 { label: t('header.news',), to: '/news', },
                 { label: t('header.services',), to: '/services', },
                 { label: t('header.payment',), to: '/pay-delivery', },
-            ];
+            ]);
 
-            const serviceLinks = [
-                { label: 'Картины', to: '/art-store', },
-                { label: 'Мастер-классы', to: '/master-classes', },
-                { label: 'Онлайн-курсы', to: '/courses/online', },
-                { label: 'Индивидуальные занятия', to: '/courses/individual', },
-            ];
+            const serviceLinks = computed(() => [
+                { label: t('footer.paintings',), to: '/art-store', },
+                { label: t('footer.master_classes',), to: '/master-classes', },
+                { label: t('footer.online_courses',), to: '/courses/online', },
+                { label: t('footer.individual_lessons',), to: '/courses/individual', },
+            ]);
 
             return {
                 currentYear,
@@ -66,7 +67,7 @@
                 <!-- Navigation -->
                 <div class="footer-section">
                     <h4 class="footer-section-title">
-                        Навигация
+                        {{ t('footer.navigation',) }}
                     </h4>
                     <ul class="footer-links">
                         <li
@@ -86,7 +87,7 @@
                 <!-- Services -->
                 <div class="footer-section">
                     <h4 class="footer-section-title">
-                        Услуги
+                        {{ t('footer.services',) }}
                     </h4>
                     <ul class="footer-links">
                         <li
@@ -106,7 +107,7 @@
                 <!-- Social -->
                 <div class="footer-section">
                     <h4 class="footer-section-title">
-                        Контакты
+                        {{ t('footer.contacts',) }}
                     </h4>
                     <div class="footer-social">
                         <a

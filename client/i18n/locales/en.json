@@ -73,6 +73,17 @@
         "noNews": "No news yet",
         "noNewsDescription": "Check back later for updates, exhibitions, and new creative projects.",
         "viewAllNews": "View All News",
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleteConfirmTitle": "Confirm deletion",
+        "deleteConfirmBefore": "Are you sure you want to delete the news",
+        "deleteConfirmAfter": "?",
+        "deleteIrreversible": "This action cannot be undone.",
+        "deleteConfirmSimple": "Are you sure you want to delete this news?",
+        "deleteError": "Error deleting news: {message}",
+        "deleteNetworkError": "Error deleting news: network unavailable",
+        "deleteErrorGeneric": "Error deleting news",
+        "sessionExpired": "Your session has expired. Please log in again.",
         "error": {
             "title": "Error Loading News",
             "loadFailed": "Failed to load news. Please try again later.",
@@ -599,7 +610,24 @@
     },
     "footer": {
         "copyright": "All rights reserved",
-        "developed": "Developed by"
+        "developed": "Developed by",
+        "navigation": "Navigation",
+        "services": "Services",
+        "contacts": "Contacts",
+        "paintings": "Paintings",
+        "master_classes": "Master Classes",
+        "online_courses": "Online Courses",
+        "individual_lessons": "Individual Lessons"
+    },
+    "common": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "deleting": "Deleting...",
+        "approve": "Approve",
+        "cancel": "Cancel",
+        "error": "Error",
+        "anonymous": "Anonymous",
+        "pendingModeration": "Pending moderation"
     },
     "terms": {
         "title": "Terms of Service",

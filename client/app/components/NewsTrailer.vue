@@ -24,7 +24,7 @@
 
     const authStore = useAuthStore();
     const router = useRouter();
-    const { locale, } = useI18n();
+    const { locale, t, } = useI18n();
 
     // Reactive state
     const isLoaded = ref(false,);
@@ -57,7 +57,7 @@
 
     const deleteNews = async () => {
         // Better confirmation dialog
-        if (!window.confirm('Вы уверены, что хотите удалить эту новость?',)) {
+        if (!window.confirm(t('news.deleteConfirmSimple',),)) {
             return;
         }
 
@@ -80,13 +80,13 @@
                 emit('news-deleted', props.newsObject.id,);
             } else {
                 const errorData = await response.json();
-                errorMessage.value = `Ошибка при удалении новости: ${
-                    errorData.error || 'Неизвестная ошибка'
-                }`;
+                errorMessage.value = t('news.deleteError', {
+                    message: errorData.error || t('common.error',),
+                });
             }
         } catch (error) {
             console.error('Error deleting news:', error,);
-            errorMessage.value = 'Ошибка при удалении новости:_network_error';
+            errorMessage.value = t('news.deleteNetworkError',);
         } finally {
             // Reset loading state
             isDeleting.value = false;
@@ -144,7 +144,7 @@
 
         <UAlert
             v-if="errorMessage"
-            :title="'Ошибка'"
+            :title="t('common.error',)"
             :description="errorMessage"
             icon="i-heroicons-exclamation-triangle"
             color="error"
@@ -162,7 +162,7 @@
                 type="button"
                 @click="editNews"
             >
-                Редактировать
+                {{ t('common.edit',) }}
             </UButton>
             <UButton
                 class="btn btn-secondary w-100"
@@ -170,8 +170,8 @@
                 :disabled="isDeleting"
                 @click="deleteNews"
             >
-                <span v-if="isDeleting">Удаление...</span>
-                <span v-else>Удалить</span>
+                <span v-if="isDeleting">{{ t('common.deleting',) }}</span>
+                <span v-else>{{ t('common.delete',) }}</span>
             </UButton>
         </div>
     </div>

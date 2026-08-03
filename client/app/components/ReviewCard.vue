@@ -10,7 +10,7 @@
                 </div>
                 <div class="review-card__user-info">
                     <div class="review-card__username">
-                        {{ review.user?.full_name || review.user?.username || 'Аноним' }}
+                        {{ review.user?.full_name || review.user?.username || t('common.anonymous',) }}
                     </div>
                     <div class="review-card__date">
                         {{ formattedDate }}
@@ -50,7 +50,7 @@
             v-if="!review.is_approved"
             class="review-card__pending-badge"
         >
-            Ожидает модерации
+            {{ t('common.pendingModeration',) }}
         </div>
 
         <div
@@ -62,21 +62,21 @@
                 class="review-card__button review-card__button--edit"
                 @click="$emit('edit', review,)"
             >
-                Редактировать
+                {{ t('common.edit',) }}
             </button>
             <button
                 v-if="canDelete"
                 class="review-card__button review-card__button--delete"
                 @click="$emit('delete', review,)"
             >
-                Удалить
+                {{ t('common.delete',) }}
             </button>
             <button
                 v-if="canApprove && !review.is_approved"
                 class="review-card__button review-card__button--approve"
                 @click="$emit('approve', review,)"
             >
-                Одобрить
+                {{ t('common.approve',) }}
             </button>
         </div>
     </div>
@@ -108,10 +108,10 @@
         approve: [review: Review,]
     }>();
 
-    const { locale, } = useI18n();
+    const { locale, t, } = useI18n();
 
     const userInitials = computed(() => {
-        const name = props.review.user?.full_name || props.review.user?.username || 'А';
+        const name = props.review.user?.full_name || props.review.user?.username || t('common.anonymous',);
         return name
             .split(' ',)
             .map(part => part[0],)

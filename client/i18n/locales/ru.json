@@ -73,6 +73,17 @@
         "noNews": "Новостей пока нет",
         "noNewsDescription": "Загляните позже, чтобы узнать об обновлениях, выставках и новых творческих проектах.",
         "viewAllNews": "Смотреть все новости",
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "deleteConfirmTitle": "Подтверждение удаления",
+        "deleteConfirmBefore": "Вы уверены, что хотите удалить новость",
+        "deleteConfirmAfter": "?",
+        "deleteIrreversible": "Это действие нельзя отменить.",
+        "deleteConfirmSimple": "Вы уверены, что хотите удалить эту новость?",
+        "deleteError": "Ошибка при удалении новости: {message}",
+        "deleteNetworkError": "Ошибка при удалении новости: сеть недоступна",
+        "deleteErrorGeneric": "Ошибка при удалении новости",
+        "sessionExpired": "Сессия истекла. Пожалуйста, войдите снова.",
         "error": {
             "title": "Ошибка загрузки новостей",
             "loadFailed": "Не удалось загрузить новости. Пожалуйста, попробуйте позже.",
@@ -599,7 +610,24 @@
     },
     "footer": {
         "copyright": "Все права защищены",
-        "developed": "Разработано"
+        "developed": "Разработано",
+        "navigation": "Навигация",
+        "services": "Услуги",
+        "contacts": "Контакты",
+        "paintings": "Картины",
+        "master_classes": "Мастер-классы",
+        "online_courses": "Онлайн-курсы",
+        "individual_lessons": "Индивидуальные занятия"
+    },
+    "common": {
+        "edit": "Редактировать",
+        "delete": "Удалить",
+        "deleting": "Удаление...",
+        "approve": "Одобрить",
+        "cancel": "Отмена",
+        "error": "Ошибка",
+        "anonymous": "Аноним",
+        "pendingModeration": "Ожидает модерации"
     },
     "terms": {
         "title": "Условия обслуживания",
