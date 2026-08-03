@@ -20,18 +20,18 @@ func NewSaleRepository(db *sql.DB) *SaleRepository {
 	return &SaleRepository{db: db}
 }
 
-const saleColumns = `id, name_ru, name_en, description, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at`
+const saleColumns = `id, name_ru, name_en, descr_ru, descr_en, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at`
 
 func (r *SaleRepository) scanSale(scanner interface {
 	Scan(dest ...interface{}) error
 }) (*domain.Sale, error) {
 	s := &domain.Sale{}
-	var description, technique sql.NullString
+	var descrRu, descrEn, technique sql.NullString
 	var year sql.NullFloat64
 	var width, height sql.NullInt64
 
 	err := scanner.Scan(
-		&s.ID, &s.NameRu, &s.NameEn, &description, &s.ImagePath, &s.SalePath,
+		&s.ID, &s.NameRu, &s.NameEn, &descrRu, &descrEn, &s.ImagePath, &s.SalePath,
 		&s.Price, &year, &technique,
 		&width, &height,
 		&s.Status, &s.SortOrder, &s.Sold,
@@ -41,8 +41,11 @@ func (r *SaleRepository) scanSale(scanner interface {
 		return nil, err
 	}
 
-	if description.Valid {
-		s.Description = description.String
+	if descrRu.Valid {
+		s.DescrRu = descrRu.String
+	}
+	if descrEn.Valid {
+		s.DescrEn = descrEn.String
 	}
 	if technique.Valid {
 		s.Technique = technique.String
@@ -62,8 +65,8 @@ func (r *SaleRepository) scanSale(scanner interface {
 
 // Create inserts a new sale.
 func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
-	query := `INSERT INTO sales (name_ru, name_en, description, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO sales (name_ru, name_en, descr_ru, descr_en, image_path, sale_path, price, year, technique, width, height, status, sort_order, sold, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 
 	now := time.Now()
 	if sale.CreatedAt.IsZero() {
@@ -77,7 +80,7 @@ func (r *SaleRepository) Create(ctx context.Context, sale *domain.Sale) error {
 	}
 
 	result, err := r.db.ExecContext(ctx, query,
-		sale.NameRu, sale.NameEn, nullString(sale.Description), sale.ImagePath, sale.SalePath,
+		sale.NameRu, sale.NameEn, nullString(sale.DescrRu), nullString(sale.DescrEn), sale.ImagePath, sale.SalePath,
 		sale.Price, nullInt(int64(sale.Year)),
 		nullString(sale.Technique),
 		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),
@@ -220,13 +223,13 @@ func (r *SaleRepository) List(ctx context.Context, filter domain.SaleFilter) ([]
 
 // Update updates a sale.
 func (r *SaleRepository) Update(ctx context.Context, sale *domain.Sale) error {
-	query := `UPDATE sales SET name_ru = ?, name_en = ?, description = ?, image_path = ?, sale_path = ?, price = ?,
+	query := `UPDATE sales SET name_ru = ?, name_en = ?, descr_ru = ?, descr_en = ?, image_path = ?, sale_path = ?, price = ?,
 		year = ?, technique = ?, width = ?, height = ?, status = ?, sort_order = ?, sold = ?, updated_at = ? WHERE id = ?`
 
 	sale.UpdatedAt = time.Now()
 
 	_, err := r.db.ExecContext(ctx, query,
-		sale.NameRu, sale.NameEn, nullString(sale.Description), sale.ImagePath, sale.SalePath,
+		sale.NameRu, sale.NameEn, nullString(sale.DescrRu), nullString(sale.DescrEn), sale.ImagePath, sale.SalePath,
 		sale.Price, nullInt(int64(sale.Year)),
 		nullString(sale.Technique),
 		nullInt(int64(sale.Width)), nullInt(int64(sale.Height)),

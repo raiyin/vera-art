@@ -254,15 +254,27 @@
                 <!-- Основа -->
                 <div class="form-group">
                     <label class="form-label">Основа <span class="required">*</span></label>
-                    <USelect
+                    <select
                         v-model="sale.base_id"
-                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id, }"
-                        placeholder="Выберите основу"
                         @blur="validateField('base_id',)"
-                    />
+                    >
+                        <option
+                            value=""
+                            disabled
+                        >
+                            Выберите основу
+                        </option>
+                        <option
+                            v-for="base in bases"
+                            :key="base.id"
+                            :value="base.id"
+                        >
+                            {{ locale === 'ru' ? base.name_ru : base.name_en }}
+                        </option>
+                    </select>
                     <div
                         v-if="errors.base_id"
                         class="error-message"
@@ -385,7 +397,7 @@
 import axios from 'axios';
 import { ref, reactive, computed, onMounted, } from 'vue';
 import { useRoute, } from 'vue-router';
-import type { UpdateSaleRequest, UpdateSaleResponse, RequestResult, } from '~/types';
+import type { UpdateSaleResponse, RequestResult, } from '~/types';
 import { useMaterialStore, } from '~/stores/MaterialStore';
 
 const toast = useToast();
@@ -440,7 +452,6 @@ const isLoading = ref(true,);
 const loadError = ref<string | null>(null,);
 const requestResult = ref<RequestResult>('unknown',);
 const materialsDropdownOpen = ref(false,);
-const basesDropdownOpen = ref(false,);
 const isDragOver = ref(false,);
 const fileError = ref<string | null>(null,);
 
@@ -460,13 +471,6 @@ const fileInput = ref<HTMLInputElement | null>(null,);
 // Computed
 const bases = computed(() => materialStore.bases,);
 const materials = computed(() => materialStore.materials,);
-
-const baseOptions = computed(() => {
-    return bases.value.map(base => ({
-        label: locale.value === 'ru' ? base.name_ru : base.name_en,
-        value: base.id,
-    }),);
-});
 
 const selectedMaterialsDisplay = computed(() => {
     if (sale.materials_ids.length === 0) return '';
@@ -500,8 +504,12 @@ async function loadSale() {
     try {
         const id = route.params.id;
         const response = await axios.get(`${SERVER_URL}sales/${id}/edit`,);
-        Object.assign(sale, response.data,);
-        Object.assign(originalSale, { ...response.data, },);
+        const data = response.data;
+        Object.assign(sale, data, {
+            base_id: data.base_ids?.[0] ?? 0,
+            materials_ids: data.material_ids ?? [],
+        },);
+        Object.assign(originalSale, { ...sale, },);
         loadPreviewImages();
         isLoading.value = false;
     } catch (error) {
@@ -713,51 +721,37 @@ async function submitForm() {
 
         const formData = new FormData();
 
-        const finalImages: string[] = [];
-
-        // Add existing images that are not marked for deletion
-        for (const imageName of sale.images) {
-            if (!imagesToDelete.value.includes(imageName,)) {
-                finalImages.push(imageName,);
-            }
-        }
-
-        // Add new image filenames
-        for (const file of addedFiles.value) {
-            finalImages.push(file.name,);
-        }
-
+        // Add new image files under the field name expected by the server
         if (addedFiles.value.length > 0) {
             addedFiles.value.forEach((file,) => {
-                formData.append('images', file,);
+                formData.append('image', file,);
             });
         }
 
-        let updatedImages: string[];
-        if (previewImages.value && previewImages.value.length > 0) {
-            updatedImages = previewImages.value
-                .map(image => image.filename,)
-                .filter((filename,): filename is string => !!filename,);
-        } else {
-            updatedImages = [];
+        // Add flat form fields matching the server's UpdateSaleRequest
+        formData.append('name_ru', sale.name_ru,);
+        formData.append('name_en', sale.name_en,);
+        formData.append('descr_ru', sale.descr_ru,);
+        formData.append('descr_en', sale.descr_en,);
+        formData.append('price', String(sale.price),);
+        formData.append('year', String(sale.year),);
+        formData.append('width', String(sale.width),);
+        formData.append('height', String(sale.height),);
+        sale.materials_ids.forEach((materialId,) => {
+            formData.append('material_ids', String(materialId,),);
+        });
+        if (sale.base_id > 0) {
+            formData.append('base_ids', String(sale.base_id,),);
         }
-
-        const saleDataToUpdate: UpdateSaleRequest = {
-            ...sale,
-            images: updatedImages,
-        };
-
-        formData.append('data', JSON.stringify(saleDataToUpdate,),);
 
         const strId = route.params.id;
         const response = await axios.put(SERVER_URL + 'sales/' + strId, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
                 Authorization: `Bearer ${localStorage.getItem('token',)}`,
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
             toast.add({
                 title: 'Успешно!',
                 description: 'Работа успешно обновлена в магазине.',
@@ -765,6 +759,15 @@ async function submitForm() {
                 color: 'success',
                 duration: 5000,
             });
+            const finalImages: string[] = [];
+            for (const imageName of sale.images) {
+                if (!imagesToDelete.value.includes(imageName,)) {
+                    finalImages.push(imageName,);
+                }
+            }
+            for (const file of addedFiles.value) {
+                finalImages.push(file.name,);
+            }
             sale.images = finalImages;
             imagesToDelete.value = [];
             addedFiles.value = [];
@@ -837,10 +840,6 @@ function toggleMaterial(materialId: number, checked: boolean,) {
 
 function onMaterialChange(materialId: number, event: Event,) {
     toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
-}
-
-function basesToggleDropdown() {
-    basesDropdownOpen.value = !basesDropdownOpen.value;
 }
 
 // Lifecycle

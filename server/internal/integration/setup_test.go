@@ -156,7 +156,8 @@ func openTestDB(t *testing.T) *sql.DB {
 		)`,
 		`CREATE TABLE sales (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			description TEXT DEFAULT '',
+			descr_ru TEXT DEFAULT '',
+			descr_en TEXT DEFAULT '',
 			image_path TEXT DEFAULT '',
 			price REAL DEFAULT 0,
 			year INTEGER,

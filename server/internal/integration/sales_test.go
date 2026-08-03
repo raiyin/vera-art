@@ -149,10 +149,10 @@ func TestSaleCRUD(t *testing.T) {
 func scanSaleRow(t *testing.T, db *sql.DB, id int64) (imagePath string, price float64) {
 	t.Helper()
 	err := db.QueryRow(`
-		SELECT image_path, price, name_ru, name_en, description, year, technique, width, height, status, sort_order, sold
+		SELECT image_path, price, name_ru, name_en, descr_ru, descr_en, year, technique, width, height, status, sort_order, sold
 		FROM sales WHERE id = ?`, id).
 		Scan(&imagePath, &price,
-			new(string), new(string), new(string), new(sql.NullInt64),
+			new(string), new(string), new(sql.NullString), new(sql.NullString), new(sql.NullInt64),
 			new(string), new(sql.NullInt64), new(sql.NullInt64),
 			new(string), new(int), new(bool))
 	if err != nil {

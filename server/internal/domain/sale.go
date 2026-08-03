@@ -6,7 +6,8 @@ type Sale struct {
 	ID          int64     `json:"id"`
 	NameRu      string    `json:"name_ru"`
 	NameEn      string    `json:"name_en"`
-	Description string    `json:"description,omitempty"`
+	DescrRu     string    `json:"descr_ru,omitempty"`
+	DescrEn     string    `json:"descr_en,omitempty"`
 	ImagePath   string    `json:"image_path"`
 	SalePath    string    `json:"sale_path"`
 	Price       float64   `json:"price"`

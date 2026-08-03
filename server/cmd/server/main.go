@@ -211,4 +211,35 @@ func main() {
 }
 
 func runMigrations(db *sql.DB) {
+	// Add descr_ru / descr_en columns to the sales table if missing, and
+	// backfill them from the legacy `description` column.
+	var descrRuExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'descr_ru'").Scan(&descrRuExists); err == nil && descrRuExists == 0 {
+		if _, err := db.Exec("ALTER TABLE sales ADD COLUMN descr_ru TEXT DEFAULT ''"); err != nil {
+			slog.Warn("Migration (add descr_ru to sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (add descr_ru to sales): column added successfully")
+		}
+	}
+
+	var descrEnExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'descr_en'").Scan(&descrEnExists); err == nil && descrEnExists == 0 {
+		if _, err := db.Exec("ALTER TABLE sales ADD COLUMN descr_en TEXT DEFAULT ''"); err != nil {
+			slog.Warn("Migration (add descr_en to sales) failed", "error", err)
+		} else {
+			slog.Info("Migration (add descr_en to sales): column added successfully")
+		}
+	}
+
+	// Backfill the new columns from the legacy description column.
+	var descriptionExists int
+	if err := db.QueryRow("SELECT COUNT(*) FROM pragma_table_info('sales') WHERE name = 'description'").Scan(&descriptionExists); err == nil && descriptionExists > 0 {
+		if _, err := db.Exec("UPDATE sales SET descr_ru = COALESCE(description, ''), descr_en = COALESCE(description, '') WHERE descr_ru = '' AND description IS NOT NULL AND description != ''"); err != nil {
+			slog.Warn("Migration (backfill sales descr_ru/descr_en from description) failed", "error", err)
+		} else {
+			slog.Info("Migration (backfill sales descr_ru/descr_en from description): applied successfully")
+		}
+	}
+
+	slog.Info("Database migrations completed")
 }

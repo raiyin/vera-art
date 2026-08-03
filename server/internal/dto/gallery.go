@@ -88,7 +88,8 @@ type SaleResponse struct {
 	ID          int64     `json:"id"`
 	NameRu      string    `json:"name_ru"`
 	NameEn      string    `json:"name_en"`
-	Description string    `json:"description,omitempty"`
+	DescrRu     string    `json:"descr_ru,omitempty"`
+	DescrEn     string    `json:"descr_en,omitempty"`
 	ImagePath   string    `json:"image_path"`
 	SalePath    string    `json:"sale_path"`
 	Dir         string    `json:"dir"`
@@ -112,7 +113,8 @@ type UpdateSaleResponse struct {
 	ID          int64     `json:"id"`
 	NameRu      string    `json:"name_ru"`
 	NameEn      string    `json:"name_en"`
-	Description string    `json:"description,omitempty"`
+	DescrRu     string    `json:"descr_ru,omitempty"`
+	DescrEn     string    `json:"descr_en,omitempty"`
 	ImagePath   string    `json:"image_path"`
 	SalePath    string    `json:"sale_path"`
 	Dir         string    `json:"dir"`
@@ -135,7 +137,8 @@ type UpdateSaleResponse struct {
 type CreateSaleRequest struct {
 	NameRu      string  `json:"name_ru" form:"name_ru" binding:"required"`
 	NameEn      string  `json:"name_en" form:"name_en" binding:"required"`
-	Description string  `json:"description" form:"description"`
+	DescrRu     string  `json:"descr_ru" form:"descr_ru"`
+	DescrEn     string  `json:"descr_en" form:"descr_en"`
 	Price       float64 `json:"price" form:"price" binding:"required"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`
@@ -152,7 +155,8 @@ type CreateSaleRequest struct {
 type UpdateSaleRequest struct {
 	NameRu      string  `json:"name_ru" form:"name_ru"`
 	NameEn      string  `json:"name_en" form:"name_en"`
-	Description string  `json:"description" form:"description"`
+	DescrRu     string  `json:"descr_ru" form:"descr_ru"`
+	DescrEn     string  `json:"descr_en" form:"descr_en"`
 	Price       float64 `json:"price" form:"price"`
 	Year        int     `json:"year" form:"year"`
 	Technique   string  `json:"technique" form:"technique"`

@@ -260,15 +260,27 @@
                 <div class="form-group">
                     <label class="form-label">{{ $t('admin_shop_form.labels.base',) }}
                         <span class="required">*</span></label>
-                    <USelect
+                    <select
                         v-model="sale.base_id"
-                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
                         :class="{ 'is-invalid': errors.base_id, }"
-                        :placeholder="$t('admin_shop_form.placeholders.select_base',)"
                         @blur="validateField('base_id',)"
-                    />
+                    >
+                        <option
+                            value=""
+                            disabled
+                        >
+                            {{ $t('admin_shop_form.placeholders.select_base',) }}
+                        </option>
+                        <option
+                            v-for="base in bases"
+                            :key="base.id"
+                            :value="base.id"
+                        >
+                            {{ locale === 'ru' ? base.name_ru : base.name_en }}
+                        </option>
+                    </select>
                     <div
                         v-if="errors.base_id"
                         class="error-message"
@@ -281,21 +293,49 @@
                 <div class="form-group">
                     <label class="form-label">{{ $t('admin_shop_form.labels.materials',) }}
                         <span class="required">*</span></label>
-                    <USelect
-                        v-model="sale.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids, }"
-                        :placeholder="$t('admin_shop_form.placeholders.select_materials',)"
-                        @blur="validateField('materials_ids',)"
-                    />
-                    <div
-                        v-if="errors.materials_ids"
-                        class="error-message"
-                    >
-                        {{ errors.materials_ids }}
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.materials_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('materials_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || $t('admin_shop_form.placeholders.select_materials',) }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <input
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    class="material-checkbox"
+                                    :value="material.id"
+                                    :checked="sale.materials_ids.includes(material.id,)"
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.materials_ids"
+                            class="error-message"
+                        >
+                            {{ errors.materials_ids }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -405,6 +445,7 @@ const isLoading = ref(true,);
 const isDragOver = ref(false,);
 const fileError = ref<string | null>(null,);
 const errorMessage = ref('',);
+const materialsDropdownOpen = ref(false,);
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -423,18 +464,12 @@ const fileInput = ref<HTMLInputElement | null>(null,);
 const bases = computed(() => materialStore.bases,);
 const materials = computed(() => materialStore.materials,);
 
-const baseOptions = computed(() => {
-    return bases.value.map(base => ({
-        label: locale.value === 'ru' ? base.name_ru : base.name_en,
-        value: base.id,
-    }),);
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map(material => ({
-        label: locale.value === 'ru' ? material.name_ru : material.name_en,
-        value: material.id,
-    }),);
+const selectedMaterialsDisplay = computed(() => {
+    if (sale.materials_ids.length === 0) return '';
+    const selectedNames = materialStore.materials
+        .filter(material => sale.materials_ids.includes(material.id,),)
+        .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+    return selectedNames.join(', ',);
 });
 
 const isFormValid = computed(() => {
@@ -594,6 +629,27 @@ function validateField(fieldName: string,) {
     }
 }
 
+function materialsToggleDropdown() {
+    materialsDropdownOpen.value = !materialsDropdownOpen.value;
+}
+
+function toggleMaterial(materialId: number, checked: boolean,) {
+    if (checked) {
+        if (!sale.materials_ids.includes(materialId,)) {
+            sale.materials_ids.push(materialId,);
+        }
+    } else {
+        const index = sale.materials_ids.indexOf(materialId,);
+        if (index > -1) {
+            sale.materials_ids.splice(index, 1,);
+        }
+    }
+}
+
+function onMaterialChange(materialId: number, event: Event,) {
+    toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+}
+
 function validateForm() {
     validateField('name_ru',);
     validateField('name_en',);
@@ -628,21 +684,34 @@ async function submitForm() {
         // Build form data
         const formData = new FormData();
 
-        // Add files
+        // Add files under the field name expected by the server
         files.value.forEach((file,) => {
-            formData.append('images', file,);
+            formData.append('image', file,);
         });
 
-        // Add other data
-        formData.append('data', JSON.stringify(sale,),);
+        // Add flat form fields matching the server's CreateSaleRequest
+        formData.append('name_ru', sale.name_ru,);
+        formData.append('name_en', sale.name_en,);
+        formData.append('descr_ru', sale.descr_ru,);
+        formData.append('descr_en', sale.descr_en,);
+        formData.append('price', String(sale.price),);
+        formData.append('year', String(sale.year),);
+        formData.append('width', String(sale.width),);
+        formData.append('height', String(sale.height),);
+        sale.materials_ids.forEach((materialId,) => {
+            formData.append('material_ids', String(materialId,),);
+        });
+        if (sale.base_id > 0) {
+            formData.append('base_ids', String(sale.base_id,),);
+        }
 
         const response = await axios.post(SERVER_URL + 'sales', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token',)}`,
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 201 || response.status === 200) {
             toast.add({
                 title: t('toast.success.title',),
                 description: t('toast.success.description',),
@@ -705,6 +774,7 @@ function resetForm() {
         errors[key] = '';
     });
     fileError.value = null;
+    materialsDropdownOpen.value = false;
 }
 
 // Lifecycle
@@ -888,6 +958,95 @@ select:has(option.placeholder:checked) {
 
 :root.dark .drop-down-arrow {
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .file-drop-area {

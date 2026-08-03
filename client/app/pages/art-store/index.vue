@@ -8,7 +8,8 @@
         id: number
         name_ru: string
         name_en: string
-        description?: string
+        descr_ru?: string
+        descr_en?: string
         image_path: string
         sale_path: string
         dir: string
@@ -49,8 +50,8 @@
                 name_ru: item.name_ru,
                 name_en: item.name_en,
                 year: item.year ?? 0,
-                descr_ru: item.description ?? '',
-                descr_en: item.description ?? '',
+                descr_ru: item.descr_ru ?? '',
+                descr_en: item.descr_en ?? '',
                 base_id: item.base_ids?.[0] ?? 0,
                 width: item.width,
                 height: item.height,

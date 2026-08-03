@@ -211,12 +211,13 @@ var testWork = domain.Work{
 }
 
 var testSale = domain.Sale{
-	NameRu:      "Test Sale",
-	NameEn:      "Test Sale EN",
-	Description: "Sale description",
-	Price:       1000,
-	Status:      "available",
-	Sold:        false,
+	NameRu:  "Test Sale",
+	NameEn:  "Test Sale EN",
+	DescrRu: "Описание",
+	DescrEn: "Sale description",
+	Price:   1000,
+	Status:  "available",
+	Sold:    false,
 }
 
 func TestCreateWork(t *testing.T) {
