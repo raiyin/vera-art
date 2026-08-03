@@ -167,4 +167,5 @@ type UpdateSaleRequest struct {
 	Sold        bool    `json:"sold" form:"sold"`
 	MaterialIDs []int64 `json:"material_ids" form:"material_ids"`
 	BaseIDs     []int64 `json:"base_ids" form:"base_ids"`
+	Images      []string `json:"images" form:"images"`
 }

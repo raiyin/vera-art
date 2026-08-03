@@ -307,16 +307,20 @@ type GalleryService struct {
 	fileRepo    port.FileRepository
 	imagesDir   string
 	relWorksDir string
+	absSalesDir string
+	relSalesDir string
 }
 
 // NewGalleryService creates a new GalleryService.
-func NewGalleryService(workRepo port.WorkRepository, saleRepo port.SaleRepository, fileRepo port.FileRepository, imagesDir, relWorksDir string) *GalleryService {
+func NewGalleryService(workRepo port.WorkRepository, saleRepo port.SaleRepository, fileRepo port.FileRepository, imagesDir, relWorksDir, absSalesDir, relSalesDir string) *GalleryService {
 	return &GalleryService{
 		workRepo:    workRepo,
 		saleRepo:    saleRepo,
 		fileRepo:    fileRepo,
 		imagesDir:   imagesDir,
 		relWorksDir: relWorksDir,
+		absSalesDir: absSalesDir,
+		relSalesDir: relSalesDir,
 	}
 }
 
@@ -619,27 +623,32 @@ func (s *GalleryService) GetSaleByID(ctx context.Context, id int64) (*domain.Sal
 }
 
 // CreateSale creates a new sale.
-func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error {
+func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error {
 	if sale.NameRu == "" {
 		slog.Warn("GalleryService.CreateSale: empty name_ru")
 		return domain.ErrInvalidInput
 	}
 
-	imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("sale_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
-	if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
-		slog.Error("GalleryService.CreateSale: failed to save image",
-			"name_ru", sale.NameRu,
-			"image_path", imagePath,
-			"error", err,
-		)
-		return err
+	if sale.SalePath == "" {
+		sale.SalePath = s.buildSalePath()
 	}
-	sale.ImagePath = imagePath
+
+	if len(files) > 0 {
+		imageNames, err := s.saveSaleImages(ctx, sale.SalePath, "", files)
+		if err != nil {
+			slog.Error("GalleryService.CreateSale: failed to save image",
+				"name_ru", sale.NameRu,
+				"error", err,
+			)
+			return err
+		}
+		sale.ImagePath = imageNames
+	}
 
 	if err := s.saleRepo.Create(ctx, sale); err != nil {
 		slog.Error("GalleryService.CreateSale: failed to create sale",
 			"name_ru", sale.NameRu,
-			"image_path", imagePath,
+			"sale_path", sale.SalePath,
 			"error", err,
 		)
 		return err
@@ -668,12 +677,13 @@ func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, file
 	slog.Info("GalleryService.CreateSale: sale created",
 		"sale_id", sale.ID,
 		"name_ru", sale.NameRu,
+		"sale_path", sale.SalePath,
 	)
 	return nil
 }
 
 // UpdateSale updates a sale.
-func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error {
+func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error {
 	existing, err := s.saleRepo.GetByID(ctx, sale.ID)
 	if err != nil {
 		slog.Error("GalleryService.UpdateSale: failed to get existing sale",
@@ -683,28 +693,39 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 		return err
 	}
 
-	if reader != nil {
-		if existing.ImagePath != "" {
-			if err := s.fileRepo.Delete(ctx, existing.ImagePath); err != nil {
-				slog.Warn("GalleryService.UpdateSale: failed to delete old sale image",
-					"sale_id", sale.ID,
-					"image_path", existing.ImagePath,
-					"error", err,
-				)
-			}
-		}
-		imagePath := filepath.Join(s.imagesDir, fmt.Sprintf("sale_%d%s", time.Now().UnixNano(), filepath.Ext(filename)))
-		if err := s.fileRepo.Save(ctx, imagePath, reader); err != nil {
+	salePath := existing.SalePath
+	if salePath == "" {
+		salePath = s.buildSalePath()
+	}
+	sale.SalePath = salePath
+
+	// keptImages is the list of image filenames the user left in the preview.
+	// When it is not provided, fall back to the existing list for backward compatibility.
+	keptImages := sale.ImagePath
+	if keptImages == "" {
+		keptImages = existing.ImagePath
+	}
+
+	// Delete files that were removed from the preview.
+	s.removeDeletedSaleImages(ctx, salePath, existing.ImagePath, keptImages)
+
+	// Save newly uploaded images and append them to the kept list.
+	if len(files) > 0 {
+		imageNames, err := s.saveSaleImages(ctx, salePath, keptImages, files)
+		if err != nil {
 			slog.Error("GalleryService.UpdateSale: failed to save new image",
 				"sale_id", sale.ID,
-				"image_path", imagePath,
 				"error", err,
 			)
 			return err
 		}
-		sale.ImagePath = imagePath
+		if keptImages != "" {
+			sale.ImagePath = keptImages + ";" + imageNames
+		} else {
+			sale.ImagePath = imageNames
+		}
 	} else {
-		sale.ImagePath = existing.ImagePath
+		sale.ImagePath = keptImages
 	}
 
 	if err := s.saleRepo.Update(ctx, sale); err != nil {
@@ -739,6 +760,98 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 	return nil
 }
 
+// removeDeletedSaleImages deletes sale image files that are no longer present in the kept list.
+func (s *GalleryService) removeDeletedSaleImages(ctx context.Context, salePath, existingImages, keptImages string) {
+	existing := dto.SplitImages(existingImages)
+	kept := dto.SplitImages(keptImages)
+
+	keptSet := make(map[string]struct{}, len(kept))
+	for _, img := range kept {
+		keptSet[img] = struct{}{}
+	}
+
+	for _, img := range existing {
+		if img == "" {
+			continue
+		}
+		if _, ok := keptSet[img]; ok {
+			continue
+		}
+		relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, salePath, img), "/")
+		fullPath := filepath.Join(s.absSalesDir, relPath)
+		if err := s.fileRepo.Delete(ctx, fullPath); err != nil {
+			slog.Warn("GalleryService.UpdateSale: failed to delete removed image",
+				"image", img,
+				"error", err,
+			)
+			continue
+		}
+		slog.Debug("GalleryService.UpdateSale: removed image",
+			"image", img,
+		)
+	}
+}
+
+// buildSalePath returns a directory path for a sale's images.
+func (s *GalleryService) buildSalePath() string {
+	return fmt.Sprintf("sale_%d", time.Now().UnixNano())
+}
+
+// saveSaleImages saves uploaded images into a sale's directory and returns the semicolon-separated image names.
+func (s *GalleryService) saveSaleImages(ctx context.Context, salePath, currentImages string, files []domain.UploadedFile) (string, error) {
+	current := currentImages
+	var saved []string
+	for _, f := range files {
+		imageName, err := s.saveSaleImage(ctx, salePath, current, f.Filename, f.Reader)
+		if err != nil {
+			return "", err
+		}
+		saved = append(saved, imageName)
+		if current == "" {
+			current = imageName
+		} else {
+			current = current + ";" + imageName
+		}
+	}
+	return strings.Join(saved, ";"), nil
+}
+
+// saveSaleImage saves an uploaded image into a sale's directory and returns the image filename.
+func (s *GalleryService) saveSaleImage(ctx context.Context, salePath, currentImages, filename string, reader io.Reader) (string, error) {
+	ext := filepath.Ext(filename)
+	if ext == "" {
+		ext = ".jpg"
+	}
+	imageName := s.nextSaleImageName(currentImages, ext)
+
+	relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, salePath, imageName), "/")
+	fullPath := filepath.Join(s.absSalesDir, relPath)
+	if err := s.fileRepo.Save(ctx, fullPath, reader); err != nil {
+		return "", err
+	}
+	return imageName, nil
+}
+
+// nextSaleImageName returns the next sequential image filename for a sale directory.
+func (s *GalleryService) nextSaleImageName(currentImages, ext string) string {
+	count := 0
+	maxNum := 0
+	if currentImages != "" {
+		imgs := strings.Split(currentImages, ";")
+		count = len(imgs)
+		for _, img := range imgs {
+			n, err := strconv.Atoi(strings.TrimSuffix(img, filepath.Ext(img)))
+			if err == nil && n > maxNum {
+				maxNum = n
+			}
+		}
+	}
+	if maxNum < count {
+		maxNum = count
+	}
+	return fmt.Sprintf("%d%s", maxNum+1, ext)
+}
+
 // DeleteSale deletes a sale.
 func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 	sale, err := s.saleRepo.GetByID(ctx, id)
@@ -751,12 +864,19 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 	}
 
 	if sale.ImagePath != "" {
-		if err := s.fileRepo.Delete(ctx, sale.ImagePath); err != nil {
-			slog.Warn("GalleryService.DeleteSale: failed to delete sale image",
-				"sale_id", id,
-				"image_path", sale.ImagePath,
-				"error", err,
-			)
+		for _, img := range dto.SplitImages(sale.ImagePath) {
+			if img == "" {
+				continue
+			}
+			relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, sale.SalePath, img), "/")
+			fullPath := filepath.Join(s.absSalesDir, relPath)
+			if err := s.fileRepo.Delete(ctx, fullPath); err != nil {
+				slog.Warn("GalleryService.DeleteSale: failed to delete sale image",
+					"sale_id", id,
+					"image_path", fullPath,
+					"error", err,
+				)
+			}
 		}
 	}
 

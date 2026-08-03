@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/raiyin/artserver/internal/dto"
@@ -12,11 +13,15 @@ import (
 
 // TestSaleCRUD reproduces the full user flow for a store sale (art-store):
 // creating it with all fields and an image, verifying the database state,
-// editing it (with a replacement image), verifying the changes, then deleting.
+// editing it (adding a second image), verifying the changes, then deleting.
 func TestSaleCRUD(t *testing.T) {
-	r, db, _ := setupServer(t)
+	r, db, baseDir := setupServer(t)
 	seedAdminUser(t, db)
 	token := login(t, r)
+
+	// abs dir already points at the public root, so the rel dir prefix from the
+	// service is repeated inside it (mirrors the production layout).
+	salesRootDir := filepath.Join(baseDir, "content", "sales", "content", "sales")
 
 	// ------------------------------------------------------------------
 	// Create
@@ -56,20 +61,22 @@ func TestSaleCRUD(t *testing.T) {
 	mustEqual(t, "created status", created.Status, "published")
 
 	// The sale must exist in the database with the submitted fields.
-	oldImagePath, price := scanSaleRow(t, db, created.ID)
+	oldImages, oldSalePath, price := scanSaleRow(t, db, created.ID)
 	mustEqual(t, "db name_ru", created.NameRu, "Тестовая картина")
 	mustEqual(t, "db price", price, 12500.5)
-	mustEqual(t, "db image_path set", oldImagePath != "", true)
+	mustEqual(t, "db image_path set", oldImages != "", true)
+	mustEqual(t, "db sale_path set", oldSalePath != "", true)
 	mustEqual(t, "db material count", countRows(t, db, "SELECT COUNT(*) FROM sales_materials WHERE sale_id = ?", created.ID), 2)
 	mustEqual(t, "db base count", countRows(t, db, "SELECT COUNT(*) FROM sales_bases WHERE sale_id = ?", created.ID), 1)
 
-	// Uploaded image must be physically present on disk.
-	if _, err := os.Stat(oldImagePath); err != nil {
+	// Uploaded image must be physically present on disk in the sale directory.
+	oldImageDisk := filepath.Join(salesRootDir, oldSalePath, "1.webp")
+	if _, err := os.Stat(oldImageDisk); err != nil {
 		t.Fatalf("sale image missing on disk: %v", err)
 	}
 
 	// ------------------------------------------------------------------
-	// Update: change every field and replace the image.
+	// Update: change every field and add a second image.
 	// ------------------------------------------------------------------
 	updateBody, updateCT := buildMultipart(t,
 		map[string][]string{
@@ -86,6 +93,7 @@ func TestSaleCRUD(t *testing.T) {
 			"sold":         {"true"},
 			"material_ids": {"3"},
 			"base_ids":     {"2"},
+			"images":       {"1.webp"},
 		},
 		map[string][]formFile{
 			"image": {
@@ -105,18 +113,18 @@ func TestSaleCRUD(t *testing.T) {
 	mustEqual(t, "updated sold", updated.Sold, true)
 	mustEqual(t, "updated material_ids", updated.MaterialIDs, []int64{3})
 
-	newImagePath, newPrice := scanSaleRow(t, db, created.ID)
+	newImages, newSalePath, newPrice := scanSaleRow(t, db, created.ID)
 	mustEqual(t, "db updated price", newPrice, 20000.0)
-	mustEqual(t, "db updated image changed", newImagePath != oldImagePath, true)
+	mustEqual(t, "db updated image changed", newImages != oldImages, true)
+	mustEqual(t, "db updated sale_path unchanged", newSalePath, oldSalePath)
 	mustEqual(t, "db updated material count", countRows(t, db, "SELECT COUNT(*) FROM sales_materials WHERE sale_id = ?", created.ID), 1)
 	mustEqual(t, "db updated base count", countRows(t, db, "SELECT COUNT(*) FROM sales_bases WHERE sale_id = ?", created.ID), 1)
 
-	// The old image must be replaced on disk, the new one must exist.
-	if _, err := os.Stat(oldImagePath); !os.IsNotExist(err) {
-		t.Fatalf("old sale image should be deleted, stat err: %v", err)
-	}
-	if _, err := os.Stat(newImagePath); err != nil {
-		t.Fatalf("new sale image missing on disk: %v", err)
+	// Both the kept and the newly added images must exist on disk.
+	for _, name := range []string{"1.webp", "2.webp"} {
+		if _, err := os.Stat(filepath.Join(salesRootDir, newSalePath, name)); err != nil {
+			t.Fatalf("sale image %s missing on disk: %v", name, err)
+		}
 	}
 
 	// The edited sale must be returned by the public read endpoint.
@@ -137,8 +145,10 @@ func TestSaleCRUD(t *testing.T) {
 	mustEqual(t, "sales after delete", countRows(t, db, "SELECT COUNT(*) FROM sales WHERE id = ?", created.ID), 0)
 	mustEqual(t, "sales_materials after delete", countRows(t, db, "SELECT COUNT(*) FROM sales_materials WHERE sale_id = ?", created.ID), 0)
 	mustEqual(t, "sales_bases after delete", countRows(t, db, "SELECT COUNT(*) FROM sales_bases WHERE sale_id = ?", created.ID), 0)
-	if _, err := os.Stat(newImagePath); !os.IsNotExist(err) {
-		t.Fatalf("sale image should be deleted after sale removal, stat err: %v", err)
+	for _, name := range []string{"1.webp", "2.webp"} {
+		if _, err := os.Stat(filepath.Join(salesRootDir, newSalePath, name)); !os.IsNotExist(err) {
+			t.Fatalf("sale image %s should be deleted after sale removal, stat err: %v", name, err)
+		}
 	}
 
 	// The deleted sale must now be reported as not found.
@@ -146,17 +156,17 @@ func TestSaleCRUD(t *testing.T) {
 	mustStatus(t, w, http.StatusNotFound)
 }
 
-func scanSaleRow(t *testing.T, db *sql.DB, id int64) (imagePath string, price float64) {
+func scanSaleRow(t *testing.T, db *sql.DB, id int64) (imagePath, salePath string, price float64) {
 	t.Helper()
 	err := db.QueryRow(`
-		SELECT image_path, price, name_ru, name_en, descr_ru, descr_en, year, technique, width, height, status, sort_order, sold
+		SELECT image_path, sale_path, price, name_ru, name_en, descr_ru, descr_en, year, technique, width, height, status, sort_order, sold
 		FROM sales WHERE id = ?`, id).
-		Scan(&imagePath, &price,
+		Scan(&imagePath, &salePath, &price,
 			new(string), new(string), new(sql.NullString), new(sql.NullString), new(sql.NullInt64),
 			new(string), new(sql.NullInt64), new(sql.NullInt64),
 			new(string), new(int), new(bool))
 	if err != nil {
 		t.Fatalf("scan sale row: %v", err)
 	}
-	return imagePath, price
+	return imagePath, salePath, price
 }

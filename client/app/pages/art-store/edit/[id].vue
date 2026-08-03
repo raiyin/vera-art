@@ -721,6 +721,13 @@ async function submitForm() {
 
         const formData = new FormData();
 
+        // Add kept existing images under the field name expected by the server
+        sale.images.forEach((imageName,) => {
+            if (!imagesToDelete.value.includes(imageName,)) {
+                formData.append('images', imageName,);
+            }
+        });
+
         // Add new image files under the field name expected by the server
         if (addedFiles.value.length > 0) {
             addedFiles.value.forEach((file,) => {
@@ -752,6 +759,17 @@ async function submitForm() {
         });
 
         if (response.status === 200 || response.status === 201) {
+            const resData = response.data;
+            sale.dir = resData.dir ?? sale.dir;
+            sale.images = resData.images ?? sale.images;
+            addedFiles.value = [];
+            previewImages.value = sale.images.map((filename,) => ({
+                preview: `${sale.dir}${filename}`,
+                isExisting: true,
+                filename,
+            }),);
+            imagesToDelete.value = [];
+            Object.assign(originalSale, { ...sale, },);
             toast.add({
                 title: 'Успешно!',
                 description: 'Работа успешно обновлена в магазине.',
@@ -759,19 +777,6 @@ async function submitForm() {
                 color: 'success',
                 duration: 5000,
             });
-            const finalImages: string[] = [];
-            for (const imageName of sale.images) {
-                if (!imagesToDelete.value.includes(imageName,)) {
-                    finalImages.push(imageName,);
-                }
-            }
-            for (const file of addedFiles.value) {
-                finalImages.push(file.name,);
-            }
-            sale.images = finalImages;
-            imagesToDelete.value = [];
-            addedFiles.value = [];
-            Object.assign(originalSale, { ...sale, },);
         } else {
             toast.add({
                 title: 'Ошибка!',

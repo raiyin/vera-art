@@ -55,8 +55,8 @@ type GalleryService interface {
 	// Sales
 	GetSales(ctx context.Context, filter domain.SaleFilter) ([]domain.Sale, int, error)
 	GetSaleByID(ctx context.Context, id int64) (*domain.Sale, error)
-	CreateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
-	UpdateSale(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
+	CreateSale(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error
+	UpdateSale(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error
 	DeleteSale(ctx context.Context, id int64) error
 	BulkDeleteSales(ctx context.Context, ids []int64) error
 }

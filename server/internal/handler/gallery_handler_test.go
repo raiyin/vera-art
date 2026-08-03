@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -24,8 +23,8 @@ type mockGalleryService struct {
 	createWork  func(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
 	updateWork  func(ctx context.Context, work *domain.Work, files []domain.UploadedFile) error
 	deleteWork  func(ctx context.Context, id int64) error
-	createSale  func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
-	updateSale  func(ctx context.Context, sale *domain.Sale, filename string, reader io.Reader) error
+	createSale  func(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error
+	updateSale  func(ctx context.Context, sale *domain.Sale, files []domain.UploadedFile) error
 	deleteSale  func(ctx context.Context, id int64) error
 }
 
@@ -103,18 +102,18 @@ func (m *mockGalleryService) GetSaleByID(_ context.Context, id int64) (*domain.S
 	return nil, domain.ErrNotFound
 }
 
-func (m *mockGalleryService) CreateSale(_ context.Context, sale *domain.Sale, _ string, _ io.Reader) error {
+func (m *mockGalleryService) CreateSale(_ context.Context, sale *domain.Sale, _ []domain.UploadedFile) error {
 	if m.createSale != nil {
-		return m.createSale(context.Background(), sale, "", nil)
+		return m.createSale(context.Background(), sale, nil)
 	}
 	sale.ID = int64(len(m.sales) + 1)
 	m.sales = append(m.sales, *sale)
 	return nil
 }
 
-func (m *mockGalleryService) UpdateSale(_ context.Context, sale *domain.Sale, _ string, _ io.Reader) error {
+func (m *mockGalleryService) UpdateSale(_ context.Context, sale *domain.Sale, _ []domain.UploadedFile) error {
 	if m.updateSale != nil {
-		return m.updateSale(context.Background(), sale, "", nil)
+		return m.updateSale(context.Background(), sale, nil)
 	}
 	for i, s := range m.sales {
 		if s.ID == sale.ID {

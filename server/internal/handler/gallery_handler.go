@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"io"
 	"log/slog"
 	"net/http"
 	"os"
@@ -440,8 +439,23 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 		BaseIDs:     req.BaseIDs,
 	}
 
-	file, header, err := c.Request.FormFile("image")
-	if err != nil {
+	var files []domain.UploadedFile
+	if c.Request.MultipartForm != nil {
+		for _, headers := range c.Request.MultipartForm.File["image"] {
+			file, err := headers.Open()
+			if err != nil {
+				continue
+			}
+			defer file.Close()
+			files = append(files, domain.UploadedFile{
+				Filename: headers.Filename,
+				Size:     headers.Size,
+				Reader:   file,
+			})
+		}
+	}
+
+	if len(files) == 0 {
 		slog.Warn("CreateSale: missing image file")
 		c.JSON(http.StatusBadRequest, apperror.APIError{
 			Status:  http.StatusBadRequest,
@@ -450,11 +464,8 @@ func (h *GalleryHandler) CreateSale(c *gin.Context) {
 		})
 		return
 	}
-	defer file.Close()
-	filename := header.Filename
-	reader := file
 
-	if err := h.galleryService.CreateSale(c.Request.Context(), sale, filename, reader); err != nil {
+	if err := h.galleryService.CreateSale(c.Request.Context(), sale, files); err != nil {
 		slog.Error("CreateSale: failed to create sale",
 			"name_ru", req.NameRu,
 			"error", err,
@@ -508,19 +519,26 @@ func (h *GalleryHandler) UpdateSale(c *gin.Context) {
 		Sold:        req.Sold,
 		MaterialIDs: req.MaterialIDs,
 		BaseIDs:     req.BaseIDs,
+		ImagePath:   dto.JoinImages(req.Images),
 	}
 
-	var filename string
-	var reader io.ReadCloser
-
-	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		defer file.Close()
-		filename = header.Filename
-		reader = file
+	var files []domain.UploadedFile
+	if c.Request.MultipartForm != nil {
+		for _, headers := range c.Request.MultipartForm.File["image"] {
+			file, err := headers.Open()
+			if err != nil {
+				continue
+			}
+			defer file.Close()
+			files = append(files, domain.UploadedFile{
+				Filename: headers.Filename,
+				Size:     headers.Size,
+				Reader:   file,
+			})
+		}
 	}
 
-	if err := h.galleryService.UpdateSale(c.Request.Context(), sale, filename, reader); err != nil {
+	if err := h.galleryService.UpdateSale(c.Request.Context(), sale, files); err != nil {
 		slog.Error("UpdateSale: failed to update sale",
 			"sale_id", id,
 			"error", err,

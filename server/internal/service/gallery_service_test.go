@@ -193,7 +193,7 @@ func (m *mockFileRepo) RenameDir(_ context.Context, _, _ string) error {
 }
 
 func newGalleryService(workRepo *mockWorkRepo, saleRepo *mockSaleRepo, fileRepo *mockFileRepo) *GalleryService {
-	return NewGalleryService(workRepo, saleRepo, fileRepo, "/tmp/images", "/content/works/")
+	return NewGalleryService(workRepo, saleRepo, fileRepo, "/tmp/images", "/content/works/", "/tmp/images", "/content/sales/")
 }
 
 var testWork = domain.Work{
@@ -445,7 +445,7 @@ func TestCreateWorkSavesImage(t *testing.T) {
 func TestUpdateWorkSavesFileToDisk(t *testing.T) {
 	imagesDir := filepath.Join(t.TempDir(), "public")
 	fileRepo := file.NewRepository(imagesDir)
-	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, fileRepo, imagesDir, "/content/works/")
+	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, fileRepo, imagesDir, "/content/works/", imagesDir, "/content/sales/")
 
 	workRepo := &mockWorkRepo{}
 	workRepo.works = append(workRepo.works, domain.Work{ID: 1, StrID: "flora_fauna", WorkPath: "flora_fauna/", Images: "1.jpg", NameRu: "Test"})
@@ -473,7 +473,7 @@ func TestUpdateWorkSavesFileToDisk(t *testing.T) {
 func TestUpdateWorkRemovesDeletedImages(t *testing.T) {
 	imagesDir := filepath.Join(t.TempDir(), "public")
 	fileRepo := file.NewRepository(imagesDir)
-	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, fileRepo, imagesDir, "/content/works/")
+	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, fileRepo, imagesDir, "/content/works/", imagesDir, "/content/sales/")
 
 	workRepo := &mockWorkRepo{}
 	workRepo.works = append(workRepo.works, domain.Work{ID: 1, StrID: "removed", WorkPath: "removed/", Images: "1.jpg;2.jpg", NameRu: "Test"})
@@ -547,7 +547,7 @@ func TestCreateSale(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		svc := newGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{})
 		s := testSale
-		err := svc.CreateSale(context.Background(), &s, "", nil)
+		err := svc.CreateSale(context.Background(), &s, nil)
 		if err != nil {
 			t.Fatalf("CreateSale failed: %v", err)
 		}
@@ -559,7 +559,7 @@ func TestCreateSale(t *testing.T) {
 	t.Run("empty name_ru returns ErrInvalidInput", func(t *testing.T) {
 		svc := newGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{})
 		s := domain.Sale{}
-		err := svc.CreateSale(context.Background(), &s, "", nil)
+		err := svc.CreateSale(context.Background(), &s, nil)
 		if !errors.Is(err, domain.ErrInvalidInput) {
 			t.Errorf("expected ErrInvalidInput, got %v", err)
 		}
@@ -571,7 +571,7 @@ func TestGetSaleByID(t *testing.T) {
 		saleRepo := &mockSaleRepo{}
 		svc := newGalleryService(&mockWorkRepo{}, saleRepo, &mockFileRepo{})
 		s := testSale
-		if err := svc.CreateSale(context.Background(), &s, "", nil); err != nil {
+		if err := svc.CreateSale(context.Background(), &s, nil); err != nil {
 			t.Fatalf("setup failed: %v", err)
 		}
 		got, err := svc.GetSaleByID(context.Background(), s.ID)
@@ -613,7 +613,7 @@ func TestGetSales(t *testing.T) {
 		for i := 0; i < 3; i++ {
 			s := testSale
 			s.NameRu = "Sale"
-			if err := svc.CreateSale(context.Background(), &s, "", nil); err != nil {
+			if err := svc.CreateSale(context.Background(), &s, nil); err != nil {
 				t.Fatalf("setup failed: %v", err)
 			}
 		}
@@ -636,12 +636,12 @@ func TestUpdateSale(t *testing.T) {
 		fileRepo := &mockFileRepo{}
 		svc := newGalleryService(&mockWorkRepo{}, saleRepo, fileRepo)
 		s := testSale
-		if err := svc.CreateSale(context.Background(), &s, "test.jpg", nil); err != nil {
+		if err := svc.CreateSale(context.Background(), &s, nil); err != nil {
 			t.Fatalf("setup failed: %v", err)
 		}
 		s.NameRu = "Updated Sale"
 		s.ImagePath = "sale_image.jpg"
-		if err := svc.UpdateSale(context.Background(), &s, "", nil); err != nil {
+		if err := svc.UpdateSale(context.Background(), &s, nil); err != nil {
 			t.Fatalf("UpdateSale failed: %v", err)
 		}
 		got, _ := svc.GetSaleByID(context.Background(), s.ID)
@@ -657,7 +657,7 @@ func TestDeleteSale(t *testing.T) {
 		fileRepo := &mockFileRepo{}
 		svc := newGalleryService(&mockWorkRepo{}, saleRepo, fileRepo)
 		s := testSale
-		if err := svc.CreateSale(context.Background(), &s, "test.jpg", nil); err != nil {
+		if err := svc.CreateSale(context.Background(), &s, nil); err != nil {
 			t.Fatalf("setup failed: %v", err)
 		}
 		if err := svc.DeleteSale(context.Background(), s.ID); err != nil {
@@ -728,7 +728,7 @@ func TestServiceGetSalesPassthrough(t *testing.T) {
 }
 
 func TestNewGalleryService(t *testing.T) {
-	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{}, "/tmp", "/content/works/")
+	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{}, "/tmp", "/content/works/", "/tmp", "/content/sales/")
 	if svc == nil {
 		t.Fatal("expected non-nil service")
 	}
@@ -758,7 +758,7 @@ func TestCreateWorkMaxID(t *testing.T) {
 }
 
 func TestGalleryServiceImplementsPort(t *testing.T) {
-	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{}, "/tmp", "/content/works/")
+	svc := NewGalleryService(&mockWorkRepo{}, &mockSaleRepo{}, &mockFileRepo{}, "/tmp", "/content/works/", "/tmp", "/content/sales/")
 	var _ port.GalleryService = svc
 }
 

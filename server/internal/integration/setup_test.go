@@ -74,7 +74,7 @@ func setupServer(t *testing.T) (*gin.Engine, *sql.DB, string) {
 
 	authService := service.NewAuthService(userRepo, jwtManager, emailSender)
 	userService := service.NewUserService(userRepo, fileRepo, filepath.Join(baseDir, "avatars"))
-	galleryService := service.NewGalleryService(workRepo, saleRepo, fileRepo, worksDir, "/content/works/")
+	galleryService := service.NewGalleryService(workRepo, saleRepo, fileRepo, worksDir, "/content/works/", salesDir, "/content/sales/")
 	newsService := service.NewNewsService(newsRepo, fileRepo, newsDir)
 	shopService := service.NewShopService(productRepo, categoryRepo, promoRepo, reviewRepo)
 	learningService := service.NewLearningService(lessonRepo, progressRepo, purchaseRepo)
