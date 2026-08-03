@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"math/rand/v2"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -630,7 +631,7 @@ func (s *GalleryService) CreateSale(ctx context.Context, sale *domain.Sale, file
 	}
 
 	if sale.SalePath == "" {
-		sale.SalePath = s.buildSalePath()
+		sale.SalePath = s.buildSalePath(sale.NameEn)
 	}
 
 	if len(files) > 0 {
@@ -695,16 +696,13 @@ func (s *GalleryService) UpdateSale(ctx context.Context, sale *domain.Sale, file
 
 	salePath := existing.SalePath
 	if salePath == "" {
-		salePath = s.buildSalePath()
+		salePath = s.buildSalePath(sale.NameEn)
 	}
 	sale.SalePath = salePath
 
 	// keptImages is the list of image filenames the user left in the preview.
-	// When it is not provided, fall back to the existing list for backward compatibility.
+	// An empty list means every existing image was removed.
 	keptImages := sale.ImagePath
-	if keptImages == "" {
-		keptImages = existing.ImagePath
-	}
 
 	// Delete files that were removed from the preview.
 	s.removeDeletedSaleImages(ctx, salePath, existing.ImagePath, keptImages)
@@ -792,9 +790,22 @@ func (s *GalleryService) removeDeletedSaleImages(ctx context.Context, salePath, 
 	}
 }
 
-// buildSalePath returns a directory path for a sale's images.
-func (s *GalleryService) buildSalePath() string {
-	return fmt.Sprintf("sale_%d", time.Now().UnixNano())
+// buildSalePath returns a directory path for a sale's images based on the
+// sale's English name: <first_word_lowercase>_<4_random_digits>.
+func (s *GalleryService) buildSalePath(nameEn string) string {
+	prefix := "sale"
+	if fields := strings.Fields(strings.TrimSpace(nameEn)); len(fields) > 0 {
+		var b strings.Builder
+		for _, r := range strings.ToLower(fields[0]) {
+			if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+				b.WriteRune(r)
+			}
+		}
+		if b.Len() > 0 {
+			prefix = b.String()
+		}
+	}
+	return fmt.Sprintf("%s_%04d", prefix, rand.IntN(10000))
 }
 
 // saveSaleImages saves uploaded images into a sale's directory and returns the semicolon-separated image names.
@@ -818,11 +829,7 @@ func (s *GalleryService) saveSaleImages(ctx context.Context, salePath, currentIm
 
 // saveSaleImage saves an uploaded image into a sale's directory and returns the image filename.
 func (s *GalleryService) saveSaleImage(ctx context.Context, salePath, currentImages, filename string, reader io.Reader) (string, error) {
-	ext := filepath.Ext(filename)
-	if ext == "" {
-		ext = ".jpg"
-	}
-	imageName := s.nextSaleImageName(currentImages, ext)
+	imageName := s.uniqueSaleImageName(currentImages, filename)
 
 	relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, salePath, imageName), "/")
 	fullPath := filepath.Join(s.absSalesDir, relPath)
@@ -832,24 +839,50 @@ func (s *GalleryService) saveSaleImage(ctx context.Context, salePath, currentIma
 	return imageName, nil
 }
 
-// nextSaleImageName returns the next sequential image filename for a sale directory.
-func (s *GalleryService) nextSaleImageName(currentImages, ext string) string {
-	count := 0
-	maxNum := 0
-	if currentImages != "" {
-		imgs := strings.Split(currentImages, ";")
-		count = len(imgs)
-		for _, img := range imgs {
-			n, err := strconv.Atoi(strings.TrimSuffix(img, filepath.Ext(img)))
-			if err == nil && n > maxNum {
-				maxNum = n
-			}
+// uniqueSaleImageName returns the sanitized original filename for a sale image,
+// made unique against the already-saved images in the same directory.
+func (s *GalleryService) uniqueSaleImageName(currentImages, filename string) string {
+	base := sanitizeImageName(filename)
+	if base == "" {
+		base = "image.jpg"
+	}
+	ext := filepath.Ext(base)
+	stem := strings.TrimSuffix(base, ext)
+
+	used := make(map[string]struct{})
+	for _, img := range dto.SplitImages(currentImages) {
+		if img != "" {
+			used[img] = struct{}{}
 		}
 	}
-	if maxNum < count {
-		maxNum = count
+
+	name := base
+	for i := 1; ; i++ {
+		if _, exists := used[name]; !exists {
+			return name
+		}
+		name = fmt.Sprintf("%s_%d%s", stem, i, ext)
 	}
-	return fmt.Sprintf("%d%s", maxNum+1, ext)
+}
+
+// sanitizeImageName keeps only the original base filename, removing path
+// separators and characters that are unsafe in a filesystem path.
+func sanitizeImageName(name string) string {
+	base := filepath.Base(strings.ReplaceAll(name, "\\", "/"))
+	ext := filepath.Ext(base)
+	stem := strings.TrimSuffix(base, ext)
+
+	var b strings.Builder
+	for _, r := range stem {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9', r == '-', r == '_':
+			b.WriteRune(r)
+		}
+	}
+	if b.Len() == 0 {
+		b.WriteString("image")
+	}
+	return b.String() + ext
 }
 
 // DeleteSale deletes a sale.
@@ -863,20 +896,15 @@ func (s *GalleryService) DeleteSale(ctx context.Context, id int64) error {
 		return err
 	}
 
-	if sale.ImagePath != "" {
-		for _, img := range dto.SplitImages(sale.ImagePath) {
-			if img == "" {
-				continue
-			}
-			relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, sale.SalePath, img), "/")
-			fullPath := filepath.Join(s.absSalesDir, relPath)
-			if err := s.fileRepo.Delete(ctx, fullPath); err != nil {
-				slog.Warn("GalleryService.DeleteSale: failed to delete sale image",
-					"sale_id", id,
-					"image_path", fullPath,
-					"error", err,
-				)
-			}
+	if sale.SalePath != "" {
+		relPath := strings.TrimLeft(filepath.Join(s.relSalesDir, sale.SalePath), "/")
+		fullPath := filepath.Join(s.absSalesDir, relPath)
+		if err := s.fileRepo.RemoveDir(ctx, fullPath); err != nil {
+			slog.Warn("GalleryService.DeleteSale: failed to delete sale directory",
+				"sale_id", id,
+				"dir", fullPath,
+				"error", err,
+			)
 		}
 	}
 

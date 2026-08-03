@@ -1044,7 +1044,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -1062,7 +1062,7 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
 }
 

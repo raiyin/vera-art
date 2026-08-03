@@ -76,7 +76,8 @@ func TestSaleCRUD(t *testing.T) {
 	}
 
 	// ------------------------------------------------------------------
-	// Update: change every field and add a second image.
+	// Update 1: change every field, keep the old image and add a new one
+	// whose original name must be preserved (not renamed).
 	// ------------------------------------------------------------------
 	updateBody, updateCT := buildMultipart(t,
 		map[string][]string{
@@ -97,7 +98,7 @@ func TestSaleCRUD(t *testing.T) {
 		},
 		map[string][]formFile{
 			"image": {
-				{filename: "2.webp", content: testFile(t, "2.webp")},
+				{filename: "sunset.webp", content: testFile(t, "sunset.webp")},
 			},
 		},
 	)
@@ -119,12 +120,52 @@ func TestSaleCRUD(t *testing.T) {
 	mustEqual(t, "db updated sale_path unchanged", newSalePath, oldSalePath)
 	mustEqual(t, "db updated material count", countRows(t, db, "SELECT COUNT(*) FROM sales_materials WHERE sale_id = ?", created.ID), 1)
 	mustEqual(t, "db updated base count", countRows(t, db, "SELECT COUNT(*) FROM sales_bases WHERE sale_id = ?", created.ID), 1)
+	mustEqual(t, "db updated images keep original names", newImages, "1.webp;sunset.webp")
 
 	// Both the kept and the newly added images must exist on disk.
-	for _, name := range []string{"1.webp", "2.webp"} {
+	for _, name := range []string{"1.webp", "sunset.webp"} {
 		if _, err := os.Stat(filepath.Join(salesRootDir, newSalePath, name)); err != nil {
 			t.Fatalf("sale image %s missing on disk: %v", name, err)
 		}
+	}
+
+	// ------------------------------------------------------------------
+	// Update 2: remove the existing image from the preview. It must be
+	// deleted from the server (disk) and disappear from the database.
+	// ------------------------------------------------------------------
+	removeBody, removeCT := buildMultipart(t,
+		map[string][]string{
+			"name_ru":      {"Обновлённая картина"},
+			"name_en":      {"Updated painting"},
+			"description":  {"Акрил на холсте"},
+			"price":        {"20000"},
+			"year":         {"2024"},
+			"technique":    {"акрил"},
+			"width":        {"50"},
+			"height":       {"80"},
+			"status":       {"published"},
+			"sort_order":   {"2"},
+			"sold":         {"true"},
+			"material_ids": {"3"},
+			"base_ids":     {"2"},
+			"images":       {"sunset.webp"},
+		},
+		nil,
+	)
+
+	w = doRequest(t, r, http.MethodPut, "/sales/"+int64Str(created.ID), token, removeBody, removeCT)
+	mustStatus(t, w, http.StatusOK)
+
+	removedImages, sameSalePath, _ := scanSaleRow(t, db, created.ID)
+	mustEqual(t, "db removed images", removedImages, "sunset.webp")
+	mustEqual(t, "db removed sale_path unchanged", sameSalePath, oldSalePath)
+
+	// The removed image must be gone from disk, the kept one must remain.
+	if _, err := os.Stat(filepath.Join(salesRootDir, sameSalePath, "1.webp")); !os.IsNotExist(err) {
+		t.Fatalf("removed image 1.webp should be deleted on server, stat err: %v", err)
+	}
+	if _, err := os.Stat(filepath.Join(salesRootDir, sameSalePath, "sunset.webp")); err != nil {
+		t.Fatalf("kept image sunset.webp missing on disk: %v", err)
 	}
 
 	// The edited sale must be returned by the public read endpoint.
@@ -145,10 +186,13 @@ func TestSaleCRUD(t *testing.T) {
 	mustEqual(t, "sales after delete", countRows(t, db, "SELECT COUNT(*) FROM sales WHERE id = ?", created.ID), 0)
 	mustEqual(t, "sales_materials after delete", countRows(t, db, "SELECT COUNT(*) FROM sales_materials WHERE sale_id = ?", created.ID), 0)
 	mustEqual(t, "sales_bases after delete", countRows(t, db, "SELECT COUNT(*) FROM sales_bases WHERE sale_id = ?", created.ID), 0)
-	for _, name := range []string{"1.webp", "2.webp"} {
-		if _, err := os.Stat(filepath.Join(salesRootDir, newSalePath, name)); !os.IsNotExist(err) {
+	for _, name := range []string{"sunset.webp"} {
+		if _, err := os.Stat(filepath.Join(salesRootDir, sameSalePath, name)); !os.IsNotExist(err) {
 			t.Fatalf("sale image %s should be deleted after sale removal, stat err: %v", name, err)
 		}
+	}
+	if _, err := os.Stat(filepath.Join(salesRootDir, sameSalePath)); !os.IsNotExist(err) {
+		t.Fatalf("sale directory should be deleted after sale removal, stat err: %v", err)
 	}
 
 	// The deleted sale must now be reported as not found.
