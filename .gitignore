@@ -1,5 +1,39 @@
 screenshots
-server/db/db.sqlite
 storage
+
+# Node / Nuxt build artifacts
+node_modules/
+.nuxt/
+.nuxtignore
+.output/
+client/.nuxt/
+client/.output/
+
+# Environment & secrets
+*.env
+!.env.example
+server/.env
+client/.env
+
+# Go build artifacts
+server/bin/
+server/server
+/artserver
+
+# SQLite runtime files and backups
+server/db/db.sqlite
 server/db/db.sqlite-shm
 server/db/db.sqlite-wal
+server/db/*.sqlite*
+server/db/*.bak*
+server/db/Copy*
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Logs, IDE
+*.log
+.idea/
+.vscode/
+*.swp

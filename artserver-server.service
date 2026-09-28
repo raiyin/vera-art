@@ -1,0 +1,20 @@
+[Unit]
+Description=Vera Art API server (Go)
+After=network.target
+
+[Service]
+Type=simple
+User=raiyin
+Group=raiyin
+# Важно: рабочий каталог — там, где лежат config.yaml и db/
+WorkingDirectory=/opt/artserver/server
+EnvironmentFile=/opt/artserver/server/.env
+ExecStart=/opt/artserver/server/bin/artserver
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
+

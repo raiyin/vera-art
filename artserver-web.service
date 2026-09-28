@@ -1,0 +1,23 @@
+[Unit]
+Description=Vera Art web (Nuxt SSR)
+After=network.target
+
+[Service]
+Type=simple
+User=raiyin
+Group=raiyin
+WorkingDirectory=/opt/artserver/client
+Environment=PORT=3000
+Environment=HOST=127.0.0.1
+# Дублируем флаги продакшна (перекрывают значения из бандла на время SSR)
+Environment=NUXT_PUBLIC_SERVER_URL=https://pertsukova.ru/api-server/
+Environment=NUXT_PUBLIC_REGISTRATION_ENABLED=false
+Environment=NUXT_PUBLIC_LIMIT=9
+ExecStart=/usr/bin/node /opt/artserver/client/.output/server/index.mjs
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
+

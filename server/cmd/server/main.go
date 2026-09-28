@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -202,7 +203,10 @@ func main() {
 	// -------------------------------------------------------------------------
 	// Start server
 	// -------------------------------------------------------------------------
-	addr := "localhost:8000"
+	addr := fmt.Sprintf("localhost:%d", appConfig.App.Port)
+	if override := os.Getenv("SERVER_ADDR"); override != "" {
+		addr = override
+	}
 	slog.Info("Server starting", "address", addr)
 	if err := r.Run(addr); err != nil {
 		slog.Error("Server failed to start", "error", err)

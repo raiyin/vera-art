@@ -22,5 +22,6 @@
   "typescript.tsdk": "client/node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "vue.server.hybridMode": true,
-  "vue.autoInsert.dotValue": true
+  "vue.autoInsert.dotValue": true,
+  "makefile.configureOnOpen": false
 }
