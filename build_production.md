@@ -566,10 +566,28 @@ uname -m   # должно быть x86_64
 
 ```bash
 cd /opt/artserver/server
+
+# порт 8000 должен быть свободен — приложение слушает только localhost:8000
+ss -tlnp | grep ':8000' || echo 'порт 8000 свободен'
+# если занят — кто-то уже слушает 8000:
+#   sudo systemctl stop artserver-server 2>/dev/null   # если юнит из раздела 8 уже создан и запущен
+#   ps -eo pid,cmd | grep '[b]in/artserver'            # или зависший ручной прогон `./bin/artserver` без timeout
+#   sudo kill <PID>
+
 timeout 3 ./bin/artserver || true   # стартует, читает config.yaml/.env; сам остановится через 3 c
 # в логе должны быть "Server starting ..." и "Registration is DISABLED by feature flag"
 file bin/artserver                  # должно показать x86-64
 ```
+
+> **`bind: address already in use`** в конце лога означает, что `127.0.0.1:8000`
+> уже занят (зависший прошлый прогон или уже развёрнутый сервис из раздела 8) —
+> это не ошибка сборки или конфига. Освободите порт (команды выше) и повторите.
+>
+> **`[GIN-debug]`-список роутов и предупреждение `You trusted all proxies`.**
+> Печатаются из-за debug-режима Gin. В продакшн-юните (раздел 8.1) выставляется
+> `GIN_MODE=release`, и этот вывод исчезает. Предупреждение про trusted proxies
+> в нашей схеме безвредно: приложение слушает только `127.0.0.1` и достаётся
+> исключительно нашему nginx.
 
 ---
 
@@ -760,6 +778,8 @@ Group=raiyin
 # Важно: рабочий каталог — там, где лежат config.yaml и db/
 WorkingDirectory=/opt/artserver/server
 EnvironmentFile=/opt/artserver/server/.env
+# Gin: продакшн-режим (убирает [GIN-debug]-вывод роутов и лишние предупреждения)
+Environment=GIN_MODE=release
 ExecStart=/opt/artserver/server/bin/artserver
 Restart=on-failure
 RestartSec=5

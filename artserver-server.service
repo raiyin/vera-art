@@ -9,6 +9,8 @@ Group=raiyin
 # Важно: рабочий каталог — там, где лежат config.yaml и db/
 WorkingDirectory=/opt/artserver/server
 EnvironmentFile=/opt/artserver/server/.env
+# Gin: продакшн-режим (убирает [GIN-debug]-вывод роутов и лишние предупреждения)
+Environment=GIN_MODE=release
 ExecStart=/opt/artserver/server/bin/artserver
 Restart=on-failure
 RestartSec=5
