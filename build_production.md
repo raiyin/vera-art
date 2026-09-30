@@ -98,8 +98,9 @@
 (`/news`, `/admin`, `/profile` и т.д.), поэтому API и сайт не могут жить на одном
 и том же пути без конфликта. Префикс снимается в nginx командой `rewrite` —
 Go-сервер не знает о нём и работает как обычно. Клиентская переменная
-`NUXT_PUBLIC_SERVER_URL` указывает на `https://pertsukova.ru/api-server/`
-(обязательно с завершающим слэшем).
+`NUXT_PUBLIC_SERVER_URL` указывает на `https://www.pertsukova.ru/api-server/`
+(обязательно с завершающим слэшем и **с `www`**: панель канонизирует apex на
+`www` редиректом `301`, а `POST` при `301` теряет тело — см. 7.1).
 
 **Что делать с `X-Forwarded-Proto`.** Приложениям нужно знать исходную схему
 (`https`), хотя nginx видит только `http`. Панель обычно передаёт заголовок
@@ -168,7 +169,7 @@ chown raiyin:raiyin /home/raiyin/.ssh/authorized_keys
 chmod 600 /home/raiyin/.ssh/authorized_keys
 ```
 
-Беспарольный sudo пригодится скрипту бэкапа (раздел 13) и установке пакетов:
+Беспарольный sudo пригодится скрипту бэкапа (раздел 14) и установке пакетов:
 
 ```bash
 echo 'raiyin ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/raiyin
@@ -286,6 +287,11 @@ sudo chown -R raiyin:raiyin /opt/artserver
 `.output`, `db/*.sqlite` и `storage/` переносить не нужно (они тяжёлые и/или
 gitignored).
 
+> Этот раздел — **первичный** перенос. Когда сервер уже развёрнут и вы вносите
+> правки, повторяйте не его целиком, а последовательность из **раздела 13**
+> («Обновление продакшна после правок»): там собраны все повторяющиеся шаги
+> для клиента, сервера, юнитов и nginx — вместе с проверками после каждого.
+
 Пропишите подключение один раз в `~/.ssh/config` (на машине разработки) —
 тогда не придётся добавлять `-e 'ssh -p …'` в каждую команду:
 
@@ -328,6 +334,10 @@ rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
 
 # и сразу выдаём права пользователю сервисов
 ssh artserver 'chown -R raiyin:raiyin /opt/artserver'
+
+# rsync -avz переносит права с macOS (где бывает 700/744) — nginx,
+# читающий файлы от www-data, не сможет их отдать. Подробно в 5.2.
+ssh artserver 'chmod o+x /opt/artserver /opt/artserver/client /opt/artserver/client/public'
 ```
 
 > **Что и почему исключено (важно при повторных заливках с `--delete`).**
@@ -384,6 +394,82 @@ rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' server/db/db.sqlite root@�
 # локально: изображения (галерея, магазин, новости)
 rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' client/public/content/ root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/public/content/
 ```
+
+> **`rsync -avz` переносит права как есть, а nginx читает файлы от пользователя
+> `www-data`.** Если на машине разработки часть картинок лежит с правами `700`
+> (`-rwx------`), на сервере они останутся закрытыми для `www-data`, и все
+> такие изображения отдадут **403 Forbidden**, хотя файлы на месте.
+>
+> Сразу после переноса (и в любое другое время, когда добавлялись файлы) —
+> выставить права на каталог контента:
+>
+> ```bash
+> # на сервере: каталоги 755 (обход + чтение), файлы 644 (чтение всем)
+> sudo find /opt/artserver/client/public/content -type d -exec chmod 755 {} +
+> sudo find /opt/artserver/client/public/content -type f -exec chmod 644 {} +
+> sudo chown -R raiyin:raiyin /opt/artserver/client/public/content
+> ```
+>
+> Порядок важен: `chown` идёт **после** `chmod`, иначе `chmod` может
+> затереть установленные права. Запись в каталоги Go-серверу нужна для
+> загрузки новых файлов, а чтение `www-data` — для отдачи.
+>
+> **`403` может быть и на каталогах выше контента — и это не лечится `chmod`
+> внутри `content/`.** `rsync -avz` переносит права и на каталоги, поэтому
+> `/opt/artserver`, `/opt/artserver/client`, `/opt/artserver/client/public`
+> нередко приезжают как `drwxr--r--` (744). У `www-data` нет бита `o+x`, и он
+> **физически не может зайти в каталог** — `Permission denied` на несколько
+> уровней выше нужного файла, даже когда сам файл уже `644`. Симптом тот же:
+> `403` при живом файле.
+>
+> Диагностика всей цепочки каталогов (ищите первую строку без `x` в
+> «others»):
+>
+> ```bash
+> sudo -u www-data namei -l /opt/artserver/client/public/content/works/homeland/1.jpg
+> ```
+>
+> ```
+> f: /opt/artserver/client/public/content/works/homeland/1.jpg
+> drwxr-xr-x root   root   /
+> drwxr-xr-x root   root   opt
+> drwxr--r-- raiyin raiyin artserver     <-- нет o+x, дальше не пройти
+>                         client - Permission denied
+> ```
+>
+> Исправление — добавить **только проход** (`o+x`) на каталоги-родители, без
+> раскрытия листинга:
+>
+> ```bash
+> sudo chmod o+x /opt/artserver /opt/artserver/client /opt/artserver/client/public
+> ```
+>
+> После этого:
+>
+> ```bash
+> sudo -u www-data test -r /opt/artserver/client/public/content/works/homeland/1.jpg \
+>   && echo 'ok' || echo 'всё ещё 403'
+> curl -sI https://www.pertsukova.ru/content/works/homeland/1.jpg | head -1
+> ```
+>
+> Диагностика, если картинки дают `403`:
+>
+> ```bash
+> # 1) файл вообще существует?
+> ls -l /opt/artserver/client/public/content/works/homeland/1.jpg
+> # 2) что видит пользователь nginx?
+> sudo -u www-data cat /opt/artserver/client/public/content/works/homeland/1.jpg >/dev/null \
+>   && echo 'nginx прочитает' || echo 'nginx НЕ прочитает'
+> # 3) цепочка каталогов — где именно обрыв
+> sudo -u www-data namei -l /opt/artserver/client/public/content/works/homeland/1.jpg
+> # 4) что пишет сам nginx
+> sudo tail -20 /var/log/nginx/error.log
+> ```
+>
+> `403` = путь есть, но прав на проход/чтение нет. `404` = файла нет по
+> ожидаемому пути. `Permission denied` в `error.log` — то же, что и пункты
+> 2–3. Права **всех** каталогов выше контента — тоже часть задачи:
+> `find` по `content/` их не покрывает.
 
 Перед копированием локальной БД сделайте checkpoint WAL, иначе данные в `-wal`
 могут потеряться:
@@ -606,7 +692,7 @@ file bin/artserver                  # должно показать x86-64
 
 ```bash
 cd client
-NUXT_PUBLIC_SERVER_URL=https://pertsukova.ru/api-server/ \
+NUXT_PUBLIC_SERVER_URL=https://www.pertsukova.ru/api-server/ \
 NUXT_PUBLIC_LIMIT=9 \
 NUXT_PUBLIC_REL_WORKS_DIR=/content/works/ \
 NUXT_PUBLIC_REL_SALES_DIR=/content/sales/ \
@@ -614,6 +700,25 @@ NUXT_PUBLIC_REGISTRATION_ENABLED=false \
 pnpm build
 ```
 
+> **В `NUXT_PUBLIC_SERVER_URL` обязан быть `www`** — именно `www`, а не apex.
+> Панель Джино канонизирует домен: `https://pertsukova.ru/...` отвечает `301` на
+> `https://www.pertsukova.ru/...` (см. 9.5). Для `GET` такой редирект безобиден,
+> но **POST при 301 теряет тело и превращается в GET** (RFC 9110), поэтому
+> запрос логина с apex уходит как `GET /api-server/login` и получает `404`
+> вместо `401`/`200`. Симптом: форма входа на сайте «ничего не делает»,
+> в `journalctl` видно `GET /api-server/login` вместо `POST`.
+>
+> Проверка после пересборки и деплоя:
+>
+> ```bash
+> # на www — должен вернуть 401 (неверные креды), а не 404
+> curl -s -o /dev/null -w "%{http_code}\n" -X POST https://www.pertsukova.ru/api-server/login \
+>   -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
+> # на apex — 301, и это ожидаемо
+> curl -s -o /dev/null -w "%{http_code}\n" -X POST https://pertsukova.ru/api-server/login \
+>   -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
+> ```
+>
 > `NUXT_PUBLIC_SERVER_URL` обязан заканчиваться на `/` — фронтенд конкатенирует
 > его с путями API (`serverUrl + 'news/'` и т.д.).
 >
@@ -629,35 +734,131 @@ pnpm build
 cd client
 pnpm install --frozen-lockfile
 pnpm build    # с переменными из 7.1
+
+# ОБЯЗАТЕЛЬНО: выбросить снимок живых изображений (см. примечание ниже)
+rm -rf .output/public/content
 ```
 
+> **Смешанный `node_modules` = 500 на каждой странице.** Если в `client/node_modules`
+> попали каталоги, установленные **npm** (а не pnpm), сборка получается битой:
+> nitro копирует внешние пакеты в `.output/server/node_modules/.nitro/` по
+> версиям из lockfile, а симлинк `unhead` указывает на `unhead@2.1.12`, в
+> котором нет `dist/server.mjs` (файлы пришли из npm-версии 2.1.13). Итог:
+>
+> ```
+> Error [ERR_MODULE_NOT_FOUND]: Cannot find module
+>   '/opt/artserver/client/.output/server/node_modules/unhead/dist/server.mjs'
+> ```
+>
+> Симптомы: `curl` на `127.0.0.1:3000` отдаёт **500**, в `journalctl -u
+> artserver-web` — `ERR_MODULE_NOT_FOUND ... unhead/dist/server.mjs`, при этом
+> сам Node стартует (`Listening on http://127.0.0.1:3000`) и падает только на
+> первом же HTTP-запросе. На сервере лечится только перезаливкой, поэтому
+> проще проверить локально:
+>
+> ```bash
+> cd client
+> (PORT=3100 HOST=127.0.0.1 node .output/server/index.mjs &) ; sleep 4
+> curl -s -o /dev/null -w "local: %{http_code}\n" -H 'X-Forwarded-Proto: https' \
+>   http://127.0.0.1:3100/     # должно быть 200
+> pkill -f index.mjs
+> ```
+>
+> Причина — рассинхрон версий: в репозитории лежит **`client/package-lock.json`**
+> (npm), и если хоть раз ставили зависимости через `npm install`, в
+> `client/node_modules` появятся **плоские каталоги** (не симлинки) вперемешку с
+> pnpm-симлинками. Проверить:
+>
+> ```bash
+> cd client
+> # в pnpm-проекте ВСЕ пакеты в node_modules — симлинки в .pnpm
+> find node_modules -maxdepth 1 -type d -not -name node_modules -not -name '.pnpm' \
+>   -not -name '.bin' -not -name '.cache' -not -name '.ignored*'
+> # если вывод непустой — node_modules смешан, нужна чистая переустановка
+> ```
+>
+> Лечение — полное удаление `node_modules` (обычный `pnpm install --force`
+> **не помогает**: он не трогает посторонние каталоги):
+>
+> ```bash
+> cd client
+> rm -rf node_modules .nuxt .output
+> pnpm install --frozen-lockfile
+> pnpm build
+> rm -rf .output/public/content
+> ```
+>
+> Надёжнее всего удалить `client/package-lock.json` из репозитория и не
+> смешивать npm с pnpm: менеджер пакетов в проекте один — pnpm.
+>
+> **Обязательно удаляйте `.output/public/content` после сборки.** `pnpm build`
+> копирует весь `client/public` в `.output/public`, а в `client/public/content`
+> лежат **живые** фото и видео — на вашем проекте это ~2.2 ГБ и 1472 файла.
+> Получается дубль: настоящие файлы в `client/public/content`, и их же копия в
+> `client/.output/public/content`. Копия никому не нужна (см. ниже), но
+> занимает столько же места и на вашем Mac, и на VPS.
+>
+> Что где лежит (важно, две папки с одинаковым содержимым — разные вещи):
+>
+> | Папка | Роль | Можно ли удалять |
+> |-------|------|-----------------|
+> | `client/public/content` | **Живая**. Сюда Go-сервер пишет загруженные через админку файлы; её отдаёт nginx (`alias /opt/artserver/client/public/content/`, раздел 9.3) | **Нет** |
+> | `client/.output/public/content` | Снимок на момент сборки. Ни nginx, ни SSR её не читают: `location ^~ /content/` в nginx перехватывает запрос раньше, чем он дойдёт до Node, а rsync этот путь исключает (7.3) | **Да** |
+>
+> На сервере копия «залипает» навсегда: rsync с `--delete` не удаляет файлы,
+> попадающие под `--exclude`. Если она уже накопилась, снесите её один раз
+> руками:
+>
+> ```bash
+> # на сервере
+> sudo rm -rf /opt/artserver/client/.output/public/content
+> ```
+
+> **Где лежат настройки pnpm.** Начиная с pnpm 10 (актуальная версия — 12) файл
+> `client/.npmrc` для настроек pnpm **больше не используется**: pnpm читает их
+> из `client/pnpm-workspace.yaml` (YAML). Если `pnpm config get <ключ>`
+> возвращает `undefined` — значит настройка лежит не там.
+>
 > **Память при сборке.** Nuxt + Tailwind v4 требуют много памяти. В
-> `client/.npmrc` уже прописан `node-options=--max-old-space-size=4096`, который
-> pnpm подхватывает автоматически; если вылезет
-> `FATAL ERROR: JavaScript heap out of memory` — увеличьте до 8192. Ошибку
-> `[commonjs--resolver] The service is no longer running: write EPIPE` вызывает
-> OOM-killer ядра на VPS с малым объёмом RAM (лимит контейнера OpenVZ) — именно
-> поэтому собираем локально, а не на сервере. Предупреждение
+> `client/pnpm-workspace.yaml` уже прописан `nodeOptions:
+> --max-old-space-size=4096`, который pnpm подхватывает автоматически; если
+> вылезет `FATAL ERROR: JavaScript heap out of memory` — увеличьте до 8192.
+> Ошибку `[commonjs--resolver] The service is no longer running: write EPIPE`
+> вызывает OOM-killer ядра на VPS с малым объёмом RAM (лимит контейнера
+> OpenVZ) — именно поэтому собираем локально, а не на сервере. Предупреждение
 > `Sourcemap is likely to be incorrect` безобидно.
 
 > **Нативные бинарники (sharp).** SSR-часть `.output/server` содержит нативный
 > модуль **sharp** (`@nuxt/image` для ресайза картинок) — бинарники привязаны к
-> ОС и архитектуре. Чтобы сборка с Mac (arm64) деплоилась на Ubuntu x64, в
-> `client/.npmrc` уже добавлен `supportedArchitectures` — pnpm ставит бинарники
-> сразу для linux-x64 и darwin-arm64. Запись — в ини-синтаксисе `.npmrc` через
-> скобки `[os][]` (НЕ в виде YAML-блока! pnpm такой блок не читает — проверьте
-> командой `pnpm config get supportedArchitectures`, она должна вывести значения,
-> а не `undefined`):
+> ОС и архитектуре. По умолчанию pnpm ставит бинарники **только для текущей
+> платформы**, поэтому в `client/node_modules/.pnpm` и в
+> `.output/server/node_modules/@img` будут лишь `sharp-darwin-arm64` и
+> `sharp-libvips-darwin-arm64` — а деплоить такую сборку на Ubuntu x64 нельзя.
+> Чтобы pnpm ставил бинарники сразу и для linux-x64, и для darwin-arm64, в
+> `client/pnpm-workspace.yaml` уже добавлен блок `supportedArchitectures`:
 >
-> ```
-> supportedArchitectures[os][]=darwin
-> supportedArchitectures[os][]=linux
-> supportedArchitectures[cpu][]=arm64
-> supportedArchitectures[cpu][]=x64
-> supportedArchitectures[libc][]=glibc
+> ```yaml
+> nodeOptions: --max-old-space-size=4096
+> supportedArchitectures:
+>   os:
+>     - darwin
+>     - linux
+>   cpu:
+>     - arm64
+>     - x64
+>   libc:
+>     - glibc
 > ```
 >
-> **Важно: после любого изменения `.npmrc` (например, добавления блока
+> Проверьте, что настройка реально прочитана (должен вывести объект, а не
+> `undefined`):
+>
+> ```bash
+> cd client
+> pnpm config get supportedArchitectures
+> ```
+>
+> **Важно: после любого изменения `pnpm-workspace.yaml` (например, добавления
 > `supportedArchitectures`) обычный `pnpm install` зависимостей НЕ
 > переустанавливает уже существующие пакеты** — бинарники остаются старыми
 > (только darwin-arm64), а от старых установок в `node_modules/.pnpm/sharp@...`
@@ -674,7 +875,7 @@ pnpm build    # с переменными из 7.1
 > ```bash
 > cd client
 > pnpm install --frozen-lockfile    # первый раз / после изменений package.json
-> pnpm install --force              # если менялся .npmrc (supportedArchitectures)
+> pnpm install --force              # если менялся pnpm-workspace.yaml
 > pnpm build
 > ```
 >
@@ -698,11 +899,43 @@ pnpm build    # с переменными из 7.1
 > переустановку) и пересоберите:
 >
 > ```bash
+> # из корня проекта
 > file client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node
-> # должно показать: ELF ... x86-64
+> # должно показать: ELF 64-bit LSB shared object, x86-64 ...
 > ls client/.output/server/node_modules/@img/ | grep sharp-linux-x64
 > ls client/.output/server/node_modules/@img/ | grep sharp-libvips-linux-x64
 > ```
+>
+> Если вместо этого выводится `zsh: no matches found: ...sharp-linux-x64/lib/*.node`
+> или `ls | grep` не находит ничего — linux-x64 бинарники в сборку не попали
+> (в `@img` лежат только `darwin-arm64`). Значит `supportedArchitectures` не
+> применился: вернитесь к проверке `pnpm config get supportedArchitectures`
+> выше, затем `pnpm install --force` и пересоберите.
+
+> **Финальная проверка перед rsync — обязательна.** Сборка может быть битой и
+> при этом выглядеть успешной (`Build complete!`), а ошибка всплывёт только на
+> сервере как 500 на каждой странице. Всего две команды:
+>
+> ```bash
+> cd client
+> # 1) SSR вообще запускается и отдаёт 200
+> (PORT=3100 HOST=127.0.0.1 node .output/server/index.mjs > /tmp/nuxt.log 2>&1 &) ; sleep 4
+> curl -s -o /dev/null -w "local: %{http_code}\n" -H 'X-Forwarded-Proto: https' \
+>   http://127.0.0.1:3100/          # должно быть 200, а НЕ 500
+> pkill -f index.mjs
+> # при 500 смотрим лог
+> grep -o "ERR_MODULE_NOT_FOUND.*" /tmp/nuxt.log | head -3
+>
+> # 2) linux-x64 бинарники на месте и все симлинки .output валидны
+> cd ..
+> file client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node
+> find client/.output -type l ! -exec test -e {} \; -print   # пустой вывод = все ссылки живы
+> ```
+>
+> Второй пункт важен отдельно: в `.output` есть ~25 **относительных симлинков**
+> (`.output/server/node_modules/unhead -> .nitro/unhead@2.1.12` и т. п.), и
+> rsync `-a` переносит их как ссылки. Битая ссылка в `.output` даст ровно тот
+> `ERR_MODULE_NOT_FOUND`, что описан выше.
 
 Результат: `client/.output/` (SSR-сервер в `.output/server/index.mjs` и статика
 в `.output/public/`).
@@ -712,8 +945,8 @@ pnpm build    # с переменными из 7.1
 ```bash
 # локально, из корня проекта
 rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
-  --exclude 'node_modules' \
-  --exclude 'public/content' \
+  --exclude '/node_modules' \
+  --exclude '/public/content' \
   ./client/.output/ \
   root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/.output/
 
@@ -721,12 +954,62 @@ rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
 sudo chown -R raiyin:raiyin /opt/artserver/client/.output
 ls /opt/artserver/client/.output/server/node_modules/@img/ | grep sharp-linux-x64   # должна быть строка
 file /opt/artserver/client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node   # ELF ... x86-64
+
+# ОБЯЗАТЕЛЬНО перезапустить SSR: процесс держит старый бандл в памяти
+sudo systemctl restart artserver-web
+sleep 2
+curl -s -o /dev/null -w "web: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/
 ```
 
-> `public/content` исключаем: живые изображения (см. 7.4) раздаёт nginx из
+> **Рестарт `artserver-web` после rsync — обязателен, а не опционален.**
+> systemd-юнит `Type=simple`: процесс Node стартует один раз и **никогда** не
+> подхватывает новые файлы сам. После rsync в `systemctl status` вы увидите
+> `active (running) since ...` со старой датой (например, «2 weeks ago») — это
+> не значит, что всё хорошо, это значит, что сервис просто не перезапущен.
+>
+> Симптом неперезапущенного SSR в логе:
+>
+> ```
+> url: 'file:///opt/artserver/client/.output/server/node_modules/unhead/dist/server.mjs'
+> code: 'ERR_MODULE_NOT_FOUND'
+> ```
+>
+> Node не может дочитать модуль с диска, потому что rsync с `--delete` заменил
+> файлы под живым процессом. Лечится рестартом:
+> `sudo systemctl restart artserver-web`.
+>
+> **Но если 500 остался и после рестарта** — дело не в рестарте, а в битой
+> сборке: `unhead/dist/server.mjs` отсутствует на диске по-настоящему, значит
+> `.output` собрался из смешанного npm+pnpm `node_modules`. См. диагностику в
+> 7.2 и обязательную локальную проверку `curl` перед rsync.
+
+> **Ведущий слэш в `--exclude` обязателен.** Без него паттерн `node_modules`
+> совпадает **на любом уровне** дерева, и rsync вырежет
+> `.output/server/node_modules` — то самое, ради чего всё и делается (там лежат
+> бинарники sharp). На сервере вы получите
+> `ls: cannot access '.../@img/': No such file or directory`. Синтаксис `--exclude
+> '/node_modules'` якорит шаблон к корню передаваемого дерева
+> (`./client/.output/`), а вложенный `server/node_modules` попадёт в
+> копирование. Тот же принцип у `/public/content`.
+>
+> Заодно не переживайте, что на сервер уедет много «лишнего»: после очистки
+> снимка (7.2) мы синхронизируем ~15 МБ готового `.output`, а не
+> `client/node_modules` и не 2.2 ГБ картинок.
+>
+> `/public/content` исключаем: живые изображения (см. 7.4) раздаёт nginx из
 > `client/public/content`, а в `.output/public` лежит только их снимок на момент
-> сборки. Статику `public/` (hero-images, favicon, site.webmanifest) отдельно
-> переносить не нужно — она уже уехала в разделах 4 и 5.2.
+> сборки — он удаляется нами ещё до rsync (7.2). Статику `public/`
+> (hero-images, favicon, site.webmanifest) отдельно переносить не нужно — она
+> уже уехала в разделах 4 и 5.2.
+>
+> Если после rsync каталога `@img` на сервере всё нет, выполните эту команду
+> ещё раз (rsync докачает недостающее) и проверьте, что в команде именно
+> `--exclude '/node_modules'` — с одинарным кавычным паттерном без слэша
+> результат всегда будет пустым.
+>
+> **Исключённые файлы rsync не удаляет.** `--delete` не трогает то, что под
+> `--exclude`, поэтому старые копии `public/content` на сервере переживают все
+> деплои и копятся. Снесите их один раз руками (7.2).
 
 ### 7.4. Где лежат изображения (галерея, магазин, новости)
 
@@ -746,17 +1029,48 @@ file /opt/artserver/client/.output/server/node_modules/@img/sharp-linux-x64/lib/
 
 Этот каталог **не пересобирается** при `pnpm build` (в `.output/public` попадает
 только то, что было на момент сборки), поэтому его раздаёт nginx напрямую.
-Каталог `content/` и всё, что ниже, должно быть доступно на запись процессу
-сервера `artserver`:
+Каталог `content/` и всё, что ниже должно быть доступно **на запись** процессу
+сервера `artserver` (он под `raiyin`) и **на чтение** пользователю nginx
+(`www-data`) — это разные требования, и `chown` закрывает только первое:
 
 ```bash
 sudo chown -R raiyin:raiyin /opt/artserver/client/public
+
+# Права чтения для www-data — без них картинки отдают 403 Forbidden
+sudo find /opt/artserver/client/public -type d -exec chmod 755 {} +
+sudo find /opt/artserver/client/public -type f -exec chmod 644 {} +
+
+# Проход по каталогам ВЫШЕ public — без o+x www-data не дойдёт до файла.
+# `find` выше их не покрывает, а rsync -avz переносит их права как есть.
+sudo chmod o+x /opt/artserver /opt/artserver/client /opt/artserver/client/public
 ```
+
+> Проверка одной командой — читает ли nginx конкретный файл:
+>
+> ```bash
+> sudo -u www-data test -r /opt/artserver/client/public/content/works/homeland/1.jpg \
+>   && echo 'ok: nginx прочитает' || echo '403: поправьте chmod'
+> ```
+>
+> Если `ok` есть, а `curl` всё равно даёт `403` — обрыв выше по цепочке, смотрите
+> `sudo -u www-data namei -l <путь к файлу>`: строка без `x` в «others» и есть
+> нужный каталог (см. 5.2, где разобран этот случай целиком). Частая картина:
+> `/opt/artserver` приезжает как `drwxr--r--` (744) из локальной машины, и
+> `www-data` упирается в `Permission denied` за несколько уровней выше файла.
+>
+> Файлы, пришедшие из разработки с правами `700` (типично для macOS), ловят эту
+> ошибку чаще всего: см. раздел 5.2, откуда они берутся.
 
 > Панель Джино кэширует и сжимает статику только на своём фронте; файлы для
 > `/content/` отдаёт наш nginx напрямую с диска, поэтому загруженная через
 > админку картинка видна сразу (кроме кэша панели — при необходимости
 > обновите страницу с очисткой кэша).
+>
+> **Не путайте `client/public/content` с `client/.output/public/content`.** На
+> сервере это две папки с ~2.2 ГБ одинакового содержимого; удалять можно
+> только вторую (снимок, см. таблицу в 7.2). Первая — источник правды, и
+> rsync её намеренно не трогает.
+
 
 ---
 
@@ -806,8 +1120,10 @@ Group=raiyin
 WorkingDirectory=/opt/artserver/client
 Environment=PORT=3000
 Environment=HOST=127.0.0.1
-# Дублируем флаги продакшна (перекрывают значения из бандла на время SSR)
-Environment=NUXT_PUBLIC_SERVER_URL=https://pertsukova.ru/api-server/
+# Дублируем флаги продакшна (перекрывают значения из бандла на время SSR).
+# ВНИМАНИЕ: www обязателен — панель канонизирует apex на www через 301,
+# а POST при 301 теряет тело (логин с apex даёт 404). См. 7.1.
+Environment=NUXT_PUBLIC_SERVER_URL=https://www.pertsukova.ru/api-server/
 Environment=NUXT_PUBLIC_REGISTRATION_ENABLED=false
 Environment=NUXT_PUBLIC_LIMIT=9
 ExecStart=/usr/bin/node /opt/artserver/client/.output/server/index.mjs
@@ -822,6 +1138,29 @@ WantedBy=multi-user.target
 > `HOST=127.0.0.1` — Node не должен слушать внешний интерфейс: наружу торчит
 > только nginx на 8080. (В предыдущей версии было `0.0.0.0`; при включённом
 > `ufw` без правила на 3000 разницы бы не было, но так безопаснее.)
+>
+> **Расхождение между юнитом и бандлом — источник «плавающих» багов.** Nuxt
+> перекрывает `runtimeConfig` переменными `NUXT_*` **в рантайме**, поэтому
+> `Environment=` в юните имеют приоритет над тем, что зашито в бандл при
+> сборке. Если в юните остался apex, а в бандле `www` (или наоборот), SSR
+> рендерит с одним URL, а клиентский JS запрашивает другой — симптомы
+> выглядят как «иногда работает логин, иногда нет». Значения должны совпадать
+> в обоих местах, и оба обязаны содержать `www` (см. 7.1).
+>
+> После правки юнита обязателен `daemon-reload` (без него systemd держит старую
+> копию юнита в памяти и переменные не применятся):
+>
+> ```bash
+> sudo sed -i 's|NUXT_PUBLIC_SERVER_URL=https://pertsukova.ru/api-server/|\
+> NUXT_PUBLIC_SERVER_URL=https://www.pertsukova.ru/api-server/|' \
+>   /etc/systemd/system/artserver-web.service
+> sudo systemctl daemon-reload
+> sudo systemctl restart artserver-web
+> sleep 2
+>
+> # проверка: должно быть NUXT_PUBLIC_SERVER_URL=https://www.pertsukova.ru/api-server/
+> sudo systemctl show -p Environment artserver-web | tr ' ' '\n' | grep SERVER_URL
+> ```
 
 ### 8.3. Запуск
 
@@ -838,23 +1177,62 @@ curl -s http://127.0.0.1:8000/news | head -c 200
 curl -s -o /dev/null -w "%{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/
 ```
 
+> **Go-сервис в состоянии `activating (auto-restart) (Result: exit-code)`.**
+> `systemctl status` при рестарт-лупе показывает только последние строки systemd и
+> **не показывает причину** — её видно в журнале. Всегда начинайте с:
+>
+> ```bash
+> sudo journalctl -u artserver-server -n 50 --no-pager
+> ```
+>
+> Три причины `status=1/FAILURE`, которые даёт `main.go` (server/cmd/server/main.go):
+>
+> | Строка в журнале | Причина | Что делать |
+> |-----------------|---------|------------|
+> | `error reading config file` | Нет `config.yaml` или `WorkingDirectory` не `/opt/artserver/server` | Проверьте `sudo systemctl show -p WorkingDirectory artserver-server` и наличие файла (6.2) |
+> | `Could not connect to database (ping failed)` / `unable to open database file` | Нет каталога `db/`, нет `db.sqlite` или нет прав на запись | `sudo chown -R raiyin:raiyin /opt/artserver/server/db` (6.5) |
+> | `Server failed to start ... address already in use` | Порт 8000 держит зависший ручной прогон `./bin/artserver` | `ps -eo pid,cmd \| grep '[b]in/artserver'`, затем `sudo kill <PID>` |
+>
+> Быстрая ручная проверка без systemd — запустится ли бинарник вообще:
+>
+> ```bash
+> cd /opt/artserver/server
+> timeout 3 ./bin/artserver || true   # ждём "Server starting ..." и "Registration is DISABLED"
+> ```
+>
+> Если ручной запуск работает, а юнит — нет, дело в `WorkingDirectory`,
+> `EnvironmentFile` или пользователе systemd, а не в коде.
+
 ---
 
 ## 9. nginx (внутренний reverse proxy, порт 8080) + HTTPS на панели Джино
 
 ### 9.1. Кто слушает 80 и 443
 
-Прежде чем писать конфиг, убедитесь, что эти порты действительно держит панель,
-а не вы — иначе `nginx` не стартует с `bind() to 0.0.0.0:80 failed`.
+Наш собственный nginx **должен** быть в списке running — вы ставили его в
+разделе 3.3, и именно он слушает 8080. Проверять нужно другое: не занимает ли
+кто-то порты 80/443, которые по схеме принадлежат панели. Если наш nginx или
+что-то ещё уже держит 80, конфиг из 9.3 не запустится с
+`bind() to 0.0.0.0:80 failed`.
 
 ```bash
-ss -tlnp | grep -E ':(80|443)\b' || echo '80/443 на сервере свободны'
-systemctl list-units --type=service --state=running | grep -E 'apache|nginx|httpd'
+# ГЛАВНАЯ проверка: кто держит 80/443
+ss -tlnp | grep -E ':(80|443)\b' || echo '80/443 свободны — панель терминирует TLS у себя'
+ss -tlnp | grep 8080 || echo 'nginx ещё не слушает 8080 — сделайте 9.3'
 ```
 
-Ожидаемый результат: порты заняты веб-сервером панели (Apache/`httpd`), либо
-не заняты вовсе (панель терминирует TLS у себя, до виртуальной машины). Наш
-nginx на 80/443 **не вешаем**.
+Ожидаемый результат: **строки с `:80`/`:443` нет** (панель терминирует TLS
+вне виртуальной машины, до нас эти порты не доходят), а `:8080` занят нашим
+nginx. Если же `:80` занят и это наш nginx — значит остался включённым
+`/etc/nginx/sites-enabled/default` (в разделе 9.3 его удаляют); если это
+Apache/`httpd` — порты держит веб-сервер панели, тогда наш nginx на 80/443 тем
+более не вешаем.
+
+Дополнительно можно убедиться, что снаружи отвечает панель, а не наш nginx:
+
+```bash
+curl -sI http://127.0.0.1:8080/ -H 'X-Forwarded-Proto: https' | head -3
+```
 
 ### 9.2. Схема «TLS на панели» — как она выглядит снаружи
 
@@ -979,6 +1357,24 @@ sudo systemctl reload nginx
 ss -tlnp | grep 8080   # должен слушать nginx
 ```
 
+> **`sites-enabled/` пуст — сайт не откроется, даже если `nginx.service` в
+> `systemctl status` пишет `active (running)`.** Поставленный из репозитория
+> nginx без единого конфига слушает только свой `default` из
+> `/etc/nginx/sites-available/default` (обычно 80), а на 8080 не смотрит
+> вообще. Проверка «жив ли наш конфиг»:
+>
+> ```bash
+> ls -l /etc/nginx/sites-enabled/          # должен быть artserver -> ../sites-available/artserver
+> ls -l /etc/nginx/conf.d/artserver-proto.conf
+> sudo nginx -T 2>/dev/null | grep -E 'listen .*8080'   # пусто = конфиг не подхвачен
+> ```
+>
+> Если `artserver-proto.conf` создан, а `artserver` — нет (или наоборот),
+> получите ошибку `unknown directive "arts_proto"` / `unknown "arts_proto"`
+> соответственно: первая — не создан `artserver`, вторая — не создан
+> `artserver-proto.conf`. Директива `map` недоступна в `sites-available`, поэтому
+> эти два файла не взаимозаменяемы.
+
 > **Если Apache панели проксирует локально** (вариант Б ниже), ограничьте порт
 > localhost-ом: замените `listen 8080 default_server;` на
 > `listen 127.0.0.1:8080;` — снаружи он тогда не нужен.
@@ -1053,6 +1449,58 @@ curl -s -o /dev/null -w "api:           %{http_code}\n" \
 Ожидается: `200`, `301`, `301` (или `200`, если панель не редиректит и наш
 nginx сделал это сам), `200`, `200`.
 
+> **`301` снаружи на `https://pertsukova.ru` — это канонизация домена панелью,
+> а не ошибка.** Панель Джино отвечает на apex-домен редиректом на `www`:
+>
+> ```
+> HTTP/2 301
+> location: https://www.pertsukova.ru/
+> ```
+>
+> Так ведёт себя и любой URL, включая `/api-server/*`. Каноническое имя здесь
+> — `www.pertsukova.ru`; на нём сразу `200`. Проверить, что это именно один
+> редирект, а не петля:
+>
+> ```bash
+> curl -sI https://pertsukova.ru/ | grep -i location
+> curl -s -o /dev/null -L --max-redirs 10 \
+>   -w "%{num_redirects} redirects, final: %{http_code} %{url_effective}\n" \
+>   https://pertsukova.ru/
+> # → 1 redirects, final: 200 https://www.pertsukova.ru/
+>
+> # рабочее имя, с которым стоит проверять API:
+> curl -s -o /dev/null -w "api: %{http_code}\n" https://www.pertsukova.ru/api-server/news
+> curl -s https://www.pertsukova.ru/api-server/news | head -c 200
+> ```
+>
+> Если `num_redirects` больше 1 — это уже петля, ищите её в `$arts_proto`
+> (страховка из 9.3): панель обязана присылать `X-Forwarded-Proto: https`,
+> иначе наш nginx отвечает редиректом на каждом запросе по кругу.
+
+> **`301` на любом локальном `curl` без `-H 'X-Forwarded-Proto: https'` — это не
+> ошибка**, а сработавшая страховка в `server`-блоке:
+>
+> ```nginx
+> if ($arts_proto != "https") { return 301 https://$host$request_uri; }
+> ```
+>
+> Панель Джино присылает заголовок `X-Forwarded-Proto: https` автоматически
+> (TLS снимает она), поэтому снаружи всё работает. А вот если вы дёргаете
+> `http://127.0.0.1:8080/...` напрямую из консоли **без** этого заголовка,
+> `$arts_proto` равен `http` и nginx честно отвечает редиректом на `https://`.
+>
+> Поэтому **все** локальные проверки внутри `server`-блока делайте с
+> эмуляцией панели:
+>
+> ```bash
+> curl -s -o /dev/null -w "site: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:8080/
+> curl -s -o /dev/null -w "api:  %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:8080/api-server/news
+> # → 200 и 200
+> ```
+>
+> Следите за этим и в §12: забытый `-H 'X-Forwarded-Proto: https'` даст
+> «неисправный» 301 там, где всё на самом деле работает.
+
 ### 9.6. Сертификат: выпуск и продление
 
 - **Выпуск/привязка** — в панели Джино (раздел 0, п. 6) на
@@ -1066,6 +1514,28 @@ nginx сделал это сам), `200`, `200`.
     | openssl x509 -noout -dates
   ```
 
+> **Фактическая картина на этом проекте** (проверено 30.09.2026):
+
+  ```
+  subject=CN = *.pertsukova.ru
+  issuer=C = US, O = Let's Encrypt, CN = YE2
+  notBefore=Sep 27 19:21:01 2026 GMT
+  notAfter=Dec 26 19:21:00 2026 GMT
+  ```
+
+  То есть панель Джино выпустила **Let's Encrypt** на wildcard `*.pertsukova.ru`
+  (один сертификат покрывает и `pertsukova.ru`, и `www.pertsukova.ru`, и любые
+  поддомены). Срок Let’s Encrypt — 90 дней, поэтому в выводе `notAfter` вы
+  увидите дату примерно на три месяца вперёд, а не на год: **продление
+  автоматическое, от вас не зависит**, но проверять стоит не реже раза в
+  месяц, чтобы успеть отреагировать, если панель перестанет продлевать
+  (тогда сайт начнёт отдавать браузерное предупреждение).
+>
+> `-H`/`-served-by` в ответе показывают `server: nginx` — это **внешний** nginx
+> панели (OpenVZ-образ проксирует дальше на наш 8080). Он не имеет отношения к
+> нашему `/etc/nginx/nginx.conf`: TLS на нашей стороне по-прежнему не
+> terminates, и файлов сертификата у нас на диске нет.
+
 - **Проверить заранее**, что сертификат покрывает `www`:
 
   ```bash
@@ -1074,7 +1544,9 @@ nginx сделал это сам), `200`, `200`.
   ```
 
   Иначе `www` отдаст предупреждение браузера, хотя по HTTP уйдёт 301 на
-  канонический домен — посетитель увидит ошибку до редиректа.
+  канонический домен — посетитель увидит ошибку до редиректа. С wildcard
+  `*.pertsukova.ru` этот случай снят автоматически: `www` покрыт тем же
+  сертификатом.
 
 - **Никаких файлов `.pem`/`.key` в проекте и на сервере не нужно.** Если вдруг
   панель всё же положит их на диск (например, при переносе на другого
@@ -1104,7 +1576,7 @@ nginx сделал это сам), `200`, `200`.
 Проверка того, что `/register` недоступен:
 
 ```bash
-curl -s -o /dev/null -w "%{http_code}\n" -X POST https://pertsukova.ru/api-server/register \
+curl -s -o /dev/null -w "%{http_code}\n" -X POST https://www.pertsukova.ru/api-server/register \
   -H 'Content-Type: application/json' -d '{}'
 # ожидается 404 (маршрут не зарегистрирован)
 ```
@@ -1134,36 +1606,60 @@ https://pertsukova.ru/api-server/payments/webhook
 
 ## 12. Проверка работоспособности
 
+Проверки снаружи идут через панель Джино, поэтому `X-Forwarded-Proto: https`
+приходит сам — редиректа http→https быть не должно. Помните, что панель
+канонизирует apex на `www` (9.5), поэтому `https://pertsukova.ru` отвечает `301`
+на `https://www.pertsukova.ru`; проверяйте рабочее имя. Локальные проверки на
+`127.0.0.1` **требуют** заголовок руками, иначе сработает страховка nginx и вы
+получите `301` вместо `200`.
+
 ```bash
-# Страница сайта
-curl -s -o /dev/null -w "site: %{http_code}\n" https://pertsukova.ru/
+# Каноническое имя (www) — по нему всё работает сразу
+curl -s -o /dev/null -w "site: %{http_code}\n" https://www.pertsukova.ru/
+# apex отдаёт 301 на www — так и должно быть
+curl -s -o /dev/null -w "apex: %{http_code}\n" https://pertsukova.ru/
 
 # API: список новостей
-curl -s https://pertsukova.ru/api-server/news | head -c 300; echo
+curl -s https://www.pertsukova.ru/api-server/news | head -c 300; echo
 
 # API: публичные работы
-curl -s "https://pertsukova.ru/api-server/works" | head -c 300; echo
+curl -s "https://www.pertsukova.ru/api-server/works" | head -c 300; echo
 
 # Логин админа (должен вернуть access_token/refresh_token)
-curl -s -X POST https://pertsukova.ru/api-server/login \
+curl -s -X POST https://www.pertsukova.ru/api-server/login \
   -H 'Content-Type: application/json' \
   -d '{"username":"admin","password":"ВАШ_ПАРОЛЬ"}'
 
 # Регистрация должна вернуть 404
 curl -s -o /dev/null -w "register: %{http_code}\n" -X POST \
-  https://pertsukova.ru/api-server/register -H 'Content-Type: application/json' -d '{}'
+  https://www.pertsukova.ru/api-server/register -H 'Content-Type: application/json' -d '{}'
 
 # Изображение из галереи (подставьте реальный файл)
 curl -s -o /dev/null -w "content: %{http_code}\n" -I \
-  https://pertsukova.ru/content/works/<каталог_работы>/<файл>
+  https://www.pertsukova.ru/content/works/<каталог_работы>/<файл>
+
+# Локально на сервере: обязательно с -H 'X-Forwarded-Proto: https'
+curl -s -o /dev/null -w "nginx:  %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:8080/
+curl -s -o /dev/null -w "web:    %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/
+curl -s -o /dev/null -w "api:    %{http_code}\n" http://127.0.0.1:8000/news
 
 # Кто терминирует TLS и когда истекает сертификат
 echo | openssl s_client -connect pertsukova.ru:443 -servername pertsukova.ru 2>/dev/null \
   | openssl x509 -noout -issuer -dates
 
-# Слушающие порты на сервере
+# Слушающие порты на сервере: 8080 (nginx), 3000 (SSR), 8000 (Go)
 ss -tlnp | grep -E ':(8080|3000|8000)\b'
 ```
+
+> Практика: `site: 200`, `apex: 301`, `api: 200`, `web: 200`, `register: 404`.
+> Если вместо `200` пришёл `500` от `127.0.0.1:3000` — битая сборка клиента
+> (7.2), если `502` — упал один из сервисов за nginx (8.3).
+>
+> Проверяйте API именно на `www`: запрос к apex вернёт `301` с `location:
+> https://www.pertsukova.ru/api-server/...`, и при `curl -d` (POST) редирект
+> теряется — curl по умолчанию не переводит POST на другой хост без
+> повторного отправки тела, поэтому такой вызов может выглядеть как «пустой
+> ответ», хотя API жив. Либо используйте `curl -L`, либо сразу `www`.
 
 Журналы:
 
@@ -1176,7 +1672,228 @@ sudo tail -f /var/log/httpd/error_log   # логи веб-сервера пан�
 
 ---
 
-## 13. Резервное копирование
+## 13. Обновление продакшна после правок
+
+Этот раздел — про повторный деплой, когда сервер **уже работает**. Первичная
+установка описана в разделах 3–12; здесь только то, что нужно делать заново
+после каждой правки, и в каком порядке.
+
+> **Главное правило: деплой идят локально, на машине разработки.** Клиент
+> (Nuxt/SSR) собирается на macOS и заливается готовым `.output`; Go-сервер
+> собирается на самом VPS. Собирать клиент на сервере нельзя — там 2 ГБ RAM,
+> сборка падает в OOM (7.2).
+
+### 13.1. Что вообще нужно перезаливать
+
+| Что изменилось | Команды | Раздел |
+| --- | --- | --- |
+| Клиент: код, вёрстка, зависимости (`pnpm-lock.yaml`) | пересборка → rsync → `restart artserver-web` | 13.2 |
+| Клиент: картинки/шрифты из `client/public/` (кроме `content/`) | rsync этих файлов → `restart artserver-web` | 13.2 |
+| Сервер: код Go | `go build` на VPS → `restart artserver-server` | 13.3 |
+| Сервер: `config.yaml` | правка на VPS → `restart artserver-server` | 13.3 |
+| Юниты systemd | правка → `daemon-reload` → `restart` | 13.4 |
+| Конфиг nginx | правка → `nginx -t` → `reload` | 13.5 |
+| Живые файлы в `client/public/content/` | **не трогать руками**, только через админку | 13.6 |
+
+### 13.2. Обновление клиента (Nuxt)
+
+Порядок всегда один: **сборка с правильными переменными → очистка снимка
+контента → rsync → chown → рестарт**. Пропуск любого шага даёт известный
+симптом, поэтому шаги не переставлять.
+
+```bash
+# 1) ЛОКАЛЬНО, из корня проекта. Проверьте, что меняли только клиент:
+git status --short
+
+# 2) ЛОКАЛЬНО: зависимости и сборка. Переменные окружения обязательны —
+#    они вшиваются в бандл, и без них соберётся неправильный API-адрес.
+cd client
+pnpm install --frozen-lockfile
+NUXT_PUBLIC_SERVER_URL=https://www.pertsukova.ru/api-server/ \
+NUXT_PUBLIC_LIMIT=9 \
+NUXT_PUBLIC_REL_WORKS_DIR=/content/works/ \
+NUXT_PUBLIC_REL_SALES_DIR=/content/sales/ \
+NUXT_PUBLIC_REGISTRATION_ENABLED=false \
+pnpm build
+cd ..
+
+# 3) ЛОКАЛЬНО: убрать снимок живых картинок (~2.2 ГБ), иначе он уедет на сервер
+rm -rf client/.output/public/content
+du -sh client/.output        # ожидается ~15 МБ, не гигабайты
+
+# 4) ЛОКАЛЬНО: собрать можно, но не забыть проверить до заливки
+cd client && PORT=3100 HOST=127.0.0.1 node .output/server/index.mjs & 
+sleep 4
+curl -s -o /dev/null -w "local: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3100/
+kill %1
+cd ..
+# проверить, что в бандле правильный API-адрес (должен быть только www)
+grep -o "https://[a-z.]*pertsukova.ru/api-server/" client/.output/server/chunks/nitro/nitro.mjs | sort -u
+# и что linux-бинарник sharp на месте
+file client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node   # ELF ... x86-64
+# битых симлинков быть не должно
+find client/.output -type l ! -exec test -e {} \; | wc -l            # ожидается 0
+
+# 5) ЛОКАЛЬНО, из корня проекта: заливка. Слэши в --exclude обязательны.
+rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+  --exclude '/node_modules' \
+  --exclude '/public/content' \
+  ./client/.output/ \
+  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/.output/
+
+# 6) Статика public/ (hero-images, favicon) — отдельно от .output
+rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+  --exclude 'content/' \
+  ./client/public/ \
+  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/public/
+
+# 7) НА СЕРВЕРЕ: владелец, проверка sharp, обязательный рестарт
+sudo chown -R raiyin:raiyin /opt/artserver/client/.output /opt/artserver/client/public
+file /opt/artserver/client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node  # ELF x86-64
+sudo systemctl restart artserver-web
+sleep 2
+curl -s -o /dev/null -w "web: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3000/
+```
+
+Проверка снаружи:
+
+```bash
+curl -s -o /dev/null -w "site: %{http_code}\n" https://www.pertsukova.ru/
+curl -s -o /dev/null -w "api:  %{http_code}\n" https://www.pertsukova.ru/api-server/news
+# логин с неверным паролем — ожидается 401, а не 404
+curl -s -o /dev/null -w "login: %{http_code}\n" -X POST https://www.pertsukova.ru/api-server/login \
+  -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
+```
+
+> **Рестарт `artserver-web` после rsync обязателен.** `Type=simple`: Node
+> стартует один раз и не подхватывает новые файлы. В `systemctl status` будет
+> `active (running) since ...` со старой датой — это признак не-restart, а не
+> признак проблемы. Подробности и симптомы — 7.3.
+>
+> **Если правили только статику** (`client/public/`), `.output` пересобирать
+> не нужно — хватит rsync из шага 6 и рестарта. Шаги 2–5 пропускаются.
+>
+> **`--delete` и снимок контента.** Старый `client/.output/public/content` на
+> сервере переживает деплои (rsync не удаляет исключённое). Если его там снова
+> появился — снесите руками:
+> `sudo rm -rf /opt/artserver/client/.output/public/content` (7.2).
+>
+> **Права на каталоги.** rsync переносит права с macOS (700/744), поэтому
+> после каждой заливки проверяйте, что `www-data` проходит по дереву:
+> `sudo chmod o+x /opt/artserver /opt/artserver/client /opt/artserver/client/public`
+> и `sudo find /opt/artserver/client/public -type f -exec chmod 644 {} +`.
+> Без этого картинки отдают `403` (5.2, 7.4).
+
+### 13.3. Обновление сервера (Go)
+
+Go собирается **на самом VPS** — кросс-сборка для `CGO`/`go-sqlite3` не нужна
+и не рекомендуется (6.4). Клиент при этом трогать не нужно.
+
+```bash
+# на сервере
+cd /opt/artserver/server
+mkdir -p bin
+CGO_ENABLED=1 go build -trimpath -ldflags "-s -w" -o bin/artserver ./cmd/server
+
+# свободен ли порт 8000 — иначе новый бинарник не сможет занять его
+sudo systemctl stop artserver-server
+
+# быстрая проверка: стартует ли и читает ли конфиг (само остановится через 3 с)
+timeout 3 ./bin/artserver || true
+file bin/artserver      # x86-64
+
+sudo chown -R raiyin:raiyin /opt/artserver/server
+sudo systemctl restart artserver-server
+sleep 2
+curl -s -o /dev/null -w "api: %{http_code}\n" http://127.0.0.1:8000/news
+```
+
+> Бинарник заменяется на месте, поэтому **сначала `stop`, потом `build`/запуск**:
+> иначе новый процесс не сможет занять `:8000` и вы увидите `bind: address
+> already in use` (6.4). Сборка занимает секунды, простой сервиса при этом
+> минимален.
+>
+> `go build` не трогает `config.yaml`, `.env`, `db/` и `storage/` — они живут
+> отдельно от бинарника, поэтому обычная пересборка их не затирает. Но если
+> меняли сам `config.yaml` — правьте его на сервере (6.2) и делайте
+> `restart artserver-server`, потому что конфиг читается при старте.
+>
+> После изменений в `config.yaml` особенно важно проверить `cors.allowed_origins`:
+> в нём должны быть **и** `https://pertsukova.ru`, **и** `https://www.pertsukova.ru`
+> (6.2), иначе браузер заблокирует запросы к API.
+
+### 13.4. Изменения в юнитах systemd
+
+```bash
+sudo nano /etc/systemd/system/artserver-web.service    # или artserver-server.service
+sudo systemctl daemon-reload                            # БЕЗ этого правка не применяется
+sudo systemctl restart artserver-web
+sleep 2
+# проверить, что переменные реально применились
+sudo systemctl show -p Environment artserver-web | tr ' ' '\n' | grep NUXT
+```
+
+> `daemon-reload` — обязательный шаг. systemd держит разобранную копию юнита
+> в памяти, и без `daemon-reload` новый `Environment=` не подхватится: в логах
+> будут старые значения, а сайт продолжит работать «как раньше». Частая причина
+> «правку сделал, а ничего не изменилось» (8.2).
+>
+> Проверять результат надо через `systemctl show -p Environment`, а не на глаз
+> по `status`: только он покажет, какие переменные сервис реально получил.
+
+### 13.5. Изменения в nginx
+
+```bash
+sudo nano /etc/nginx/sites-available/artserver
+sudo nginx -t                    # ОБЯЗАТЕЛЬНО до reload — иначе можно уронить сайт
+sudo systemctl reload nginx
+curl -s -o /dev/null -w "nginx: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:8080/
+```
+
+> `nginx -t` до `reload` — не формальность. Без проверки битый конфиг
+> остановит nginx целиком, и сайт ляжет на «пока чинил конфиг» (9.3).
+> `reload` не рвёт активные соединения, в отличие от `restart`.
+
+### 13.6. Чего делать не надо
+
+- **Не трогать `client/public/content/` руками.** Это живые файлы: база,
+  загруженные через админку картинки, каталог магазина. rsync их исключает
+  специально (7.3), и ручное удаление/перезапись приведёт к битым ссылкам
+  в БД. Новые файлы появляются сами при загрузке через админку.
+- **Не гонять полный `rsync --delete` из корня проекта по `.output`-у с
+  `node_modules` без `--exclude '/node_modules'`.** Без ведущего слэша
+  вырежется `.output/server/node_modules` вместе с бинарниками sharp (7.3).
+- **Не собирать клиент на VPS** — OOM при 2 ГБ RAM (7.2).
+- **Не забывать `restart artserver-web` после rsync** и `daemon-reload` после
+  правки юнита — это две самые частые причины «залил, а сайт старый».
+- **Не мешать `client/.output/public/content` и `client/public/content`** —
+  первое удаляем, второе живёт (7.4).
+
+### 13.7. Порядок при правках в обоих местах сразу
+
+Если изменены и клиент, и сервер, порядок такой — сначала API, потом фронтенд,
+чтобы сайт не остался с новым клиентом против старого API:
+
+```bash
+# 1) сервер: build + stop + start   (13.3)
+# 2) клиент: сборка + rsync + restart (13.2)
+# 3) сквозная проверка (раздел 12):
+curl -s -o /dev/null -w "site:  %{http_code}\n" https://www.pertsukova.ru/
+curl -s -o /dev/null -w "api:   %{http_code}\n" https://www.pertsukova.ru/api-server/news
+curl -s -o /dev/null -w "login: %{http_code}\n" -X POST https://www.pertsukova.ru/api-server/login \
+  -H 'Content-Type: application/json' -d '{"username":"admin","password":"wrong"}'
+# 4) если что-то не так — журналы:
+sudo journalctl -u artserver-server -n 50 --no-pager
+sudo journalctl -u artserver-web -n 50 --no-pager
+```
+
+> Ожидается: `site: 200`, `api: 200`, `login: 401`. `login: 404` означает
+> редирект apex→www и потерянный POST (см. 7.1 — в `NUXT_PUBLIC_SERVER_URL`
+> обязан быть `www`). `500` от SSR — смотрите 7.2 и 7.3.
+
+---
+
+## 14. Резервное копирование
 
 У Джино есть собственные бэкапы VPS: автоматические с периодичностью 1 раз в
 2–11 дней, хранятся 30 дней; в панели можно создать **неудаляемую** копию
@@ -1215,22 +1932,98 @@ ls -1t "$DEST"/content_*.tar.gz | tail -n +8 | xargs -r rm -f
 
 ---
 
-## 14. Частые проблемы
+## 15. Частые проблемы
+
+### 15.1. Закончился диск: `disk I/O error: no space left on device`
+
+Симптомы, которые наблюдаются одновременно:
+
+```
+level=ERROR ... main.go:79 msg="Could not connect to database (ping failed)" error="disk I/O error: no space left on device"
+artserver-server.service: Scheduled restart job, restart counter is at 467.
+```
+
+`systemctl status` в этом состоянии бесполезен — он не показывает причину. Сначала
+остановите рестарт-луп (он каждые 5 секунд пишет в journal и ест место), потом
+измерьте, что именно:
+
+```bash
+sudo systemctl stop artserver-server     # остановить луп ДО диагностики
+
+df -h /            # % использования
+df -i /            # кончились ли inode (миллионы мелких файлов)
+sudo du -xh --max-depth=1 / 2>/dev/null | sort -h | tail -15
+sudo journalctl --disk-usage
+```
+
+Быстрые и безопасные освобождения места:
+
+```bash
+sudo journalctl --vacuum-size=50M            # сократить журнал до 50 МБ
+sudo apt-get clean
+sudo rm -rf /var/lib/apt/lists/*
+```
+
+Две главные причины на этом проекте:
+
+1. **Дубль картинок (2 × 2.2 ГБ).** `pnpm build` копирует `client/public/content`
+   в `.output/public/content`, а rsync этот путь исключает и никогда не удаляет —
+   копия копится на сервере от деплоя к деплою. Удалите снимок, см. 7.2:
+
+   ```bash
+   sudo rm -rf /opt/artserver/client/.output/public/content
+   ```
+
+2. **Рестарт-луп, раздувший journal.** Пока пишется ошибка, systemd перезапускает
+   сервис каждые 5 секунд, и каждый запуск оставляет ~20 строк в журнале. У
+   тысячи попыток это десятки мегабайт. Почините причину (диск), затем запустите
+   сервис снова — луп прекратится сам.
+
+Ограничьте журнал, чтобы это не повторилось:
+
+```bash
+sudo tee /etc/systemd/journald.conf.d/artserver.conf >/dev/null <<'EOF'
+[Journal]
+SystemMaxUse=50M
+EOF
+sudo systemctl restart systemd-journald
+```
+
+После освобождения места:
+
+```bash
+df -h /
+sudo systemctl start artserver-server
+sleep 3
+curl -s -o /dev/null -w "api: %{http_code}\n" http://127.0.0.1:8000/news
+```
+
+Если `df -h` показывает, что место кончилось не из-за журнала и картинок —
+выполните `sudo du -xh --max-depth=1 /opt /var 2>/dev/null | sort -h | tail` и
+разберитесь с конкретным каталогом (часто это `/var/backups/artserver` из
+раздела 14 или старые копии `.output`).
+
+### 15.2. Таблица симптомов
 
 | Симптом | Причина / решение |
 |---------|-------------------|
-| `bind() to 0.0.0.0:80 failed (98: Address already in use)` | Панель уже держит 80/443 — так и должно быть. Слушайте `8080` (раздел 9.1). |
+| `bind() to 0.0.0.0:80 failed (98: Address already in use)` | Кто-то уже держит 80/443 — панель или остался `sites-enabled/default`. Проверьте `ss -tlnp \| grep -E ':(80\|443)\b'` и убедитесь, что `:8080` занят нашим nginx (раздел 9.1). |
 | Сайт не открывается, панель показывает 502/503 | Панель проксирует не на `8080` либо nginx не запущен. Сверьте порт в панели и `ss -tlnp \| grep 8080` (9.3, 9.4). |
 | Запросы не доходят до nginx | Для выделенного IP выключено «Проксирование HTTP(S)» — включите и укажите внутренний порт `8080` (раздел 0, п. 7). |
 | `502 Bad Gateway` на `/api-server/*` | Go-сервис не запущен (`systemctl status artserver-server`) либо порт 8000 не слушается. |
 | `error reading config file` | `config.yaml` не найден — рабочий каталог systemd-юнита не `/opt/artserver/server`. |
 | `unable to open database file` | Нет каталога `db/` или нет прав на запись у `raiyin`. |
+| `disk I/O error: no space left on device` в логе Go-сервиса, `activating (auto-restart)`, `restart counter is at NNN` | **Закончился диск.** SQLite не может создать WAL и падает на `db.Ping()` (main.go:79), systemd рестартит сервис каждые 5 с и сам добивает журнал. Смотрите 15.1. |
+| `ERR_MODULE_NOT_FOUND ... .output/server/node_modules/unhead/...` | Битая сборка: смешанный npm+pnpm `node_modules` или сломанные симлинки в `.output`. Смотрите 7.2 — лечится `rm -rf node_modules .nuxt .output` и пересборкой. |
+| На сервере две папки `content` по ~2 ГБ | `client/public/content` — живая, `client/.output/public/content` — снимок, который нужно удалить (7.2). |
 | `CGO_ENABLED` / ошибки sqlite при `go build` | Нет `gcc` — поставьте `build-essential`. |
-| Предупреждение браузера о сертификате | Сертификат в панели Джино истёк/не выпущен/не покрывает `www` — проверьте `openssl s_client` (9.6). certbot на сервере не поможет. |
+| Предупреждение браузера о сертификате | Сертификат в панели Джино истёк/не выпущен/не покрывает `www` (здесь — Let's Encrypt на `*.pertsukova.ru`, 90 дней, продление автоматическое). Проверьте `openssl s_client` (9.6). certbot на сервере не поможет. |
 | `https` не работает, `http` работает | «Проксирование HTTP(S)» настроено только для 80, либо сертификат не привязан к домену в панели. |
-| Вечные 302 на `/login` после логина | Проверьте, что клиент собран с `NUXT_PUBLIC_SERVER_URL=https://pertsukova.ru/api-server/` (раздел 7.1) — иначе cookie ставится не на тот домен. |
+| Вечные 302 на `/login` после логина, или `GET /api-server/login` в логах | `NUXT_PUBLIC_SERVER_URL` указывает на apex. Панель канонизирует apex → `www` через `301`, а `POST` при `301` теряет тело (RFC 9110) и превращается в `GET` → `404`. Исправьте в обоих местах: при сборке (7.1) и в юните `artserver-web` (8.2), не забыв `daemon-reload`. |
+| `301` на `https://pertsukova.ru/...` (и на `/api-server/*`) | Панель Джино канонизирует apex-домен на `www` — так и должно быть, на `www` сразу `200`. Редирект-петли нет (`curl -L` → 1 redirect, final 200). См. 9.5. |
 | API отвечает 404 на `/api-server/*` | Префикс не срезан — проверьте `location ^~ /api-server/` и `rewrite`. |
 | Изображения 404 после загрузки в админке | Проверьте владельца `/opt/artserver/client/public/content` (нужна запись у `raiyin`) и, что nginx отдаёт `/content/`. |
+| `403 Forbidden` на `/content/...` (файл точно есть) | Права. Две разные причины: (1) файлы приехали с `700` — лечится `find … -type f -exec chmod 644` + `-type d -exec chmod 755`; (2) **каталоги выше контента** (`/opt/artserver`, `/opt/artserver/client`, `.../public`) без `o+x` — `www-data` не может в них зайти, `find` по `content/` их не покрывает. Диагностика: `sudo -u www-data namei -l <путь>`, лечение `sudo chmod o+x` на найденный каталог. Подробно в 5.2 и 7.4. |
 | `database is locked` | Обычно решается `busy_timeout`; при частых ошибках сделайте `PRAGMA wal_checkpoint(TRUNCATE);` и перезапустите сервер. |
 | Регистрация видна на сайте | `NUXT_PUBLIC_REGISTRATION_ENABLED=false` не было в переменных на момент локального `pnpm build` (раздел 7.1) — пересоберите клиент. |
 | Процессы убиваются (`OOMKilled` в `journalctl`) | Мало RAM на тарифе. Добавьте swap (3.4), поднимите тариф, не собирайте клиент на сервере (7.2). |
@@ -1241,7 +2034,7 @@ ls -1t "$DEST"/content_*.tar.gz | tail -n +8 | xargs -r rm -f
 
 ---
 
-## 15. Альтернатива: API на поддомене
+## 16. Альтернатива: API на поддомене
 
 Если не хотите префикс `/api-server/`, можно вынести API на поддомен
 `api.pertsukova.ru`:

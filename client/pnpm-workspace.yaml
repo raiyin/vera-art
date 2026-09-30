@@ -4,3 +4,13 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   vue-demi: true
+nodeOptions: --max-old-space-size=4096
+supportedArchitectures:
+  os:
+    - darwin
+    - linux
+  cpu:
+    - arm64
+    - x64
+  libc:
+    - glibc

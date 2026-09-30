@@ -37,3 +37,7 @@ server/db/Copy*
 .idea/
 .vscode/
 *.swp
+
+# npm не используется (менеджер пакетов — pnpm, см. client/pnpm-lock.yaml).
+# Наличие package-lock.json ломает сборку: смешивает npm- и pnpm-версии в node_modules.
+package-lock.json
