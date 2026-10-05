@@ -13,7 +13,7 @@
                 />
             </div>
             <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-                {{ $t('header.services',) }}
+                {{ $t('header.teaching',) }}
             </h1>
             <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
                 {{ $t('services.p_one',) }}

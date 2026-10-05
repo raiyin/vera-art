@@ -296,7 +296,7 @@
             <UBreadcrumbItem to="/">
                 Главная
             </UBreadcrumbItem>
-            <UBreadcrumbItem to="/services">
+            <UBreadcrumbItem to="/teaching">
                 Услуги
             </UBreadcrumbItem>
             <UBreadcrumbItem>Онлайн-курсы</UBreadcrumbItem>

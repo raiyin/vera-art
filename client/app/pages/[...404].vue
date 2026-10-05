@@ -113,7 +113,7 @@ export default {
                         </UButton>
 
                         <UButton
-                            to="/all-works"
+                            to="/gallery"
                             icon="i-heroicons-paint-brush"
                             size="xl"
                             color="success"

@@ -12,6 +12,7 @@
         "all_works": "Works",
         "news": "News",
         "shop": "Shop",
+        "teaching": "Teaching",
         "services": "Services",
         "payment": "Payment",
         "master_classes": "Master Classes",
@@ -614,7 +615,7 @@
         "navigation": "Navigation",
         "services": "Services",
         "contacts": "Contacts",
-        "paintings": "Paintings",
+        "paintings": "Shop",
         "master_classes": "Master Classes",
         "online_courses": "Online Courses",
         "individual_lessons": "Individual Lessons"

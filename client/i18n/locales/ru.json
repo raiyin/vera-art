@@ -12,6 +12,7 @@
         "all_works": "Работы",
         "news": "Новости",
         "shop": "Магазин",
+        "teaching": "Преподавание",
         "services": "Услуги",
         "payment": "Оплата",
         "master_classes": "Мастер-классы",
@@ -614,7 +615,7 @@
         "navigation": "Навигация",
         "services": "Услуги",
         "contacts": "Контакты",
-        "paintings": "Картины",
+        "paintings": "Магазин",
         "master_classes": "Мастер-классы",
         "online_courses": "Онлайн-курсы",
         "individual_lessons": "Индивидуальные занятия"

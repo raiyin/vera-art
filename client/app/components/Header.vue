@@ -100,18 +100,18 @@ const navigation = computed<NavigationMenuItem[]>(() => {
         },
         {
             label: t('header.services',),
-            to: '/services',
-            active: route.path.startsWith('/services',),
+            // to: '/services',
+            // active: route.path.startsWith('/services',),
             icon: 'i-heroicons-document-text',
             value: 'services',
             type: 'trigger',
             children: [
                 {
-                    label: 'Картины',
-                    to: '/art-store',
-                    icon: 'i-heroicons-paint-brush',
-                    active: route.path.startsWith('/art-store',),
-                    value: 'art-store',
+                    label: 'Преподавание',
+                    to: '/teaching',
+                    icon: 'i-heroicons-academic-cap',
+                    active: route.path.startsWith('/teaching',),
+                    value: 'teaching',
                 },
                 {
                     label: 'Мастер-классы',

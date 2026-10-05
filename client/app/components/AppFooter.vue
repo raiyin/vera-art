@@ -11,12 +11,12 @@
                 { label: t('header.main',), to: '/', },
                 { label: t('header.all_works',), to: '/gallery', },
                 { label: t('header.news',), to: '/news', },
-                { label: t('header.services',), to: '/services', },
+                { label: t('footer.paintings',), to: '/art-store', },
                 { label: t('header.payment',), to: '/pay-delivery', },
             ]);
 
             const serviceLinks = computed(() => [
-                { label: t('footer.paintings',), to: '/art-store', },
+                { label: t('header.teaching',), to: '/teaching', },
                 { label: t('footer.master_classes',), to: '/master-classes', },
                 { label: t('footer.online_courses',), to: '/courses/online', },
                 { label: t('footer.individual_lessons',), to: '/courses/individual', },

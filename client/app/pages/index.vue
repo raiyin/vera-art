@@ -213,7 +213,7 @@
                     </p>
                     <div class="cta-buttons">
                         <a
-                            href="/all-works"
+                            href="/gallery"
                             class="btn btn-primary"
                         >{{
                             $t('home.view_works',)
@@ -225,7 +225,7 @@
                             $t('home.read_news',)
                         }}</a>
                         <a
-                            href="/services"
+                            href="/teaching"
                             class="btn btn-outline"
                         >{{
                             $t('home.services',)
