@@ -4,6 +4,9 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   vue-demi: true
+minimumReleaseAgeExclude:
+  - '@iconify-json/lucide@1.2.140'
+  - '@iconify-json/simple-icons@1.2.99'
 nodeOptions: --max-old-space-size=4096
 supportedArchitectures:
   os:

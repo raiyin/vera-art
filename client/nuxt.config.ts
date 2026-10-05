@@ -40,14 +40,8 @@ export default defineNuxtConfig({
 
     vite: {
         warmupEntry: false,
-        optimizeDeps: {
-            include: [
-                '@vue/devtools-core',
-                '@vue/devtools-kit',
-            ],
-        },
         server: {
-            hmr: {
+            ws: {
                 protocol: 'ws',
                 host: 'localhost',
                 port: 24678,
