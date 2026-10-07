@@ -15,6 +15,11 @@ export function useRuntimeConfig() {
             relWorksDir: '/content/works/',
             relSalesDir: '/content/sales/',
             limit: '20',
+            contacts: {
+                telegram: 'https://t.me/MilayaV',
+                vk: 'https://vk.com/perczukowa',
+                email: 'perczukowa@yandex.ru',
+            },
         },
     };
 }

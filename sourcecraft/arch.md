@@ -273,6 +273,7 @@ client/
 │   ├── assets/           # CSS, изображения, иконки
 │   ├── components/       # Переиспользуемые компоненты
 │   │   └── admin/        # Админ-компоненты (таблицы, фильтры, пагинация)
+│   ├── composables/      # Логика без UI (useContacts.ts, useFormatting.ts, useErrorHandler.ts)
 │   ├── layouts/          # default.vue, admin.vue
 │   ├── middleware/        # admin-auth.ts
 │   ├── pages/            # Файловая маршрутизация
@@ -349,6 +350,9 @@ App.vue
 │
 ├── Компоненты обучения
 │   └── ProgressTracker.vue
+│
+├── Компоненты контактов
+│   └── ContactCta.vue (кнопка «Связаться со мной» с выпадающим списком каналов)
 │
 └── Admin-компоненты
     ├── AdminBreadcrumbs.vue

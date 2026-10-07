@@ -22,12 +22,15 @@
                 { label: t('footer.individual_lessons',), to: '/courses/individual', },
             ]);
 
+            const { channels, } = useContacts();
+
             return {
                 currentYear,
                 t,
                 locale,
                 navLinks,
                 serviceLinks,
+                channels,
             };
         },
     };
@@ -105,56 +108,27 @@
                 </div>
 
                 <!-- Social -->
-                <div class="footer-section">
+                <div
+                    id="contacts"
+                    class="footer-section scroll-mt-24"
+                >
                     <h4 class="footer-section-title">
                         {{ t('footer.contacts',) }}
                     </h4>
                     <div class="footer-social">
                         <a
-                            href="https://t.me/MilayaV"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                            v-for="channel in channels"
+                            :key="channel.id"
+                            :href="channel.href"
+                            :target="channel.external ? '_blank' : undefined"
+                            :rel="channel.external ? 'noopener noreferrer' : undefined"
                             class="footer-social-link"
-                            aria-label="Telegram"
+                            :aria-label="channel.label"
                         >
-                            <svg
+                            <UIcon
+                                :name="channel.icon"
                                 class="footer-social-icon"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                            >
-                                <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
-                            </svg>
-                        </a>
-                        <a
-                            href="https://vk.com/perczukowa"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="footer-social-link"
-                            aria-label="VK"
-                        >
-                            <svg
-                                class="footer-social-icon"
-                                viewBox="0 0 24 24"
-                                fill="currentColor"
-                            >
-                                <path d="M15.684 0H8.316C2.755 0 0 2.755 0 8.316v7.368C0 21.245 2.755 24 8.316 24h7.368C21.245 24 24 21.245 24 15.684V8.316C24 2.755 21.245 0 15.684 0zm3.534 16.635h-1.447c-.788 0-1.039-.503-2.466-1.933-1.246-1.247-1.797-1.403-2.099-1.403-.428 0-.55.126-.55.607v1.593c0 .286-.13.454-1.216.454-1.791 0-3.774-1.095-5.167-3.14C4.045 10.127 3.418 8.15 3.418 7.51c0-.25.113-.478.606-.478h1.454c.454 0 .624.204.795.694.638 2.1 1.714 3.964 2.155 3.964.168 0 .242-.084.242-.547v-2.12c-.056-1.012-.588-1.096-.588-1.46 0-.168.126-.336.336-.336h2.32c.284 0 .378.168.378.504v2.727c0 .285.126.378.21.378.168 0 .294-.093.588-.378.924-1.033 1.59-2.634 1.59-2.634.084-.21.252-.378.504-.378h1.454c.168 0 .294.084.336.252.084.378-.378 2.155-1.77 3.745-1.413 1.582-1.413 1.624-.168 2.666 1.202 1.034 1.476 1.54 1.476 1.994.008.378-.21.546-.588.546z" />
-                            </svg>
-                        </a>
-                        <a
-                            href="mailto:perczukowa@yandex.ru"
-                            class="footer-social-link"
-                            aria-label="Email"
-                        >
-                            <svg
-                                class="footer-social-icon"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                            >
-                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                                <polyline points="22,6 12,13 2,6" />
-                            </svg>
+                            />
                         </a>
                     </div>
                 </div>

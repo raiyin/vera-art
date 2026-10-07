@@ -10,6 +10,7 @@ const { locale, setLocale, t, } = useI18n();
 const authStore = useAuthStore();
 const notificationStore = useNotificationStore();
 const themeStore = useThemeStore();
+const { channels, } = useContacts();
 
 const route = useRoute();
 const runtimeConfig = useRuntimeConfig();
@@ -291,47 +292,21 @@ const navigation = computed<NavigationMenuItem[]>(() => {
 
             <!-- Social links (desktop only) -->
             <div class="md:flex items-center space-x-1">
-                <UTooltip text="Telegram">
+                <UTooltip
+                    v-for="channel in channels"
+                    :key="channel.id"
+                    :text="channel.label"
+                >
                     <UButton
                         variant="ghost"
                         square
-                        href="https://t.me/MilayaV"
-                        target="_blank"
+                        :href="channel.href"
+                        :external="channel.external"
+                        :target="channel.external ? '_blank' : undefined"
                         class="text-grey"
-                        external
                     >
                         <Icon
-                            name="i-simple-icons-telegram"
-                            class="w-5 h-5"
-                        />
-                    </UButton>
-                </UTooltip>
-
-                <UTooltip text="VK">
-                    <UButton
-                        class="text-grey"
-                        variant="ghost"
-                        square
-                        href="https://vk.com/perczukowa"
-                        target="_blank"
-                        external
-                    >
-                        <Icon
-                            name="i-simple-icons-vk"
-                            class="w-5 h-5"
-                        />
-                    </UButton>
-                </UTooltip>
-                <UTooltip text="Email">
-                    <UButton
-                        class="text-grey"
-                        variant="ghost"
-                        square
-                        href="mailto:perczukowa@yandex.ru"
-                        external
-                    >
-                        <Icon
-                            name="i-simple-icons-gmail"
+                            :name="channel.icon"
                             class="w-5 h-5"
                         />
                     </UButton>

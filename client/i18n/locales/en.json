@@ -152,8 +152,7 @@
         "pencil_charcoal": "Pencil & Charcoal",
         "pastel_gouache": "Pastel & Gouache",
         "collaborate_heading": "Interested in collaborating?",
-        "collaborate_text": "Whether you need a custom painting, illustration, or art lessons, I'm here to help bring your vision to life.",
-        "contact_button": "Contact Me"
+        "collaborate_text": "Whether you need a custom painting, illustration, or art lessons, I'm here to help bring your vision to life."
     },
     "payment": {
         "p_one": "At the moment, my store operates according to a simplified scheme.",
@@ -163,7 +162,7 @@
         "step2": "Step 2",
         "step3": "Step 3",
         "contact_discuss": "Contact & Discuss",
-        "contact_text": "Reach out via email, social media, or phone. We'll discuss your desired artwork, size, style, and timeline.",
+        "contact_text": "Reach out via email or social media. We'll discuss your desired artwork, size, style, and timeline.",
         "agree_pay": "Agree & Pay",
         "agree_text": "Once we agree on details, you make a full prepayment securely. I'll provide an invoice and confirmation.",
         "creation_delivery": "Creation & Delivery",
@@ -175,8 +174,7 @@
         "production_text": "Typical production time is 2‑4 weeks for original works, plus shipping time. Digital illustrations take 1‑2 weeks.",
         "ready_order": "Ready to Order?",
         "ready_text": "Have questions or want to discuss a specific artwork? Feel free to reach out—I'm happy to help!",
-        "browse_shop_button": "Browse Shop",
-        "contact_button": "Contact Me"
+        "browse_shop_button": "Browse Shop"
     },
     "mySelect": {
         "placeholder": "Sort by"
@@ -608,6 +606,12 @@
             "description": "Failed to add work to gallery. Please try again."
         },
         "close": "Close"
+    },
+    "contacts": {
+        "button": "Contact Me",
+        "telegram": "Telegram",
+        "vk": "VK",
+        "email": "Email"
     },
     "footer": {
         "copyright": "All rights reserved",

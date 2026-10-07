@@ -153,15 +153,10 @@
                 >
                     {{ $t('payment.browse_shop_button',) }}
                 </UButton>
-                <UButton
-                    size="lg"
+                <ContactCta
                     color="neutral"
                     variant="outline"
-                    icon="i-lucide-mail"
-                    :to="{ path: '/', hash: '#contact', }"
-                >
-                    {{ $t('payment.contact_button',) }}
-                </UButton>
+                />
             </div>
         </div>
     </UContainer>

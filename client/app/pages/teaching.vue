@@ -137,16 +137,7 @@
             <p class="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl mx-auto text-lg">
                 {{ $t('services.collaborate_text',) }}
             </p>
-            <UButton
-                size="lg"
-                color="primary"
-                variant="solid"
-                icon="i-lucide-mail"
-                :to="{ path: '/', hash: '#contact', }"
-                class="font-semibold"
-            >
-                {{ $t('services.contact_button',) }}
-            </UButton>
+            <ContactCta />
         </div>
     </UContainer>
 </template>

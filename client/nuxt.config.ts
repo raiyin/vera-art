@@ -25,6 +25,11 @@ export default defineNuxtConfig({
             relWorksDir: process.env.NUXT_PUBLIC_REL_WORKS_DIR || '/content/works/',
             relSalesDir: process.env.NUXT_PUBLIC_REL_SALES_DIR || '/content/sales/',
             registrationEnabled: process.env.NUXT_PUBLIC_REGISTRATION_ENABLED !== 'false',
+            contacts: {
+                telegram: process.env.NUXT_PUBLIC_CONTACT_TELEGRAM || 'https://t.me/MilayaV',
+                vk: process.env.NUXT_PUBLIC_CONTACT_VK || 'https://vk.com/perczukowa',
+                email: process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'perczukowa@yandex.ru',
+            },
         },
     },
 
