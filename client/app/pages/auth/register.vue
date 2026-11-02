@@ -1,12 +1,12 @@
 <template>
     <div
-        class="min-h-screen flex items-center justify-center bg-linear-to-br from-indigo-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 p-4"
+        class="min-h-screen flex items-center justify-center bg-linear-to-br from-green-50 to-teal-50 dark:from-gray-900 dark:to-gray-800 p-4"
     >
         <div class="w-full max-w-lg">
             <!-- Logo/Brand -->
             <div class="text-center mb-6">
                 <div
-                    class="inline-flex items-center justify-center w-14 h-14 bg-indigo-500 rounded-2xl shadow-lg mb-3"
+                    class="inline-flex items-center justify-center w-14 h-14 bg-teal-500 rounded-2xl shadow-lg mb-3"
                 >
                     <svg
                         class="w-8 h-8 text-white"
@@ -20,66 +20,83 @@
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                        ></path>
+                        />
                     </svg>
                 </div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">
-                    {{ $t('auth.register') }}
+                    {{ $t('auth.register',) }}
                 </h1>
                 <p class="text-gray-600 dark:text-gray-300 mt-2">
-                    {{ $t('auth.createAccount', 'Create your account to get started') }}
+                    {{ $t('auth.createAccount', 'Create your account to get started',) }}
                 </p>
             </div>
 
             <!-- Register Card -->
             <UCard class="shadow-2xl border-0">
-                <UForm :state="formState" class="space-y-4" @submit="handleRegister">
+                <UForm
+                    :state="formState"
+                    class="space-y-4"
+                    @submit="handleRegister"
+                >
                     <!-- Username Field -->
-                    <UFormField name="username" :label="$t('auth.username')" required>
+                    <UFormField
+                        name="username"
+                        :label="$t('auth.username',)"
+                        required
+                    >
                         <UInput
                             v-model="formState.username"
                             type="text"
                             :placeholder="
-                                $t('auth.usernamePlaceholder', 'Choose a username')
+                                $t('auth.usernamePlaceholder', 'Choose a username',)
                             "
                             icon="i-heroicons-user"
                             size="lg"
                             :disabled="loading"
                             autocomplete="username"
-                            :rules="[validateUsername]"
+                            :rules="[validateUsername,]"
                             class="w-full"
                         />
                     </UFormField>
 
-                    <!-- Email Field (Optional) -->
-                    <UFormField name="email" :label="$t('auth.email')">
+                    <!-- Email Field -->
+                    <UFormField
+                        name="email"
+                        :label="$t('auth.email',)"
+                        required
+                    >
                         <UInput
                             v-model="formState.email"
                             type="email"
                             :placeholder="
-                                $t('auth.emailPlaceholder', 'Enter your email (optional)')
+                                $t('auth.emailPlaceholder', 'Enter your email address',)
                             "
                             icon="i-heroicons-envelope"
                             size="lg"
                             :disabled="loading"
                             autocomplete="email"
+                            :rules="[validateEmail,]"
                             class="w-full"
                         />
                     </UFormField>
 
                     <!-- Password Field -->
-                    <UFormField name="password" :label="$t('auth.password')" required>
+                    <UFormField
+                        name="password"
+                        :label="$t('auth.password',)"
+                        required
+                    >
                         <UInput
                             v-model="formState.password"
                             :type="passwordVisible ? 'text' : 'password'"
                             :placeholder="
-                                $t('auth.passwordPlaceholder', 'Create a strong password')
+                                $t('auth.passwordPlaceholder', 'Create a strong password',)
                             "
                             icon="i-heroicons-lock-closed"
                             size="lg"
                             :disabled="loading"
                             autocomplete="new-password"
-                            :rules="[validatePassword]"
+                            :rules="[validatePassword,]"
                             class="w-full"
                         >
                             <template #trailing>
@@ -91,9 +108,9 @@
                                             ? 'i-heroicons-eye-slash'
                                             : 'i-heroicons-eye'
                                     "
-                                    @click="passwordVisible = !passwordVisible"
                                     :padded="false"
                                     class="!p-1"
+                                    @click="passwordVisible = !passwordVisible"
                                 />
                             </template>
                         </UInput>
@@ -103,7 +120,7 @@
                             >
                                 <p>
                                     {{
-                                        $t('auth.passwordRequirements', 'Password must:')
+                                        $t('auth.passwordRequirements', 'Password must:',)
                                     }}
                                 </p>
                                 <ul class="list-disc pl-4">
@@ -117,7 +134,7 @@
                                         {{
                                             $t(
                                                 'auth.passwordMinLength',
-                                                'Be at least 8 characters'
+                                                'Be at least 8 characters',
                                             )
                                         }}
                                     </li>
@@ -131,7 +148,7 @@
                                         {{
                                             $t(
                                                 'auth.passwordUppercase',
-                                                'Contain an uppercase letter'
+                                                'Contain an uppercase letter',
                                             )
                                         }}
                                     </li>
@@ -145,7 +162,7 @@
                                         {{
                                             $t(
                                                 'auth.passwordLowercase',
-                                                'Contain a lowercase letter'
+                                                'Contain a lowercase letter',
                                             )
                                         }}
                                     </li>
@@ -156,7 +173,7 @@
                                                 : 'text-red-600'
                                         "
                                     >
-                                        {{ $t('auth.passwordDigit', 'Contain a digit') }}
+                                        {{ $t('auth.passwordDigit', 'Contain a digit',) }}
                                     </li>
                                     <li
                                         :class="
@@ -168,7 +185,7 @@
                                         {{
                                             $t(
                                                 'auth.passwordSpecial',
-                                                'Contain a special character'
+                                                'Contain a special character',
                                             )
                                         }}
                                     </li>
@@ -180,7 +197,7 @@
                     <!-- Confirm Password Field -->
                     <UFormField
                         name="confirmPassword"
-                        :label="$t('auth.confirmPassword')"
+                        :label="$t('auth.confirmPassword',)"
                         required
                     >
                         <UInput
@@ -189,14 +206,14 @@
                             :placeholder="
                                 $t(
                                     'auth.confirmPasswordPlaceholder',
-                                    'Confirm your password'
+                                    'Confirm your password',
                                 )
                             "
                             icon="i-heroicons-lock-closed"
                             size="lg"
                             :disabled="loading"
                             autocomplete="new-password"
-                            :rules="[validateConfirmPassword]"
+                            :rules="[validateConfirmPassword,]"
                             class="w-full"
                         >
                             <template #trailing>
@@ -208,11 +225,11 @@
                                             ? 'i-heroicons-eye-slash'
                                             : 'i-heroicons-eye'
                                     "
+                                    :padded="false"
+                                    class="!p-1"
                                     @click="
                                         confirmPasswordVisible = !confirmPasswordVisible
                                     "
-                                    :padded="false"
-                                    class="!p-1"
                                 />
                             </template>
                         </UInput>
@@ -227,19 +244,19 @@
                     >
                         <template #label>
                             <span class="text-sm text-gray-700 dark:text-gray-300">
-                                {{ $t('auth.agreeTo') }}
+                                {{ $t('auth.agreeTo',) }}
                                 <NuxtLink
                                     to="/terms"
-                                    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                    class="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium"
                                 >
-                                    {{ $t('auth.termsOfService', 'Terms of Service') }}
+                                    {{ $t('auth.termsOfService', 'Terms of Service',) }}
                                 </NuxtLink>
-                                {{ $t('auth.and') }}
+                                {{ $t('auth.and',) }}
                                 <NuxtLink
                                     to="/privacy"
-                                    class="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                                    class="text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium"
                                 >
-                                    {{ $t('auth.privacyPolicy', 'Privacy Policy') }}
+                                    {{ $t('auth.privacyPolicy', 'Privacy Policy',) }}
                                 </NuxtLink>
                             </span>
                         </template>
@@ -248,7 +265,7 @@
                     <!-- Error Message -->
                     <UAlert
                         v-if="error"
-                        :title="$t('auth.error', 'Error')"
+                        :title="$t('auth.error', 'Error',)"
                         :description="error"
                         icon="i-heroicons-exclamation-triangle"
                         color="error"
@@ -259,7 +276,7 @@
                     <!-- Success Message -->
                     <UAlert
                         v-if="success"
-                        :title="$t('auth.success', 'Success!')"
+                        :title="$t('auth.success', 'Success!',)"
                         :description="success"
                         icon="i-heroicons-check-circle"
                         color="success"
@@ -290,22 +307,22 @@
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                                ></path>
+                                />
                             </svg>
                         </template>
-                        {{ $t('auth.register') }}
+                        {{ $t('auth.register',) }}
                     </UButton>
                 </UForm>
 
                 <!-- Login Link -->
                 <div class="mt-6 text-center">
                     <p class="text-gray-600 dark:text-gray-300">
-                        {{ $t('auth.haveAccount') }}
+                        {{ $t('auth.haveAccount',) }}
                         <NuxtLink
                             to="/auth/login"
-                            class="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                            class="font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 transition-colors"
                         >
-                            {{ $t('auth.login') }}
+                            {{ $t('auth.login',) }}
                         </NuxtLink>
                     </p>
                 </div>
@@ -329,214 +346,210 @@
                             stroke-linejoin="round"
                             stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                        ></path>
+                        />
                     </svg>
-                    {{ $t('auth.backToHome', 'Back to home') }}
+                    {{ $t('auth.backToHome', 'Back to home',) }}
                 </NuxtLink>
             </div>
         </div>
     </div>
 </template>
 
-<script lang="ts">
-import { ref, reactive, computed, watch } from 'vue';
-import { useRouter } from 'vue-router';
-import { useI18n } from 'vue-i18n';
-import authApi from '../../api/auth';
+<script setup lang="ts">
+    import { ref, reactive, computed, } from 'vue';
+    import { useRouter, } from 'vue-router';
+    import { useI18n, } from 'vue-i18n';
+    import authApi from '~/api/auth';
 
-interface RegisterForm {
-    username: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-}
+    definePageMeta({
+        layout: false,
+    });
 
-export default {
-    setup() {
-        const router = useRouter();
-        const { t } = useI18n();
+    interface RegisterForm {
+        username: string
+        email: string
+        password: string
+        confirmPassword: string
+    }
 
-        const formState = reactive<RegisterForm>({
-            username: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-        });
+    const router = useRouter();
+    const { t, } = useI18n();
 
-        const agreeTerms = ref(false);
-        const loading = ref(false);
-        const error = ref('');
-        const success = ref('');
-        const passwordVisible = ref(false);
-        const confirmPasswordVisible = ref(false);
+    const formState = reactive<RegisterForm>({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+    });
 
-        // Password requirements checker
-        const passwordRequirements = computed(() => {
-            const password = formState.password;
-            return {
-                minLength: password.length >= 8,
-                hasUppercase: /[A-Z]/.test(password),
-                hasLowercase: /[a-z]/.test(password),
-                hasDigit: /[0-9]/.test(password),
-                hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password),
-                notWeak: ![
-                    'password',
-                    '12345678',
-                    'qwerty',
-                    'admin',
-                    'letmein',
-                ].some((weak) => password.toLowerCase().includes(weak)),
-            };
-        });
+    const agreeTerms = ref(false,);
+    const loading = ref(false,);
+    const error = ref('',);
+    const success = ref('',);
+    const passwordVisible = ref(false,);
+    const confirmPasswordVisible = ref(false,);
 
-        // Check if all password requirements are met
-        const isPasswordValid = computed(() => {
-            const req = passwordRequirements.value;
-            return (
-                req.minLength &&
-                req.hasUppercase &&
-                req.hasLowercase &&
-                req.hasDigit &&
-                req.hasSpecial &&
-                req.notWeak
+    // Password requirements checker
+    const passwordRequirements = computed(() => {
+        const password = formState.password;
+        return {
+            minLength: password.length >= 8,
+            hasUppercase: /[A-Z]/.test(password,),
+            hasLowercase: /[a-z]/.test(password,),
+            hasDigit: /[0-9]/.test(password,),
+            hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/.test(password,),
+            notWeak: ![
+                'password',
+                '12345678',
+                'qwerty',
+                'admin',
+                'letmein',
+            ].some(weak => password.toLowerCase().includes(weak,),),
+        };
+    });
+
+    // Check if all password requirements are met
+    const isPasswordValid = computed(() => {
+        const req = passwordRequirements.value;
+        return (
+            req.minLength
+        && req.hasUppercase
+            && req.hasLowercase
+        && req.hasDigit
+            && req.hasSpecial
+        && req.notWeak
+        );
+    });
+
+    // Validation functions
+    const validateUsername = (value: string,) => {
+        if (!value.trim()) return t('auth.usernameRequired', 'Username is required',);
+        if (value.length < 3)
+            return t(
+                'auth.usernameMinLength',
+                'Username must be at least 3 characters'
             );
-        });
-
-        // Validation functions
-        const validateUsername = (value: string) => {
-            if (!value.trim()) return t('auth.usernameRequired', 'Username is required');
-            if (value.length < 3)
-                return t(
-                    'auth.usernameMinLength',
-                    'Username must be at least 3 characters'
-                );
-            if (value.length > 20)
-                return t(
-                    'auth.usernameMaxLength',
-                    'Username must be less than 20 characters'
-                );
-            return true;
-        };
-
-        const validatePassword = (value: string) => {
-            if (!value.trim()) return t('auth.passwordRequired', 'Password is required');
-
-            const req = passwordRequirements.value;
-            if (!req.minLength)
-                return t(
-                    'auth.passwordMinLength',
-                    'Password must be at least 8 characters'
-                );
-            if (!req.hasUppercase)
-                return t(
-                    'auth.passwordUppercase',
-                    'Password must contain an uppercase letter'
-                );
-            if (!req.hasLowercase)
-                return t(
-                    'auth.passwordLowercase',
-                    'Password must contain a lowercase letter'
-                );
-            if (!req.hasDigit)
-                return t('auth.passwordDigit', 'Password must contain a digit');
-            if (!req.hasSpecial)
-                return t(
-                    'auth.passwordSpecial',
-                    'Password must contain a special character'
-                );
-            if (!req.notWeak)
-                return t('auth.passwordWeak', 'Password is too common or weak');
-
-            return true;
-        };
-
-        const validateConfirmPassword = (value: string) => {
-            if (!value.trim())
-                return t('auth.confirmPasswordRequired', 'Please confirm your password');
-            if (value !== formState.password)
-                return t('auth.passwordsDontMatch', 'Passwords do not match');
-            return true;
-        };
-
-        const isFormValid = computed(() => {
-            return (
-                formState.username.trim() &&
-                formState.password.trim() &&
-                formState.confirmPassword.trim() &&
-                formState.password === formState.confirmPassword &&
-                isPasswordValid.value &&
-                agreeTerms.value
+        if (value.length > 20)
+            return t(
+                'auth.usernameMaxLength',
+                'Username must be less than 20 characters'
             );
-        });
+        return true;
+    };
 
-        const handleRegister = async () => {
-            if (!isFormValid.value) {
-                error.value = t(
-                    'auth.fillAllFields',
-                    'Please fill in all fields correctly'
-                );
-                return;
-            }
+    const validatePassword = (value: string,) => {
+        if (!value.trim()) return t('auth.passwordRequired', 'Password is required',);
 
-            loading.value = true;
-            error.value = '';
-            success.value = '';
+        const req = passwordRequirements.value;
+        if (!req.minLength)
+            return t(
+                'auth.passwordMinLength',
+                'Password must be at least 8 characters'
+            );
+        if (!req.hasUppercase)
+            return t(
+                'auth.passwordUppercase',
+                'Password must contain an uppercase letter'
+            );
+        if (!req.hasLowercase)
+            return t(
+                'auth.passwordLowercase',
+                'Password must contain a lowercase letter'
+            );
+        if (!req.hasDigit)
+            return t('auth.passwordDigit', 'Password must contain a digit',);
+        if (!req.hasSpecial)
+            return t(
+                'auth.passwordSpecial',
+                'Password must contain a special character'
+            );
+        if (!req.notWeak)
+            return t('auth.passwordWeak', 'Password is too common or weak',);
 
-            try {
-                // Use the new auth API
-                await authApi.register({
-                    username: formState.username,
-                    password: formState.password,
-                    email: formState.email || undefined,
-                });
+        return true;
+    };
 
-                success.value = t(
-                    'auth.registrationSuccess',
-                    'Registration successful! Redirecting to login...'
-                );
+    const validateEmail = (value: string,) => {
+        if (!value.trim()) return t('auth.emailRequired', 'Email is required',);
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value.trim(),))
+            return t('auth.emailInvalid', 'Please enter a valid email address',);
+        return true;
+    };
 
-                // Clear form
-                formState.username = '';
-                formState.email = '';
-                formState.password = '';
-                formState.confirmPassword = '';
-                agreeTerms.value = false;
+    const validateConfirmPassword = (value: string,) => {
+        if (!value.trim())
+            return t('auth.confirmPasswordRequired', 'Please confirm your password',);
+        if (value !== formState.password)
+            return t('auth.passwordsDontMatch', 'Passwords do not match',);
+        return true;
+    };
 
-                // Redirect to login after 2 seconds
-                setTimeout(() => {
-                    router.push('/auth/login');
-                }, 2000);
-            } catch (err: any) {
-                error.value =
-                    err.message ||
-                    err.error ||
-                    t(
+    const isFormValid = computed(() => {
+        const emailValid
+        = formState.email.trim()
+                && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formState.email.trim(),);
+        return (
+            formState.username.trim()
+        && emailValid
+            && formState.password.trim()
+        && formState.confirmPassword.trim()
+            && formState.password === formState.confirmPassword
+        && isPasswordValid.value
+            && agreeTerms.value
+        );
+    });
+
+    const handleRegister = async () => {
+        if (!isFormValid.value) {
+            error.value = t(
+                'auth.fillAllFields',
+                'Please fill in all fields correctly'
+            );
+            return;
+        }
+
+        loading.value = true;
+        error.value = '';
+        success.value = '';
+
+        try {
+            // Use the new auth API
+            await authApi.register({
+                username: formState.username,
+                password: formState.password,
+                email: formState.email,
+            });
+
+            success.value = t(
+                'auth.verificationEmailSent',
+                'Registration successful! A verification link has been sent to your email. Please check your inbox.'
+            );
+
+            // Clear form
+            formState.username = '';
+            formState.email = '';
+            formState.password = '';
+            formState.confirmPassword = '';
+            agreeTerms.value = false;
+
+            // Redirect to login after 5 seconds
+            setTimeout(() => {
+                router.push('/auth/login',);
+            }, 5000,);
+        } catch (err: any) {
+            error.value
+            = err.message
+                    || err.error
+                || t(
                         'auth.registrationError',
                         'Registration failed. Username may be taken.'
                     );
-                console.error('Registration error:', err);
-            } finally {
-                loading.value = false;
-            }
-        };
-
-        return {
-            formState,
-            agreeTerms,
-            loading,
-            error,
-            success,
-            passwordVisible,
-            confirmPasswordVisible,
-            passwordRequirements,
-            validateUsername,
-            validatePassword,
-            validateConfirmPassword,
-            isFormValid,
-            handleRegister,
-        };
-    },
-};
+            console.error('Registration error:', err,);
+        } finally {
+            loading.value = false;
+        }
+    };
 </script>
 
 <style scoped>
@@ -565,7 +578,7 @@ export default {
 
 /* Focus styles */
 :focus-visible {
-    outline: 2px solid var(--color-blue-500);
+    outline: 2px solid var(--color-primary, #4B9E90);
     outline-offset: 2px;
 }
 

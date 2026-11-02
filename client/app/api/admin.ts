@@ -1,233 +1,46 @@
-import { useAuthStore, } from '~/stores/AuthStore';
+import { getHttpClient, } from '~/api/http-client';
+import type { DashboardStats, RecentActivityItem, } from '~/types/dashboard';
+import type {
+    AdminListWorksResponse,
+    AdminWorkItem,
+    AdminListSalesResponse,
+    AdminSaleItem,
+    AdminListNewsResponse,
+    AdminNewsItem,
+    AdminListProductsResponse,
+    AdminProductItem,
+    AdminListLessonsResponse,
+    AdminListUsersResponse,
+    AdminUserItem,
+    AdminUserDetail,
+    AdminListReviewsResponse,
+    AdminReviewItem,
+    AdminReviewsStats,
+    AdminPurchaseItem,
+    AdminListPurchasesResponse,
+    AdminPaymentItem,
+    AdminListPaymentsResponse,
+    AdminPromoCodeItem,
+    AdminChatThread,
+    AdminChatMessage,
+    AdminCategoryItem,
+    AdminTagItem,
+} from '~/types';
 
-export interface DashboardStats {
-    gallery_works_count: number
-    shop_items_count: number
-    news_count: number
-    users_count: number
-    courses_count: number
-    master_classes_count: number
-    reviews_total: number
-    reviews_pending: number
-    purchases_total: number
-    revenue_total: number
-    revenue_month: number
-    active_chats: number
-    users_registered_month: number
-    sales_by_month: SalesByMonthEntry[]
-    popular_categories: PopularCategoryEntry[]
-}
-
-export interface SalesByMonthEntry {
-    month: string
-    count: number
-    revenue: number
-}
-
-export interface PopularCategoryEntry {
-    name: string
-    count: number
-}
-
-export interface RecentActivityItem {
-    id: string
-    type: 'gallery' | 'shop' | 'news' | 'review' | 'user' | 'purchase'
-    text: string
-    time: string
-    created_at: string
-}
-
-// --- Gallery (Works) ---
-export interface AdminWorkItem {
-    id: number
-    str_id: string
-    dir: string
-    name_ru: string
-    name_en: string
-    year: number
-    width: number
-    height: number
-    type: number
-    base_ru: string
-    base_en: string
-    images: string[]
-    materials_ru: string[]
-    materials_en: string[]
-    created_at: string
-}
-
-export interface AdminListWorksResponse {
-    items: AdminWorkItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
-
-// --- Shop (Sales) ---
-export interface AdminSaleItem {
-    id: number
-    str_id: string
-    dir: string
-    name_ru: string
-    name_en: string
-    year: number
-    width: number
-    height: number
-    price: number
-    base_ru: string
-    base_en: string
-    images: string[]
-    materials_ru: string[]
-    materials_en: string[]
-    created_at: string
-}
-
-export interface AdminListSalesResponse {
-    items: AdminSaleItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
-
-// --- News ---
-export interface AdminNewsItem {
-    id: string
-    title_ru: string
-    title_en: string
-    datetime: string
-    dir: string
-    img_back: string
-    img_backfull: string
-    text_ru: string
-    text_en: string
-    images: string[]
-    videos: string[]
-}
-
-export interface AdminListNewsResponse {
-    items: AdminNewsItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
-
-function getAuthHeaders(): Record<string, string> {
-    const authStore = useAuthStore();
-
-    // Ensure auth state is initialized from localStorage
-    // This is needed because the store may not have been initialized yet
-    // if the API is called before the middleware or app.vue's onMounted runs
-    if (!authStore.accessToken && typeof window !== 'undefined') {
-        authStore.initFromLocalStorage();
-    }
-
-    const token = authStore.accessToken;
-    if (!token) return {};
-    return { Authorization: `Bearer ${token}`, };
-}
-
-async function tryRefreshToken(): Promise<boolean> {
-    try {
-        const authStore = useAuthStore();
-        const refreshTokenValue = authStore.refreshToken;
-        if (!refreshTokenValue) return false;
-
-        const config = useRuntimeConfig();
-        const SERVER_URL = config.public.serverUrl;
-        const refreshResponse = await fetch(`${SERVER_URL}refresh`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refresh_token: refreshTokenValue }),
-        });
-
-        if (refreshResponse.ok) {
-            const data = await refreshResponse.json();
-            authStore.updateAccessToken(data.access_token, data.access_expires);
-            return true;
-        }
-
-        // Refresh failed, clear tokens
-        authStore.clearTokens();
-        return false;
-    } catch {
-        return false;
-    }
-}
-
-async function fetchApi<T>(endpoint: string): Promise<T> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    let response = await fetch(`${SERVER_URL}${endpoint}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-
-    // If 401, try to refresh the token and retry
-    if (response.status === 401) {
-        const refreshed = await tryRefreshToken();
-        if (refreshed) {
-            response = await fetch(`${SERVER_URL}${endpoint}`, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getAuthHeaders(),
-                },
-            });
-        }
-    }
-
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-    return response.json() as Promise<T>;
-}
-
-async function postApi<T>(endpoint: string, body: unknown): Promise<T> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    let response = await fetch(`${SERVER_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-        body: JSON.stringify(body),
-    });
-
-    // If 401, try to refresh the token and retry
-    if (response.status === 401) {
-        const refreshed = await tryRefreshToken();
-        if (refreshed) {
-            response = await fetch(`${SERVER_URL}${endpoint}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...getAuthHeaders(),
-                },
-                body: JSON.stringify(body),
-            });
-        }
-    }
-
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-    return response.json() as Promise<T>;
-}
+// ─── Dashboard ──────────────────────────────────────────────────────
 
 export async function fetchDashboardStats(): Promise<DashboardStats> {
-    return fetchApi<DashboardStats>('api/admin/stats',);
+    const { data, } = await getHttpClient().get<DashboardStats>('api/admin/stats',);
+    return data;
 }
 
 export async function fetchRecentActivity(): Promise<RecentActivityItem[]> {
-    return fetchApi<RecentActivityItem[]>('api/admin/recent-activity',);
+    const { data, } = await getHttpClient().get<RecentActivityItem[]>('api/admin/recent-activity',);
+    return data;
 }
 
-// --- Gallery API ---
+// ─── Gallery (Works) ────────────────────────────────────────────────
+
 export async function fetchAdminWorks(params?: {
     page?: number
     per_page?: number
@@ -236,24 +49,53 @@ export async function fetchAdminWorks(params?: {
     base_id?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListWorksResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.type) query.set('type', params.type);
-    if (params?.base_id) query.set('base_id', params.base_id);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListWorksResponse>(`admin/works${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListWorksResponse> {
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        base_id: params?.base_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+        status: params?.type !== undefined ? String(params.type,) : undefined,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/works', { params: backendParams, },);
+
+    const items: AdminWorkItem[] = (data.works || []).map((w: any,) => ({
+        id: w.id || 0,
+        str_id: String(w.id || '',),
+        dir: w.dir || '',
+        name_ru: w.name_ru || '',
+        name_en: w.name_en || '',
+        year: w.year || 0,
+        width: w.width || 0,
+        height: w.height || 0,
+        type: 0,
+        base_ru: '',
+        base_en: '',
+        images: w.images || [],
+        materials_ru: [],
+        materials_en: [],
+        created_at: w.created_at || '',
+        material_ids: w.material_ids || [],
+        base_ids: w.base_id ? [w.base_id] : [],
+    }),);
+
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: params?.per_page || items.length,
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20),),
+    };
 }
 
-export async function deleteAdminWorks(ids: number[]): Promise<void> {
-    await postApi<{ message: string }>('admin/works/bulk-delete', { ids, });
+export async function deleteAdminWorks(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/works/bulk-delete', { ids, },);
 }
 
-// --- Shop API ---
+// ─── Shop (Sales) ───────────────────────────────────────────────────
+
 export async function fetchAdminSales(params?: {
     page?: number
     per_page?: number
@@ -261,73 +103,96 @@ export async function fetchAdminSales(params?: {
     base_id?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListSalesResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.base_id) query.set('base_id', params.base_id);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListSalesResponse>(`admin/sales${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListSalesResponse> {
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        base_id: params?.base_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/sales', { params: backendParams, },);
+
+    const items: AdminSaleItem[] = (data.sales || []).map((s: any,) => ({
+        id: s.id || 0,
+        str_id: String(s.id || '',),
+        dir: s.dir || '',
+        name_ru: s.name_ru || '',
+        name_en: s.name_en || '',
+        year: s.year || 0,
+        width: s.width || 0,
+        height: s.height || 0,
+        price: s.price || 0,
+        base_ru: '',
+        base_en: '',
+        images: s.images || [],
+        materials_ru: [],
+        materials_en: [],
+        created_at: s.created_at || '',
+        material_ids: s.material_ids || [],
+        base_ids: s.base_ids || [],
+    }),);
+
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: params?.per_page || items.length,
+        total_pages: Math.ceil((data.total || items.length) / (params?.per_page || 20),),
+    };
 }
 
-export async function deleteAdminSales(ids: number[]): Promise<void> {
-    await postApi<{ message: string }>('admin/sales/bulk-delete', { ids, });
+export async function deleteAdminSales(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/sales/bulk-delete', { ids, },);
 }
 
-// --- News API ---
+// ─── News ───────────────────────────────────────────────────────────
+
 export async function fetchAdminNews(params?: {
     page?: number
     per_page?: number
     search?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListNewsResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListNewsResponse>(`admin/news/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListNewsResponse> {
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/news/list', { params: backendParams, },);
+
+    const items: AdminNewsItem[] = (data.news || []).map((n: any,) => ({
+        id: String(n.id || '',),
+        title_ru: n.title_ru || '',
+        title_en: n.title_en || '',
+        datetime: n.datetime || '',
+        dir: n.dir || '',
+        main_image: n.main_image || '',
+        text_ru: n.text_ru || '',
+        text_en: n.text_en || '',
+        images: n.images || [],
+        videos: n.videos || [],
+    }),);
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
+    };
 }
 
-export async function deleteAdminNews(ids: string[]): Promise<void> {
-    await postApi<{ message: string }>('admin/news/bulk-delete', { ids, });
+export async function deleteAdminNews(ids: string[],): Promise<void> {
+    await getHttpClient().post('admin/news/bulk-delete', { ids, },);
 }
 
-// --- Products (Courses & Master-Classes) ---
-export interface AdminProductItem {
-    id: number
-    type: string // "course" or "masterclass"
-    title_ru: string
-    title_en: string
-    price: number // in kopecks
-    status: string // "draft", "published", "archived"
-    difficulty: string // "beginner", "intermediate", "advanced"
-    total_lessons: number
-    total_duration_minutes: number
-    view_count: number
-    is_featured: boolean
-    language: string
-    thumbnail_url: string
-    category_name_ru: string
-    category_name_en: string
-    certificate_available: boolean
-    created_at: string
-    updated_at: string
-}
-
-export interface AdminListProductsResponse {
-    items: AdminProductItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
+// ─── Products (Courses & Master-Classes) ────────────────────────────
 
 export async function fetchAdminProducts(params?: {
     page?: number
@@ -339,55 +204,60 @@ export async function fetchAdminProducts(params?: {
     category_id?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListProductsResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.type) query.set('type', params.type);
-    if (params?.status) query.set('status', params.status);
-    if (params?.difficulty) query.set('difficulty', params.difficulty);
-    if (params?.category_id) query.set('category_id', params.category_id);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListProductsResponse>(`admin/products/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListProductsResponse> {
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        type: params?.type,
+        status: params?.status,
+        difficulty: params?.difficulty,
+        category_id: params?.category_id,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/products/list', { params: backendParams, },);
+
+    const items: AdminProductItem[] = (data.products || []).map((p: any,) => ({
+        id: p.id || 0,
+        type: p.type || '',
+        title_ru: p.title_ru || '',
+        title_en: p.title_en || '',
+        price: p.price || 0,
+        status: p.status || '',
+        difficulty: p.difficulty || '',
+        total_lessons: p.total_lessons || 0,
+        total_duration_minutes: p.total_duration_minutes || 0,
+        view_count: p.view_count || 0,
+        is_featured: p.is_featured || false,
+        language: p.language || '',
+        thumbnail_url: p.thumbnail_url || '',
+        category_name_ru: '',
+        category_name_en: '',
+        certificate_available: p.certificate_available || false,
+        created_at: p.created_at || '',
+        updated_at: p.updated_at || '',
+    }),);
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
+    };
 }
 
-export async function deleteAdminProducts(ids: number[]): Promise<void> {
-    await postApi<{ message: string }>('admin/products/bulk-delete', { ids, });
+export async function deleteAdminProducts(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/products/bulk-delete', { ids, },);
 }
 
-export async function updateAdminProductStatus(id: number, status: string): Promise<void> {
-    await postApi<{ message: string }>(`admin/products/${id}/status`, { status, });
+export async function updateAdminProductStatus(id: number, status: string,): Promise<void> {
+    await getHttpClient().post(`admin/products/${id}/status`, { status, },);
 }
 
-// --- Lessons ---
-export interface AdminLessonItem {
-    id: number
-    product_id: number
-    product_title_ru: string
-    product_title_en: string
-    product_type: string
-    title_ru: string
-    title_en: string
-    content_type: string
-    duration_minutes: number
-    sort_order: number
-    is_preview: boolean
-    is_required: boolean
-    resources_count: number
-    created_at: string
-    updated_at: string
-}
-
-export interface AdminListLessonsResponse {
-    items: AdminLessonItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
+// ─── Lessons ────────────────────────────────────────────────────────
 
 export async function fetchAdminLessons(params?: {
     page?: number
@@ -397,80 +267,26 @@ export async function fetchAdminLessons(params?: {
     content_type?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListLessonsResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.product_id) query.set('product_id', String(params.product_id));
-    if (params?.content_type) query.set('content_type', params.content_type);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListLessonsResponse>(`admin/lessons/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListLessonsResponse> {
+    const { data, } = await getHttpClient().get<any>('admin/lessons/list', { params, },);
+    const lessons = data.lessons ?? [];
+    const total = data.total ?? lessons.length;
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    return {
+        items: lessons,
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: Math.ceil(total / perPage,) || 1,
+    };
 }
 
-export async function deleteAdminLessons(ids: number[]): Promise<void> {
-    await postApi<{ message: string }>('admin/lessons/bulk-delete', { ids, });
+export async function deleteAdminLessons(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/lessons/bulk-delete', { ids, },);
 }
 
-// --- Users ---
-export interface AdminUserItem {
-    id: number
-    username: string
-    full_name: string
-    email: string
-    role: string
-    blocked: boolean
-    purchases_count: number
-    reviews_count: number
-    created_at: string
-    updated_at: string
-}
-
-export interface AdminListUsersResponse {
-    items: AdminUserItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
-
-export interface AdminUserPurchase {
-    id: number
-    product_id: number
-    product_title_ru: string
-    product_title_en: string
-    product_type: string
-    price_paid: number
-    status: string
-    purchase_date: string
-}
-
-export interface AdminUserReview {
-    id: number
-    product_id: number
-    product_title_ru: string
-    product_title_en: string
-    rating: number
-    comment_ru: string
-    comment_en: string
-    is_approved: boolean
-    created_at: string
-}
-
-export interface AdminUserDetail {
-    id: number
-    username: string
-    full_name: string
-    email: string
-    role: string
-    blocked: boolean
-    created_at: string
-    updated_at: string
-    purchases: AdminUserPurchase[]
-    reviews: AdminUserReview[]
-}
+// ─── Users ──────────────────────────────────────────────────────────
 
 export async function fetchAdminUsers(params?: {
     page?: number
@@ -480,72 +296,54 @@ export async function fetchAdminUsers(params?: {
     blocked?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListUsersResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.role) query.set('role', params.role);
-    if (params?.blocked) query.set('blocked', params.blocked);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListUsersResponse>(`admin/users/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListUsersResponse> {
+    const backendParams: Record<string, string | number | undefined> = {
+        page: params?.page,
+        limit: params?.per_page,
+        q: params?.search,
+        role: params?.role,
+        sort_by: params?.sort_by,
+        sort_order: params?.sort_dir,
+    };
+    const { data, } = await getHttpClient().get<any>('admin/users/list', { params: backendParams, },);
+
+    const items: AdminUserItem[] = (data.users || []).map((u: any,) => ({
+        id: u.id || 0,
+        username: u.username || '',
+        full_name: u.name || '',
+        email: u.email || '',
+        role: u.role || '',
+        blocked: false,
+        purchases_count: 0,
+        reviews_count: 0,
+        created_at: u.created_at || '',
+        updated_at: u.updated_at || '',
+    }),);
+
+    const perPage = params?.per_page || 20;
+    return {
+        items,
+        total: data.total || items.length,
+        page: params?.page || 1,
+        per_page: perPage,
+        total_pages: Math.ceil((data.total || items.length) / perPage,),
+    };
 }
 
-export async function fetchAdminUserDetail(id: number): Promise<AdminUserDetail> {
-    return fetchApi<AdminUserDetail>(`admin/users/${id}`,);
+export async function fetchAdminUserDetail(id: number,): Promise<AdminUserDetail> {
+    const { data, } = await getHttpClient().get<AdminUserDetail>(`admin/users/${id}`,);
+    return data;
 }
 
-export async function updateAdminUserRole(id: number, role: string): Promise<void> {
-    await postApi<{ message: string }>(`admin/users/${id}/role`, { role, });
+export async function updateAdminUserRole(id: number, role: string,): Promise<void> {
+    await getHttpClient().post(`admin/users/${id}/role`, { role, },);
 }
 
-export async function toggleAdminUserBlock(id: number, blocked: boolean): Promise<void> {
-    await postApi<{ message: string }>(`admin/users/${id}/block`, { blocked, });
+export async function toggleAdminUserBlock(id: number, blocked: boolean,): Promise<void> {
+    await getHttpClient().post(`admin/users/${id}/block`, { blocked, },);
 }
 
-// --- Reviews ---
-export interface AdminReviewItem {
-    id: number
-    user_id: number
-    product_id: number
-    purchase_id: number
-    rating: number
-    title_ru: string
-    title_en: string
-    comment_ru: string
-    comment_en: string
-    is_approved: boolean
-    is_visible: boolean
-    status: string
-    created_at: string
-    updated_at: string
-    username: string
-    user_full_name: string
-    user_email: string
-    product_title_ru: string
-    product_title_en: string
-    product_type: string
-}
-
-export interface AdminReviewsStats {
-    total_reviews: number
-    pending_count: number
-    approved_count: number
-    rejected_count: number
-    average_rating: number
-    five_star_count: number
-}
-
-export interface AdminListReviewsResponse {
-    items: AdminReviewItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-    stats: AdminReviewsStats
-}
+// ─── Reviews ────────────────────────────────────────────────────────
 
 export async function fetchAdminReviews(params?: {
     page?: number
@@ -555,83 +353,109 @@ export async function fetchAdminReviews(params?: {
     rating?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListReviewsResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.status) query.set('status', params.status);
-    if (params?.rating) query.set('rating', params.rating);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListReviewsResponse>(`admin/reviews/list${qs ? `?${qs}` : ''}`,);
-}
+},): Promise<AdminListReviewsResponse> {
+    const { data, } = await getHttpClient().get<any>('admin/reviews/list', {},);
 
-export async function approveAdminReview(id: number): Promise<void> {
-    await postApi<{ message: string }>(`admin/reviews/${id}/approve`, {});
-}
+    const allReviews: AdminReviewItem[] = (data.reviews || []).map((r: any,) => ({
+        id: r.id || 0,
+        user_id: r.user_id || 0,
+        product_id: r.product_id || 0,
+        purchase_id: 0,
+        rating: r.rating || 0,
+        title_ru: '',
+        title_en: '',
+        comment_ru: r.text || '',
+        comment_en: '',
+        is_approved: r.status === 'approved',
+        is_visible: r.status === 'approved',
+        status: r.status || 'pending',
+        created_at: r.created_at || '',
+        updated_at: r.updated_at || '',
+        username: '',
+        user_full_name: '',
+        user_email: '',
+        product_title_ru: '',
+        product_title_en: '',
+        product_type: '',
+    }),);
 
-export async function rejectAdminReview(id: number): Promise<void> {
-    await postApi<{ message: string }>(`admin/reviews/${id}/reject`, {});
-}
-
-export async function deleteAdminReview(id: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}api/reviews/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
+    // Apply client-side filters since backend returns all reviews without filtering
+    let filtered = allReviews;
+    if (params?.status && params.status !== 'all') {
+        filtered = filtered.filter(r => r.status === params.status,);
     }
+    if (params?.rating && params.rating !== 'all') {
+        const ratingNum = parseInt(params.rating, 10,);
+        if (!isNaN(ratingNum,)) {
+            filtered = filtered.filter(r => r.rating === ratingNum,);
+        }
+    }
+    if (params?.search) {
+        const q = params.search.toLowerCase();
+        filtered = filtered.filter(
+            r => r.comment_ru.toLowerCase().includes(q,),
+        );
+    }
+
+    // Compute stats from all reviews (not filtered)
+    const totalReviews = allReviews.length;
+    const pendingCount = allReviews.filter(r => r.status === 'pending',).length;
+    const approvedCount = allReviews.filter(r => r.status === 'approved',).length;
+    const rejectedCount = allReviews.filter(r => r.status === 'rejected',).length;
+    const totalRating = allReviews.reduce((sum, r,) => sum + r.rating, 0,);
+    const averageRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+    const fiveStarCount = allReviews.filter(r => r.rating === 5,).length;
+
+    // Paginate filtered results
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / perPage,);
+    const start = (currentPage - 1) * perPage;
+    const items = filtered.slice(start, start + perPage,);
+
+    return {
+        items,
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: totalPages,
+        stats: {
+            total_reviews: totalReviews,
+            pending_count: pendingCount,
+            approved_count: approvedCount,
+            rejected_count: rejectedCount,
+            average_rating: averageRating,
+            five_star_count: fiveStarCount,
+        },
+    };
 }
 
-export async function bulkApproveAdminReviews(ids: number[]): Promise<void> {
-    await postApi<{ message: string, affected: number }>('admin/reviews/bulk-approve', { ids, });
+export async function approveAdminReview(id: number,): Promise<void> {
+    await getHttpClient().post(`admin/reviews/${id}/approve`, {},);
 }
 
-export async function bulkRejectAdminReviews(ids: number[]): Promise<void> {
-    await postApi<{ message: string, affected: number }>('admin/reviews/bulk-reject', { ids, });
+export async function rejectAdminReview(id: number,): Promise<void> {
+    await getHttpClient().post(`admin/reviews/${id}/reject`, {},);
 }
 
-export async function bulkDeleteAdminReviews(ids: number[]): Promise<void> {
-    await postApi<{ message: string, affected: number }>('admin/reviews/bulk-delete', { ids, });
+export async function deleteAdminReview(id: number,): Promise<void> {
+    await getHttpClient().delete(`api/reviews/${id}`,);
 }
 
-// --- Purchases ---
-export interface AdminPurchaseItem {
-    id: number
-    user_id: number
-    product_id: number
-    purchase_date: string
-    access_start: string
-    access_end: string
-    status: string
-    payment_id: number | null
-    promo_code_id: number | null
-    price_paid: number
-    created_at: string
-    username: string
-    user_full_name: string
-    user_email: string
-    product_title_ru: string
-    product_title_en: string
-    product_type: string
-    days_remaining: number
+export async function bulkApproveAdminReviews(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/reviews/bulk-approve', { ids, },);
 }
 
-export interface AdminListPurchasesResponse {
-    items: AdminPurchaseItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
+export async function bulkRejectAdminReviews(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/reviews/bulk-reject', { ids, },);
 }
+
+export async function bulkDeleteAdminReviews(ids: number[],): Promise<void> {
+    await getHttpClient().post('admin/reviews/bulk-delete', { ids, },);
+}
+
+// ─── Purchases ──────────────────────────────────────────────────────
 
 export async function fetchAdminPurchases(params?: {
     page?: number
@@ -641,67 +465,67 @@ export async function fetchAdminPurchases(params?: {
     product_type?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListPurchasesResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.status) query.set('status', params.status);
-    if (params?.product_type) query.set('product_type', params.product_type);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListPurchasesResponse>(`admin/purchases/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListPurchasesResponse> {
+    const { data, } = await getHttpClient().get<any>('admin/purchases/list', {},);
+
+    const items: AdminPurchaseItem[] = (data.purchases || []).map((p: any,) => {
+        const created = p.created_at || '';
+        const accessEnd = p.access_end || null;
+        let daysRemaining = 0;
+        if (accessEnd) {
+            const end = new Date(accessEnd,);
+            const now = new Date();
+            daysRemaining = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),),);
+        }
+        return {
+            id: p.id || 0,
+            user_id: p.user_id || 0,
+            product_id: p.product_id || 0,
+            purchase_date: created,
+            access_start: p.access_start || '',
+            access_end: accessEnd || '',
+            status: p.status || '',
+            payment_id: p.payment_id || null,
+            promo_code_id: null,
+            price_paid: p.price_paid || 0,
+            created_at: created,
+            username: '',
+            user_full_name: '',
+            user_email: '',
+            product_title_ru: '',
+            product_title_en: '',
+            product_type: '',
+            days_remaining: daysRemaining,
+        };
+    },);
+
+    const perPage = params?.per_page || 20;
+    const currentPage = params?.page || 1;
+    const total = items.length;
+    const start = (currentPage - 1) * perPage;
+    return {
+        items: items.slice(start, start + perPage,),
+        total,
+        page: currentPage,
+        per_page: perPage,
+        total_pages: Math.ceil(total / perPage,),
+    };
 }
 
-export async function fetchAdminPurchaseDetail(id: number): Promise<AdminPurchaseItem> {
-    return fetchApi<AdminPurchaseItem>(`admin/purchases/${id}`,);
+export async function fetchAdminPurchaseDetail(id: number,): Promise<AdminPurchaseItem> {
+    const { data, } = await getHttpClient().get<AdminPurchaseItem>(`admin/purchases/${id}`,);
+    return data;
 }
 
-export async function extendAdminPurchaseAccess(id: number, days: number): Promise<void> {
-    await postApi<{ message: string }>(`admin/purchases/${id}/extend`, { days, });
+export async function extendAdminPurchaseAccess(id: number, days: number,): Promise<void> {
+    await getHttpClient().post(`admin/purchases/${id}/extend`, { days, },);
 }
 
-export async function cancelAdminPurchase(id: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/purchases/${id}/cancel`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
+export async function cancelAdminPurchase(id: number,): Promise<void> {
+    await getHttpClient().put(`admin/purchases/${id}/cancel`,);
 }
 
-// --- Payments ---
-export interface AdminPaymentItem {
-    id: number
-    user_id: number
-    external_id: string
-    status: string
-    amount: number
-    currency: string
-    description: string
-    payment_method: string
-    created_at: string
-    updated_at: string
-    username: string
-    user_full_name: string
-    user_email: string
-}
-
-export interface AdminListPaymentsResponse {
-    items: AdminPaymentItem[]
-    total: number
-    page: number
-    per_page: number
-    total_pages: number
-}
+// ─── Payments ───────────────────────────────────────────────────────
 
 export async function fetchAdminPayments(params?: {
     page?: number
@@ -710,42 +534,63 @@ export async function fetchAdminPayments(params?: {
     status?: string
     sort_by?: string
     sort_dir?: string
-}): Promise<AdminListPaymentsResponse> {
-    const query = new URLSearchParams();
-    if (params?.page) query.set('page', String(params.page));
-    if (params?.per_page) query.set('per_page', String(params.per_page));
-    if (params?.search) query.set('search', params.search);
-    if (params?.status) query.set('status', params.status);
-    if (params?.sort_by) query.set('sort_by', params.sort_by);
-    if (params?.sort_dir) query.set('sort_dir', params.sort_dir);
-    const qs = query.toString();
-    return fetchApi<AdminListPaymentsResponse>(`admin/payments/list${qs ? `?${qs}` : ''}`,);
+},): Promise<AdminListPaymentsResponse> {
+    const response = await getHttpClient().get<{
+        payments: Array<{
+            id: number
+            user_id: number
+            status: string
+            amount: number
+            currency: string
+            description: string
+            payment_method: string
+            yookassa_id: string | null
+            created_at: string
+            updated_at: string
+        }>
+        total: number
+    }>('admin/payments/list', { params, },);
+    const data = response.data;
+    const items: AdminPaymentItem[] = (data.payments || []).map(p => ({
+        id: p.id,
+        user_id: p.user_id,
+        external_id: p.yookassa_id || '',
+        status: p.status,
+        amount: Math.round(p.amount * 100,),
+        currency: p.currency,
+        description: p.description,
+        payment_method: p.payment_method,
+        created_at: p.created_at,
+        updated_at: p.updated_at,
+        username: '',
+        user_full_name: '',
+        user_email: '',
+    }),);
+    const page = params?.page || 1;
+    const per_page = params?.per_page || 20;
+    return {
+        items,
+        total: data.total,
+        page,
+        per_page,
+        total_pages: Math.ceil(data.total / per_page,) || 1,
+    };
 }
 
-export async function fetchAdminPaymentDetail(id: number): Promise<AdminPaymentItem> {
-    return fetchApi<AdminPaymentItem>(`admin/payments/${id}`,);
+export async function fetchAdminPaymentDetail(id: number,): Promise<AdminPaymentItem> {
+    const { data, } = await getHttpClient().get<AdminPaymentItem>(`admin/payments/${id}`,);
+    return data;
 }
 
-export async function refundAdminPayment(id: number): Promise<void> {
-    await postApi<{ message: string }>(`admin/payments/${id}/refund`, {});
+export async function refundAdminPayment(id: number,): Promise<void> {
+    await getHttpClient().post(`admin/payments/${id}/refund`, {},);
 }
 
-// --- Promo Codes ---
-export interface AdminPromoCodeItem {
-    id: number
-    code: string
-    discount_type: string
-    discount_value: number
-    max_uses: number | null
-    used_count: number
-    valid_from: string | null
-    valid_until: string | null
-    is_active: boolean
-    created_at: string
-}
+// ─── Promo Codes ────────────────────────────────────────────────────
 
 export async function fetchAdminPromoCodes(): Promise<AdminPromoCodeItem[]> {
-    return fetchApi<AdminPromoCodeItem[]>('admin/promo-codes',);
+    const { data, } = await getHttpClient().get<any>('admin/promo-codes',);
+    return data.promo_codes ?? [];
 }
 
 export async function createAdminPromoCode(data: {
@@ -756,8 +601,8 @@ export async function createAdminPromoCode(data: {
     valid_from?: string | null
     valid_until?: string | null
     is_active: boolean
-}): Promise<void> {
-    await postApi<{ message: string }>('admin/promo-codes', data);
+},): Promise<void> {
+    await getHttpClient().post('admin/promo-codes', data,);
 }
 
 export async function updateAdminPromoCode(id: number, data: {
@@ -768,185 +613,44 @@ export async function updateAdminPromoCode(id: number, data: {
     valid_from?: string | null
     valid_until?: string | null
     is_active: boolean
-}): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/promo-codes/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
+},): Promise<void> {
+    await getHttpClient().put(`admin/promo-codes/${id}`, data,);
 }
 
-// --- Admin Chat ---
-export interface AdminChatThread {
-    id: number
-    purchase_id: number
-    user_id: number
-    admin_id: number | null
-    last_message_at: string
-    is_resolved: boolean
-    created_at: string
-    user: {
-        username: string
-        full_name: string
-        email: string
-    } | null
-    purchase: {
-        id: number
-        product_id: number
-        product: {
-            title_ru: string
-            title_en: string
-        } | null
-    } | null
+export async function deleteAdminPromoCode(id: number,): Promise<void> {
+    await getHttpClient().delete(`admin/promo-codes/${id}`,);
 }
 
-export interface AdminChatMessage {
-    id: number
-    thread_id: number
-    sender_id: number
-    message_type: string
-    content: string
-    attachment_url: string | null
-    attachment_size: number | null
-    is_read: boolean
-    read_at: string | null
-    created_at: string
-    sender: {
-        username: string
-        full_name: string
-    } | null
-}
+// ─── Chat ───────────────────────────────────────────────────────────
 
 export async function fetchAdminChatThreads(): Promise<AdminChatThread[]> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/chat/threads`, {
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-    return response.json();
+    const { data, } = await getHttpClient().get<any>('admin/chat/threads',);
+    return data.threads ?? [];
 }
 
-export async function fetchAdminChatMessages(threadId: number): Promise<AdminChatMessage[]> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/chat/threads/${threadId}/messages`, {
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-    return response.json();
+export async function fetchAdminChatMessages(threadId: number,): Promise<AdminChatMessage[]> {
+    const { data, } = await getHttpClient().get<any>(`admin/chat/threads/${threadId}/messages`,);
+    return data.messages ?? [];
 }
 
-export async function sendAdminChatMessage(threadId: number, content: string): Promise<AdminChatMessage> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/chat/threads/${threadId}/messages`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-        body: JSON.stringify({ content }),
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-    return response.json();
+export async function sendAdminChatMessage(threadId: number, content: string,): Promise<AdminChatMessage> {
+    const { data, } = await getHttpClient().post<any>(`admin/chat/threads/${threadId}/messages`, { content, },);
+    return data;
 }
 
-export async function resolveAdminChatThread(threadId: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/chat/threads/${threadId}/resolve`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
+export async function resolveAdminChatThread(threadId: number,): Promise<void> {
+    await getHttpClient().put(`admin/chat/threads/${threadId}/resolve`,);
 }
 
-export async function reopenAdminChatThread(threadId: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/chat/threads/${threadId}/reopen`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
+export async function reopenAdminChatThread(threadId: number,): Promise<void> {
+    await getHttpClient().put(`admin/chat/threads/${threadId}/reopen`,);
 }
 
-export async function deleteAdminPromoCode(id: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const authStore = useAuthStore();
-    const response = await fetch(`${SERVER_URL}admin/promo-codes/${id}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            ...getAuthHeaders(),
-        },
-    });
-    if (!response.ok) {
-        throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    }
-}
-
-// ─── Categories ────────────────────────────────────────────────
-
-export interface AdminCategoryItem {
-    id: number
-    name_ru: string
-    name_en: string
-    slug: string
-    description_ru: string
-    description_en: string
-    sort_order: number
-    is_active: boolean
-    created_at: string
-    updated_at: string
-}
+// ─── Categories ─────────────────────────────────────────────────────
 
 export async function fetchAdminCategories(): Promise<AdminCategoryItem[]> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/categories`, {
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    return response.json();
+    const { data, } = await getHttpClient().get<any>('admin/categories',);
+    return data.categories ?? [];
 }
 
 export async function createAdminCategory(data: {
@@ -957,8 +661,9 @@ export async function createAdminCategory(data: {
     description_en?: string
     sort_order?: number
     is_active?: boolean
-}): Promise<{ id: number, message: string }> {
-    return postApi('admin/categories', data);
+},): Promise<{ id: number, message: string }> {
+    const { data: responseData, } = await getHttpClient().post<{ id: number, message: string }>('admin/categories', data,);
+    return responseData;
 }
 
 export async function updateAdminCategory(id: number, data: {
@@ -969,78 +674,40 @@ export async function updateAdminCategory(id: number, data: {
     description_en?: string
     sort_order?: number
     is_active?: boolean
-}): Promise<{ message: string }> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/categories/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    return response.json();
+},): Promise<{ message: string }> {
+    const { data: responseData, } = await getHttpClient().put<{ message: string }>(`admin/categories/${id}`, data,);
+    return responseData;
 }
 
-export async function deleteAdminCategory(id: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/categories/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
+export async function deleteAdminCategory(id: number,): Promise<void> {
+    await getHttpClient().delete(`admin/categories/${id}`,);
 }
 
-// ─── Tags ──────────────────────────────────────────────────────
-
-export interface AdminTagItem {
-    id: number
-    name_ru: string
-    name_en: string
-    slug: string
-    created_at: string
-}
+// ─── Tags ───────────────────────────────────────────────────────────
 
 export async function fetchAdminTags(): Promise<AdminTagItem[]> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/tags`, {
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    return response.json();
+    const { data, } = await getHttpClient().get<any>('admin/tags',);
+    return data.tags ?? [];
 }
 
 export async function createAdminTag(data: {
     name_ru: string
     name_en: string
     slug: string
-}): Promise<{ id: number, message: string }> {
-    return postApi('admin/tags', data);
+},): Promise<{ id: number, message: string }> {
+    const { data: responseData, } = await getHttpClient().post<{ id: number, message: string }>('admin/tags', data,);
+    return responseData;
 }
 
 export async function updateAdminTag(id: number, data: {
     name_ru?: string
     name_en?: string
     slug?: string
-}): Promise<{ message: string }> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/tags/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-        body: JSON.stringify(data),
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
-    return response.json();
+},): Promise<{ message: string }> {
+    const { data: responseData, } = await getHttpClient().put<{ message: string }>(`admin/tags/${id}`, data,);
+    return responseData;
 }
 
-export async function deleteAdminTag(id: number): Promise<void> {
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-    const response = await fetch(`${SERVER_URL}admin/tags/${id}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json', ...getAuthHeaders(), },
-    });
-    if (!response.ok) throw new Error(`API error: ${response.status} ${response.statusText}`,);
+export async function deleteAdminTag(id: number,): Promise<void> {
+    await getHttpClient().delete(`admin/tags/${id}`,);
 }

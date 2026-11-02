@@ -17,16 +17,19 @@
             :accept="accept"
             class="admin-uploader__input"
             @change="onFileSelected"
-        />
+        >
 
         <!-- Image preview -->
-        <div v-if="modelValue" class="admin-uploader__preview">
+        <div
+            v-if="modelValue"
+            class="admin-uploader__preview"
+        >
             <img
                 :src="modelValue"
                 alt="preview"
                 class="admin-uploader__image"
                 @error="onImageError"
-            />
+            >
             <div class="admin-uploader__overlay">
                 <button
                     type="button"
@@ -45,7 +48,11 @@
                         <path
                             d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"
                         />
-                        <circle cx="12" cy="13" r="4" />
+                        <circle
+                            cx="12"
+                            cy="13"
+                            r="4"
+                        />
                     </svg>
                 </button>
                 <button
@@ -62,15 +69,29 @@
                         width="18"
                         height="18"
                     >
-                        <line x1="18" y1="6" x2="6" y2="18" />
-                        <line x1="6" y1="6" x2="18" y2="18" />
+                        <line
+                            x1="18"
+                            y1="6"
+                            x2="6"
+                            y2="18"
+                        />
+                        <line
+                            x1="6"
+                            y1="6"
+                            x2="18"
+                            y2="18"
+                        />
                     </svg>
                 </button>
             </div>
         </div>
 
         <!-- Upload placeholder -->
-        <div v-else class="admin-uploader__placeholder" @click="openFilePicker">
+        <div
+            v-else
+            class="admin-uploader__placeholder"
+            @click="openFilePicker"
+        >
             <div class="admin-uploader__icon">
                 <svg
                     viewBox="0 0 24 24"
@@ -82,37 +103,54 @@
                 >
                     <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
                     <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
+                    <line
+                        x1="12"
+                        y1="3"
+                        x2="12"
+                        y2="15"
+                    />
                 </svg>
             </div>
-            <p class="admin-uploader__text">{{ uploadText }}</p>
-            <p class="admin-uploader__hint">{{ hintText }}</p>
+            <p class="admin-uploader__text">
+                {{ uploadText }}
+            </p>
+            <p class="admin-uploader__hint">
+                {{ hintText }}
+            </p>
         </div>
 
         <!-- Upload progress -->
-        <div v-if="uploading" class="admin-uploader__progress">
+        <div
+            v-if="uploading"
+            class="admin-uploader__progress"
+        >
             <div
                 class="admin-uploader__progress-bar"
-                :style="{ width: uploadProgress + '%' }"
+                :style="{ width: uploadProgress + '%', }"
             />
         </div>
 
         <!-- Error message -->
-        <p v-if="error" class="admin-uploader__error">{{ error }}</p>
+        <p
+            v-if="error"
+            class="admin-uploader__error"
+        >
+            {{ error }}
+        </p>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        modelValue: string | null;
-        accept?: string;
-        maxSize?: number; // in bytes
-        uploadText?: string;
-        hintText?: string;
-        isDark?: boolean;
+        modelValue: string | null
+        accept?: string
+        maxSize?: number // in bytes
+        uploadText?: string
+        hintText?: string
+        isDark?: boolean
     }>(),
     {
         modelValue: null,
@@ -125,46 +163,46 @@ const props = withDefaults(
 );
 
 const emit = defineEmits<{
-    'update:modelValue': [value: string | null];
-    fileSelect: [file: File];
-    uploadStart: [];
-    uploadComplete: [url: string];
-    uploadError: [error: string];
+    'update:modelValue': [value: string | null,]
+    fileSelect: [file: File,]
+    uploadStart: []
+    uploadComplete: [url: string,]
+    uploadError: [error: string,]
 }>();
 
-const fileInput = ref<HTMLInputElement | null>(null);
-const isDragover = ref(false);
-const uploading = ref(false);
-const uploadProgress = ref(0);
-const error = ref('');
+const fileInput = ref<HTMLInputElement | null>(null,);
+const isDragover = ref(false,);
+const uploading = ref(false,);
+const uploadProgress = ref(0,);
+const error = ref('',);
 
 function openFilePicker() {
     fileInput.value?.click();
 }
 
-function onFileSelected(e: Event) {
+function onFileSelected(e: Event,) {
     const target = e.target as HTMLInputElement;
     if (target.files && target.files[0]) {
-        validateAndUpload(target.files[0]);
+        validateAndUpload(target.files[0],);
     }
 }
 
-function onDrop(e: DragEvent) {
+function onDrop(e: DragEvent,) {
     isDragover.value = false;
     if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
-        validateAndUpload(e.dataTransfer.files[0]);
+        validateAndUpload(e.dataTransfer.files[0],);
     }
 }
 
-function validateAndUpload(file: File) {
+function validateAndUpload(file: File,) {
     error.value = '';
 
     // Validate type
-    const allowedTypes = props.accept.split(',');
-    const isAllowed = allowedTypes.some((t) => {
+    const allowedTypes = props.accept.split(',',);
+    const isAllowed = allowedTypes.some((t,) => {
         const type = t.trim();
-        if (type.endsWith('/*')) {
-            return file.type.startsWith(type.replace('/*', '/'));
+        if (type.endsWith('/*',)) {
+            return file.type.startsWith(type.replace('/*', '/',),);
         }
         return file.type === type;
     });
@@ -176,26 +214,26 @@ function validateAndUpload(file: File) {
 
     // Validate size
     if (file.size > props.maxSize) {
-        const maxMB = Math.round(props.maxSize / (1024 * 1024));
+        const maxMB = Math.round(props.maxSize / (1024 * 1024),);
         error.value = `Файл слишком большой. Максимальный размер: ${maxMB}MB`;
         return;
     }
 
-    emit('fileSelect', file);
+    emit('fileSelect', file,);
 
     // Create local preview
     const reader = new FileReader();
-    reader.onload = (e) => {
-        emit('update:modelValue', e.target?.result as string);
+    reader.onload = (e,) => {
+        emit('update:modelValue', e.target?.result as string,);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file,);
 
     // Simulate upload (override in parent)
-    emit('uploadStart');
+    emit('uploadStart',);
 }
 
 function onRemove() {
-    emit('update:modelValue', null);
+    emit('update:modelValue', null,);
     if (fileInput.value) {
         fileInput.value.value = '';
     }

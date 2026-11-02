@@ -1,5 +1,8 @@
 <template>
-    <div class="admin-table" :class="{ 'admin-table--dark': isDark }">
+    <div
+        class="admin-table"
+        :class="{ 'admin-table--dark': isDark, }"
+    >
         <!-- Toolbar -->
         <div
             v-if="$slots.toolbar || showSearch || showFilters || showExport"
@@ -26,7 +29,7 @@
                     v-model="internalSearch"
                     :placeholder="searchPlaceholder"
                     :is-dark="isDark"
-                    @update:model-value="$emit('search', $event)"
+                    @update:model-value="$emit('search', $event,)"
                 />
             </div>
         </div>
@@ -36,11 +39,14 @@
             v-if="showFilters && filters.length > 0"
             :filters="filters"
             :is-dark="isDark"
-            @update:filter="$emit('filter', $event)"
+            @update:filter="$emit('filter', $event,)"
         />
 
         <!-- Loading state -->
-        <div v-if="loading" class="admin-table__loading">
+        <div
+            v-if="loading"
+            class="admin-table__loading"
+        >
             <AdminLoadingSkeleton
                 :rows="loadingRows"
                 :columns="columns.length"
@@ -60,7 +66,10 @@
         </AdminEmptyState>
 
         <!-- Table -->
-        <div v-else class="admin-table__wrapper">
+        <div
+            v-else
+            class="admin-table__wrapper"
+        >
             <table class="admin-table__table">
                 <thead class="admin-table__head">
                     <tr>
@@ -73,7 +82,7 @@
                                 :checked="allSelected"
                                 :indeterminate="someSelected"
                                 @change="toggleSelectAll"
-                            />
+                            >
                         </th>
                         <th
                             v-for="col in columns"
@@ -83,12 +92,15 @@
                                 'admin-table__cell--sortable': col.sortable,
                                 'admin-table__cell--sorted': sortKey === col.key,
                             }"
-                            :style="col.width ? { width: col.width } : {}"
-                            @click="col.sortable && toggleSort(col.key)"
+                            :style="col.width ? { width: col.width, } : {}"
+                            @click="col.sortable && toggleSort(col.key,)"
                         >
                             <div class="admin-table__head-content">
                                 <span>{{ col.label }}</span>
-                                <span v-if="col.sortable" class="admin-table__sort-icon">
+                                <span
+                                    v-if="col.sortable"
+                                    class="admin-table__sort-icon"
+                                >
                                     <svg
                                         v-if="sortKey === col.key && sortDir === 'asc'"
                                         viewBox="0 0 24 24"
@@ -142,10 +154,10 @@
                         :key="row.id || rowIdx"
                         class="admin-table__row"
                         :class="{
-                            'admin-table__row--selected': isSelected(row),
+                            'admin-table__row--selected': isSelected(row,),
                             'admin-table__row--clickable': rowClickable,
                         }"
-                        @click="rowClickable && $emit('rowClick', row)"
+                        @click="rowClickable && $emit('rowClick', row,)"
                     >
                         <td
                             v-if="selectable"
@@ -154,9 +166,9 @@
                         >
                             <input
                                 type="checkbox"
-                                :checked="isSelected(row)"
-                                @change="toggleSelect(row)"
-                            />
+                                :checked="isSelected(row,)"
+                                @change="toggleSelect(row,)"
+                            >
                         </td>
                         <td
                             v-for="col in columns"
@@ -171,12 +183,12 @@
                             <slot
                                 :name="`cell-${col.key}`"
                                 :row="row"
-                                :value="getNestedValue(row, col.key)"
+                                :value="getNestedValue(row, col.key,)"
                             >
                                 <!-- Status badge -->
                                 <AdminStatusBadge
                                     v-if="col.type === 'status'"
-                                    :status="getNestedValue(row, col.key)"
+                                    :status="getNestedValue(row, col.key,)"
                                     :is-dark="isDark"
                                 />
                                 <!-- Image preview -->
@@ -185,13 +197,16 @@
                                     class="admin-table__image"
                                 >
                                     <img
-                                        v-if="getNestedValue(row, col.key)"
-                                        :src="getNestedValue(row, col.key)"
+                                        v-if="getNestedValue(row, col.key,)"
+                                        :src="getNestedValue(row, col.key,)"
                                         alt="preview"
                                         class="admin-table__thumb"
                                         @error="onImgError"
-                                    />
-                                    <div v-else class="admin-table__image-placeholder">
+                                    >
+                                    <div
+                                        v-else
+                                        class="admin-table__image-placeholder"
+                                    >
                                         <svg
                                             viewBox="0 0 24 24"
                                             fill="none"
@@ -207,7 +222,11 @@
                                                 height="18"
                                                 rx="2"
                                             />
-                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <circle
+                                                cx="8.5"
+                                                cy="8.5"
+                                                r="1.5"
+                                            />
                                             <path d="M21 15l-5-5L5 21" />
                                         </svg>
                                     </div>
@@ -217,28 +236,28 @@
                                     v-else-if="col.type === 'date'"
                                     class="admin-table__date"
                                 >
-                                    {{ formatDate(getNestedValue(row, col.key)) }}
+                                    {{ formatDate(getNestedValue(row, col.key,),) }}
                                 </span>
                                 <!-- Datetime -->
                                 <span
                                     v-else-if="col.type === 'datetime'"
                                     class="admin-table__date"
                                 >
-                                    {{ formatDateTime(getNestedValue(row, col.key)) }}
+                                    {{ formatDateTime(getNestedValue(row, col.key,),) }}
                                 </span>
                                 <!-- Number with formatting -->
                                 <span
                                     v-else-if="col.type === 'number'"
                                     class="admin-table__number"
                                 >
-                                    {{ formatNumber(getNestedValue(row, col.key)) }}
+                                    {{ formatNumber(getNestedValue(row, col.key,),) }}
                                 </span>
                                 <!-- Price -->
                                 <span
                                     v-else-if="col.type === 'price'"
                                     class="admin-table__price"
                                 >
-                                    {{ formatPrice(getNestedValue(row, col.key)) }}
+                                    {{ formatPrice(getNestedValue(row, col.key,),) }}
                                 </span>
                                 <!-- Boolean -->
                                 <span
@@ -247,15 +266,15 @@
                                     :class="{
                                         'admin-table__boolean--true': getNestedValue(
                                             row,
-                                            col.key
+                                            col.key,
                                         ),
                                     }"
                                 >
-                                    {{ getNestedValue(row, col.key) ? '✓' : '—' }}
+                                    {{ getNestedValue(row, col.key,) ? '✓' : '—' }}
                                 </span>
                                 <!-- Default text -->
                                 <span v-else>
-                                    {{ getNestedValue(row, col.key) ?? '—' }}
+                                    {{ getNestedValue(row, col.key,) ?? '—' }}
                                 </span>
                             </slot>
                         </td>
@@ -264,7 +283,10 @@
                             class="admin-table__cell admin-table__cell--actions"
                             @click.stop
                         >
-                            <slot name="actions" :row="row" />
+                            <slot
+                                name="actions"
+                                :row="row"
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -272,7 +294,10 @@
         </div>
 
         <!-- Footer with pagination -->
-        <div v-if="showPagination && total > perPage" class="admin-table__footer">
+        <div
+            v-if="showPagination && total > perPage"
+            class="admin-table__footer"
+        >
             <div class="admin-table__footer-info">
                 {{ paginationInfo }}
             </div>
@@ -281,20 +306,20 @@
                 :total="total"
                 :per-page="perPage"
                 :is-dark="isDark"
-                @update:page="$emit('pageChange', $event)"
+                @update:page="$emit('pageChange', $event,)"
             />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+    import { ref, computed, watch, } from 'vue';
 
-export interface TableColumn {
-    key: string;
-    label: string;
-    sortable?: boolean;
-    type?:
+    export interface TableColumn {
+        key: string
+        label: string
+        sortable?: boolean
+        type?:
         | 'text'
         | 'status'
         | 'image'
@@ -302,216 +327,216 @@ export interface TableColumn {
         | 'datetime'
         | 'number'
         | 'price'
-        | 'boolean';
-    width?: string;
-    mono?: boolean;
-    nowrap?: boolean;
-}
-
-export interface TableFilter {
-    key: string;
-    label: string;
-    type: 'text' | 'select' | 'date-range' | 'number-range';
-    options?: { label: string; value: string | number | boolean }[];
-    placeholder?: string;
-}
-
-function downloadBlob(content: string, filename: string, mimeType: string) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-const props = withDefaults(
-    defineProps<{
-        columns: TableColumn[];
-        data: Record<string, any>[];
-        total?: number;
-        page?: number;
-        perPage?: number;
-        loading?: boolean;
-        loadingRows?: number;
-        selectable?: boolean;
-        selected?: any[];
-        rowClickable?: boolean;
-        showSearch?: boolean;
-        showFilters?: boolean;
-        showPagination?: boolean;
-        showExport?: boolean;
-        exportLabel?: string;
-        exportFilename?: string;
-        searchPlaceholder?: string;
-        actionsLabel?: string;
-        emptyIcon?: 'data' | 'search' | 'box' | 'info';
-        emptyTitle?: string;
-        emptyDescription?: string;
-        filters?: TableFilter[];
-        isDark?: boolean;
-        sortKey?: string;
-        sortDir?: 'asc' | 'desc';
-        valueKey?: string;
-    }>(),
-    {
-        total: 0,
-        page: 1,
-        perPage: 20,
-        loading: false,
-        loadingRows: 5,
-        selectable: false,
-        selected: () => [],
-        rowClickable: false,
-        showSearch: false,
-        showFilters: false,
-        showPagination: true,
-        showExport: false,
-        exportLabel: 'CSV',
-        exportFilename: 'export',
-        searchPlaceholder: 'Поиск...',
-        actionsLabel: 'Действия',
-        emptyIcon: 'data',
-        emptyTitle: 'Нет данных',
-        emptyDescription: 'По заданным критериям ничего не найдено',
-        filters: () => [],
-        isDark: false,
-        sortKey: '',
-        sortDir: 'asc',
-        valueKey: 'id',
+        | 'boolean'
+        width?: string
+        mono?: boolean
+        nowrap?: boolean
     }
-);
 
-const emit = defineEmits<{
-    search: [query: string];
-    filter: [filters: Record<string, any>];
-    sort: [key: string, dir: 'asc' | 'desc'];
-    pageChange: [page: number];
-    select: [selected: any[]];
-    rowClick: [row: any];
-}>();
-
-const internalSearch = ref('');
-const internalPage = ref(props.page);
-
-watch(
-    () => props.page,
-    (val) => {
-        internalPage.value = val;
+    export interface TableFilter {
+        key: string
+        label: string
+        type: 'text' | 'select' | 'date-range' | 'number-range'
+        options?: { label: string, value: string | number | boolean }[]
+        placeholder?: string
     }
-);
 
-const allSelected = computed(() => {
-    if (!props.data.length) return false;
-    return props.data.every((row) => isSelected(row));
-});
-
-const someSelected = computed(() => {
-    if (!props.data.length) return false;
-    return props.data.some((row) => isSelected(row)) && !allSelected.value;
-});
-
-function isSelected(row: any): boolean {
-    const id = row[props.valueKey] ?? row;
-    return props.selected.includes(id);
-}
-
-function toggleSelect(row: any) {
-    const id = row[props.valueKey] ?? row;
-    const newSelected = isSelected(row)
-        ? props.selected.filter((s) => s !== id)
-        : [...props.selected, id];
-    emit('select', newSelected);
-}
-
-function toggleSelectAll() {
-    if (allSelected.value) {
-        emit('select', []);
-    } else {
-        const ids = props.data.map((row) => row[props.valueKey] ?? row);
-        emit('select', ids);
+    function downloadBlob(content: string, filename: string, mimeType: string,) {
+        const blob = new Blob([content,], { type: mimeType, },);
+        const url = URL.createObjectURL(blob,);
+        const a = document.createElement('a',);
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a,);
+        a.click();
+        document.body.removeChild(a,);
+        URL.revokeObjectURL(url,);
     }
-}
 
-function toggleSort(key: string) {
-    const newDir = props.sortKey === key && props.sortDir === 'asc' ? 'desc' : 'asc';
-    emit('sort', key, newDir);
-}
-
-function getNestedValue(obj: any, path: string): any {
-    return path
-        .split('.')
-        .reduce((acc, part) => (acc != null ? acc[part] : undefined), obj);
-}
-
-const paginationInfo = computed(() => {
-    const start = (internalPage.value - 1) * props.perPage + 1;
-    const end = Math.min(internalPage.value * props.perPage, props.total);
-    return `${start}–${end} из ${props.total}`;
-});
-
-function formatDate(val: string | null | undefined): string {
-    if (!val) return '—';
-    try {
-        return new Date(val).toLocaleDateString('ru-RU');
-    } catch {
-        return String(val);
-    }
-}
-
-function formatDateTime(val: string | null | undefined): string {
-    if (!val) return '—';
-    try {
-        return new Date(val).toLocaleString('ru-RU');
-    } catch {
-        return String(val);
-    }
-}
-
-function formatNumber(val: number | null | undefined): string {
-    if (val == null) return '—';
-    return new Intl.NumberFormat('ru-RU').format(val);
-}
-
-function formatPrice(val: number | null | undefined): string {
-    if (val == null) return '—';
-    return new Intl.NumberFormat('ru-RU', {
-        style: 'currency',
-        currency: 'RUB',
-        minimumFractionDigits: 0,
-    }).format(val / 100);
-}
-
-function onImgError(e: Event) {
-    const target = e.target as HTMLImageElement;
-    target.style.display = 'none';
-}
-
-function exportToCSV() {
-    const visibleColumns = props.columns.filter(
-        (col) => col.type !== 'image' && col.key !== 'actions'
+    const props = withDefaults(
+        defineProps<{
+            columns: TableColumn[]
+            data: Record<string, any>[]
+            total?: number
+            page?: number
+            perPage?: number
+            loading?: boolean
+            loadingRows?: number
+            selectable?: boolean
+            selected?: any[]
+            rowClickable?: boolean
+            showSearch?: boolean
+            showFilters?: boolean
+            showPagination?: boolean
+            showExport?: boolean
+            exportLabel?: string
+            exportFilename?: string
+            searchPlaceholder?: string
+            actionsLabel?: string
+            emptyIcon?: 'data' | 'search' | 'box' | 'info'
+            emptyTitle?: string
+            emptyDescription?: string
+            filters?: TableFilter[]
+            isDark?: boolean
+            sortKey?: string
+            sortDir?: 'asc' | 'desc'
+            valueKey?: string
+        }>(),
+        {
+            total: 0,
+            page: 1,
+            perPage: 20,
+            loading: false,
+            loadingRows: 5,
+            selectable: false,
+            selected: () => [],
+            rowClickable: false,
+            showSearch: false,
+            showFilters: false,
+            showPagination: true,
+            showExport: false,
+            exportLabel: 'CSV',
+            exportFilename: 'export',
+            searchPlaceholder: 'Поиск...',
+            actionsLabel: 'Действия',
+            emptyIcon: 'data',
+            emptyTitle: 'Нет данных',
+            emptyDescription: 'По заданным критериям ничего не найдено',
+            filters: () => [],
+            isDark: false,
+            sortKey: '',
+            sortDir: 'asc',
+            valueKey: 'id',
+        }
     );
-    const headers = visibleColumns.map((col) => col.label);
-    const rows = props.data.map((row) =>
-        visibleColumns
-            .map((col) => {
-                const val = getNestedValue(row, col.key);
-                if (val == null || val === undefined) return '';
-                const str = String(val).replace(/"/g, '""');
-                return `"${str}"`;
-            })
-            .join(',')
+
+    const emit = defineEmits<{
+        search: [query: string,]
+        filter: [filters: Record<string, any>,]
+        sort: [key: string, dir: 'asc' | 'desc',]
+        pageChange: [page: number,]
+        select: [selected: any[],]
+        rowClick: [row: any,]
+    }>();
+
+    const internalSearch = ref('',);
+    const internalPage = ref(props.page,);
+
+    watch(
+        () => props.page,
+        (val,) => {
+            internalPage.value = val;
+        }
     );
-    const csv = [headers.join(','), ...rows].join('\n');
-    const bom = '\uFEFF';
-    const filename = `${props.exportFilename}-${new Date()
-        .toISOString()
-        .slice(0, 10)}.csv`;
-    downloadBlob(bom + csv, filename, 'text/csv;charset=utf-8;');
-}
+
+    const allSelected = computed(() => {
+        if (!props.data.length) return false;
+        return props.data.every(row => isSelected(row,),);
+    });
+
+    const someSelected = computed(() => {
+        if (!props.data.length) return false;
+        return props.data.some(row => isSelected(row,),) && !allSelected.value;
+    });
+
+    function isSelected(row: any,): boolean {
+        const id = row[props.valueKey] ?? row;
+        return props.selected.includes(id,);
+    }
+
+    function toggleSelect(row: any,) {
+        const id = row[props.valueKey] ?? row;
+        const newSelected = isSelected(row,)
+            ? props.selected.filter(s => s !== id,)
+            : [...props.selected, id,];
+        emit('select', newSelected,);
+    }
+
+    function toggleSelectAll() {
+        if (allSelected.value) {
+            emit('select', [],);
+        } else {
+            const ids = props.data.map(row => row[props.valueKey] ?? row,);
+            emit('select', ids,);
+        }
+    }
+
+    function toggleSort(key: string,) {
+        const newDir = props.sortKey === key && props.sortDir === 'asc' ? 'desc' : 'asc';
+        emit('sort', key, newDir,);
+    }
+
+    function getNestedValue(obj: any, path: string,): any {
+        return path
+            .split('.',)
+            .reduce((acc, part,) => (acc != null ? acc[part] : undefined), obj,);
+    }
+
+    const paginationInfo = computed(() => {
+        const start = (internalPage.value - 1) * props.perPage + 1;
+        const end = Math.min(internalPage.value * props.perPage, props.total,);
+        return `${start}–${end} из ${props.total}`;
+    });
+
+    function formatDate(val: string | null | undefined,): string {
+        if (!val) return '—';
+        try {
+            return new Date(val,).toLocaleDateString('ru-RU',);
+        } catch {
+            return String(val,);
+        }
+    }
+
+    function formatDateTime(val: string | null | undefined,): string {
+        if (!val) return '—';
+        try {
+            return new Date(val,).toLocaleString('ru-RU',);
+        } catch {
+            return String(val,);
+        }
+    }
+
+    function formatNumber(val: number | null | undefined,): string {
+        if (val == null) return '—';
+        return new Intl.NumberFormat('ru-RU',).format(val,);
+    }
+
+    function formatPrice(val: number | null | undefined,): string {
+        if (val == null) return '—';
+        return new Intl.NumberFormat('ru-RU', {
+            style: 'currency',
+            currency: 'RUB',
+            minimumFractionDigits: 0,
+        }).format(val / 100,);
+    }
+
+    function onImgError(e: Event,) {
+        const target = e.target as HTMLImageElement;
+        target.style.display = 'none';
+    }
+
+    function exportToCSV() {
+        const visibleColumns = props.columns.filter(
+            (col,) => col.type !== 'image' && col.key !== 'actions',
+    );
+        const headers = visibleColumns.map(col => col.label,);
+        const rows = props.data.map(row =>
+            visibleColumns
+                .map((col,) => {
+                    const val = getNestedValue(row, col.key,);
+                    if (val == null || val === undefined) return '';
+                    const str = String(val,).replace(/"/g, '""',);
+                    return `"${str}"`;
+                })
+                .join(',',),
+    );
+        const csv = [headers.join(',',), ...rows,].join('\n',);
+        const bom = '\uFEFF';
+        const filename = `${props.exportFilename}-${new Date()
+            .toISOString()
+            .slice(0, 10,)}.csv`;
+        downloadBlob(bom + csv, filename, 'text/csv;charset=utf-8;',);
+    }
 </script>
 
 <style scoped>

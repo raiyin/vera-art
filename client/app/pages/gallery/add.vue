@@ -2,33 +2,38 @@
     <div class="add-work-container">
         <div class="header-section">
             <h1 class="page-title">
-                {{ $t('admin_gallery_form.page_title') }}
+                {{ $t('admin_gallery_form.page_title',) }}
             </h1>
             <p class="page-subtitle">
-                {{ $t('admin_gallery_form.page_subtitle') }}
+                {{ $t('admin_gallery_form.page_subtitle',) }}
             </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
-            <p>{{ $t('admin_gallery_form.loading') }}</p>
+            <p>{{ $t('admin_gallery_form.loading',) }}</p>
         </div>
 
-        <form v-else class="work-form" @submit.prevent="submitForm">
-            <!-- Поле для загрузки изображений -->
+        <form
+            v-else
+            class="work-form"
+            @submit.prevent="submitForm"
+        >
+            <!-- Загрузка изображений работы -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.images') }}
+                    {{ $t('admin_gallery_form.sections.images',) }}
                 </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.select_images') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.select_images',) }}
+                        <span class="required">*</span></label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
@@ -42,7 +47,7 @@
                             class="file-input"
                             required
                             @change="handleFileUpload"
-                        />
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -58,20 +63,31 @@
                             >
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_gallery_form.labels.drag_drop_text') }}
+                                {{ $t('admin_gallery_form.labels.drag_drop_text',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_gallery_form.labels.file_formats') }}
+                                {{ $t('admin_gallery_form.labels.file_formats',) }}
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -81,16 +97,16 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="
                                     $t('admin_gallery_form.aria_labels.remove_image', {
                                         index: index + 1,
-                                    })
+                                    },)
                                 "
-                                @click="removeImage(index)"
+                                @click="removeImage(index,)"
                             >
                                 &times;
                             </UButton>
@@ -102,44 +118,46 @@
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.main_info') }}
+                    {{ $t('admin_gallery_form.sections.main_info',) }}
                 </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_ru') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.name_ru',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_ru')"
-                        @blur="validateField('name_ru')"
+                        :class="{ 'is-invalid': errors.name_ru, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.name_ru',)"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.name_en') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.name_en',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="work.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
-                        :placeholder="$t('admin_gallery_form.placeholders.name_en')"
-                        @blur="validateField('name_en')"
+                        :class="{ 'is-invalid': errors.name_en, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.name_en',)"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -147,7 +165,7 @@
                 <!-- Размеры картины -->
                 <div class="form-group">
                     <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.dimensions') }} ({{ units }})
+                        {{ $t('admin_gallery_form.labels.dimensions',) }} ({{ $t('admin_gallery_form.units.cm',) }})
                         <span class="required">*</span>
                     </label>
                     <div class="size-inputs">
@@ -158,11 +176,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
-                                :placeholder="$t('admin_gallery_form.labels.width')"
-                                @blur="validateField('width')"
+                                :class="{ 'is-invalid': errors.width, }"
+                                :placeholder="$t('admin_gallery_form.labels.width',)"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
@@ -174,11 +195,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
-                                :placeholder="$t('admin_gallery_form.labels.height')"
-                                @blur="validateField('height')"
+                                :class="{ 'is-invalid': errors.height, }"
+                                :placeholder="$t('admin_gallery_form.labels.height',)"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -187,10 +211,8 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.year') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.year',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model.number="work.year"
                         type="number"
@@ -198,62 +220,91 @@
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
-                        :placeholder="$t('admin_gallery_form.placeholders.year')"
-                        @blur="validateField('year')"
+                        :class="{ 'is-invalid': errors.year, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.year',)"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
             </div>
 
-            <!-- Технические характеристики -->
+            <!-- Основа -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.tech_specs') }}
+                    {{ $t('admin_gallery_form.sections.tech_specs',) }}
                 </h2>
-
-                <!-- Основа -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.base') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.base',) }}
+                        <span class="required">*</span></label>
                     <USelect
                         v-model="work.base_id"
                         :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        :placeholder="$t('admin_gallery_form.placeholders.select_base')"
-                        @blur="validateField('base_id')"
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        :placeholder="$t('admin_gallery_form.placeholders.select_base',)"
+                        @blur="validateField('base_id',)"
                     />
-                    <div v-if="errors.base_id" class="error-message">
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
 
-                <!-- Материал -->
+                <!-- Материалы -->
                 <div class="form-group">
-                    <label class="form-label">
-                        {{ $t('admin_gallery_form.labels.materials') }}
-                        <span class="required">{{ isMaterialsRequired ? '*' : '' }}</span>
-                    </label>
-                    <USelect
-                        v-model="work.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_materials')
-                        "
-                        @blur="validateField('materials_ids')"
-                    />
-                    <div v-if="errors.materials_ids" class="error-message">
-                        {{ errors.materials_ids }}
+                    <label class="form-label">{{ $t('admin_gallery_form.labels.materials',) }}
+                        <span class="required">*</span></label>
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.material_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('material_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || $t('admin_gallery_form.placeholders.select_materials',) }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <input
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    class="material-checkbox"
+                                    :value="material.id"
+                                    :checked="work.material_ids.includes(material.id,)"
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.material_ids"
+                            class="error-message"
+                        >
+                            {{ errors.material_ids }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -261,67 +312,48 @@
             <!-- Описание -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.additional_info') }}
+                    {{ $t('admin_gallery_form.sections.additional_info',) }}
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_ru')
+                        $t('admin_gallery_form.labels.description_ru',)
                     }}</label>
                     <UTextarea
                         v-model="work.descr_ru"
                         class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :placeholder="$t('admin_gallery_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_ru.length }}/500</div>
+                    <div class="char-count">
+                        {{ work.descr_ru.length }}/500
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_gallery_form.labels.description_en')
+                        $t('admin_gallery_form.labels.description_en',)
                     }}</label>
                     <UTextarea
                         v-model="work.descr_en"
                         class="form-control"
-                        :placeholder="$t('admin_gallery_form.placeholders.description')"
+                        :placeholder="$t('admin_gallery_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ work.descr_en.length }}/500</div>
-                </div>
-            </div>
-
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">
-                    {{ $t('admin_gallery_form.sections.work_type') }}
-                </h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_gallery_form.labels.work_type') }}
-                        <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.type"
-                        :items="workTypeOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.work_type }"
-                        :placeholder="
-                            $t('admin_gallery_form.placeholders.select_work_type')
-                        "
-                        @blur="validateField('work_type')"
-                    />
-                    <div v-if="errors.work_type" class="error-message">
-                        {{ errors.work_type }}
+                    <div class="char-count">
+                        {{ work.descr_en.length }}/500
                     </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
-                    {{ $t('admin_gallery_form.buttons.clear_form') }}
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
+                    {{ $t('admin_gallery_form.buttons.clear_form',) }}
                 </UButton>
                 <UButton
                     type="submit"
@@ -329,11 +361,11 @@
                     :disabled="isSubmitting || !isFormValid"
                 >
                     <span v-if="!isSubmitting">{{
-                        $t('admin_gallery_form.buttons.add_work')
+                        $t('admin_gallery_form.buttons.add_work',)
                     }}</span>
                     <span v-else>
                         <span class="spinner" />
-                        {{ $t('admin_gallery_form.buttons.submitting') }}
+                        {{ $t('admin_gallery_form.buttons.submitting',) }}
                     </span>
                 </UButton>
             </div>
@@ -342,374 +374,327 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateWorkDto, RequestResult } from '../../types';
-import { useMaterialStore } from '../../stores/MaterialStore';
+    import axios from 'axios';
+    import { ref, reactive, computed, onMounted, } from 'vue';
+    import type { CreateWorkDto, RequestResult, } from '~/types';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
 
-const { t, locale } = useI18n();
-const toast = useToast();
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+    const { t, locale, } = useI18n();
+    const toast = useToast();
+    const config = useRuntimeConfig();
+    const SERVER_URL = config.public.serverUrl;
 
-const materialStore = useMaterialStore();
+    const materialStore = useMaterialStore();
 
-// Reactive state
-const work = reactive<CreateWorkDto>({
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
-    base_id: (null as unknown) as number,
-    materials_ids: [],
-    descr_ru: '',
-    descr_en: '',
-    images: [],
-    type: null,
-});
-
-const files = ref<File[]>([]);
-const previewImages = ref<{ file: File; preview: string }[]>([]);
-const isSubmitting = ref(false);
-const isLoading = ref(true);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
-const errorMessage = ref('');
-
-const errors = reactive<Record<string, string>>({
-    name_ru: '',
-    name_en: '',
-    width: '',
-    height: '',
-    year: '',
-    base_id: '',
-    materials_ids: '',
-    work_type: '',
-});
-
-const fileInput = ref<HTMLInputElement | null>(null);
-
-// Computed
-const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
-
-const baseOptions = computed(() => {
-    const options = bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
-        value: base.id,
-    }));
-    return [...options];
-});
-
-const workTypeOptions = computed(() => {
-    return [
-        { label: t('admin_gallery_form.work_types.painting'), value: 1 },
-        { label: t('admin_gallery_form.work_types.illustration'), value: 2 },
-        { label: t('admin_gallery_form.work_types.3d'), value: 3 },
-    ];
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map((material) => ({
-        label: locale.value === 'ru' ? material.material_ru : material.material_en,
-        value: material.id,
-    }));
-});
-
-const isFormValid = computed(() => {
-    return (
-        work.name_ru.trim() !== '' &&
-        work.name_en.trim() !== '' &&
-        work.width > 0 &&
-        work.height > 0 &&
-        work.year >= 2000 &&
-        work.year <= new Date().getFullYear() &&
-        work.base_id !== null &&
-        work.base_id > 0 &&
-        (work.type < 3
-            ? work.materials_ids.length > 0
-            : work.materials_ids.length === 0) &&
-        files.value.length > 0 &&
-        work.type > 0
-    );
-});
-
-const units = computed(() => {
-    return work.type <= 1
-        ? t('admin_gallery_form.units.cm')
-        : t('admin_gallery_form.units.px');
-});
-
-const isMaterialsRequired = computed(() => {
-    return work.type === 1 || work.type === 2;
-});
-
-// Methods
-function handleDragOver() {
-    isDragOver.value = true;
-}
-
-function handleDragLeave() {
-    isDragOver.value = false;
-}
-
-function handleDrop(event: DragEvent) {
-    isDragOver.value = false;
-    if (event.dataTransfer && event.dataTransfer.files.length) {
-        const droppedFiles = Array.from(event.dataTransfer.files);
-        addImages(droppedFiles);
-    }
-}
-
-function triggerFileInput() {
-    fileInput.value?.click();
-}
-
-function handleFileUpload(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length) {
-        const selectedFiles = Array.from(target.files);
-        addImages(selectedFiles);
-    }
-}
-
-function addImages(selectedFiles: File[]) {
-    fileError.value = null;
-
-    // Check max file count
-    if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = t('admin_gallery_form.errors.max_files');
-        return;
-    }
-
-    // Check file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
-
-    if (invalidFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.invalid_file_type');
-        return;
-    }
-
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
-
-    if (largeFiles.length > 0) {
-        fileError.value = t('admin_gallery_form.errors.file_size');
-        return;
-    }
-
-    // Add new files
-    files.value = [...files.value, ...selectedFiles];
-    work.images = files.value.map((file) => file.name);
-
-    // Create previews for new images
-    selectedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImages.value.push({
-                file,
-                preview: e.target?.result as string,
-            });
-        };
-        reader.readAsDataURL(file);
+    const work = reactive<CreateWorkDto>({
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        name_ru: '',
+        name_en: '',
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+        material_ids: [],
     });
-}
 
-function removeImage(index: number) {
-    previewImages.value.splice(index, 1);
-    files.value.splice(index, 1);
-    work.images.splice(index, 1);
-}
+    const isSubmitting = ref(false,);
+    const isLoading = ref(true,);
+    const files = ref<File[]>([],);
+    const previewImages = ref<{ file: File, preview: string }[]>([],);
+    const isDragOver = ref(false,);
+    const fileError = ref<string | null>(null,);
+    const fileInput = ref<HTMLInputElement | null>(null,);
+    const materialsDropdownOpen = ref(false,);
 
-function validateField(fieldName: string) {
-    switch (fieldName) {
-        case 'name_ru':
-            if (!work.name_ru.trim()) {
-                errors.name_ru = t('admin_gallery_form.errors.name_ru_required');
-            } else {
-                errors.name_ru = '';
-            }
-            break;
-        case 'name_en':
-            if (!work.name_en.trim()) {
-                errors.name_en = t('admin_gallery_form.errors.name_en_required');
-            } else {
-                errors.name_en = '';
-            }
-            break;
-        case 'width':
-            if (work.width <= 0) {
-                errors.width = t('admin_gallery_form.errors.width_required');
-            } else {
-                errors.width = '';
-            }
-            break;
-        case 'height':
-            if (work.height <= 0) {
-                errors.height = t('admin_gallery_form.errors.height_required');
-            } else {
-                errors.height = '';
-            }
-            break;
-        case 'year':
-            if (work.year < 2000 || work.year > new Date().getFullYear()) {
-                errors.year = t('admin_gallery_form.errors.year_range', {
-                    year: new Date().getFullYear(),
+    const errors = reactive<Record<string, string>>({
+        name_ru: '',
+        name_en: '',
+        width: '',
+        height: '',
+        year: '',
+        base_id: '',
+        material_ids: '',
+    });
+
+    const bases = computed(() => materialStore.bases,);
+    const materials = computed(() => materialStore.materials,);
+
+    const baseOptions = computed(() => {
+        const options = bases.value.map(base => ({
+            label: locale.value === 'ru' ? base.name_ru : base.name_en,
+            value: base.id,
+        }),);
+        return [...options,];
+    });
+
+    const selectedMaterialsDisplay = computed(() => {
+        if (work.material_ids.length === 0) return '';
+        const selectedNames = materialStore.materials
+            .filter(material => work.material_ids.includes(material.id,),)
+            .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+        return selectedNames.join(', ',);
+    });
+
+    const isFormValid = computed(() => {
+        return (
+            work.name_ru.trim() !== ''
+        && work.name_en.trim() !== ''
+            && work.width > 0
+        && work.height > 0
+            && work.year >= 2000
+        && work.year <= new Date().getFullYear()
+            && work.base_id > 0
+            && work.material_ids.length > 0
+            && files.value.length > 0
+        );
+    });
+
+    function handleDragOver() {
+        isDragOver.value = true;
+    }
+
+    function handleDragLeave() {
+        isDragOver.value = false;
+    }
+
+    function handleDrop(event: DragEvent,) {
+        isDragOver.value = false;
+        if (event.dataTransfer && event.dataTransfer.files.length) {
+            const droppedFiles = Array.from(event.dataTransfer.files,);
+            addImages(droppedFiles,);
+        }
+    }
+
+    function triggerFileInput() {
+        fileInput.value?.click();
+    }
+
+    function handleFileUpload(event: Event,) {
+        const target = event.target as HTMLInputElement;
+        if (target.files && target.files.length) {
+            const selectedFiles = Array.from(target.files,);
+            addImages(selectedFiles,);
+        }
+    }
+
+    function addImages(selectedFiles: File[],) {
+        fileError.value = null;
+
+        // Check max file count
+        if (files.value.length + selectedFiles.length > 10) {
+            fileError.value = t('admin_gallery_form.errors.max_files',);
+            return;
+        }
+
+        // Check file types
+        const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+        const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
+
+        if (invalidFiles.length > 0) {
+            fileError.value = t('admin_gallery_form.errors.invalid_file_type',);
+            return;
+        }
+
+        // Check file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
+
+        if (largeFiles.length > 0) {
+            fileError.value = t('admin_gallery_form.errors.file_size',);
+            return;
+        }
+
+        // Add new files
+        files.value = [...files.value, ...selectedFiles,];
+
+        // Create previews for new images
+        selectedFiles.forEach((file,) => {
+            const reader = new FileReader();
+            reader.onload = (e,) => {
+                previewImages.value.push({
+                    file,
+                    preview: e.target?.result as string,
                 });
-            } else {
-                errors.year = '';
-            }
-            break;
-        case 'base_id':
-            if (work.base_id === null || work.base_id <= 0) {
-                errors.base_id = t('admin_gallery_form.errors.base_required');
-            } else {
-                errors.base_id = '';
-            }
-            break;
-        case 'materials_ids':
-            if (work.materials_ids.length === 0) {
-                errors.materials_ids = t('admin_gallery_form.errors.materials_required');
-            } else {
-                errors.materials_ids = '';
-            }
-            break;
-        case 'work_type':
-            if (work.type <= 0) {
-                errors.work_type = t('admin_gallery_form.errors.work_type_required');
-            } else {
-                errors.work_type = '';
-            }
-            break;
-    }
-}
-
-function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('base_id');
-    validateField('materials_ids');
-    validateField('work_type');
-
-    // Check images
-    if (files.value.length === 0) {
-        fileError.value = t('admin_gallery_form.errors.images_required');
-        return false;
-    }
-
-    // Check no errors
-    return Object.values(errors).every((error) => error === '');
-}
-
-async function submitForm() {
-    if (isSubmitting.value) return;
-
-    if (!validateForm()) {
-        return;
-    }
-
-    try {
-        isSubmitting.value = true;
-        errorMessage.value = '';
-
-        // Build form data
-        const formData = new FormData();
-
-        // Add files
-        files.value.forEach((file) => {
-            formData.append('images', file);
+            };
+            reader.readAsDataURL(file,);
         });
+    }
 
-        // Add other data
-        formData.append('data', JSON.stringify(work));
+    function removeImage(index: number,) {
+        previewImages.value.splice(index, 1,);
+        files.value.splice(index, 1,);
+    }
 
-        const response = await axios.post(SERVER_URL + 'works', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+    function materialsToggleDropdown() {
+        materialsDropdownOpen.value = !materialsDropdownOpen.value;
+    }
 
-        if (response.status === 200) {
-            toast.add({
-                title: t('toast.success.title'),
-                description: t('toast.success.description'),
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
-                duration: 5000,
-            });
-            resetForm();
+    function toggleMaterial(materialId: number, checked: boolean,) {
+        if (checked) {
+            if (!work.material_ids.includes(materialId,)) {
+                work.material_ids.push(materialId,);
+            }
         } else {
+            const index = work.material_ids.indexOf(materialId,);
+            if (index > -1) {
+                work.material_ids.splice(index, 1,);
+            }
+        }
+    }
+
+    function onMaterialChange(materialId: number, event: Event,) {
+        toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+    }
+
+    function validateField(fieldName: string,) {
+        switch (fieldName) {
+    case 'name_ru':
+        errors.name_ru = !work.name_ru.trim() ? t('admin_gallery_form.errors.name_ru_required',) : '';
+        break;
+    case 'name_en':
+        errors.name_en = !work.name_en.trim() ? t('admin_gallery_form.errors.name_en_required',) : '';
+        break;
+    case 'width':
+        errors.width = work.width <= 0 ? t('admin_gallery_form.errors.width_required',) : '';
+        break;
+    case 'height':
+        errors.height = work.height <= 0 ? t('admin_gallery_form.errors.height_required',) : '';
+        break;
+    case 'year':
+        if (work.year < 2000 || work.year > new Date().getFullYear()) {
+            errors.year = t('admin_gallery_form.errors.year_range', {
+                year: new Date().getFullYear(),
+            });
+        } else {
+            errors.year = '';
+        }
+        break;
+    case 'base_id':
+        errors.base_id = work.base_id <= 0 ? t('admin_gallery_form.errors.base_required',) : '';
+        break;
+    case 'material_ids':
+        errors.material_ids = work.material_ids.length === 0 ? t('admin_gallery_form.errors.materials_required',) : '';
+        break;
+        }
+    }
+
+    function validateForm() {
+        validateField('name_ru',);
+        validateField('name_en',);
+        validateField('width',);
+        validateField('height',);
+        validateField('year',);
+        validateField('base_id',);
+        validateField('material_ids',);
+
+        // Check images
+        if (files.value.length === 0) {
+            fileError.value = t('admin_gallery_form.errors.images_required',);
+            return false;
+        }
+
+        return Object.values(errors,).every(error => error === '',);
+    }
+
+    async function submitForm() {
+        if (isSubmitting.value) return;
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            isSubmitting.value = true;
+
+            const formData = new FormData();
+            files.value.forEach((file,) => {
+                formData.append('image', file,);
+            });
+            formData.append('name_ru', work.name_ru);
+            formData.append('name_en', work.name_en);
+            formData.append('width', String(work.width));
+            formData.append('height', String(work.height));
+            formData.append('year', String(work.year));
+            formData.append('base_id', String(work.base_id));
+            formData.append('descr_ru', work.descr_ru);
+            formData.append('descr_en', work.descr_en);
+            work.material_ids.forEach((materialId,) => {
+                formData.append('material_ids', String(materialId),);
+            });
+
+            const response = await axios.post(SERVER_URL + 'works', formData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token',)}`,
+                },
+            });
+
+            if (response.status === 201 || response.status === 200) {
+                toast.add({
+                    title: t('toast.success.title',),
+                    description: t('toast.success.description',),
+                    icon: 'i-heroicons-check-circle',
+                    color: 'success',
+                    duration: 5000,
+                });
+                resetForm();
+            } else {
+                toast.add({
+                    title: t('toast.error.title',),
+                    description: t('toast.error.description',),
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
+            }
+        } catch (error: any) {
+            console.error('Error submitting form:', error,);
+            let description = t('toast.error.description',);
+            if (error.response?.status === 400) {
+                description = t('admin_gallery_form.messages.invalid_data',);
+            } else {
+                description = t('admin_gallery_form.messages.general_error',);
+            }
             toast.add({
-                title: t('toast.error.title'),
-                description: t('toast.error.description'),
+                title: t('toast.error.title',),
+                description,
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
-            errorMessage.value = t('admin_gallery_form.messages.submit_failed');
+        } finally {
+            isSubmitting.value = false;
         }
-    } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description = t('toast.error.description');
-        if (error.response?.status === 413) {
-            description = t('admin_gallery_form.messages.file_too_large');
-        } else if (error.response?.status === 400) {
-            description = t('admin_gallery_form.messages.invalid_data');
-        } else {
-            description = t('admin_gallery_form.messages.general_error');
+    }
+
+    function resetForm() {
+        work.width = 0;
+        work.height = 0;
+        work.year = new Date().getFullYear();
+        work.name_ru = '';
+        work.name_en = '';
+        work.base_id = 0;
+        work.descr_ru = '';
+        work.descr_en = '';
+        work.material_ids = [];
+        files.value = [];
+        previewImages.value = [];
+        fileError.value = null;
+        if (fileInput.value) {
+            fileInput.value.value = '';
         }
-        toast.add({
-            title: t('toast.error.title'),
-            description,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
+        Object.keys(errors,).forEach((key,) => {
+            errors[key] = '';
         });
-    } finally {
-        isSubmitting.value = false;
-    }
-}
-
-function resetForm() {
-    work.width = 0;
-    work.height = 0;
-    work.year = new Date().getFullYear();
-    work.name_ru = '';
-    work.name_en = '';
-    work.base_id = (null as unknown) as number;
-    work.materials_ids = [];
-    work.descr_ru = '';
-    work.descr_en = '';
-    work.type = 0;
-    work.images = [];
-
-    files.value = [];
-    previewImages.value = [];
-
-    if (fileInput.value) {
-        fileInput.value.value = '';
     }
 
-    // Reset errors
-    Object.keys(errors).forEach((key) => {
-        errors[key] = '';
+    // Lifecycle
+    onMounted(async () => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
+        isLoading.value = false;
     });
-    fileError.value = null;
-}
-
-// Lifecycle
-onMounted(async () => {
-    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-        await materialStore.fetchAll();
-    }
-    isLoading.value = false;
-});
 </script>
 
 <style scoped>
@@ -986,7 +971,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -995,6 +980,7 @@ select:has(option.placeholder:checked) {
     border: none;
     width: 24px;
     height: 24px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1004,8 +990,97 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
+}
+
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .size-inputs {

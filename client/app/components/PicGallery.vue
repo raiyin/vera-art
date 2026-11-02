@@ -1,262 +1,218 @@
 <script setup lang="ts">
-import type { PropType } from 'vue';
-import type { CommonGetWorkDto } from '~/types';
-import { useMaterialStore } from '../stores/MaterialStore';
-import { useAuthStore } from '../stores/AuthStore';
-import type { CommonTypedGetWorkDto } from '~/types/common_work';
-import type { SelectItem } from '@nuxt/ui';
-import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
-import { useI18n } from '#imports';
-import { useRouter } from 'vue-router';
+    import type { PropType, } from 'vue';
+    import type { CommonWork, } from '~/types';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
+    import { useAuthStore, } from '~/stores/AuthStore';
+    import { ref, computed, watch, onMounted, onBeforeUnmount, } from 'vue';
+    import { useI18n, } from '#imports';
+    import { useRouter, } from 'vue-router';
+    import { useApi, } from '~/composables/useApi';
 
-const props = defineProps({
-    images: {
-        type: [Array] as PropType<CommonTypedGetWorkDto[]>,
-        required: true,
-    },
-});
-
-const emit = defineEmits<{
-    'work-deleted': [id: string];
-}>();
-
-// Reactive state
-const selectedWorkType = ref('all');
-const items = ref<SelectItem[]>([
-    { value: 'all', label: 'Все работы' },
-    { value: '1', label: 'Картины' },
-    { value: '2', label: 'Иллюстрации' },
-    { value: '3', label: '3D работы' },
-]);
-const value = ref('all');
-// Image modal state
-const showModal = ref(false);
-const selectedWork = ref<CommonGetWorkDto | null>(null);
-const currentImageIndex = ref(0);
-// Delete confirmation modal state
-const showDeleteModal = ref(false);
-const workToDelete = ref<CommonGetWorkDto | null>(null);
-const deletingId = ref<string | null>(null);
-
-// Computed properties
-const filteredImages = computed(() => {
-    if (selectedWorkType.value === 'all') {
-        return props.images;
-    }
-    return props.images.filter((image) => {
-        return image.type === parseInt(selectedWorkType.value);
+    const props = defineProps({
+        images: {
+            type: [Array,] as PropType<CommonWork[]>,
+            required: true,
+        },
     });
-});
 
-const { locale } = useI18n();
+    const emit = defineEmits<{
+        'work-deleted': [id: string,]
+    }>();
 
-const isAuthenticated = computed(() => {
-    // Simple auth check - can be enhanced with proper auth store
-    return !!localStorage.getItem('token');
-});
+    const showModal = ref(false,);
+    const selectedWork = ref<CommonWork | null>(null,);
+    const currentImageIndex = ref(0,);
+    const showDeleteModal = ref(false,);
+    const workToDelete = ref<CommonWork | null>(null,);
+    const deletingId = ref<string | null>(null,);
 
-const materialStore = useMaterialStore();
-const authStore = useAuthStore();
-const router = useRouter();
+    const filteredImages = computed(() => props.images,);
 
-const isAdmin = computed(() => {
-    return authStore.isAuthenticated && authStore.isAdmin;
-});
+    const { locale, } = useI18n();
 
-// Methods
-const handleWorkDeleted = (id: string) => {
-    // Emit event to parent component to update the list
-    emit('work-deleted', id);
-};
+    const materialStore = useMaterialStore();
+    const authStore = useAuthStore();
+    const router = useRouter();
+    const { del, } = useApi();
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
+    onMounted(() => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            materialStore.fetchAll();
+        }
+    });
 
-const navigateToEdit = (work: CommonGetWorkDto) => {
-    const id = work.id.toString();
-    if (work.__type === 'GetSaleDto') {
-        router.push(`/art-store/edit/${id}`);
-    } else {
-        router.push(`/gallery/edit/${id}`);
-    }
-};
+    const isAdmin = computed(() => {
+        return authStore.isAuthenticated && authStore.isAdmin;
+    });
 
-const confirmDelete = (work: CommonGetWorkDto) => {
-    workToDelete.value = work;
-    showDeleteModal.value = true;
-};
+    const handleWorkDeleted = (id: string,) => {
+        emit('work-deleted', id,);
+    };
 
-const deleteWork = async () => {
-    if (!workToDelete.value) return;
+    const navigateToEdit = (work: CommonWork,) => {
+        const id = work.id.toString();
+        if (work.__type === 'GetSaleDto') {
+            router.push(`/art-store/edit/${id}`,);
+        } else {
+            router.push(`/gallery/edit/${id}`,);
+        }
+    };
 
-    const id = workToDelete.value.id.toString();
-    deletingId.value = id;
-    showDeleteModal.value = false;
+    const confirmDelete = (work: CommonWork,) => {
+        workToDelete.value = work;
+        showDeleteModal.value = true;
+    };
 
-    try {
-        const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
-        const response = await fetch(`${SERVER_URL}${endpoint}/${id}`, {
-            method: 'DELETE',
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        handleWorkDeleted(id);
-    } catch (e) {
-        console.error('Error deleting work:', e);
-    } finally {
-        deletingId.value = null;
+    const deleteWork = async () => {
+        if (!workToDelete.value) return;
+
+        const id = workToDelete.value.id.toString();
+        deletingId.value = id;
+        showDeleteModal.value = false;
+
+        try {
+            const endpoint = workToDelete.value.__type === 'GetSaleDto' ? 'sales' : 'works';
+            await del<void>(`${endpoint}/${id}`,);
+            handleWorkDeleted(id,);
+        } catch (e) {
+            console.error('Error deleting work:', e,);
+        } finally {
+            deletingId.value = null;
+            workToDelete.value = null;
+        }
+    };
+
+    const cancelDelete = () => {
+        showDeleteModal.value = false;
         workToDelete.value = null;
-    }
-};
+    };
 
-const cancelDelete = () => {
-    showDeleteModal.value = false;
-    workToDelete.value = null;
-};
+    const getWorkDescription = (work: CommonWork,): string => {
+        const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
+        return descr || '';
+    };
 
-const getWorkDescription = (work: CommonGetWorkDto): string => {
-    const descr = locale.value === 'ru' ? (work as any).descr_ru : (work as any).descr_en;
-    return descr || '';
-};
+    const hasDescription = (work: CommonWork,): boolean => {
+        const descrRu = (work as any).descr_ru;
+        const descrEn = (work as any).descr_en;
+        return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
+    };
 
-const hasDescription = (work: CommonGetWorkDto): boolean => {
-    const descrRu = (work as any).descr_ru;
-    const descrEn = (work as any).descr_en;
-    return !!(descrRu && descrRu.trim() !== '' && descrEn && descrEn.trim() !== '');
-};
+    const getWorkName = (work: CommonWork,): string => {
+        return locale.value === 'ru' ? work.name_ru : work.name_en;
+    };
 
-const getWorkName = (work: CommonGetWorkDto): string => {
-    return locale.value === 'ru' ? work.name_ru : work.name_en;
-};
+    const getWorkBase = (work: CommonWork,): string => {
+        return materialStore.getBaseName(work.base_id, locale.value,);
+    };
 
-const getWorkBase = (work: CommonGetWorkDto): string => {
-    return locale.value === 'ru' ? work.base_ru || '' : work.base_en || '';
-};
+    const getWorkMaterialNames = (work: CommonWork,): string[] => {
+        const ids = (work as any).material_ids;
+        if (!ids || !Array.isArray(ids) || ids.length === 0) return [];
+        return materialStore.getMaterialNames(ids, locale.value,);
+    };
 
-const getMainImageUrl = (work: CommonGetWorkDto): string => {
-    return work.dir + (work.images?.[0] || '');
-};
+    const getMainImageUrl = (work: CommonWork,): string => {
+        return work.dir + (work.images?.[0] || '');
+    };
 
-const getWorkDimensions = (work: CommonGetWorkDto): string => {
-    if (work.width && work.width !== 0 && work.height && work.height !== 0) {
-        return `${work.width}×${work.height}`;
-    }
-    return '';
-};
+    const getWorkDimensions = (work: CommonWork,): string => {
+        if (work.width && work.width !== 0 && work.height && work.height !== 0) {
+            return `${work.width}×${work.height}`;
+        }
+        return '';
+    };
 
-const getWorkMaterials = (work: CommonGetWorkDto): string[] => {
-    // If materials arrays are already present in the work object, use them
-    if (locale.value === 'ru' && work.materials_ru && work.materials_ru.length > 0) {
-        return work.materials_ru;
-    }
-    if (locale.value === 'en' && work.materials_en && work.materials_en.length > 0) {
-        return work.materials_en;
-    }
-    // Otherwise fall back to MaterialStore
-    return materialStore.getMaterialNames(work.materials_ids || [], locale.value);
-};
+    // Modal methods
+    const openModal = (work: CommonWork,) => {
+        console.log('openModal called with work:', work,);
+        console.log('Work images:', work.images,);
+        console.log('Work dir:', work.dir,);
+        selectedWork.value = work;
+        currentImageIndex.value = 0;
+        showModal.value = true;
+        console.log('showModal set to:', showModal.value,);
+    };
 
-const hasMaterials = (work: CommonGetWorkDto): boolean => {
-    const materials = getWorkMaterials(work);
-    return materials.length > 0;
-};
+    const closeModal = () => {
+        showModal.value = false;
+        selectedWork.value = null;
+        currentImageIndex.value = 0;
+    };
 
-// Modal methods
-const openModal = (work: CommonGetWorkDto) => {
-    console.log('openModal called with work:', work);
-    console.log('Work images:', work.images);
-    console.log('Work dir:', work.dir);
-    selectedWork.value = work;
-    currentImageIndex.value = 0;
-    showModal.value = true;
-    console.log('showModal set to:', showModal.value);
-};
+    // Carousel navigation methods
+    const prevImage = () => {
+        if (selectedWork.value && currentImageIndex.value > 0) {
+            currentImageIndex.value--;
+        }
+    };
 
-const closeModal = () => {
-    showModal.value = false;
-    selectedWork.value = null;
-    currentImageIndex.value = 0;
-};
+    const nextImage = () => {
+        if (
+            selectedWork.value
+        && currentImageIndex.value < selectedWork.value.images.length - 1
+        ) {
+            currentImageIndex.value++;
+        }
+    };
 
-// Carousel navigation methods
-const prevImage = () => {
-    if (selectedWork.value && currentImageIndex.value > 0) {
-        currentImageIndex.value--;
-    }
-};
+    const goToImage = (index: number,) => {
+        if (selectedWork.value && index >= 0 && index < selectedWork.value.images.length) {
+            currentImageIndex.value = index;
+        }
+    };
 
-const nextImage = () => {
-    if (
-        selectedWork.value &&
-        currentImageIndex.value < selectedWork.value.images.length - 1
-    ) {
-        currentImageIndex.value++;
-    }
-};
+    // Keyboard navigation for modal
+    const handleKeydown = (event: KeyboardEvent,) => {
+        if (!showModal.value || !selectedWork.value) return;
 
-const goToImage = (index: number) => {
-    if (selectedWork.value && index >= 0 && index < selectedWork.value.images.length) {
-        currentImageIndex.value = index;
-    }
-};
+        switch (event.key) {
+    case 'Escape':
+        closeModal();
+        break;
+    case 'ArrowLeft':
+        if (currentImageIndex.value > 0) {
+            currentImageIndex.value--;
+        }
+        break;
+    case 'ArrowRight':
+        if (
+            selectedWork.value.images
+                && currentImageIndex.value < selectedWork.value.images.length - 1
+        ) {
+            currentImageIndex.value++;
+        }
+        break;
+        }
+    };
 
-// Keyboard navigation for modal
-const handleKeydown = (event: KeyboardEvent) => {
-    if (!showModal.value || !selectedWork.value) return;
+    // Watcher
+    watch(showModal, (newVal,) => {
+        if (newVal) {
+            window.addEventListener('keydown', handleKeydown,);
+        } else {
+            window.removeEventListener('keydown', handleKeydown,);
+        }
+    });
 
-    switch (event.key) {
-        case 'Escape':
-            closeModal();
-            break;
-        case 'ArrowLeft':
-            if (currentImageIndex.value > 0) {
-                currentImageIndex.value--;
-            }
-            break;
-        case 'ArrowRight':
-            if (
-                selectedWork.value.images &&
-                currentImageIndex.value < selectedWork.value.images.length - 1
-            ) {
-                currentImageIndex.value++;
-            }
-            break;
-    }
-};
-
-// Watcher
-watch(showModal, (newVal) => {
-    if (newVal) {
-        window.addEventListener('keydown', handleKeydown);
-    } else {
-        window.removeEventListener('keydown', handleKeydown);
-    }
-});
-
-onBeforeUnmount(() => {
-    window.removeEventListener('keydown', handleKeydown);
-});
+    onBeforeUnmount(() => {
+        window.removeEventListener('keydown', handleKeydown,);
+    });
 </script>
 
 <template>
     <UContainer class="text-left main-content px-0">
-        <div class="my-4">
-            <USelect :items="items" v-model="value" />
-        </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
             <UCard
                 v-for="work in filteredImages"
                 :key="work.id"
-                :ui="{ body: 'flex-1 flex flex-col' }"
+                :ui="{ body: 'flex-1 flex flex-col', }"
                 class="work-card flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
             >
                 <template #header>
                     <div class="flex flex-col justify-between items-start">
                         <h3 class="text-lg font-semibold truncate">
-                            {{ getWorkName(work) }}
+                            {{ getWorkName(work,) }}
                         </h3>
                     </div>
                 </template>
@@ -265,26 +221,26 @@ onBeforeUnmount(() => {
                     <!-- Image -->
                     <div
                         class="relative aspect-square overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 cursor-pointer"
-                        @click="() => openModal(work)"
+                        @click="() => openModal(work,)"
                     >
                         <img
-                            :src="getMainImageUrl(work)"
-                            :alt="getWorkName(work)"
+                            :src="getMainImageUrl(work,)"
+                            :alt="getWorkName(work,)"
                             class="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                        />
+                        >
                         <div
                             class="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"
                         />
 
                         <!-- Description info icon -->
                         <div
-                            v-if="hasDescription(work)"
+                            v-if="hasDescription(work,)"
                             class="absolute top-2 right-2 z-10"
                         >
                             <UPopover
                                 mode="hover"
-                                :content="{ side: 'bottom', sideOffset: 8 }"
+                                :content="{ side: 'bottom', sideOffset: 8, }"
                             >
                                 <UIcon
                                     name="i-heroicons-information-circle"
@@ -295,7 +251,7 @@ onBeforeUnmount(() => {
                                     <div
                                         class="p-4 max-w-xs text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
                                     >
-                                        <p>{{ getWorkDescription(work) }}</p>
+                                        <p>{{ getWorkDescription(work,) }}</p>
                                     </div>
                                 </template>
                             </UPopover>
@@ -305,37 +261,25 @@ onBeforeUnmount(() => {
                     <!-- Details -->
                     <div class="space-y-2 text-sm my-3">
                         <div
-                            v-if="getWorkDimensions(work)"
+                            v-if="getWorkDimensions(work,)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
                         >
                             <UIcon
                                 name="i-heroicons-arrows-pointing-out"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span>{{ getWorkDimensions(work) }}</span>
+                            <span>{{ getWorkDimensions(work,) }}</span>
                         </div>
 
                         <div
-                            v-if="getWorkBase(work)"
+                            v-if="getWorkBase(work,)"
                             class="flex items-center text-gray-600 dark:text-gray-400"
                         >
                             <UIcon
                                 name="i-heroicons-document-text"
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
-                            <span class="truncate">{{ getWorkBase(work) }}</span>
-                        </div>
-
-                        <!-- Materials -->
-                        <div
-                            v-if="hasMaterials(work)"
-                            class="flex items-center flex-wrap [&:not(:first-child)]:ml-4] mt-2 text-gray-600 dark:text-gray-400"
-                        >
-                            <UIcon
-                                name="i-heroicons-paint-brush"
-                                class="w-4 h-4 mr-2 shrink-0"
-                            />
-                            <span>{{ getWorkMaterials(work).join(', ') }}</span>
+                            <span class="truncate">{{ getWorkBase(work,) }}</span>
                         </div>
 
                         <div
@@ -347,6 +291,19 @@ onBeforeUnmount(() => {
                                 class="w-4 h-4 mr-2 shrink-0"
                             />
                             <span>{{ work.year }}</span>
+                        </div>
+
+                        <div
+                            v-if="getWorkMaterialNames(work,).length > 0"
+                            class="flex flex-wrap gap-1.5 pt-1"
+                        >
+                            <span
+                                v-for="mat in getWorkMaterialNames(work,)"
+                                :key="mat"
+                                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
+                            >
+                                {{ mat }}
+                            </span>
                         </div>
                     </div>
 
@@ -364,14 +321,17 @@ onBeforeUnmount(() => {
 
                         <!-- Admin Controls -->
                         <ClientOnly>
-                            <div v-if="isAdmin" class="flex gap-2">
+                            <div
+                                v-if="isAdmin"
+                                class="flex gap-2"
+                            >
                                 <UButton
                                     size="sm"
                                     color="primary"
                                     variant="outline"
-                                    @click.stop="navigateToEdit(work)"
+                                    @click.stop="navigateToEdit(work,)"
                                 >
-                                    {{ $t('admin.edit_work') }}
+                                    {{ $t('admin.edit_work',) }}
                                 </UButton>
                                 <UButton
                                     size="sm"
@@ -379,9 +339,9 @@ onBeforeUnmount(() => {
                                     variant="outline"
                                     :loading="deletingId === work.id.toString()"
                                     :disabled="deletingId === work.id.toString()"
-                                    @click.stop="confirmDelete(work)"
+                                    @click.stop="confirmDelete(work,)"
                                 >
-                                    {{ $t('admin.delete_work') }}
+                                    {{ $t('admin.delete_work',) }}
                                 </UButton>
                             </div>
                         </ClientOnly>
@@ -398,7 +358,7 @@ onBeforeUnmount(() => {
             :transition="true"
             class="delete-modal"
         >
-            <template #header="{ close }">
+            <template #header="{ close, }">
                 <div class="delete-modal-header">
                     <div class="delete-modal-icon-wrapper">
                         <UIcon
@@ -407,7 +367,7 @@ onBeforeUnmount(() => {
                         />
                     </div>
                     <h3 class="delete-modal-title">
-                        {{ $t('admin.delete_work_confirm_title') }}
+                        {{ $t('admin.delete_work_confirm_title',) }}
                     </h3>
                 </div>
             </template>
@@ -417,12 +377,12 @@ onBeforeUnmount(() => {
                     <p class="delete-modal-text">
                         {{
                             $t('admin.delete_work_confirm_text', {
-                                name: workToDelete ? getWorkName(workToDelete) : '',
-                            })
+                                name: workToDelete ? getWorkName(workToDelete,) : '',
+                            },)
                         }}
                     </p>
                     <p class="delete-modal-warning">
-                        {{ $t('admin.delete_work_confirm_warning') }}
+                        {{ $t('admin.delete_work_confirm_warning',) }}
                     </p>
                 </div>
             </template>
@@ -435,7 +395,7 @@ onBeforeUnmount(() => {
                         variant="outline"
                         @click="cancelDelete"
                     >
-                        {{ $t('admin.delete_work_cancel') }}
+                        {{ $t('admin.delete_work_cancel',) }}
                     </UButton>
                     <UButton
                         size="md"
@@ -444,7 +404,7 @@ onBeforeUnmount(() => {
                         :disabled="deletingId !== null"
                         @click="deleteWork"
                     >
-                        {{ $t('admin.delete_work_confirm') }}
+                        {{ $t('admin.delete_work_confirm',) }}
                     </UButton>
                 </div>
             </template>
@@ -461,8 +421,8 @@ onBeforeUnmount(() => {
                     <!-- Close Button -->
                     <button
                         class="custom-modal-close"
-                        @click="closeModal"
                         aria-label="Close"
+                        @click="closeModal"
                     >
                         <svg
                             class="w-6 h-6"
@@ -482,29 +442,32 @@ onBeforeUnmount(() => {
 
                     <!-- Image Container -->
                     <div class="custom-modal-image-container">
-                        <transition name="image-slide" mode="out-in">
+                        <transition
+                            name="image-slide"
+                            mode="out-in"
+                        >
                             <img
                                 :key="currentImageIndex"
                                 :src="
-                                    selectedWork.dir +
-                                    selectedWork.images[currentImageIndex]
+                                    selectedWork.dir
+                                        + selectedWork.images[currentImageIndex]
                                 "
                                 :alt="
-                                    getWorkName(selectedWork) +
-                                    ' - Image ' +
-                                    (currentImageIndex + 1)
+                                    getWorkName(selectedWork,)
+                                        + ' - Image '
+                                        + (currentImageIndex + 1)
                                 "
                                 class="custom-modal-image"
                                 @click="closeModal"
-                            />
+                            >
                         </transition>
 
                         <!-- Navigation Buttons -->
                         <button
                             v-if="currentImageIndex > 0"
-                            @click="prevImage"
                             class="custom-modal-nav-button left"
                             aria-label="Previous image"
+                            @click="prevImage"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -523,9 +486,9 @@ onBeforeUnmount(() => {
                         </button>
                         <button
                             v-if="currentImageIndex < selectedWork.images.length - 1"
-                            @click="nextImage"
                             class="custom-modal-nav-button right"
                             aria-label="Next image"
+                            @click="nextImage"
                         >
                             <svg
                                 class="w-8 h-8"
@@ -564,14 +527,14 @@ onBeforeUnmount(() => {
                             v-for="(image, index) in selectedWork.images"
                             :key="index"
                             class="thumbnail-item"
-                            :class="{ active: index === currentImageIndex }"
-                            @click="goToImage(index)"
+                            :class="{ active: index === currentImageIndex, }"
+                            @click="goToImage(index,)"
                         >
                             <img
                                 :src="selectedWork.dir + image"
                                 :alt="'Thumbnail ' + (index + 1)"
                                 class="thumbnail-image"
-                            />
+                            >
                         </div>
                     </div>
                 </div>
@@ -591,64 +554,6 @@ onBeforeUnmount(() => {
     display: flex;
     flex-direction: column;
     flex: 1;
-}
-
-.work-types-selector {
-    display: flex;
-    padding: 1rem 1rem;
-    align-items: center;
-    justify-content: start;
-    background-color: var(--color-surface);
-    border-radius: 0.5rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    margin-bottom: 2rem;
-    width: fit-content;
-}
-
-.selector-title {
-    color: var(--color-on-surface);
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 500;
-    font-size: 1.3rem;
-}
-
-.selector-container {
-    position: relative;
-    margin-left: 1rem;
-}
-
-.work-type-dropdown {
-    background-color: var(--color-surface-secondary-solid);
-    color: var(--color-on-surface);
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    padding: 0.75rem;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1rem;
-    width: 100%;
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-.work-type-dropdown:focus {
-    border-color: #4a90e2;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
-}
-
-.work-type-dropdown option {
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
-}
-
-.drop-down-arrow {
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    background-size: 1rem;
-    padding-right: 2.5rem; /* Make space for the arrow */
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
 }
 
 /* Custom Modal Styles (matching news carousel) */
@@ -704,7 +609,8 @@ onBeforeUnmount(() => {
     flex-direction: column;
 }
 
-.dark .custom-modal-container {
+.dark .custom-modal-container,
+.body_theme_dark .custom-modal-container {
     background: #1e293b;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -928,17 +834,6 @@ onBeforeUnmount(() => {
     }
 }
 
-@media (max-width: 576px) {
-    .work-types-selector {
-        padding: 1rem 0;
-    }
-
-    .selector-container {
-        max-width: 100%;
-        padding: 0 1rem;
-    }
-}
-
 /* Delete Confirmation Modal Styles */
 .delete-modal {
     --modal-max-width: 420px;
@@ -965,7 +860,8 @@ onBeforeUnmount(() => {
     margin-bottom: 1rem;
 }
 
-.dark .delete-modal-icon-wrapper {
+.dark .delete-modal-icon-wrapper,
+.body_theme_dark .delete-modal-icon-wrapper {
     background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%);
 }
 
@@ -975,7 +871,8 @@ onBeforeUnmount(() => {
     color: #dc2626;
 }
 
-.dark .delete-modal-icon {
+.dark .delete-modal-icon,
+.body_theme_dark .delete-modal-icon {
     color: #fca5a5;
 }
 
@@ -986,7 +883,8 @@ onBeforeUnmount(() => {
     margin: 0;
 }
 
-.dark .delete-modal-title {
+.dark .delete-modal-title,
+.body_theme_dark .delete-modal-title {
     color: #f1f5f9;
 }
 
@@ -1002,7 +900,8 @@ onBeforeUnmount(() => {
     margin: 0 0 0.5rem;
 }
 
-.dark .delete-modal-text {
+.dark .delete-modal-text,
+.body_theme_dark .delete-modal-text {
     color: #94a3b8;
 }
 
@@ -1013,13 +912,14 @@ onBeforeUnmount(() => {
     margin: 0;
 }
 
-.dark .delete-modal-warning {
+.dark .delete-modal-warning,
+.body_theme_dark .delete-modal-warning {
     color: #fca5a5;
 }
 
 .delete-modal-footer {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.75rem;
     padding: 0 1.5rem 1.5rem;
 }
@@ -1027,6 +927,7 @@ onBeforeUnmount(() => {
 @media (max-width: 480px) {
     .delete-modal-footer {
         flex-direction: column-reverse;
+        justify-content: flex-start;
     }
 
     .delete-modal-footer .UButton {

@@ -1,44 +1,44 @@
 <script setup lang="ts">
 import CalendarIcon from './IconCalendar.vue';
 import SideNewsTrailerSkeleton from './SideNewsTrailerSkeleton.vue';
-import type { NewsDesc } from '../types';
-import type { PropType } from 'vue';
-import { ref, computed, onMounted, nextTick } from 'vue';
-import { useI18n } from '#imports';
+import type { NewsItem, } from '~/api/news';
+import type { PropType, } from 'vue';
+import { ref, computed, onMounted, nextTick, } from 'vue';
+import { useI18n, } from '#imports';
 
 const props = defineProps({
     sideNewsObject: {
-        type: Object as PropType<NewsDesc>,
+        type: Object as PropType<NewsItem>,
         required: true,
     },
 });
 
-const { locale } = useI18n();
+const { locale, } = useI18n();
 
 // Reactive state
-const isLoaded = ref(false);
+const isLoaded = ref(false,);
 
 // Computed property
-const background = computed(
-    () => props.sideNewsObject.dir + props.sideNewsObject.img_backfull
-);
+const imageSrc = computed(
+    () => props.sideNewsObject.dir + props.sideNewsObject.main_image,
+    );
 
 // Methods
-const getHumanDate = (inDate: string, locale: string) => {
+const getHumanDate = (inDate: string, locale: string,) => {
     const options = {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
     } as const;
-    const date = new Date(inDate);
+    const date = new Date(inDate,);
     const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
-    return date.toLocaleDateString(stdLocale, options);
+    return date.toLocaleDateString(stdLocale, options,);
 };
 
 const onLoad = () => {
     setTimeout(() => {
         isLoaded.value = true;
-    }, 1000);
+    }, 1000,);
 };
 
 // Lifecycle hooks
@@ -52,30 +52,26 @@ onMounted(() => {
 <template>
     <div>
         <router-link
+            v-show="isLoaded"
             :to="sideNewsObject.id.toString()"
             class="other-news-item"
-            v-show="isLoaded"
         >
             <div class="other-news-img">
                 <img
-                    :src="background"
-                    :alt="sideNewsObject.title_en"
+                    :src="imageSrc"
+                    :alt="locale === 'ru' ? sideNewsObject.title_ru : sideNewsObject.title_en"
                     width="6.5rem"
                     height="5rem"
-                />
+                >
             </div>
             <div class="other-news-desc">
                 <h6>
-                    {{
-                        locale === 'ru'
-                            ? sideNewsObject.title_ru
-                            : sideNewsObject.title_en
-                    }}
+                    {{ locale === 'ru' ? sideNewsObject.title_ru : sideNewsObject.title_en }}
                 </h6>
                 <div class="date">
                     <CalendarIcon />
                     <span>
-                        &nbsp;{{ getHumanDate(sideNewsObject.datetime, locale) }}
+                        &nbsp;{{ getHumanDate(sideNewsObject.datetime, locale,) }}
                     </span>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 import { defineStore, } from 'pinia';
 import { ref, } from 'vue';
+import { getHttpClient, } from '~/api/http-client';
 import type { Material, Base, } from '~/types';
 
 export const useMaterialStore = defineStore('materialStore', () => {
@@ -8,19 +9,12 @@ export const useMaterialStore = defineStore('materialStore', () => {
     const isLoading = ref(false,);
     const error = ref<string | null>(null,);
 
-    const config = useRuntimeConfig();
-    const SERVER_URL = config.public.serverUrl;
-
     async function fetchMaterials() {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`${SERVER_URL}materials`,);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
-            }
-            const data = await response.json();
-            materials.value = data;
+            const { data, } = await getHttpClient().get('materials',);
+            materials.value = data.materials ?? [];
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch materials';
             console.error('Error fetching materials:', err,);
@@ -33,12 +27,8 @@ export const useMaterialStore = defineStore('materialStore', () => {
         isLoading.value = true;
         error.value = null;
         try {
-            const response = await fetch(`${SERVER_URL}bases`,);
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`,);
-            }
-            const data = await response.json();
-            bases.value = data;
+            const { data, } = await getHttpClient().get('bases',);
+            bases.value = data.bases ?? [];
         } catch (err) {
             error.value = err instanceof Error ? err.message : 'Failed to fetch bases';
             console.error('Error fetching bases:', err,);
@@ -58,7 +48,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
     function getMaterialName(id: number, locale: string,): string {
         const material = getMaterialById(id,);
         if (!material) return '';
-        return locale === 'ru' ? material.material_ru : material.material_en;
+        return locale === 'ru' ? material.name_ru : material.name_en;
     }
 
     function getMaterialNames(ids: number[], locale: string,): string[] {
@@ -76,7 +66,7 @@ export const useMaterialStore = defineStore('materialStore', () => {
     function getBaseName(id: number, locale: string,): string {
         const base = getBaseById(id,);
         if (!base) return '';
-        return locale === 'ru' ? base.base_ru : base.base_en;
+        return locale === 'ru' ? base.name_ru : base.name_en;
     }
 
     return {

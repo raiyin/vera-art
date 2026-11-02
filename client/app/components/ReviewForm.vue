@@ -1,5 +1,8 @@
 <template>
-    <form class="review-form" @submit.prevent="handleSubmit">
+    <form
+        class="review-form"
+        @submit.prevent="handleSubmit"
+    >
         <div class="review-form__section">
             <label class="review-form__label">Оценка</label>
             <div class="review-form__rating">
@@ -8,20 +11,28 @@
                     :key="star"
                     type="button"
                     class="review-form__star"
-                    :class="{ 'review-form__star--active': star <= model.rating }"
+                    :class="{ 'review-form__star--active': star <= model.rating, }"
                     @click="model.rating = star"
                 >
                     ★
                 </button>
             </div>
-            <div class="review-form__rating-value">{{ model.rating }}/5</div>
-            <div v-if="errors.rating" class="review-form__error">{{ errors.rating }}</div>
+            <div class="review-form__rating-value">
+                {{ model.rating }}/5
+            </div>
+            <div
+                v-if="errors.rating"
+                class="review-form__error"
+            >
+                {{ errors.rating }}
+            </div>
         </div>
 
         <div class="review-form__section">
-            <label class="review-form__label" for="title"
-                >Заголовок отзыва (необязательно)</label
-            >
+            <label
+                class="review-form__label"
+                for="title"
+            >Заголовок отзыва (необязательно)</label>
             <input
                 id="title"
                 v-model="model.title"
@@ -29,14 +40,20 @@
                 class="review-form__input"
                 :placeholder="titlePlaceholder"
                 maxlength="100"
-            />
-            <div v-if="errors.title" class="review-form__error">{{ errors.title }}</div>
+            >
+            <div
+                v-if="errors.title"
+                class="review-form__error"
+            >
+                {{ errors.title }}
+            </div>
         </div>
 
         <div class="review-form__section">
-            <label class="review-form__label" for="comment"
-                >Комментарий (необязательно)</label
-            >
+            <label
+                class="review-form__label"
+                for="comment"
+            >Комментарий (необязательно)</label>
             <textarea
                 id="comment"
                 v-model="model.comment"
@@ -45,7 +62,10 @@
                 rows="4"
                 maxlength="2000"
             />
-            <div v-if="errors.comment" class="review-form__error">
+            <div
+                v-if="errors.comment"
+                class="review-form__error"
+            >
                 {{ errors.comment }}
             </div>
         </div>
@@ -54,7 +74,7 @@
             <button
                 type="button"
                 class="review-form__button review-form__button--cancel"
-                @click="$emit('cancel')"
+                @click="$emit('cancel',)"
             >
                 Отмена
             </button>
@@ -71,117 +91,117 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+    import { reactive, computed, watch, } from 'vue';
+    import { useI18n, } from 'vue-i18n';
 
-interface Props {
-    initialData?: {
-        rating?: number;
-        title_ru?: string | null;
-        title_en?: string | null;
-        comment_ru?: string | null;
-        comment_en?: string | null;
-    };
-    isEditing?: boolean;
-    isSubmitting?: boolean;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    initialData: () => ({}),
-    isEditing: false,
-    isSubmitting: false,
-});
-
-const emit = defineEmits<{
-    submit: [data: { rating: number; title?: string; comment?: string }];
-    cancel: [];
-}>();
-
-const { locale } = useI18n();
-
-const model = reactive({
-    rating: props.initialData.rating || 5,
-    title:
-        locale.value === 'ru'
-            ? props.initialData.title_ru || ''
-            : props.initialData.title_en || '',
-    comment:
-        locale.value === 'ru'
-            ? props.initialData.comment_ru || ''
-            : props.initialData.comment_en || '',
-});
-
-const errors = reactive({
-    rating: '',
-    title: '',
-    comment: '',
-});
-
-const titlePlaceholder = computed(() => {
-    return locale.value === 'ru' ? 'Напишите краткий заголовок' : 'Write a short title';
-});
-
-const commentPlaceholder = computed(() => {
-    return locale.value === 'ru'
-        ? 'Поделитесь вашим опытом прохождения курса'
-        : 'Share your experience with the course';
-});
-
-const submitText = computed(() => {
-    if (props.isEditing) {
-        return locale.value === 'ru' ? 'Сохранить изменения' : 'Save changes';
+    interface Props {
+        initialData?: {
+            rating?: number
+            title_ru?: string | null
+            title_en?: string | null
+            comment_ru?: string | null
+            comment_en?: string | null
+        }
+        isEditing?: boolean
+        isSubmitting?: boolean
     }
-    return locale.value === 'ru' ? 'Отправить отзыв' : 'Submit review';
-});
 
-watch(
-    () => locale.value,
-    (newLocale) => {
-        // При смене языка обновляем поля из initialData
-        model.title =
-            newLocale === 'ru'
+    const props = withDefaults(defineProps<Props>(), {
+        initialData: () => ({}),
+        isEditing: false,
+        isSubmitting: false,
+    });
+
+    const emit = defineEmits<{
+        submit: [data: { rating: number, title?: string, comment?: string },]
+        cancel: []
+    }>();
+
+    const { locale, } = useI18n();
+
+    const model = reactive({
+        rating: props.initialData.rating || 5,
+        title:
+            locale.value === 'ru'
                 ? props.initialData.title_ru || ''
-                : props.initialData.title_en || '';
-        model.comment =
-            newLocale === 'ru'
+                : props.initialData.title_en || '',
+        comment:
+            locale.value === 'ru'
                 ? props.initialData.comment_ru || ''
-                : props.initialData.comment_en || '';
-    }
-);
+                : props.initialData.comment_en || '',
+    });
 
-function validate(): boolean {
-    let valid = true;
-    if (model.rating < 1 || model.rating > 5) {
-        errors.rating = 'Оценка должна быть от 1 до 5';
-        valid = false;
-    } else {
-        errors.rating = '';
-    }
-    if (model.title.length > 100) {
-        errors.title = 'Заголовок не должен превышать 100 символов';
-        valid = false;
-    } else {
-        errors.title = '';
-    }
-    if (model.comment.length > 2000) {
-        errors.comment = 'Комментарий не должен превышать 2000 символов';
-        valid = false;
-    } else {
-        errors.comment = '';
-    }
-    return valid;
-}
+    const errors = reactive({
+        rating: '',
+        title: '',
+        comment: '',
+    });
 
-function handleSubmit() {
-    if (!validate()) return;
+    const titlePlaceholder = computed(() => {
+        return locale.value === 'ru' ? 'Напишите краткий заголовок' : 'Write a short title';
+    });
 
-    const submitData = {
-        rating: model.rating,
-        title: model.title.trim() || undefined,
-        comment: model.comment.trim() || undefined,
-    };
-    emit('submit', submitData);
-}
+    const commentPlaceholder = computed(() => {
+        return locale.value === 'ru'
+            ? 'Поделитесь вашим опытом прохождения курса'
+            : 'Share your experience with the course';
+    });
+
+    const submitText = computed(() => {
+        if (props.isEditing) {
+            return locale.value === 'ru' ? 'Сохранить изменения' : 'Save changes';
+        }
+        return locale.value === 'ru' ? 'Отправить отзыв' : 'Submit review';
+    });
+
+    watch(
+        () => locale.value,
+        (newLocale,) => {
+            // При смене языка обновляем поля из initialData
+            model.title
+            = newLocale === 'ru'
+                    ? props.initialData.title_ru || ''
+                    : props.initialData.title_en || '';
+            model.comment
+            = newLocale === 'ru'
+                    ? props.initialData.comment_ru || ''
+                    : props.initialData.comment_en || '';
+        }
+    );
+
+    function validate(): boolean {
+        let valid = true;
+        if (model.rating < 1 || model.rating > 5) {
+            errors.rating = 'Оценка должна быть от 1 до 5';
+            valid = false;
+        } else {
+            errors.rating = '';
+        }
+        if (model.title.length > 100) {
+            errors.title = 'Заголовок не должен превышать 100 символов';
+            valid = false;
+        } else {
+            errors.title = '';
+        }
+        if (model.comment.length > 2000) {
+            errors.comment = 'Комментарий не должен превышать 2000 символов';
+            valid = false;
+        } else {
+            errors.comment = '';
+        }
+        return valid;
+    }
+
+    function handleSubmit() {
+        if (!validate()) return;
+
+        const submitData = {
+            rating: model.rating,
+            title: model.title.trim() || undefined,
+            comment: model.comment.trim() || undefined,
+        };
+        emit('submit', submitData,);
+    }
 </script>
 
 <style scoped>

@@ -9,5 +9,5 @@ definePageMeta({
 });
 
 // Redirect to the existing gallery add page
-await navigateTo('/gallery/add', { external: true });
+await navigateTo('/gallery/add', { external: true, },);
 </script>

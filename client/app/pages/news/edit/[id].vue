@@ -1,20 +1,33 @@
 <template>
     <div class="edit-news-container">
         <div class="header-section">
-            <h1 class="page-title">Редактировать новость</h1>
-            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
+            <h1 class="page-title">
+                Редактировать новость
+            </h1>
+            <p class="page-subtitle">
+                Измените необходимые поля и сохраните изменения
+            </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
-            <div class="loader"></div>
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
+            <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="news-form">
+        <form
+            v-else
+            class="news-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Изображения новости -->
             <div class="form-section">
-                <h2 class="section-title">Изображения новости</h2>
+                <h2 class="section-title">
+                    Изображения новости
+                </h2>
 
                 <!-- Главное изображение -->
                 <div class="form-group">
@@ -24,19 +37,19 @@
                     </label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'backFull')"
-                        @click="triggerFileInput('backFullInput')"
+                        @drop.prevent="handleDrop($event, 'main',)"
+                        @click="triggerFileInput('mainImgInput',)"
                     >
                         <input
+                            ref="mainImgInput"
                             type="file"
-                            @change="handleBackFullImageSelected"
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="backFullInput"
-                        />
+                            @change="handleMainImageSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -49,7 +62,7 @@
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
                                 Перетащите файл сюда или нажмите для выбора
@@ -59,86 +72,27 @@
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="errors.img_backfull">
-                        {{ errors.img_backfull }}
+                    <div
+                        v-if="errors.main_image"
+                        class="error-message"
+                    >
+                        {{ errors.main_image }}
                     </div>
-                    <div class="preview-container" v-if="img_backfull_preview">
+                    <div
+                        v-if="main_image_preview"
+                        class="preview-container"
+                    >
                         <div class="image-preview">
                             <img
-                                :src="img_backfull_preview.preview"
+                                :src="main_image_preview.preview"
                                 class="preview-image"
                                 alt="Главное изображение"
-                            />
+                            >
                             <UButton
                                 type="button"
-                                @click="removeBackFullImage"
                                 class="remove-btn"
                                 aria-label="Удалить главное изображение"
-                            >
-                                &times;
-                            </UButton>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Превью изображение новости -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Превью изображение новости
-                        <span class="required">*</span>
-                    </label>
-                    <div
-                        class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
-                        @dragover.prevent="handleDragOver"
-                        @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'back')"
-                        @click="triggerFileInput('backInput')"
-                    >
-                        <input
-                            type="file"
-                            @change="handleBackImageSelected"
-                            accept="image/jpg,image/jpeg,image/png"
-                            class="file-input"
-                            ref="backInput"
-                        />
-                        <div class="file-drop-content">
-                            <svg
-                                class="upload-icon"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
-                            </svg>
-                            <p class="upload-text">
-                                Перетащите файл сюда или нажмите для выбора
-                            </p>
-                            <p class="upload-hint">
-                                Поддерживаемые форматы: JPG, JPEG, PNG (макс. 5MB)
-                            </p>
-                        </div>
-                    </div>
-                    <div class="error-message" v-if="errors.img_back">
-                        {{ errors.img_back }}
-                    </div>
-                    <div class="preview-container" v-if="img_back_preview">
-                        <div class="image-preview">
-                            <img
-                                :src="img_back_preview.preview"
-                                class="preview-image"
-                                alt="Превью изображение"
-                            />
-                            <UButton
-                                type="button"
-                                @click="removeBackImage"
-                                class="remove-btn"
-                                aria-label="Удалить превью изображение"
+                                @click="removeMainImage"
                             >
                                 &times;
                             </UButton>
@@ -154,20 +108,20 @@
                     </label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'images')"
-                        @click="triggerFileInput('imagesInput')"
+                        @drop.prevent="handleDrop($event, 'images',)"
+                        @click="triggerFileInput('imagesInput',)"
                     >
                         <input
+                            ref="imagesInput"
                             type="file"
-                            @change="handleImagesSelected"
                             multiple
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
-                            ref="imagesInput"
-                        />
+                            @change="handleImagesSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -180,7 +134,7 @@
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
                                 Перетащите файлы сюда или нажмите для выбора
@@ -191,10 +145,16 @@
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="errors.images">
+                    <div
+                        v-if="errors.images"
+                        class="error-message"
+                    >
                         {{ errors.images }}
                     </div>
-                    <div class="preview-container" v-if="previewImages.length > 0">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -204,12 +164,12 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Изображение ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
-                                @click="removeImageFromImages(index)"
                                 class="remove-btn"
                                 :aria-label="`Удалить изображение ${index + 1}`"
+                                @click="removeImageFromImages(index,)"
                             >
                                 &times;
                             </UButton>
@@ -222,20 +182,20 @@
                     <label class="form-label">Видеогаллерея</label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
-                        @drop.prevent="handleDrop($event, 'videos')"
-                        @click="triggerFileInput('videosInput')"
+                        @drop.prevent="handleDrop($event, 'videos',)"
+                        @click="triggerFileInput('videosInput',)"
                     >
                         <input
+                            ref="videosInput"
                             type="file"
-                            @change="handleVideosSelected"
                             multiple
                             accept="video/*"
                             class="file-input"
-                            ref="videosInput"
-                        />
+                            @change="handleVideosSelected"
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -248,7 +208,7 @@
                                     stroke-linejoin="round"
                                     stroke-width="2"
                                     d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                                ></path>
+                                />
                             </svg>
                             <p class="upload-text">
                                 Перетащите видеофайлы сюда или нажмите для выбора
@@ -258,10 +218,16 @@
                             </p>
                         </div>
                     </div>
-                    <div class="error-message" v-if="fileError">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewVideos.length > 0" class="video-previews">
+                    <div
+                        v-if="previewVideos.length > 0"
+                        class="video-previews"
+                    >
                         <div
                             v-for="(videoUrl, index) in previewVideos"
                             :key="index"
@@ -276,9 +242,9 @@
                             />
                             <UButton
                                 type="button"
-                                @click="removeVideoFromVideos(index)"
                                 class="remove-btn"
                                 :aria-label="`Удалить видео ${index + 1}`"
+                                @click="removeVideoFromVideos(index,)"
                             >
                                 &times;
                             </UButton>
@@ -289,7 +255,9 @@
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    Основная информация
+                </h2>
 
                 <!-- Заголовок -->
                 <div class="form-group">
@@ -299,17 +267,20 @@
                     </label>
                     <UInput
                         v-model="news.title_ru"
-                        @blur="validateField('title_ru')"
                         type="text"
-                        :class="['form-control', { 'is-invalid': errors.title_ru }]"
+                        :class="['form-control', { 'is-invalid': errors.title_ru, },]"
                         placeholder="Например: 'Звездная ночь'"
+                        @blur="validateField('title_ru',)"
                     />
-                    <div class="error-message" v-if="errors.title_ru">
+                    <div
+                        v-if="errors.title_ru"
+                        class="error-message"
+                    >
                         {{ errors.title_ru }}
                     </div>
                 </div>
 
-                <!-- Заголовок по английски-->
+                <!-- Заголовок по английски -->
                 <div class="form-group">
                     <label class="form-label">
                         Заголовок по-английски
@@ -317,12 +288,15 @@
                     </label>
                     <UInput
                         v-model="news.title_en"
-                        @blur="validateField('title_en')"
                         type="text"
-                        :class="['form-control', { 'is-invalid': errors.title_en }]"
+                        :class="['form-control', { 'is-invalid': errors.title_en, },]"
                         placeholder="For example: 'Starry Night'"
+                        @blur="validateField('title_en',)"
                     />
-                    <div class="error-message" v-if="errors.title_en">
+                    <div
+                        v-if="errors.title_en"
+                        class="error-message"
+                    >
                         {{ errors.title_en }}
                     </div>
                 </div>
@@ -330,7 +304,9 @@
 
             <!-- Дополнительная информация -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    Дополнительная информация
+                </h2>
 
                 <!-- Дата -->
                 <div class="form-group">
@@ -340,7 +316,7 @@
                         type="date"
                         required
                         min="2000-01-01"
-                        :max="new Date().toISOString().split('T')[0]"
+                        :max="new Date().toISOString().split('T',)[0]"
                         class="form-control"
                     />
                 </div>
@@ -353,15 +329,18 @@
                     </label>
                     <textarea
                         v-model="news.text_ru"
-                        @blur="validateField('text_ru')"
                         :class="[
                             'form-control textarea',
-                            { 'is-invalid': errors.text_ru },
+                            { 'is-invalid': errors.text_ru, },
                         ]"
                         placeholder="Введите текст новости на русском языке"
                         rows="6"
-                    ></textarea>
-                    <div class="error-message" v-if="errors.text_ru">
+                        @blur="validateField('text_ru',)"
+                    />
+                    <div
+                        v-if="errors.text_ru"
+                        class="error-message"
+                    >
                         {{ errors.text_ru }}
                     </div>
                 </div>
@@ -373,15 +352,18 @@
                     </label>
                     <textarea
                         v-model="news.text_en"
-                        @blur="validateField('text_en')"
                         :class="[
                             'form-control textarea',
-                            { 'is-invalid': errors.text_en },
+                            { 'is-invalid': errors.text_en, },
                         ]"
                         placeholder="Enter the news text in English"
                         rows="6"
-                    ></textarea>
-                    <div class="error-message" v-if="errors.text_en">
+                        @blur="validateField('text_en',)"
+                    />
+                    <div
+                        v-if="errors.text_en"
+                        class="error-message"
+                    >
                         {{ errors.text_en }}
                     </div>
                 </div>
@@ -389,7 +371,11 @@
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" @click="resetForm" class="btn btn-secondary">
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -399,7 +385,7 @@
                 >
                     <span v-if="!isSubmitting">Сохранить изменения</span>
                     <span v-else>
-                        <span class="spinner"></span>
+                        <span class="spinner" />
                         Сохранение...
                     </span>
                 </UButton>
@@ -409,29 +395,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted } from 'vue';
-import type { NewsDescDto } from '../../../types';
-import authApi from '../../../api/auth';
+import { ref, reactive, computed, onMounted, } from 'vue';
+import type { NewsDesc, } from '~/types';
+import { getHttpClient, } from '~/api/http-client';
 
-const api = authApi.getApiInstance();
+const api = getHttpClient();
 
 const route = useRoute();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 const toast = useToast();
-const { t } = useI18n();
+const { t, } = useI18n();
 
 interface PreviewItem {
-    file: File;
-    preview: string;
+    file: File
+    preview: string
 }
 
-const news = reactive<NewsDescDto>({
+const news = reactive<NewsDesc>({
     id: '',
     title_en: '',
     title_ru: '',
-    img_back: '',
-    img_backfull: '',
+    main_image: '',
     datetime: '',
     text_en: '',
     text_ru: '',
@@ -440,53 +425,49 @@ const news = reactive<NewsDescDto>({
     videos: [],
 });
 
-const images = ref<File[]>([]);
-const videos = ref<File[]>([]);
+const images = ref<File[]>([],);
+const videos = ref<File[]>([],);
 
-const img_back_preview = ref<PreviewItem | null>(null);
-const img_backfull_preview = ref<PreviewItem | null>(null);
+const main_image_preview = ref<PreviewItem | null>(null,);
 
-const previewImages = ref<PreviewItem[]>([]);
-const previewVideos = ref<string[]>([]);
+const previewImages = ref<PreviewItem[]>([],);
+const previewVideos = ref<string[]>([],);
 
-const previewWidth = ref(400);
-const isSubmitting = ref(false);
-const fileError = ref<string | null>(null);
-const isDragOver = ref(false);
-const isLoading = ref(true);
+const previewWidth = ref(400,);
+const isSubmitting = ref(false,);
+const fileError = ref<string | null>(null,);
+const isDragOver = ref(false,);
+const isLoading = ref(true,);
 
 const errors = reactive<Record<string, string>>({
     title_ru: '',
     title_en: '',
-    img_back: '',
-    img_backfull: '',
+    main_image: '',
     images: '',
     text_ru: '',
     text_en: '',
 });
 
-const originalNews = ref<NewsDescDto>({} as NewsDescDto);
+const originalNews = ref<NewsDesc>({} as NewsDesc,);
 
-const backFullInput = ref<HTMLInputElement | null>(null);
-const backInput = ref<HTMLInputElement | null>(null);
-const imagesInput = ref<HTMLInputElement | null>(null);
-const videosInput = ref<HTMLInputElement | null>(null);
+const mainImgInput = ref<HTMLInputElement | null>(null,);
+const imagesInput = ref<HTMLInputElement | null>(null,);
+const videosInput = ref<HTMLInputElement | null>(null,);
 
 const newsDate = computed({
-    get: () => (news.datetime || '').split('T')[0],
-    set: (val) => {
+    get: () => (news.datetime || '').split('T',)[0],
+    set: (val: string,) => {
         news.datetime = val;
     },
 });
 
 const isFormValid = computed(() => {
     return (
-        news.title_ru.trim() !== '' &&
-        news.title_en.trim() !== '' &&
-        (img_back_preview.value !== null || news.img_back !== '') &&
-        (img_backfull_preview.value !== null || news.img_backfull !== '') &&
-        news.text_ru.trim() !== '' &&
-        news.text_en.trim() !== ''
+        news.title_ru.trim() !== ''
+            && news.title_en.trim() !== ''
+        && (main_image_preview.value !== null || news.main_image !== '')
+        && news.text_ru.trim() !== ''
+            && news.text_en.trim() !== ''
     );
 });
 
@@ -497,30 +478,23 @@ onMounted(async () => {
 async function loadNews() {
     try {
         const id = route.params.id;
-        const response = await api.get(SERVER_URL + 'news/' + id);
-        Object.assign(news, response.data);
-        originalNews.value = { ...response.data };
+        const response = await api.get(SERVER_URL + 'news/' + id,);
+        Object.assign(news, response.data,);
+        originalNews.value = { ...response.data, };
 
-        // Load existing images with full server URLs
-        if (news.img_back) {
-            img_back_preview.value = {
-                file: new File([], news.img_back),
-                preview: `${news.dir}${news.img_back}`,
-            };
-        }
-
-        if (news.img_backfull) {
-            img_backfull_preview.value = {
-                file: new File([], news.img_backfull),
-                preview: `${news.dir}${news.img_backfull}`,
+        // Load existing main image with full server URL
+        if (news.main_image) {
+            main_image_preview.value = {
+                file: new File([], news.main_image,),
+                preview: `${news.dir}${news.main_image}`,
             };
         }
 
         // Load existing gallery images
         if (news.images && news.images.length > 0) {
-            news.images.forEach((imgName) => {
+            news.images.forEach((imgName,) => {
                 previewImages.value.push({
-                    file: new File([], imgName),
+                    file: new File([], imgName,),
                     preview: `${news.dir}${imgName}`,
                 });
             });
@@ -528,19 +502,17 @@ async function loadNews() {
 
         // Load existing videos
         if (news.videos && news.videos.length > 0) {
-            news.videos.forEach((videoName) => {
-                const nameOnly = videoName.substring(0, videoName.lastIndexOf('.'));
-
-                previewVideos.value.push(`${news.dir}videos/${nameOnly}/${videoName}`);
+            news.videos.forEach((videoName,) => {
+                previewVideos.value.push(`${news.dir}videos/${videoName}/${videoName}.mp4`,);
             });
         }
 
         isLoading.value = false;
     } catch (error) {
-        console.error('Ошибка при загрузке новости:', error);
+        console.error('Ошибка при загрузке новости:', error,);
         isLoading.value = false;
         toast.add({
-            title: t('toast.error.title'),
+            title: t('toast.error.title',),
             description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
@@ -557,30 +529,27 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent, target: 'backFull' | 'back' | 'images' | 'videos') {
+function handleDrop(event: DragEvent, target: 'main' | 'images' | 'videos',) {
     isDragOver.value = false;
-    const files = Array.from(event.dataTransfer?.files || []);
+    const files = Array.from(event.dataTransfer?.files || [],);
     if (files.length === 0) return;
 
     switch (target) {
-        case 'backFull':
-            handleBackFullImageDrop(files[0]!);
-            break;
-        case 'back':
-            handleBackImageDrop(files[0]!);
+        case 'main':
+            handleMainImageDrop(files[0]!,);
             break;
         case 'images':
-            handleImagesDrop(files);
+            handleImagesDrop(files,);
             break;
         case 'videos':
-            handleVideosDrop(files);
+            handleVideosDrop(files,);
             break;
     }
 }
 
-function handleBackImageDrop(file: File) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
+function handleMainImageDrop(file: File,) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(file.type,)) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
         return;
     }
@@ -591,60 +560,34 @@ function handleBackImageDrop(file: File) {
         return;
     }
 
-    news.img_back = file.name;
+    news.main_image = file.name;
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-        img_back_preview.value = {
+    reader.onload = (e,) => {
+        main_image_preview.value = {
             file,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file,);
 }
 
-function handleBackFullImageDrop(file: File) {
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(file.type)) {
-        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-        return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-        fileError.value = 'Размер файла не должен превышать 5 МБ';
-        return;
-    }
-
-    news.img_backfull = file.name;
-    fileError.value = null;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        img_backfull_preview.value = {
-            file,
-            preview: e.target?.result as string,
-        };
-    };
-    reader.readAsDataURL(file);
-}
-
-function handleImagesDrop(files: File[]) {
+function handleImagesDrop(files: File[],) {
     if (images.value.length + files.length > 10) {
         fileError.value = 'Можно загрузить не более 10 изображений';
         return;
     }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = files.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = files.filter(file => !validTypes.includes(file.type,),);
     if (invalidFiles.length > 0) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
         return;
     }
 
     const maxSize = 5 * 1024 * 1024;
-    const largeFiles = files.filter((file) => file.size > maxSize);
+    const largeFiles = files.filter(file => file.size > maxSize,);
     if (largeFiles.length > 0) {
         fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
         return;
@@ -652,27 +595,27 @@ function handleImagesDrop(files: File[]) {
 
     fileError.value = null;
 
-    images.value = [...images.value, ...files];
+    images.value = [...images.value, ...files,];
 
-    files.forEach((file) => {
-        news.images.push(file.name);
+    files.forEach((file,) => {
+        news.images.push(file.name,);
     });
 
-    files.forEach((file) => {
+    files.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-function handleVideosDrop(files: File[]) {
+function handleVideosDrop(files: File[],) {
     for (const file of files) {
-        if (!file.type.startsWith('video/')) {
+        if (!file.type.startsWith('video/',)) {
             fileError.value = 'Пожалуйста, выберите только видеофайлы';
             return;
         }
@@ -689,20 +632,17 @@ function handleVideosDrop(files: File[]) {
     fileError.value = null;
 
     for (const file of files) {
-        videos.value.push(file);
-        news.videos.push(file.name);
-        previewVideos.value.push(URL.createObjectURL(file));
+        videos.value.push(file,);
+        news.videos.push(storedVideoName(file.name,),);
+        previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
 
-function triggerFileInput(refName: string) {
+function triggerFileInput(refName: string,) {
     let input: HTMLInputElement | null = null;
     switch (refName) {
-        case 'backFullInput':
-            input = backFullInput.value;
-            break;
-        case 'backInput':
-            input = backInput.value;
+        case 'mainImgInput':
+            input = mainImgInput.value;
             break;
         case 'imagesInput':
             input = imagesInput.value;
@@ -716,14 +656,14 @@ function triggerFileInput(refName: string) {
     }
 }
 
-function handleBackImageSelected(event: Event) {
+function handleMainImageSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const selectedImage = target.files?.[0];
 
     if (!selectedImage) return;
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(selectedImage.type)) {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    if (!validTypes.includes(selectedImage.type,)) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
         return;
     }
@@ -734,71 +674,35 @@ function handleBackImageSelected(event: Event) {
         return;
     }
 
-    news.img_back = selectedImage.name;
+    news.main_image = selectedImage.name;
     fileError.value = null;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
-        img_back_preview.value = {
+    reader.onload = (e,) => {
+        main_image_preview.value = {
             file: selectedImage,
             preview: e.target?.result as string,
         };
     };
-    reader.readAsDataURL(selectedImage);
+    reader.readAsDataURL(selectedImage,);
 }
 
-function removeBackImage() {
-    img_back_preview.value = null;
-    news.img_back = '';
+function removeMainImage() {
+    main_image_preview.value = null;
+    news.main_image = '';
 }
 
-function handleBackFullImageSelected(event: Event) {
+function handleImagesSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
-    const selectedImage = target.files?.[0];
-
-    if (!selectedImage) return;
-
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!validTypes.includes(selectedImage.type)) {
-        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-        return;
-    }
-
-    const maxSize = 5 * 1024 * 1024;
-    if (selectedImage.size > maxSize) {
-        fileError.value = 'Размер файла не должен превышать 5 МБ';
-        return;
-    }
-
-    news.img_backfull = selectedImage.name;
-    fileError.value = null;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        img_backfull_preview.value = {
-            file: selectedImage,
-            preview: e.target?.result as string,
-        };
-    };
-    reader.readAsDataURL(selectedImage);
-}
-
-function removeBackFullImage() {
-    img_backfull_preview.value = null;
-    news.img_backfull = '';
-}
-
-function handleImagesSelected(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const selectedFiles = Array.from(target.files || []);
+    const selectedFiles = Array.from(target.files || [],);
 
     if (images.value.length + selectedFiles.length > 10) {
         fileError.value = 'Можно загрузить не более 10 изображений';
         return;
     }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
 
     if (invalidFiles.length > 0) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
@@ -806,7 +710,7 @@ function handleImagesSelected(event: Event) {
     }
 
     const maxSize = 5 * 1024 * 1024;
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
 
     if (largeFiles.length > 0) {
         fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
@@ -815,25 +719,25 @@ function handleImagesSelected(event: Event) {
 
     fileError.value = null;
 
-    images.value = [...images.value, ...selectedFiles];
+    images.value = [...images.value, ...selectedFiles,];
 
-    selectedFiles.forEach((file) => {
-        news.images.push(file.name);
+    selectedFiles.forEach((file,) => {
+        news.images.push(file.name,);
     });
 
-    selectedFiles.forEach((file) => {
+    selectedFiles.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-async function handleVideosSelected(event: Event) {
+async function handleVideosSelected(event: Event,) {
     const target = event.target as HTMLInputElement;
     const files = target.files as FileList;
 
@@ -841,7 +745,7 @@ async function handleVideosSelected(event: Event) {
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
-        if (!file.type.startsWith('video/')) {
+        if (!file.type.startsWith('video/',)) {
             fileError.value = 'Пожалуйста, выберите только видеофайлы';
             return;
         }
@@ -860,36 +764,51 @@ async function handleVideosSelected(event: Event) {
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i]!;
-        videos.value.push(file);
-        news.videos.push(file.name);
-        previewVideos.value.push(URL.createObjectURL(file));
+        videos.value.push(file,);
+        news.videos.push(storedVideoName(file.name,),);
+        previewVideos.value.push(URL.createObjectURL(file,),);
     }
 }
 
-function removeImageFromImages(index: number) {
-    previewImages.value.splice(index, 1);
-    images.value.splice(index, 1);
-    news.images.splice(index, 1);
+function removeImageFromImages(index: number,) {
+    // images.value only contains newly uploaded files, while previewImages
+    // contains both existing (server) and new files. Remove the matching file.
+    const existingCount = news.images.length - images.value.length;
+    if (index >= existingCount) {
+        images.value.splice(index - existingCount, 1,);
+    }
+    previewImages.value.splice(index, 1,);
+    news.images.splice(index, 1,);
 }
 
-function removeVideoFromVideos(index: number) {
-    previewVideos.value.splice(index, 1);
-    videos.value.splice(index, 1);
-    news.videos.splice(index, 1);
+function removeVideoFromVideos(index: number,) {
+    // videos.value only contains newly uploaded files, while previewVideos
+    // contains both existing (server) and new files. Remove the matching file.
+    const existingCount = news.videos.length - videos.value.length;
+    if (index >= existingCount) {
+        videos.value.splice(index - existingCount, 1,);
+    }
+    previewVideos.value.splice(index, 1,);
+    news.videos.splice(index, 1,);
 }
 
 function onVideoError() {
     // Video error handling
 }
 
-function validateField(fieldName: string) {
+function storedVideoName(filename: string,): string {
+    // The server stores videos in a folder named after the file without extension.
+    return filename.replace(/\.[^/.]+$/, '',);
+}
+
+function validateField(fieldName: string,) {
     switch (fieldName) {
         case 'title_ru':
             if (!news.title_ru.trim()) {
                 errors.title_ru = 'Пожалуйста, введите заголовок на русском';
             } else if (
-                news.title_ru.trim().length < 3 ||
-                news.title_ru.trim().length > 50
+                news.title_ru.trim().length < 3
+            || news.title_ru.trim().length > 50
             ) {
                 errors.title_ru = 'Заголовок на русском должен быть от 3 до 50 символов';
             } else {
@@ -900,28 +819,20 @@ function validateField(fieldName: string) {
             if (!news.title_en.trim()) {
                 errors.title_en = 'Пожалуйста, введите заголовок на английском';
             } else if (
-                news.title_en.trim().length < 3 ||
-                news.title_en.trim().length > 50
+                news.title_en.trim().length < 3
+            || news.title_en.trim().length > 50
             ) {
-                errors.title_en =
-                    'Заголовок на английском должен быть от 3 до 50 символов';
+                errors.title_en
+                        = 'Заголовок на английском должен быть от 3 до 50 символов';
             } else {
                 errors.title_en = '';
             }
             break;
-        case 'img_back':
-            if (!img_back_preview.value && !news.img_back) {
-                errors.img_back =
-                    'Пожалуйста, добавьте предварительное изображение новости';
+        case 'main_image':
+            if (!main_image_preview.value && !news.main_image) {
+                errors.main_image = 'Пожалуйста, добавьте главное изображение новости';
             } else {
-                errors.img_back = '';
-            }
-            break;
-        case 'img_backfull':
-            if (!img_backfull_preview.value && !news.img_backfull) {
-                errors.img_backfull = 'Пожалуйста, добавьте главное изображение новости';
-            } else {
-                errors.img_backfull = '';
+                errors.main_image = '';
             }
             break;
         case 'images':
@@ -944,15 +855,14 @@ function validateField(fieldName: string) {
 }
 
 function validateForm() {
-    validateField('title_ru');
-    validateField('title_en');
-    validateField('img_back');
-    validateField('img_backfull');
-    validateField('images');
-    validateField('text_ru');
-    validateField('text_en');
+    validateField('title_ru',);
+    validateField('title_en',);
+    validateField('main_image',);
+    validateField('images',);
+    validateField('text_ru',);
+    validateField('text_en',);
 
-    return Object.values(errors).every((error) => error === '');
+    return Object.values(errors,).every(error => error === '',);
 }
 
 async function submitForm() {
@@ -967,32 +877,25 @@ async function submitForm() {
 
         const formData = new FormData();
 
-        // Only append files that were actually selected by the user (have a real File object with size > 0)
-        if (img_back_preview.value?.file && img_back_preview.value.file.size > 0) {
-            formData.append('img_back', img_back_preview.value.file);
+        // Only append the file that was actually selected by the user (has a real File object with size > 0)
+        if (main_image_preview.value?.file && main_image_preview.value.file.size > 0) {
+            formData.append('main_image', main_image_preview.value.file,);
         }
 
-        if (
-            img_backfull_preview.value?.file &&
-            img_backfull_preview.value.file.size > 0
-        ) {
-            formData.append('img_backfull', img_backfull_preview.value.file);
-        }
-
-        images.value.forEach((image) => {
-            formData.append('images', image);
+        images.value.forEach((image,) => {
+            formData.append('images', image,);
         });
 
-        videos.value.forEach((video) => {
-            formData.append('videos', video);
+        videos.value.forEach((video,) => {
+            formData.append('videos', video,);
         });
 
         const newsData = {
             ...news,
-            datetime: news.datetime || new Date().toISOString().split('T')[0],
+            datetime: news.datetime || new Date().toISOString().split('T',)[0],
         };
 
-        formData.append('data', JSON.stringify(newsData));
+        formData.append('data', JSON.stringify(newsData,),);
 
         const id = route.params.id;
         const response = await api.put(`${SERVER_URL}news/${id}`, formData, {
@@ -1003,16 +906,16 @@ async function submitForm() {
 
         if (response.status === 200) {
             toast.add({
-                title: t('toast.success.title'),
+                title: t('toast.success.title',),
                 description: 'Новость успешно обновлена.',
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
                 duration: 5000,
             });
-            originalNews.value = { ...news };
+            originalNews.value = { ...news, };
         } else {
             toast.add({
-                title: t('toast.error.title'),
+                title: t('toast.error.title',),
                 description: 'Не удалось обновить новость. Пожалуйста, попробуйте снова.',
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
@@ -1020,18 +923,18 @@ async function submitForm() {
             });
         }
     } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description =
-            'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
+        console.error('Error submitting form:', error,);
+        let description
+                = 'Произошла ошибка при обновлении новости. Пожалуйста, попробуйте снова.';
         if (error.response?.status === 413) {
-            description =
-                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+            description
+                    = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            description =
-                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+            description
+                    = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
         }
         toast.add({
-            title: t('toast.error.title'),
+            title: t('toast.error.title',),
             description,
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
@@ -1043,20 +946,18 @@ async function submitForm() {
 }
 
 function resetForm() {
-    Object.assign(news, originalNews.value);
+    Object.assign(news, originalNews.value,);
     images.value = [];
     videos.value = [];
     previewImages.value = [];
     previewVideos.value = [];
-    img_back_preview.value = null;
-    img_backfull_preview.value = null;
+    main_image_preview.value = null;
 
-    if (backFullInput.value) backFullInput.value.value = '';
-    if (backInput.value) backInput.value.value = '';
+    if (mainImgInput.value) mainImgInput.value.value = '';
     if (imagesInput.value) imagesInput.value.value = '';
     if (videosInput.value) videosInput.value.value = '';
 
-    Object.keys(errors).forEach((key) => {
+    Object.keys(errors,).forEach((key,) => {
         errors[key] = '';
     });
     fileError.value = null;
@@ -1266,7 +1167,7 @@ select:has(option.placeholder:checked) {
     box-sizing: border-box;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -1275,6 +1176,7 @@ select:has(option.placeholder:checked) {
     border: none;
     width: 24px;
     height: 24px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1284,7 +1186,7 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
 }
 

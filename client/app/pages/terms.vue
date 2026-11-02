@@ -1,19 +1,19 @@
 <script lang="ts">
-export default {
-    name: 'TermsPage',
-    head() {
-        return {
-            title: this.$t('terms.title'),
-            meta: [
-                {
-                    hid: 'description',
-                    name: 'description',
-                    content: this.$t('terms.introduction'),
-                },
-            ],
-        };
-    },
-};
+    export default {
+        name: 'TermsPage',
+        head() {
+            return {
+                title: this.$t('terms.title',),
+                meta: [
+                    {
+                        hid: 'description',
+                        name: 'description',
+                        content: this.$t('terms.introduction',),
+                    },
+                ],
+            };
+        },
+    };
 </script>
 
 <template>
@@ -21,12 +21,12 @@ export default {
         <!-- Hero Section -->
         <div class="hero-section mb-10">
             <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">
-                {{ $t('terms.title') }}
+                {{ $t('terms.title',) }}
             </h1>
             <p
                 class="text-lg text-center text-gray-600 dark:text-gray-300 max-w-3xl mx-auto"
             >
-                {{ $t('terms.lastUpdated') }}
+                {{ $t('terms.lastUpdated',) }}
             </p>
         </div>
 
@@ -35,107 +35,107 @@ export default {
             <!-- Introduction -->
             <section class="mb-10">
                 <p class="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">
-                    {{ $t('terms.introduction') }}
+                    {{ $t('terms.introduction',) }}
                 </p>
             </section>
 
             <!-- Acceptance of Terms -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.acceptance') }}
+                    {{ $t('terms.acceptance',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.acceptanceText') }}
+                    {{ $t('terms.acceptanceText',) }}
                 </p>
             </section>
 
             <!-- Intellectual Property -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.intellectualProperty') }}
+                    {{ $t('terms.intellectualProperty',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.intellectualPropertyText') }}
+                    {{ $t('terms.intellectualPropertyText',) }}
                 </p>
             </section>
 
             <!-- Use License -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.useLicense') }}
+                    {{ $t('terms.useLicense',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.useLicenseText') }}
+                    {{ $t('terms.useLicenseText',) }}
                 </p>
             </section>
 
             <!-- Restrictions -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.restrictions') }}
+                    {{ $t('terms.restrictions',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.restrictionsList') }}
+                    {{ $t('terms.restrictionsList',) }}
                 </p>
             </section>
 
             <!-- User Content -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.userContent') }}
+                    {{ $t('terms.userContent',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.userContentText') }}
+                    {{ $t('terms.userContentText',) }}
                 </p>
             </section>
 
             <!-- Limitations of Liability -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.limitations') }}
+                    {{ $t('terms.limitations',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.limitationsText') }}
+                    {{ $t('terms.limitationsText',) }}
                 </p>
             </section>
 
             <!-- Indemnification -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.indemnification') }}
+                    {{ $t('terms.indemnification',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.indemnificationText') }}
+                    {{ $t('terms.indemnificationText',) }}
                 </p>
             </section>
 
             <!-- Changes to Terms -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.changes') }}
+                    {{ $t('terms.changes',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.changesText') }}
+                    {{ $t('terms.changesText',) }}
                 </p>
             </section>
 
             <!-- Governing Law -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.governingLaw') }}
+                    {{ $t('terms.governingLaw',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.governingLawText') }}
+                    {{ $t('terms.governingLawText',) }}
                 </p>
             </section>
 
             <!-- Contact -->
             <section class="mb-10">
                 <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-                    {{ $t('terms.contact') }}
+                    {{ $t('terms.contact',) }}
                 </h2>
                 <p class="text-gray-700 dark:text-gray-300">
-                    {{ $t('terms.contactText') }}
+                    {{ $t('terms.contactText',) }}
                 </p>
             </section>
 
@@ -147,8 +147,11 @@ export default {
                     to="/auth/register"
                     class="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                 >
-                    <UIcon name="i-heroicons-arrow-left" class="w-5 h-5 mr-2" />
-                    {{ $t('auth.backToHome') }}
+                    <UIcon
+                        name="i-heroicons-arrow-left"
+                        class="w-5 h-5 mr-2"
+                    />
+                    {{ $t('auth.backToHome',) }}
                 </NuxtLink>
             </div>
         </div>

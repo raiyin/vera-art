@@ -1,18 +1,32 @@
-import { useAuthStore, } from '../stores/AuthStore';
+import { useAuthStore, } from '~/stores/AuthStore';
 
 export default defineNuxtRouteMiddleware(async (_to, _from,) => {
-    // Skip middleware during SSR — auth depends on localStorage which is client-only
-    if (import.meta.server) {
-        return;
-    }
-
     const authStore = useAuthStore();
 
-    // Initialize auth state from localStorage before checking
-    // This is needed because middleware runs before app.vue's onMounted
-    authStore.initFromLocalStorage();
+    if (import.meta.server) {
+        // On the server, use cookie-based auth (SSR-safe)
+        // This prevents hydration mismatch: if the user has a valid auth cookie,
+        // the server renders the admin layout, matching what the client will show.
+        const accessTokenCookie = useCookie<string | null>('access_token',).value ?? null;
+        const refreshTokenCookie = useCookie<string | null>('refresh_token',).value ?? null;
+        authStore.initFromCookie(accessTokenCookie, refreshTokenCookie,);
+    } else {
+        // On the client, initialize auth state from localStorage before checking
+        // This is needed because middleware runs before app.vue's onMounted
+        authStore.initFromLocalStorage();
 
-    const { isAuthenticated, isAdmin, } = authStore;
+        // Fall back to cookies if localStorage is empty (e.g. first SSR visit).
+        // This ensures the client makes the same auth decision as the server,
+        // preventing hydration mismatch on page reload.
+        if (!authStore.isAuthenticated) {
+            const accessTokenCookie = useCookie<string | null>('access_token',).value ?? null;
+            const refreshTokenCookie = useCookie<string | null>('refresh_token',).value ?? null;
+            authStore.initFromCookie(accessTokenCookie, refreshTokenCookie,);
+        }
+    }
+
+    const isAuthenticated = authStore.isAuthenticated;
+    const isAdmin = authStore.isAdmin;
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
@@ -21,7 +35,6 @@ export default defineNuxtRouteMiddleware(async (_to, _from,) => {
 
     // If authenticated but not admin, redirect to home (or show forbidden)
     if (!isAdmin) {
-        // Optionally show a toast or message
         console.warn('Access denied: user is not an admin',);
         return navigateTo('/',);
     }

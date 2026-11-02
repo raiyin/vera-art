@@ -1,27 +1,262 @@
 <template>
     <div class="edit-work-container">
         <div class="header-section">
-            <h1 class="page-title">Редактировать работу в галерее</h1>
-            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
+            <h1 class="page-title">
+                Редактировать работу в галерее
+            </h1>
+            <p class="page-subtitle">
+                Измените необходимые поля и сохраните изменения
+            </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else class="work-form" @submit.prevent="submitForm">
-            <!-- Поле для загрузки изображений -->
+        <form
+            v-else
+            class="work-form"
+            @submit.prevent="submitForm"
+        >
+            <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Изображения работы</h2>
+                <h2 class="section-title">
+                    Основная информация
+                </h2>
+
+                <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Изображения <span class="required">*</span></label
+                    <label class="form-label">Название картины по-русски <span class="required">*</span></label>
+                    <UInput
+                        v-model="work.name_ru"
+                        type="text"
+                        required
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.name_ru, }"
+                        placeholder="Например: 'Звездная ночь'"
+                        @blur="validateField('name_ru',)"
+                    />
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
                     >
+                        {{ errors.name_ru }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Название картины по-английски
+                        <span class="required">*</span></label>
+                    <UInput
+                        v-model="work.name_en"
+                        type="text"
+                        required
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.name_en, }"
+                        placeholder="Например: 'Starry Night'"
+                        @blur="validateField('name_en',)"
+                    />
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
+                        {{ errors.name_en }}
+                    </div>
+                </div>
+
+                <!-- Размеры картины -->
+                <div class="form-group">
+                    <label class="form-label">
+                        Размеры (см) <span class="required">*</span>
+                    </label>
+                    <div class="size-inputs">
+                        <div class="size-input-wrapper">
+                            <UInput
+                                v-model.number="work.width"
+                                type="number"
+                                required
+                                min="1"
+                                class="form-control size-input"
+                                :class="{ 'is-invalid': errors.width, }"
+                                placeholder="Ширина"
+                                @blur="validateField('width',)"
+                            />
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
+                                {{ errors.width }}
+                            </div>
+                        </div>
+                        <span class="size-separator">×</span>
+                        <div class="size-input-wrapper">
+                            <UInput
+                                v-model.number="work.height"
+                                type="number"
+                                required
+                                min="1"
+                                class="form-control size-input"
+                                :class="{ 'is-invalid': errors.height, }"
+                                placeholder="Высота"
+                                @blur="validateField('height',)"
+                            />
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
+                                {{ errors.height }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Год создания -->
+                <div class="form-group">
+                    <label class="form-label">Год создания <span class="required">*</span></label>
+                    <UInput
+                        v-model.number="work.year"
+                        type="number"
+                        required
+                        min="2000"
+                        :max="new Date().getFullYear()"
+                        class="form-control"
+                        :class="{ 'is-invalid': errors.year, }"
+                        placeholder="Например: 2023"
+                        @blur="validateField('year',)"
+                    />
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
+                        {{ errors.year }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Основа -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    Технические характеристики
+                </h2>
+                <div class="form-group">
+                    <label class="form-label">Основа <span class="required">*</span></label>
+                    <USelect
+                        v-model="work.base_id"
+                        :items="baseOptions"
+                        required
+                        class="form-control drop-down-arrow"
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        placeholder="Выберите основу"
+                        @blur="validateField('base_id',)"
+                    />
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
+                        {{ errors.base_id }}
+                    </div>
+                </div>
+
+                <!-- Материалы -->
+                <div class="form-group">
+                    <label class="form-label">Материалы <span class="required">*</span></label>
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.material_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('material_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || 'Выберите материалы' }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <input
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    class="material-checkbox"
+                                    :value="material.id"
+                                    :checked="work.material_ids.includes(material.id,)"
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        $i18n.locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.material_ids"
+                            class="error-message"
+                        >
+                            {{ errors.material_ids }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Описание -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    Дополнительная информация
+                </h2>
+                <div class="form-group">
+                    <label class="form-label">Описание (русский)</label>
+                    <UTextarea
+                        v-model="work.descr_ru"
+                        class="form-control"
+                        placeholder="Краткое описание картины на русском"
+                        :rows="4"
+                        :maxlength="500"
+                    />
+                    <div class="char-count">
+                        {{ work.descr_ru.length }}/500
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Описание (английский)</label>
+                    <UTextarea
+                        v-model="work.descr_en"
+                        class="form-control"
+                        placeholder="Краткое описание картины на английском"
+                        :rows="4"
+                        :maxlength="500"
+                    />
+                    <div class="char-count">
+                        {{ work.descr_en.length }}/500
+                    </div>
+                </div>
+            </div>
+
+            <!-- Изображения -->
+            <div class="form-section">
+                <h2 class="section-title">
+                    Изображения
+                </h2>
+
+                <!-- Загрузка изображений -->
+                <div class="form-group">
+                    <label class="form-label">Изображения <span class="required">*</span></label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
@@ -34,7 +269,7 @@
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
                             @change="handleFileUpload"
-                        />
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -50,20 +285,31 @@
                             >
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
                             </svg>
                             <p class="upload-text">
-                                Перетащите изображения сюда или нажмите для выбора
+                                Нажмите или перетащите файлы для загрузки
                             </p>
                             <p class="upload-hint">
                                 Поддерживаются форматы: JPG, JPEG, PNG (макс. 10 файлов)
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -71,14 +317,14 @@
                         >
                             <img
                                 :src="image.preview"
+                                :alt="`Image ${index + 1}`"
                                 class="preview-image"
-                                :alt="`Preview ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="`Удалить изображение ${index + 1}`"
-                                @click="removeImage(index)"
+                                @click="removeImage(index,)"
                             >
                                 &times;
                             </UButton>
@@ -87,209 +333,13 @@
                 </div>
             </div>
 
-            <!-- Основная информация -->
-            <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
-
-                <!-- Название картины -->
-                <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-русски <span class="required">*</span></label
-                    >
-                    <UInput
-                        v-model="work.name_ru"
-                        type="text"
-                        required
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
-                        placeholder="Например: 'Звездная ночь'"
-                        @blur="validateField('name_ru')"
-                    />
-                    <div v-if="errors.name_ru" class="error-message">
-                        {{ errors.name_ru }}
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-английски
-                        <span class="required">*</span></label
-                    >
-                    <UInput
-                        v-model="work.name_en"
-                        type="text"
-                        required
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
-                        placeholder="Например: 'Starry Night'"
-                        @blur="validateField('name_en')"
-                    />
-                    <div v-if="errors.name_en" class="error-message">
-                        {{ errors.name_en }}
-                    </div>
-                </div>
-
-                <!-- Размеры картины -->
-                <div class="form-group">
-                    <label class="form-label">
-                        Размеры ({{ units }}) <span class="required">*</span>
-                    </label>
-                    <div class="size-inputs">
-                        <div class="size-input-wrapper">
-                            <UInput
-                                v-model.number="work.width"
-                                type="number"
-                                required
-                                min="1"
-                                class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
-                                placeholder="Ширина"
-                                @blur="validateField('width')"
-                            />
-                            <div v-if="errors.width" class="error-message">
-                                {{ errors.width }}
-                            </div>
-                        </div>
-                        <span class="size-separator">×</span>
-                        <div class="size-input-wrapper">
-                            <UInput
-                                v-model.number="work.height"
-                                type="number"
-                                required
-                                min="1"
-                                class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
-                                placeholder="Высота"
-                                @blur="validateField('height')"
-                            />
-                            <div v-if="errors.height" class="error-message">
-                                {{ errors.height }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Год создания -->
-                <div class="form-group">
-                    <label class="form-label"
-                        >Год создания <span class="required">*</span></label
-                    >
-                    <UInput
-                        v-model.number="work.year"
-                        type="number"
-                        required
-                        min="2000"
-                        :max="new Date().getFullYear()"
-                        class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
-                        placeholder="Например: 2023"
-                        @blur="validateField('year')"
-                    />
-                    <div v-if="errors.year" class="error-message">
-                        {{ errors.year }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Технические характеристики -->
-            <div class="form-section">
-                <h2 class="section-title">Технические характеристики</h2>
-
-                <!-- Основа -->
-                <div class="form-group">
-                    <label class="form-label"
-                        >Основа <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.base_id"
-                        :items="baseOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        placeholder="Выберите основу"
-                        @blur="validateField('base_id')"
-                    />
-                    <div v-if="errors.base_id" class="error-message">
-                        {{ errors.base_id }}
-                    </div>
-                </div>
-
-                <!-- Материал -->
-                <div class="form-group">
-                    <label class="form-label"
-                        >Материалы
-                        <span class="required">{{
-                            isMaterialsRequired ? '*' : ''
-                        }}</span></label
-                    >
-                    <USelect
-                        v-model="work.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids }"
-                        placeholder="Выберите материалы"
-                        @blur="validateField('materials_ids')"
-                    />
-                    <div v-if="errors.materials_ids" class="error-message">
-                        {{ errors.materials_ids }}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Описание -->
-            <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
-                <div class="form-group">
-                    <label class="form-label">Описание (русский)</label>
-                    <UTextarea
-                        v-model="work.descr_ru"
-                        class="form-control"
-                        placeholder="Краткое описание картины на русском"
-                        :rows="4"
-                        :maxlength="500"
-                    />
-                    <div class="char-count">{{ work.descr_ru.length }}/500</div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Описание (английский)</label>
-                    <UTextarea
-                        v-model="work.descr_en"
-                        class="form-control"
-                        placeholder="Краткое описание картины на английском"
-                        :rows="4"
-                        :maxlength="500"
-                    />
-                    <div class="char-count">{{ work.descr_en.length }}/500</div>
-                </div>
-            </div>
-
-            <!-- Тип работы -->
-            <div class="form-section">
-                <h2 class="section-title">Тип работы</h2>
-                <div class="form-group">
-                    <label class="form-label"
-                        >Тип работы <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="work.type"
-                        :items="workTypeOptions"
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.type }"
-                        placeholder="Выберите тип работы"
-                        @blur="validateField('type')"
-                    />
-                    <div v-if="errors.type" class="error-message">
-                        {{ errors.type }}
-                    </div>
-                </div>
-            </div>
-
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -309,475 +359,415 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, reactive, computed, onMounted, onBeforeUnmount } from 'vue';
-import type {
-    RequestResult,
-    UpdateWorkRequest,
-    UpdateWorkResponse,
-} from '../../../types';
-import { useMaterialStore } from '../../../stores/MaterialStore';
+    import axios from 'axios';
+    import { ref, reactive, computed, onMounted, } from 'vue';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
 
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
-
-const toast = useToast();
-const config = useRuntimeConfig();
-const route = useRoute();
-const SERVER_URL = config.public.serverUrl;
-
-const materialStore = useMaterialStore();
-
-// Reactive state
-const work = reactive<UpdateWorkResponse>({
-    id: 0,
-    str_id: '',
-    dir: '',
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
-    base_id: 0,
-    descr_ru: '',
-    descr_en: '',
-    type: 0,
-    materials_ids: [],
-    images: [],
-});
-
-// For form reset
-const originalWork = reactive<UpdateWorkResponse>({
-    id: 0,
-    str_id: '',
-    dir: '',
-    width: 0,
-    height: 0,
-    year: new Date().getFullYear(),
-    name_ru: '',
-    name_en: '',
-    base_id: 0,
-    descr_ru: '',
-    descr_en: '',
-    type: 0,
-    materials_ids: [],
-    images: [],
-});
-
-const files = ref<File[]>([]);
-const previewImages = ref<
-    { file?: File; preview: string; isExisting?: boolean; filename?: string }[]
->([]);
-const imagesToDelete = ref<string[]>([]);
-const isSubmitting = ref(false);
-const isLoading = ref(true);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
-const errorMessage = ref('');
-
-const errors = reactive<Record<string, string>>({
-    name_ru: '',
-    name_en: '',
-    width: '',
-    height: '',
-    year: '',
-    base_id: '',
-    materials_ids: '',
-    type: '',
-});
-
-const fileInput = ref<HTMLInputElement | null>(null);
-
-// Computed
-const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
-
-const baseOptions = computed(() => {
-    return bases.value.map((base) => ({
-        label: base.base_ru,
-        value: base.id,
-    }));
-});
-
-const workTypeOptions = computed(() => {
-    return [
-        { label: 'Картина', value: 1 },
-        { label: 'Иллюстрация', value: 2 },
-        { label: '3D', value: 3 },
-    ];
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map((material) => ({
-        label: material.material_ru,
-        value: material.id,
-    }));
-});
-
-const isFormValid = computed(() => {
-    const hasExistingImages = work.images.length > imagesToDelete.value.length;
-    const hasNewImages = files.value.length > 0;
-    return (
-        work.name_ru.trim() !== '' &&
-        work.name_en.trim() !== '' &&
-        work.width > 0 &&
-        work.height > 0 &&
-        work.year >= 2000 &&
-        work.year <= new Date().getFullYear() &&
-        work.base_id > 0 &&
-        (work.type < 3
-            ? work.materials_ids.length > 0
-            : work.materials_ids.length === 0) &&
-        work.type > 0 &&
-        (hasExistingImages || hasNewImages)
-    );
-});
-
-const units = computed(() => {
-    return work.type <= 1 ? 'см' : 'px';
-});
-
-const isMaterialsRequired = computed(() => {
-    return work.type === 1 || work.type === 2;
-});
-
-// Methods
-async function loadWork() {
-    try {
-        const id = route.params.id;
-        const response = await axios.get(`${SERVER_URL}works/${id}/edit`);
-        Object.assign(work, response.data);
-        Object.assign(originalWork, { ...response.data });
-
-        // Load existing images as previews
-        loadPreviewImages();
-
-        isLoading.value = false;
-    } catch (error) {
-        console.error('Ошибка при загрузке работы:', error);
-        isLoading.value = false;
-        toast.add({
-            title: 'Ошибка!',
-            description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
-        });
-    }
-}
-
-function loadPreviewImages() {
-    previewImages.value = [];
-    for (let i = 0; i < work.images.length; i++) {
-        const imageUrl = `${work.dir}${work.images[i]}`;
-        previewImages.value.push({
-            preview: imageUrl,
-            isExisting: true,
-            filename: work.images[i],
-        });
-    }
-}
-
-function handleDragOver() {
-    isDragOver.value = true;
-}
-
-function handleDragLeave() {
-    isDragOver.value = false;
-}
-
-function handleDrop(event: DragEvent) {
-    isDragOver.value = false;
-    if (event.dataTransfer && event.dataTransfer.files.length) {
-        const droppedFiles = Array.from(event.dataTransfer.files);
-        addImages(droppedFiles);
-    }
-}
-
-function triggerFileInput() {
-    fileInput.value?.click();
-}
-
-function handleFileUpload(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target.files && target.files.length) {
-        const selectedFiles = Array.from(target.files);
-        addImages(selectedFiles);
-    }
-}
-
-function addImages(selectedFiles: File[]) {
-    fileError.value = null;
-
-    // Check max file count
-    if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = 'Можно загрузить не более 10 изображений';
-        return;
+    interface EditWorkData {
+        str_id: string
+        name_ru: string
+        name_en: string
+        width: number
+        height: number
+        year: number
+        base_id: number
+        descr_ru: string
+        descr_en: string
+        work_path: string
+        dir: string
+        images: string[]
+        material_ids: number[]
     }
 
-    // Check file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
-
-    if (invalidFiles.length > 0) {
-        fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
-        return;
+    interface PreviewImage {
+        file?: File
+        preview: string
+        isExisting?: boolean
+        filename?: string
     }
 
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    const toast = useToast();
+    const config = useRuntimeConfig();
+    const route = useRoute();
+    const { locale, } = useI18n();
+    const SERVER_URL = config.public.serverUrl;
 
-    if (largeFiles.length > 0) {
-        fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
-        return;
-    }
+    const materialStore = useMaterialStore();
 
-    // Add new files
-    files.value = [...files.value, ...selectedFiles];
-
-    // Create previews for new images
-    selectedFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            previewImages.value.push({
-                file,
-                preview: e.target?.result as string,
-                isExisting: false,
-                filename: file.name,
-            });
-        };
-        reader.readAsDataURL(file);
+    const work = reactive<EditWorkData>({
+        str_id: '',
+        name_ru: '',
+        name_en: '',
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+        work_path: '',
+        dir: '',
+        images: [],
+        material_ids: [],
     });
-}
 
-function removeImage(index: number) {
-    const imageToRemove = previewImages.value[index];
+    const originalWork = reactive<EditWorkData>({
+        str_id: '',
+        name_ru: '',
+        name_en: '',
+        width: 0,
+        height: 0,
+        year: new Date().getFullYear(),
+        base_id: 0,
+        descr_ru: '',
+        descr_en: '',
+        work_path: '',
+        dir: '',
+        images: [],
+        material_ids: [],
+    });
 
-    if (imageToRemove.isExisting && imageToRemove.filename) {
-        // Mark existing image for deletion
-        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
-            imagesToDelete.value.push(imageToRemove.filename);
-        }
-    } else if (imageToRemove.file) {
-        // Remove from files array if it's a newly uploaded file
-        const fileIndex = files.value.indexOf(imageToRemove.file);
-        if (fileIndex > -1) {
-            files.value.splice(fileIndex, 1);
-        }
-    }
+    const isSubmitting = ref(false,);
+    const isLoading = ref(true,);
+    const files = ref<File[]>([],);
+    const previewImages = ref<PreviewImage[]>([],);
+    const imagesToDelete = ref<string[]>([],);
+    const fileError = ref<string | null>(null,);
+    const isDragOver = ref(false,);
+    const fileInput = ref<HTMLInputElement | null>(null,);
+    const materialsDropdownOpen = ref(false,);
 
-    // Remove from preview images
-    previewImages.value.splice(index, 1);
-}
+    const errors = reactive<Record<string, string>>({
+        name_ru: '',
+        name_en: '',
+        width: '',
+        height: '',
+        year: '',
+        base_id: '',
+        material_ids: '',
+    });
 
-function validateField(fieldName: string) {
-    switch (fieldName) {
-        case 'name_ru':
-            if (!work.name_ru.trim()) {
-                errors.name_ru = 'Пожалуйста, введите название на русском';
-            } else {
-                errors.name_ru = '';
-            }
-            break;
-        case 'name_en':
-            if (!work.name_en.trim()) {
-                errors.name_en = 'Пожалуйста, введите название на английском';
-            } else {
-                errors.name_en = '';
-            }
-            break;
-        case 'width':
-            if (work.width <= 0) {
-                errors.width = 'Ширина должна быть больше 0';
-            } else {
-                errors.width = '';
-            }
-            break;
-        case 'height':
-            if (work.height <= 0) {
-                errors.height = 'Высота должна быть больше 0';
-            } else {
-                errors.height = '';
-            }
-            break;
-        case 'year':
-            if (work.year < 2000 || work.year > new Date().getFullYear()) {
-                errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
-            } else {
-                errors.year = '';
-            }
-            break;
-        case 'base_id':
-            if (work.base_id <= 0) {
-                errors.base_id = 'Пожалуйста, выберите основу';
-            } else {
-                errors.base_id = '';
-            }
-            break;
-        case 'materials_ids':
-            if (work.materials_ids.length === 0) {
-                errors.materials_ids = 'Пожалуйста, выберите хотя бы один материал';
-            } else {
-                errors.materials_ids = '';
-            }
-            break;
-        case 'type':
-            if (work.type <= 0) {
-                errors.type = 'Пожалуйста, выберите тип работы';
-            } else {
-                errors.type = '';
-            }
-            break;
-    }
-}
+    const bases = computed(() => materialStore.bases,);
+    const materials = computed(() => materialStore.materials,);
 
-function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('base_id');
-    validateField('materials_ids');
-    validateField('type');
+    const baseOptions = computed(() => {
+        return bases.value.map(base => ({
+            label: base.name_ru,
+            value: base.id,
+        }),);
+    });
 
-    // Check at least one image exists (existing or newly uploaded)
-    const hasExistingImages = work.images.length > imagesToDelete.value.length;
-    const hasNewImages = files.value.length > 0;
-    if (!hasExistingImages && !hasNewImages) {
-        fileError.value = 'Пожалуйста, добавьте хотя бы одно изображение';
-        return false;
-    }
+    const selectedMaterialsDisplay = computed(() => {
+        if (work.material_ids.length === 0) return '';
+        const selectedNames = materialStore.materials
+            .filter(material => work.material_ids.includes(material.id,),)
+            .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+        return selectedNames.join(', ',);
+    });
 
-    // Check no errors
-    return Object.values(errors).every((error) => error === '');
-}
+    const isFormValid = computed(() => {
+        return (
+            work.name_ru?.trim() !== ''
+        && work.name_en?.trim() !== ''
+            && (work.width ?? 0) > 0
+        && (work.height ?? 0) > 0
+            && (work.year ?? 0) >= 2000
+        && (work.year ?? 0) <= new Date().getFullYear()
+            && (work.base_id ?? 0) > 0
+            && work.material_ids.length > 0
+            && previewImages.value.length > 0
+        );
+    });
 
-async function submitForm() {
-    if (isSubmitting.value) return;
-
-    if (!validateForm()) {
-        return;
-    }
-
-    try {
-        isSubmitting.value = true;
-        errorMessage.value = '';
-
-        // Build form data
-        const formData = new FormData();
-
-        const finalImages: string[] = [];
-
-        // Add existing images that are not marked for deletion
-        for (const imageName of work.images) {
-            if (!imagesToDelete.value.includes(imageName)) {
-                finalImages.push(imageName);
-            }
-        }
-
-        // Add new image filenames
-        for (const file of files.value) {
-            finalImages.push(file.name);
-        }
-
-        // Add files if any
-        if (files.value.length > 0) {
-            files.value.forEach((file) => {
-                formData.append('images', file);
-            });
-        }
-
-        const workDataToUpdate: UpdateWorkRequest = {
-            ...work,
-            images: finalImages,
-        };
-        workDataToUpdate.type = parseInt(workDataToUpdate.type as any);
-
-        formData.append('data', JSON.stringify(workDataToUpdate));
-
-        const strId = route.params.id;
-        const response = await axios.put(SERVER_URL + 'works/' + strId, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-        });
-
-        if (response.status === 200) {
-            toast.add({
-                title: 'Успешно!',
-                description: 'Работа успешно обновлена в галерее.',
-                icon: 'i-heroicons-check-circle',
-                color: 'success',
-                duration: 5000,
-            });
-            // Update work images with final list
-            work.images = finalImages;
-            // Clear deletion list and files
-            imagesToDelete.value = [];
-            files.value = [];
-            // Update original work
-            Object.assign(originalWork, { ...work });
-        } else {
+    async function loadWork() {
+        try {
+            const id = route.params.id;
+            const response = await axios.get(`${SERVER_URL}works/${id}`,);
+            const data = response.data;
+            work.str_id = data.str_id ?? '';
+            work.name_ru = data.name_ru;
+            work.name_en = data.name_en;
+            work.width = data.width;
+            work.height = data.height;
+            work.year = data.year;
+            work.base_id = data.base_id;
+            work.descr_ru = data.descr_ru ?? '';
+            work.descr_en = data.descr_en ?? '';
+            work.work_path = data.work_path ?? '';
+            work.dir = data.dir ?? '';
+            work.images = data.images ?? [];
+            work.material_ids = data.material_ids ?? [];
+            previewImages.value = (data.images ?? []).map((filename: string,) => ({
+                preview: `${data.dir}${filename}`,
+                isExisting: true,
+                filename,
+            }),);
+            Object.assign(originalWork, { ...work, },);
+            isLoading.value = false;
+        } catch (error) {
+            console.error('Ошибка при загрузке работы:', error,);
+            isLoading.value = false;
             toast.add({
                 title: 'Ошибка!',
-                description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                description: 'Не удалось загрузить данные. Пожалуйста, попробуйте позже.',
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
         }
-    } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description =
-            'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
-        if (error.response?.status === 413) {
-            description =
-                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
-        } else if (error.response?.status === 400) {
-            description =
-                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+    }
+
+    function validateField(fieldName: string,) {
+        switch (fieldName) {
+    case 'name_ru':
+        errors.name_ru = !work.name_ru?.trim() ? 'Пожалуйста, введите название на русском' : '';
+        break;
+    case 'name_en':
+        errors.name_en = !work.name_en?.trim() ? 'Пожалуйста, введите название на английском' : '';
+        break;
+    case 'width':
+        errors.width = (work.width ?? 0) <= 0 ? 'Ширина должна быть больше 0' : '';
+        break;
+    case 'height':
+        errors.height = (work.height ?? 0) <= 0 ? 'Высота должна быть больше 0' : '';
+        break;
+    case 'year':
+        if ((work.year ?? 0) < 2000 || (work.year ?? 0) > new Date().getFullYear()) {
+            errors.year = `Год должен быть между 2000 и ${new Date().getFullYear()}`;
+        } else {
+            errors.year = '';
         }
-        toast.add({
-            title: 'Ошибка!',
-            description,
-            icon: 'i-heroicons-exclamation-triangle',
-            color: 'error',
-            duration: 5000,
+        break;
+    case 'base_id':
+        errors.base_id = (work.base_id ?? 0) <= 0 ? 'Пожалуйста, выберите основу' : '';
+        break;
+    case 'material_ids':
+        errors.material_ids = work.material_ids.length === 0 ? 'Пожалуйста, выберите хотя бы один материал' : '';
+        break;
+        }
+    }
+
+    function validateForm() {
+        validateField('name_ru',);
+        validateField('name_en',);
+        validateField('width',);
+        validateField('height',);
+        validateField('year',);
+        validateField('base_id',);
+        validateField('material_ids',);
+        if (previewImages.value.length === 0) {
+            fileError.value = 'Добавьте хотя бы одно изображение';
+        } else {
+            fileError.value = null;
+        }
+        return Object.values(errors,).every(error => error === '',) && fileError.value === null;
+    }
+
+    async function submitForm() {
+        if (isSubmitting.value) return;
+
+        if (!validateForm()) {
+            return;
+        }
+
+        try {
+            isSubmitting.value = true;
+
+            const id = route.params.id;
+            const formData = new FormData();
+            formData.append('str_id', work.str_id);
+            formData.append('name_ru', work.name_ru);
+            formData.append('name_en', work.name_en);
+            formData.append('width', String(work.width));
+            formData.append('height', String(work.height));
+            formData.append('year', String(work.year));
+            formData.append('base_id', String(work.base_id));
+            formData.append('descr_ru', work.descr_ru);
+            formData.append('descr_en', work.descr_en);
+            const keptImages = previewImages.value
+                .filter(image => image.isExisting,)
+                .map(image => image.filename as string,);
+            keptImages.forEach((filename,) => {
+                formData.append('images', filename,);
+            });
+            previewImages.value
+                .filter(image => !image.isExisting && image.file,)
+                .forEach(image => {
+                    formData.append('image', image.file as File,);
+                },);
+            work.material_ids.forEach((materialId,) => {
+                formData.append('material_ids', String(materialId),);
+            });
+
+            const response = await axios.put(SERVER_URL + 'works/' + id, formData, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token',)}`,
+                },
+            });
+
+            if (response.status === 200) {
+                const resData = response.data;
+                work.work_path = resData.work_path ?? work.work_path;
+                work.dir = resData.dir ?? work.dir;
+                work.images = resData.images ?? work.images;
+                work.str_id = resData.str_id ?? work.str_id;
+                const keptFilenames = previewImages.value
+                    .filter(image => image.isExisting,)
+                    .map(image => image.filename as string,);
+                const addedFiles = previewImages.value
+                    .filter(image => !image.isExisting && image.file,)
+                    .map(image => image.file as File,);
+                files.value = addedFiles;
+                previewImages.value = [
+                    ...keptFilenames.map(filename => ({
+                        preview: `${work.dir}${filename}`,
+                        isExisting: true,
+                        filename,
+                    }),),
+                    ...addedFiles.map(file => ({
+                        file,
+                        preview: URL.createObjectURL(file),
+                        isExisting: false,
+                    }),),
+                ];
+                imagesToDelete.value = [];
+                Object.assign(originalWork, { ...work, },);
+                toast.add({
+                    title: 'Успешно!',
+                    description: 'Работа успешно обновлена в галерее.',
+                    icon: 'i-heroicons-check-circle',
+                    color: 'success',
+                    duration: 5000,
+                });
+            } else {
+                toast.add({
+                    title: 'Ошибка!',
+                    description: 'Не удалось обновить работу. Пожалуйста, попробуйте снова.',
+                    icon: 'i-heroicons-exclamation-triangle',
+                    color: 'error',
+                    duration: 5000,
+                });
+            }
+        } catch (error: any) {
+            console.error('Error submitting form:', error,);
+            let description = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+            if (error.response?.status === 400) {
+                description = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+            }
+            toast.add({
+                title: 'Ошибка!',
+                description,
+                icon: 'i-heroicons-exclamation-triangle',
+                color: 'error',
+                duration: 5000,
+            });
+        } finally {
+            isSubmitting.value = false;
+        }
+    }
+
+    function triggerFileInput() {
+        fileInput.value?.click();
+    }
+
+    function handleDragOver() {
+        isDragOver.value = true;
+    }
+
+    function handleDragLeave() {
+        isDragOver.value = false;
+    }
+
+    function handleDrop(e: DragEvent) {
+        isDragOver.value = false;
+        const droppedFiles = Array.from(e.dataTransfer?.files ?? [],);
+        if (droppedFiles.length > 0) {
+            addImages(droppedFiles,);
+        }
+    }
+
+    function handleFileUpload(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const selectedFiles = Array.from(input.files ?? [],);
+        if (selectedFiles.length > 0) {
+            addImages(selectedFiles,);
+        }
+        input.value = '';
+    }
+
+    function addImages(newFiles: File[]) {
+        const imageFiles = newFiles.filter(file => file.type.startsWith('image/',),);
+        const invalidFiles = newFiles.filter(file => !file.type.startsWith('image/',),);
+        if (invalidFiles.length > 0) {
+            fileError.value = 'Можно загружать только изображения (JPG, PNG)';
+            return;
+        }
+        if (previewImages.value.length + imageFiles.length > 10) {
+            fileError.value = 'Максимум 10 изображений';
+            return;
+        }
+        imageFiles.forEach(file => {
+            files.value.push(file);
+            previewImages.value.push({
+                file,
+                preview: URL.createObjectURL(file),
+                isExisting: false,
+            },);
+        },);
+        fileError.value = null;
+    }
+
+    function removeImage(index: number,) {
+        const image = previewImages.value[index];
+        if (image?.isExisting && image.filename) {
+            imagesToDelete.value.push(image.filename,);
+        }
+        previewImages.value.splice(index, 1,);
+    }
+
+    function materialsToggleDropdown() {
+        materialsDropdownOpen.value = !materialsDropdownOpen.value;
+    }
+
+    function toggleMaterial(materialId: number, checked: boolean,) {
+        if (checked) {
+            if (!work.material_ids.includes(materialId,)) {
+                work.material_ids.push(materialId,);
+            }
+        } else {
+            const index = work.material_ids.indexOf(materialId,);
+            if (index > -1) {
+                work.material_ids.splice(index, 1,);
+            }
+        }
+    }
+
+    function onMaterialChange(materialId: number, event: Event,) {
+        toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+    }
+
+    function resetForm() {
+        Object.assign(work, { ...originalWork, },);
+        Object.keys(errors,).forEach((key,) => {
+            errors[key] = '';
         });
-    } finally {
-        isSubmitting.value = false;
-    }
-}
-
-function resetForm() {
-    Object.assign(work, { ...originalWork });
-    files.value = [];
-    previewImages.value = [];
-    imagesToDelete.value = [];
-    loadPreviewImages();
-    if (fileInput.value) {
-        fileInput.value.value = '';
+        files.value = [];
+        previewImages.value = (work.images ?? []).map((filename: string,) => ({
+            preview: `${work.dir}${filename}`,
+            isExisting: true,
+            filename,
+        }),);
+        imagesToDelete.value = [];
+        fileError.value = null;
+        materialsDropdownOpen.value = false;
     }
 
-    // Reset errors
-    Object.keys(errors).forEach((key) => {
-        errors[key] = '';
+    // Lifecycle
+    onMounted(async () => {
+        if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
+            await materialStore.fetchAll();
+        }
+        await loadWork();
     });
-    fileError.value = null;
-}
-
-// Lifecycle
-onMounted(async () => {
-    if (materialStore.materials.length === 0 || materialStore.bases.length === 0) {
-        await materialStore.fetchAll();
-    }
-    await loadWork();
-});
 </script>
 
 <style scoped>
@@ -968,7 +958,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -986,8 +976,97 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
+}
+
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .size-inputs {

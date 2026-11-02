@@ -1,27 +1,38 @@
 <template>
     <div class="edit-sale-container">
         <div class="header-section">
-            <h1 class="page-title">Редактировать работу в магазине</h1>
-            <p class="page-subtitle">Измените необходимые поля и сохраните изменения</p>
+            <h1 class="page-title">
+                Редактировать работу в магазине
+            </h1>
+            <p class="page-subtitle">
+                Измените необходимые поля и сохраните изменения
+            </p>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
             <p>Загрузка данных...</p>
         </div>
 
-        <form v-else class="sale-form" @submit.prevent="submitForm">
+        <form
+            v-else
+            class="sale-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">Изображения работы</h2>
+                <h2 class="section-title">
+                    Изображения работы
+                </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >Изображения <span class="required">*</span></label
-                    >
+                    <label class="form-label">Изображения <span class="required">*</span></label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
@@ -34,7 +45,7 @@
                             accept="image/jpg,image/jpeg,image/png"
                             class="file-input"
                             @change="handleFileUpload"
-                        />
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -50,7 +61,12 @@
                             >
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
                             </svg>
                             <p class="upload-text">
                                 Перетащите изображения сюда или нажмите для выбора
@@ -60,10 +76,16 @@
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -73,12 +95,12 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="`Удалить изображение ${index + 1}`"
-                                @click="removeImage(index)"
+                                @click="removeImage(index,)"
                             >
                                 &times;
                             </UButton>
@@ -89,42 +111,46 @@
 
             <!-- Основная информация -->
             <div class="form-section">
-                <h2 class="section-title">Основная информация</h2>
+                <h2 class="section-title">
+                    Основная информация
+                </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-русски <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-русски <span class="required">*</span></label>
                     <UInput
                         v-model="sale.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
+                        :class="{ 'is-invalid': errors.name_ru, }"
                         placeholder="Например: 'Звездная ночь'"
-                        @blur="validateField('name_ru')"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >Название картины по-английски
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">Название картины по-английски
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="sale.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
+                        :class="{ 'is-invalid': errors.name_en, }"
                         placeholder="Например: 'Starry Night'"
-                        @blur="validateField('name_en')"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
@@ -142,11 +168,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
+                                :class="{ 'is-invalid': errors.width, }"
                                 placeholder="Ширина"
-                                @blur="validateField('width')"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
@@ -158,11 +187,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
+                                :class="{ 'is-invalid': errors.height, }"
                                 placeholder="Высота"
-                                @blur="validateField('height')"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -171,9 +203,7 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Год создания <span class="required">*</span></label
-                    >
+                    <label class="form-label">Год создания <span class="required">*</span></label>
                     <UInput
                         v-model.number="sale.year"
                         type="number"
@@ -181,11 +211,14 @@
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
+                        :class="{ 'is-invalid': errors.year, }"
                         placeholder="Например: 2023"
-                        @blur="validateField('year')"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
@@ -199,11 +232,14 @@
                         required
                         min="1"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.price }"
+                        :class="{ 'is-invalid': errors.price, }"
                         placeholder="Например: 1000"
-                        @blur="validateField('price')"
+                        @blur="validateField('price',)"
                     />
-                    <div v-if="errors.price" class="error-message">
+                    <div
+                        v-if="errors.price"
+                        class="error-message"
+                    >
                         {{ errors.price }}
                     </div>
                 </div>
@@ -211,40 +247,53 @@
 
             <!-- Технические характеристики -->
             <div class="form-section">
-                <h2 class="section-title">Технические характеристики</h2>
+                <h2 class="section-title">
+                    Технические характеристики
+                </h2>
 
                 <!-- Основа -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Основа <span class="required">*</span></label
-                    >
-                    <USelect
+                    <label class="form-label">Основа <span class="required">*</span></label>
+                    <select
                         v-model="sale.base_id"
-                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        placeholder="Выберите основу"
-                        @blur="validateField('base_id')"
-                    />
-                    <div v-if="errors.base_id" class="error-message">
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        @blur="validateField('base_id',)"
+                    >
+                        <option
+                            value=""
+                            disabled
+                        >
+                            Выберите основу
+                        </option>
+                        <option
+                            v-for="base in bases"
+                            :key="base.id"
+                            :value="base.id"
+                        >
+                            {{ locale === 'ru' ? base.name_ru : base.name_en }}
+                        </option>
+                    </select>
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >Материалы <span class="required">*</span></label
-                    >
+                    <label class="form-label">Материалы <span class="required">*</span></label>
                     <div class="multi-select-wrapper">
                         <div
                             class="select-display drop-down-arrow"
-                            :class="{ 'is-invalid': errors.materials_ids }"
+                            :class="{ 'is-invalid': errors.materials_ids, }"
                             tabindex="0"
                             @click="materialsToggleDropdown"
                             @keydown.enter="materialsToggleDropdown"
-                            @blur="validateField('materials_ids')"
+                            @blur="validateField('materials_ids',)"
                         >
                             {{ selectedMaterialsDisplay || 'Выберите материалы' }}
                         </div>
@@ -257,27 +306,29 @@
                                 :key="material.id"
                                 class="option-item"
                             >
-                                <UInput
+                                <input
                                     :id="'material-' + material.id"
                                     type="checkbox"
+                                    class="material-checkbox"
                                     :value="material.id"
-                                    :model-value="
-                                        sale.materials_ids.includes(material.id)
+                                    :checked="
+                                        sale.materials_ids.includes(material.id,)
                                     "
-                                    @update:model-value="
-                                        (checked) => toggleMaterial(material.id, checked)
-                                    "
-                                />
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
                                 <label :for="'material-' + material.id">
                                     {{
                                         $i18n.locale === 'ru'
-                                            ? material.material_ru
-                                            : material.material_en
+                                            ? material.name_ru
+                                            : material.name_en
                                     }}
                                 </label>
                             </div>
                         </div>
-                        <div v-if="errors.materials_ids" class="error-message">
+                        <div
+                            v-if="errors.materials_ids"
+                            class="error-message"
+                        >
                             {{ errors.materials_ids }}
                         </div>
                     </div>
@@ -286,7 +337,9 @@
 
             <!-- Описание -->
             <div class="form-section">
-                <h2 class="section-title">Дополнительная информация</h2>
+                <h2 class="section-title">
+                    Дополнительная информация
+                </h2>
                 <div class="form-group">
                     <label class="form-label">Описание (русский)</label>
                     <textarea
@@ -296,7 +349,9 @@
                         rows="4"
                         maxlength="500"
                     />
-                    <div class="char-count">{{ sale.descr_ru.length }}/500</div>
+                    <div class="char-count">
+                        {{ sale.descr_ru.length }}/500
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Описание (английский)</label>
@@ -307,13 +362,19 @@
                         rows="4"
                         maxlength="500"
                     />
-                    <div class="char-count">{{ sale.descr_en.length }}/500</div>
+                    <div class="char-count">
+                        {{ sale.descr_en.length }}/500
+                    </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
                     Сбросить изменения
                 </UButton>
                 <UButton
@@ -334,18 +395,14 @@
 
 <script setup lang="ts">
 import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import type {
-    UpdateSaleRequest,
-    UpdateSaleResponse,
-    RequestResult,
-} from '../../../types';
-import { useMaterialStore } from '../../../stores/MaterialStore';
+import { ref, reactive, computed, onMounted, } from 'vue';
+import { useRoute, } from 'vue-router';
+import type { UpdateSaleResponse, RequestResult, } from '~/types';
+import { useMaterialStore, } from '~/stores/MaterialStore';
 
 const toast = useToast();
 const route = useRoute();
-const { locale } = useI18n();
+const { locale, } = useI18n();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
 const materialStore = useMaterialStore();
@@ -385,19 +442,18 @@ const originalSale = reactive<UpdateSaleResponse>({
     materials_ids: [],
 });
 
-const addedFiles = ref<File[]>([]);
+const addedFiles = ref<File[]>([],);
 const previewImages = ref<
-    { file?: File; preview: string; isExisting?: boolean; filename?: string }[]
->([]);
-const imagesToDelete = ref<string[]>([]);
-const isSubmitting = ref(false);
-const isLoading = ref(true);
-const loadError = ref<string | null>(null);
-const requestResult = ref<RequestResult>('unknown');
-const materialsDropdownOpen = ref(false);
-const basesDropdownOpen = ref(false);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
+    { file?: File, preview: string, isExisting?: boolean, filename?: string }[]
+>([],);
+const imagesToDelete = ref<string[]>([],);
+const isSubmitting = ref(false,);
+const isLoading = ref(true,);
+const loadError = ref<string | null>(null,);
+const requestResult = ref<RequestResult>('unknown',);
+const materialsDropdownOpen = ref(false,);
+const isDragOver = ref(false,);
+const fileError = ref<string | null>(null,);
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -410,43 +466,36 @@ const errors = reactive<Record<string, string>>({
     materials_ids: '',
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null,);
 
 // Computed
-const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
-
-const baseOptions = computed(() => {
-    return bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
-        value: base.id,
-    }));
-});
+const bases = computed(() => materialStore.bases,);
+const materials = computed(() => materialStore.materials,);
 
 const selectedMaterialsDisplay = computed(() => {
     if (sale.materials_ids.length === 0) return '';
     const selectedNames = materialStore.materials
-        .filter((material) => sale.materials_ids.includes(material.id))
-        .map((material) =>
-            locale.value === 'ru' ? material.material_ru : material.material_en
-        );
-    return selectedNames.join(', ');
+        .filter(material => sale.materials_ids.includes(material.id,),)
+        .map(material =>
+            locale.value === 'ru' ? material.name_ru : material.name_en,
+            );
+    return selectedNames.join(', ',);
 });
 
 const isFormValid = computed(() => {
     const hasExistingImages = sale.images.length > imagesToDelete.value.length;
     const hasNewImages = addedFiles.value.length > 0;
     return (
-        sale.name_ru.trim() !== '' &&
-        sale.name_en.trim() !== '' &&
-        sale.width > 0 &&
-        sale.height > 0 &&
-        sale.year >= 2000 &&
-        sale.year <= new Date().getFullYear() &&
-        sale.price > 0 &&
-        sale.base_id > 0 &&
-        sale.materials_ids.length > 0 &&
-        (hasExistingImages || hasNewImages)
+        sale.name_ru.trim() !== ''
+            && sale.name_en.trim() !== ''
+        && sale.width > 0
+            && sale.height > 0
+        && sale.year >= 2000
+            && sale.year <= new Date().getFullYear()
+        && sale.price > 0
+            && sale.base_id > 0
+        && sale.materials_ids.length > 0
+            && (hasExistingImages || hasNewImages)
     );
 });
 
@@ -454,13 +503,17 @@ const isFormValid = computed(() => {
 async function loadSale() {
     try {
         const id = route.params.id;
-        const response = await axios.get(`${SERVER_URL}sales/${id}/edit`);
-        Object.assign(sale, response.data);
-        Object.assign(originalSale, { ...response.data });
+        const response = await axios.get(`${SERVER_URL}sales/${id}/edit`,);
+        const data = response.data;
+        Object.assign(sale, data, {
+            base_id: data.base_ids?.[0] ?? 0,
+            materials_ids: data.material_ids ?? [],
+        },);
+        Object.assign(originalSale, { ...sale, },);
         loadPreviewImages();
         isLoading.value = false;
     } catch (error) {
-        console.error('Ошибка при загрузке работы:', error);
+        console.error('Ошибка при загрузке работы:', error,);
         loadError.value = 'Не удалось загрузить работу';
         isLoading.value = false;
         toast.add({
@@ -493,11 +546,11 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent) {
+function handleDrop(event: DragEvent,) {
     isDragOver.value = false;
     if (event.dataTransfer && event.dataTransfer.files.length) {
-        const files = Array.from(event.dataTransfer.files);
-        addImages(files);
+        const files = Array.from(event.dataTransfer.files,);
+        addImages(files,);
     }
 }
 
@@ -505,15 +558,15 @@ function triggerFileInput() {
     fileInput.value?.click();
 }
 
-function handleFileUpload(event: Event) {
+function handleFileUpload(event: Event,) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length) {
-        const files = Array.from(target.files);
-        addImages(files);
+        const files = Array.from(target.files,);
+        addImages(files,);
     }
 }
 
-function addImages(selectedFiles: File[]) {
+function addImages(selectedFiles: File[],) {
     fileError.value = null;
 
     if (addedFiles.value.length + selectedFiles.length > 10) {
@@ -521,8 +574,8 @@ function addImages(selectedFiles: File[]) {
         return;
     }
 
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
 
     if (invalidFiles.length > 0) {
         fileError.value = 'Пожалуйста, загружайте только изображения (JPG, JPEG, PNG)';
@@ -530,50 +583,50 @@ function addImages(selectedFiles: File[]) {
     }
 
     const maxSize = 5 * 1024 * 1024;
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
 
     if (largeFiles.length > 0) {
         fileError.value = 'Размер каждого файла не должен превышать 5 МБ';
         return;
     }
 
-    addedFiles.value = [...addedFiles.value, ...selectedFiles];
+    addedFiles.value = [...addedFiles.value, ...selectedFiles,];
 
-    selectedFiles.forEach((file) => {
+    selectedFiles.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
                 filename: file.name,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-function removeImage(index: number) {
+function removeImage(index: number,) {
     const imageToRemove = previewImages.value[index];
     if (!imageToRemove) return;
 
     if (imageToRemove.isExisting && imageToRemove.filename) {
         // Mark existing image for deletion
-        if (!imagesToDelete.value.includes(imageToRemove.filename)) {
-            imagesToDelete.value.push(imageToRemove.filename);
+        if (!imagesToDelete.value.includes(imageToRemove.filename,)) {
+            imagesToDelete.value.push(imageToRemove.filename,);
         }
     } else if (imageToRemove.file) {
         // Remove from files array if it's a newly uploaded file
-        const fileIndex = addedFiles.value.indexOf(imageToRemove.file);
+        const fileIndex = addedFiles.value.indexOf(imageToRemove.file,);
         if (fileIndex > -1) {
-            addedFiles.value.splice(fileIndex, 1);
+            addedFiles.value.splice(fileIndex, 1,);
         }
     }
 
     // Remove from preview images
-    previewImages.value.splice(index, 1);
+    previewImages.value.splice(index, 1,);
 }
 
-function validateField(fieldName: string) {
+function validateField(fieldName: string,) {
     switch (fieldName) {
         case 'name_ru':
             if (!sale.name_ru.trim()) {
@@ -635,14 +688,14 @@ function validateField(fieldName: string) {
 }
 
 function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('base_id');
-    validateField('materials_ids');
-    validateField('price');
+    validateField('name_ru',);
+    validateField('name_en',);
+    validateField('width',);
+    validateField('height',);
+    validateField('year',);
+    validateField('base_id',);
+    validateField('materials_ids',);
+    validateField('price',);
 
     // Check at least one image exists (existing or newly uploaded)
     const hasExistingImages = sale.images.length > imagesToDelete.value.length;
@@ -653,7 +706,7 @@ function validateForm() {
     }
 
     // Check no errors
-    return Object.values(errors).every((error) => error === '');
+    return Object.values(errors,).every(error => error === '',);
 }
 
 async function submitForm() {
@@ -668,51 +721,55 @@ async function submitForm() {
 
         const formData = new FormData();
 
-        const finalImages: string[] = [];
-
-        // Add existing images that are not marked for deletion
-        for (const imageName of sale.images) {
-            if (!imagesToDelete.value.includes(imageName)) {
-                finalImages.push(imageName);
+        // Add kept existing images under the field name expected by the server
+        sale.images.forEach((imageName,) => {
+            if (!imagesToDelete.value.includes(imageName,)) {
+                formData.append('images', imageName,);
             }
-        }
+        });
 
-        // Add new image filenames
-        for (const file of addedFiles.value) {
-            finalImages.push(file.name);
-        }
-
+        // Add new image files under the field name expected by the server
         if (addedFiles.value.length > 0) {
-            addedFiles.value.forEach((file) => {
-                formData.append('images', file);
+            addedFiles.value.forEach((file,) => {
+                formData.append('image', file,);
             });
         }
 
-        let updatedImages: string[];
-        if (previewImages.value && previewImages.value.length > 0) {
-            updatedImages = previewImages.value
-                .map((image) => image.filename)
-                .filter((filename): filename is string => !!filename);
-        } else {
-            updatedImages = [];
+        // Add flat form fields matching the server's UpdateSaleRequest
+        formData.append('name_ru', sale.name_ru,);
+        formData.append('name_en', sale.name_en,);
+        formData.append('descr_ru', sale.descr_ru,);
+        formData.append('descr_en', sale.descr_en,);
+        formData.append('price', String(sale.price),);
+        formData.append('year', String(sale.year),);
+        formData.append('width', String(sale.width),);
+        formData.append('height', String(sale.height),);
+        sale.materials_ids.forEach((materialId,) => {
+            formData.append('material_ids', String(materialId,),);
+        });
+        if (sale.base_id > 0) {
+            formData.append('base_ids', String(sale.base_id,),);
         }
-
-        const saleDataToUpdate: UpdateSaleRequest = {
-            ...sale,
-            images: updatedImages,
-        };
-
-        formData.append('data', JSON.stringify(saleDataToUpdate));
 
         const strId = route.params.id;
         const response = await axios.put(SERVER_URL + 'sales/' + strId, formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                Authorization: `Bearer ${localStorage.getItem('token',)}`,
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 200 || response.status === 201) {
+            const resData = response.data;
+            sale.dir = resData.dir ?? sale.dir;
+            sale.images = resData.images ?? sale.images;
+            addedFiles.value = [];
+            previewImages.value = sale.images.map((filename,) => ({
+                preview: `${sale.dir}${filename}`,
+                isExisting: true,
+                filename,
+            }),);
+            imagesToDelete.value = [];
+            Object.assign(originalSale, { ...sale, },);
             toast.add({
                 title: 'Успешно!',
                 description: 'Работа успешно обновлена в магазине.',
@@ -720,10 +777,6 @@ async function submitForm() {
                 color: 'success',
                 duration: 5000,
             });
-            sale.images = finalImages;
-            imagesToDelete.value = [];
-            addedFiles.value = [];
-            Object.assign(originalSale, { ...sale });
         } else {
             toast.add({
                 title: 'Ошибка!',
@@ -734,16 +787,16 @@ async function submitForm() {
             });
         }
     } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description =
-            'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
+        console.error('Error submitting form:', error,);
+        let description
+                = 'Произошла ошибка при обновлении работы. Пожалуйста, попробуйте снова.';
 
         if (error.response?.status === 413) {
-            description =
-                'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
+            description
+                    = 'Файлы слишком большие. Пожалуйста, загрузите меньшие изображения.';
         } else if (error.response?.status === 400) {
-            description =
-                'Некорректные данные. Пожалуйста, проверьте введенные значения.';
+            description
+                    = 'Некорректные данные. Пожалуйста, проверьте введенные значения.';
         }
         toast.add({
             title: 'Ошибка!',
@@ -758,7 +811,7 @@ async function submitForm() {
 }
 
 function resetForm() {
-    Object.assign(sale, { ...originalSale });
+    Object.assign(sale, { ...originalSale, },);
     addedFiles.value = [];
     previewImages.value = [];
     imagesToDelete.value = [];
@@ -767,7 +820,7 @@ function resetForm() {
         fileInput.value.value = '';
     }
 
-    Object.keys(errors).forEach((key) => {
+    Object.keys(errors,).forEach((key,) => {
         errors[key] = '';
     });
     fileError.value = null;
@@ -777,21 +830,21 @@ function materialsToggleDropdown() {
     materialsDropdownOpen.value = !materialsDropdownOpen.value;
 }
 
-function toggleMaterial(materialId: number, checked: boolean) {
+function toggleMaterial(materialId: number, checked: boolean,) {
     if (checked) {
-        if (!sale.materials_ids.includes(materialId)) {
-            sale.materials_ids.push(materialId);
+        if (!sale.materials_ids.includes(materialId,)) {
+            sale.materials_ids.push(materialId,);
         }
     } else {
-        const index = sale.materials_ids.indexOf(materialId);
+        const index = sale.materials_ids.indexOf(materialId,);
         if (index > -1) {
-            sale.materials_ids.splice(index, 1);
+            sale.materials_ids.splice(index, 1,);
         }
     }
 }
 
-function basesToggleDropdown() {
-    basesDropdownOpen.value = !basesDropdownOpen.value;
+function onMaterialChange(materialId: number, event: Event,) {
+    toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
 }
 
 // Lifecycle
@@ -991,7 +1044,7 @@ select:has(option.placeholder:checked) {
     object-fit: cover;
 }
 
-.remove-btn {
+:deep(.remove-btn) {
     position: absolute;
     top: 0;
     right: 0;
@@ -1009,7 +1062,7 @@ select:has(option.placeholder:checked) {
     border-radius: 0 0 0 4px;
 }
 
-.remove-btn:hover {
+:deep(.remove-btn:hover) {
     background-color: rgba(255, 0, 0, 0.9);
 }
 
@@ -1209,8 +1262,18 @@ select:has(option.placeholder:checked) {
     background-color: #f8f9fa;
 }
 
-.option-item input {
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
     margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .arrow {
@@ -1367,6 +1430,10 @@ select:has(option.placeholder:checked) {
 
 :root.dark .option-item:hover {
     background-color: #334155;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
 }
 
 :root.dark .arrow {

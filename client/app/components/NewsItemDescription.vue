@@ -1,55 +1,62 @@
 <script setup lang="ts">
-import CalendarIcon from './IconCalendar.vue';
-import NewsDescriptionSkeleton from './NewsDescriptionSkeleton.vue';
-import { ref, onMounted, nextTick } from 'vue';
-import { useI18n } from '#imports';
+    import CalendarIcon from './IconCalendar.vue';
+    import NewsDescriptionSkeleton from './NewsDescriptionSkeleton.vue';
+    import { ref, onMounted, nextTick, } from 'vue';
+    import { useI18n, } from '#imports';
 
-const props = defineProps<{
-    newsObject: {
-        title_ru: string;
-        title_en: string;
-        datetime: string;
+    const props = defineProps<{
+        newsObject: {
+            title_ru: string
+            title_en: string
+            datetime: string
+        }
+    }>();
+
+    const { locale, } = useI18n();
+
+    // Reactive state
+    const isLoaded = ref(false,);
+
+    // Methods
+    const getHumanDate = (inDate: string, locale: string,) => {
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+        } as const;
+        const date = new Date(inDate,);
+        const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
+        return date.toLocaleDateString(stdLocale, options,);
     };
-}>();
 
-const { locale } = useI18n();
+    const onLoad = () => {
+        isLoaded.value = true;
+    };
 
-// Reactive state
-const isLoaded = ref(false);
-
-// Methods
-const getHumanDate = (inDate: string, locale: string) => {
-    const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    } as const;
-    const date = new Date(inDate);
-    const stdLocale = locale === 'ru' ? 'ru-RU' : 'en-EN';
-    return date.toLocaleDateString(stdLocale, options);
-};
-
-const onLoad = () => {
-    isLoaded.value = true;
-};
-
-// Lifecycle hooks
-onMounted(() => {
-    nextTick(() => {
-        onLoad();
+    // Lifecycle hooks
+    onMounted(() => {
+        nextTick(() => {
+            onLoad();
+        });
     });
-});
 </script>
 
 <template>
     <div class="desc">
-        <div class="title" @load="onLoad" v-show="isLoaded">
+        <div
+            v-show="isLoaded"
+            class="title"
+            @load="onLoad"
+        >
             <h2>
                 {{ locale === 'ru' ? newsObject.title_ru : newsObject.title_en }}
             </h2>
-            <div class="date" v-show="!!newsObject.datetime">
+            <div
+                v-show="!!newsObject.datetime"
+                class="date"
+            >
                 <CalendarIcon />
-                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale) }}</span>
+                <span> &nbsp;{{ getHumanDate(newsObject.datetime, locale,) }}</span>
             </div>
         </div>
         <NewsDescriptionSkeleton v-show="!isLoaded" />

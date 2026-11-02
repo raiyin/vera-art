@@ -6,11 +6,15 @@
             <span class="admin-page__breadcrumbs-current">Настройки</span>
         </div>
         <div class="admin-page__header">
-            <h1 class="admin-page__title">Настройки</h1>
+            <h1 class="admin-page__title">
+                Настройки
+            </h1>
         </div>
         <div class="admin-page__placeholder">
             <p>Управление справочниками: материалы, основы</p>
-            <p class="admin-page__hint">Будет реализовано в Шаге 14</p>
+            <p class="admin-page__hint">
+                Будет реализовано в Шаге 14
+            </p>
         </div>
     </div>
 </template>

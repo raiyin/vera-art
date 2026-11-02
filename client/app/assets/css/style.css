@@ -1,6 +1,9 @@
-*{
+*,
+*::before,
+*::after {
 	margin: 0;
 	padding: 0;
+	box-sizing: border-box;
 }
 
 html,
@@ -32,7 +35,6 @@ html {
 .modal-dialog {
 	position: relative;
 	display: table;
-	/* This is important */
 	overflow-y: auto;
 	overflow-x: auto;
 	width: auto;
@@ -52,8 +54,30 @@ html {
 	}
 }
 
+:root {
+	--skeleton-gray: #ADADAD;
+	--color-light: #FFFFFF;
+	--color-dark: #111111;
+	--color-caption-border: #F7F7F7;
+	--color-active-link-bg: #4B9E90;
+
+	--color-surface: #F8F8F8;
+	--color-on-surface: #12131C;
+	--color-on-surface-hover: #42434C;
+	--color-surface-secondary: rgba(255, 255, 255, 0.4);
+	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
+	--color-header-menu-item: #73D1BE;
+	--color-border: #e5e7eb;
+	--color-primary: #4B9E90;
+	--color-primary-hover: #3d8a7d;
+	--color-primary-dark: #2d6b61;
+
+	--vs-dropdown-bg: #FFFFFF;
+	--vs-dropdown-option--active-bg: #DDDDDD;
+	--vs-dropdown-min-width: 60px;
+}
+
 .body {
-	/* Сгаживание шрифтов */
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	-webkit-text-size-adjust: 100%;
@@ -61,36 +85,23 @@ html {
 	-moz-text-size-adjust: 100%;
 	text-rendering: optimizeLegibility;
 	font-family: 'Montserrat', sans-serif;
-	/* Цвета */
-	--skeleton-gray: #ADADAD;
-	--color-light: #FFFFFF;
-	--color-dark: #11111100;
-	--color-caption-border: #F7F7F7;
-	--color-active-link-bg: #4B9E90;
-	/* Цветовая схема */
-	--color-surface: #F8F8F8;
-	--color-on-surface: #12131C;
-	--color-on-surface-hover: #42434C;
-	--color-surface-secondary: rgba(255, 255, 255, 0.4);
-	--color-surface-secondary-solid: rgba(255, 255, 255, 1);
-	--color-header-menu-item: #73D1BE;
-	--vs-dropdown-bg: #FFFFFF;
-	--vs-dropdown-option--active-bg: #DDDDDD;
-	/* Параметры отображения */
 	background-color: var(--color-surface);
 	color: var(--color-on-surface);
 	overflow-y: scroll;
-	--vs-dropdown-min-width: 60px;
 }
 
-/* Цветовая схема для темной темы */
 .body_theme_dark {
-	--color-surface: #231E1F;
-	--color-on-surface: #777;
-	--color-on-surface-hover: #999999;
-	--color-surface-secondary: rgba(25, 25, 21, 0.4);
-	--color-surface-secondary-solid: rgba(25, 20, 21, 1);
-	--color-header-menu-item: #494849;
-	--vs-dropdown-bg: #333333;
-	--vs-dropdown-option--active-bg: #444444;
+	--color-surface: #1a1a1a;
+	--color-on-surface: #b0b0b0;
+	--color-on-surface-hover: #cccccc;
+	--color-surface-secondary: rgba(30, 30, 30, 0.4);
+	--color-surface-secondary-solid: rgba(30, 30, 30, 1);
+	--color-header-menu-item: #5a5a5a;
+	--color-border: #333333;
+	--color-primary: #5db8a8;
+	--color-primary-hover: #4da898;
+	--color-primary-dark: #3d8878;
+
+	--vs-dropdown-bg: #2a2a2a;
+	--vs-dropdown-option--active-bg: #3a3a3a;
 }

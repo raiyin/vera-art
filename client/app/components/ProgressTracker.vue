@@ -1,6 +1,8 @@
 <template>
     <div class="progress-tracker">
-        <h3 class="tracker-title">Прогресс обучения</h3>
+        <h3 class="tracker-title">
+            Прогресс обучения
+        </h3>
         <div class="progress-summary">
             <div class="summary-item">
                 <span class="label">Всего уроков:</span>
@@ -16,23 +18,34 @@
             </div>
         </div>
         <div class="progress-bar">
-            <div class="progress-fill" :style="{ width: progressPercentage + '%' }"></div>
+            <div
+                class="progress-fill"
+                :style="{ width: progressPercentage + '%', }"
+            />
         </div>
         <div class="lessons-list">
             <div
                 v-for="lesson in lessons"
                 :key="lesson.id"
                 class="lesson-item"
-                :class="{ completed: lesson.completed }"
+                :class="{ completed: lesson.completed, }"
             >
-                <div class="lesson-checkbox" @click="toggleLesson(lesson)">
+                <div
+                    class="lesson-checkbox"
+                    @click="toggleLesson(lesson,)"
+                >
                     <span v-if="lesson.completed">✓</span>
                 </div>
                 <div class="lesson-details">
                     <h4>{{ lesson.title_ru }}</h4>
-                    <p class="lesson-duration">{{ lesson.duration_minutes }} мин.</p>
-                    <p v-if="lesson.completed" class="completed-at">
-                        Завершено: {{ formatDate(lesson.completed_at) }}
+                    <p class="lesson-duration">
+                        {{ lesson.duration_minutes }} мин.
+                    </p>
+                    <p
+                        v-if="lesson.completed"
+                        class="completed-at"
+                    >
+                        Завершено: {{ formatDate(lesson.completed_at,) }}
                     </p>
                 </div>
                 <div class="lesson-actions">
@@ -46,7 +59,7 @@
                     <button
                         v-else
                         class="btn btn-small btn-outline"
-                        @click="toggleLesson(lesson)"
+                        @click="toggleLesson(lesson,)"
                     >
                         Отметить как непройденный
                     </button>
@@ -57,41 +70,41 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+    import { computed, } from 'vue';
 
-interface Lesson {
-    id: number;
-    title_ru: string;
-    duration_minutes: number;
-    completed: boolean;
-    completed_at?: string;
-}
+    interface Lesson {
+        id: number
+        title_ru: string
+        duration_minutes: number
+        completed: boolean
+        completed_at?: string
+    }
 
-const props = defineProps<{
-    lessons: Lesson[];
-}>();
+    const props = defineProps<{
+        lessons: Lesson[]
+    }>();
 
-const emit = defineEmits<{
-    'update-lesson': [lessonId: number, completed: boolean];
-}>();
+    const emit = defineEmits<{
+        'update-lesson': [lessonId: number, completed: boolean,]
+    }>();
 
-const totalLessons = computed(() => props.lessons.length);
-const completedLessons = computed(() => props.lessons.filter((l) => l.completed).length);
-const progressPercentage = computed(() => {
-    return totalLessons.value > 0
-        ? Math.round((completedLessons.value / totalLessons.value) * 100)
-        : 0;
-});
+    const totalLessons = computed(() => props.lessons.length,);
+    const completedLessons = computed(() => props.lessons.filter(l => l.completed,).length,);
+    const progressPercentage = computed(() => {
+        return totalLessons.value > 0
+            ? Math.round((completedLessons.value / totalLessons.value) * 100,)
+            : 0;
+    });
 
-function toggleLesson(lesson: Lesson) {
-    emit('update-lesson', lesson.id, !lesson.completed);
-}
+    function toggleLesson(lesson: Lesson,) {
+        emit('update-lesson', lesson.id, !lesson.completed,);
+    }
 
-function formatDate(dateString?: string) {
-    if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU');
-}
+    function formatDate(dateString?: string,) {
+        if (!dateString) return '';
+        const date = new Date(dateString,);
+        return date.toLocaleDateString('ru-RU',);
+    }
 </script>
 
 <style scoped>

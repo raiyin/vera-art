@@ -1,75 +1,108 @@
 <script setup lang="ts">
-import type { TypedGetSaleDto } from '~/types/sale';
-import Gallery from '@/components/PicGallery.vue';
-import { ref, onMounted } from 'vue';
+    import type { Sale, } from '~/types/work';
+    import Gallery from '~/components/PicGallery.vue';
+    import { useInfiniteScroll, } from '~/composables/useInfiniteScroll';
+    import { getHttpClient, } from '~/api/http-client';
 
-const config = useRuntimeConfig();
-const SERVER_URL = config.public.serverUrl;
-const limit = config.public.limit;
-
-const sales = ref<TypedGetSaleDto[]>([]);
-const page = ref(-1);
-const salesObserver = ref<Element | null>(null);
-
-const emit = defineEmits<{
-    'work-deleted': [id: string];
-}>();
-
-const loadWorks = async () => {
-    try {
-        page.value += 1;
-        const params = new URLSearchParams({
-            offset: (page.value * +limit).toString(),
-            limit: limit,
-        });
-        const response = await fetch(`${SERVER_URL}sales?${params}`);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        const newWorks = data.map((work: any) => ({
-            ...work,
-            __type: 'GetSaleDto',
-        }));
-        sales.value = [...sales.value, ...newWorks];
-    } catch (e) {
-        console.error('Error fetching works on shop page ' + e);
+    interface SaleResponseItem {
+        id: number
+        name_ru: string
+        name_en: string
+        descr_ru?: string
+        descr_en?: string
+        image_path: string
+        sale_path: string
+        dir: string
+        images: string[]
+        price: number
+        year?: number
+        technique?: string
+        width: number
+        height: number
+        status: string
+        sort_order: number
+        sold: boolean
+        material_ids?: number[]
+        base_ids?: number[]
+        created_at: string
+        updated_at: string
     }
-};
 
-const handleSaleDeleted = (id: string) => {
-    sales.value = sales.value.filter(
-        (work: TypedGetSaleDto) => work.id !== id && String(work.id) !== id
-    );
-};
+    interface SalesResponse {
+        sales: SaleResponseItem[]
+        total: number
+    }
 
-onMounted(() => {
-    // Load initial data immediately
-    loadWorks();
+    const { items: sales, sentinelRef, loading, } = useInfiniteScroll<Sale>(
+        async (page,) => {
+            const limit = useRuntimeConfig().public.limit as string;
+            const { data, } = await getHttpClient().get<SalesResponse>('sales', {
+                params: {
+                    page: page + 1,
+                    limit,
+                },
+            });
+            return data.sales.map(item => ({
+                id: item.id,
+                str_id: String(item.id),
+                work_path: item.sale_path,
+                dir: item.dir,
+                name_ru: item.name_ru,
+                name_en: item.name_en,
+                year: item.year ?? 0,
+                descr_ru: item.descr_ru ?? '',
+                descr_en: item.descr_en ?? '',
+                base_id: item.base_ids?.[0] ?? 0,
+                width: item.width,
+                height: item.height,
+                images: item.images ?? [],
+                material_ids: item.material_ids ?? [],
+                price: item.price,
+                __type: 'GetSaleDto' as const,
+            }),);
+        },
+        { immediate: true, },
+);
 
-    // Set up infinite scroll observer
-    const options = {
-        rootMargin: '0px',
-        threshold: 0,
+    const emit = defineEmits<{
+        'work-deleted': [id: string,]
+    }>();
+
+    const handleSaleDeleted = (id: string,) => {
+        sales.value = sales.value.filter((sale: Sale,) => String(sale.id,) !== id,);
     };
-    const salesCallback = (entries: IntersectionObserverEntry[]) => {
-        if (entries[0]?.isIntersecting) {
-            loadWorks();
-        }
-    };
-    const observer = new IntersectionObserver(salesCallback, options);
-    if (salesObserver.value) observer.observe(salesObserver.value);
-});
 </script>
 
 <template>
-    <UContainer class="main-content">
-        <Gallery :images="sales" @work-deleted="handleSaleDeleted" />
+    <UContainer class="main-content pt-20">
+        <Gallery
+            :images="sales"
+            @work-deleted="handleSaleDeleted"
+        />
 
-        <div ref="salesObserver" class="observer" />
+        <div
+            v-if="loading"
+            class="loading-indicator"
+        >
+            <span>Загрузка...</span>
+        </div>
+
+        <div
+            ref="sentinelRef"
+            class="observer"
+        />
     </UContainer>
 </template>
 
 <style scoped>
 .observer {
-    height: 0px;
+    height: 1px;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 1rem;
+    color: var(--color-on-surface);
+    opacity: 0.7;
 }
 </style>

@@ -22,6 +22,14 @@ export default defineNuxtConfig({
         public: {
             serverUrl: process.env.NUXT_PUBLIC_SERVER_URL || 'http://localhost:8000/',
             limit: process.env.NUXT_PUBLIC_LIMIT || '9',
+            relWorksDir: process.env.NUXT_PUBLIC_REL_WORKS_DIR || '/content/works/',
+            relSalesDir: process.env.NUXT_PUBLIC_REL_SALES_DIR || '/content/sales/',
+            registrationEnabled: process.env.NUXT_PUBLIC_REGISTRATION_ENABLED !== 'false',
+            contacts: {
+                telegram: process.env.NUXT_PUBLIC_CONTACT_TELEGRAM || 'https://t.me/MilayaV',
+                vk: process.env.NUXT_PUBLIC_CONTACT_VK || 'https://vk.com/perczukowa',
+                email: process.env.NUXT_PUBLIC_CONTACT_EMAIL || 'perczukowa@yandex.ru',
+            },
         },
     },
 
@@ -37,14 +45,8 @@ export default defineNuxtConfig({
 
     vite: {
         warmupEntry: false,
-        optimizeDeps: {
-            include: [
-                '@vue/devtools-core',
-                '@vue/devtools-kit',
-            ],
-        },
         server: {
-            hmr: {
+            ws: {
                 protocol: 'ws',
                 host: 'localhost',
                 port: 24678,
@@ -72,6 +74,7 @@ export default defineNuxtConfig({
         // Disable fontsource provider to avoid network errors
         providers: {
             fontsource: false,
+            bunny: false,
         },
     },
 

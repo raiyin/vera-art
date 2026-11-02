@@ -1,27 +1,36 @@
 <template>
     <div class="add-sale-container">
         <div class="header-section">
-            <h1 class="page-title">{{ $t('admin_shop_form.page_title') }}</h1>
+            <h1 class="page-title">
+                {{ $t('admin_shop_form.page_title',) }}
+            </h1>
         </div>
 
         <!-- Загрузчик -->
-        <div v-if="isLoading" class="loading-container">
+        <div
+            v-if="isLoading"
+            class="loading-container"
+        >
             <div class="loader" />
-            <p>{{ $t('admin_shop_form.loading') }}</p>
+            <p>{{ $t('admin_shop_form.loading',) }}</p>
         </div>
 
-        <form v-else @submit.prevent="submitForm" class="sale-form">
+        <form
+            v-else
+            class="sale-form"
+            @submit.prevent="submitForm"
+        >
             <!-- Поле для загрузки изображений -->
             <div class="form-section">
-                <h2 class="section-title">{{ $t('admin_shop_form.sections.images') }}</h2>
+                <h2 class="section-title">
+                    {{ $t('admin_shop_form.sections.images',) }}
+                </h2>
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.select_images') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.select_images',) }}
+                        <span class="required">*</span></label>
                     <div
                         class="file-drop-area"
-                        :class="{ 'drag-over': isDragOver }"
+                        :class="{ 'drag-over': isDragOver, }"
                         @dragover.prevent="handleDragOver"
                         @dragleave.prevent="handleDragLeave"
                         @drop.prevent="handleDrop"
@@ -35,7 +44,7 @@
                             class="file-input"
                             required
                             @change="handleFileUpload"
-                        />
+                        >
                         <div class="file-drop-content">
                             <svg
                                 class="upload-icon"
@@ -51,20 +60,31 @@
                             >
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="17 8 12 3 7 8" />
-                                <line x1="12" y1="3" x2="12" y2="15" />
+                                <line
+                                    x1="12"
+                                    y1="3"
+                                    x2="12"
+                                    y2="15"
+                                />
                             </svg>
                             <p class="upload-text">
-                                {{ $t('admin_shop_form.labels.drag_drop_text') }}
+                                {{ $t('admin_shop_form.labels.drag_drop_text',) }}
                             </p>
                             <p class="upload-hint">
-                                {{ $t('admin_shop_form.labels.file_formats') }}
+                                {{ $t('admin_shop_form.labels.file_formats',) }}
                             </p>
                         </div>
                     </div>
-                    <div v-if="fileError" class="error-message">
+                    <div
+                        v-if="fileError"
+                        class="error-message"
+                    >
                         {{ fileError }}
                     </div>
-                    <div v-if="previewImages.length > 0" class="preview-container">
+                    <div
+                        v-if="previewImages.length > 0"
+                        class="preview-container"
+                    >
                         <div
                             v-for="(image, index) in previewImages"
                             :key="index"
@@ -74,16 +94,16 @@
                                 :src="image.preview"
                                 class="preview-image"
                                 :alt="`Preview ${index + 1}`"
-                            />
+                            >
                             <UButton
                                 type="button"
                                 class="remove-btn"
                                 :aria-label="
                                     $t('admin_shop_form.aria_labels.remove_image', {
                                         index: index + 1,
-                                    })
+                                    },)
                                 "
-                                @click="removeImage(index)"
+                                @click="removeImage(index,)"
                             >
                                 &times;
                             </UButton>
@@ -95,54 +115,54 @@
             <!-- Основная информация -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_shop_form.sections.main_info') }}
+                    {{ $t('admin_shop_form.sections.main_info',) }}
                 </h2>
 
                 <!-- Название картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.name_ru') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.name_ru',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="sale.name_ru"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_ru }"
-                        :placeholder="$t('admin_shop_form.placeholders.name_ru')"
-                        @blur="validateField('name_ru')"
+                        :class="{ 'is-invalid': errors.name_ru, }"
+                        :placeholder="$t('admin_shop_form.placeholders.name_ru',)"
+                        @blur="validateField('name_ru',)"
                     />
-                    <div v-if="errors.name_ru" class="error-message">
+                    <div
+                        v-if="errors.name_ru"
+                        class="error-message"
+                    >
                         {{ errors.name_ru }}
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.name_en') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.name_en',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model="sale.name_en"
                         type="text"
                         required
                         class="form-control"
-                        :class="{ 'is-invalid': errors.name_en }"
-                        :placeholder="$t('admin_shop_form.placeholders.name_en')"
-                        @blur="validateField('name_en')"
+                        :class="{ 'is-invalid': errors.name_en, }"
+                        :placeholder="$t('admin_shop_form.placeholders.name_en',)"
+                        @blur="validateField('name_en',)"
                     />
-                    <div v-if="errors.name_en" class="error-message">
+                    <div
+                        v-if="errors.name_en"
+                        class="error-message"
+                    >
                         {{ errors.name_en }}
                     </div>
                 </div>
 
                 <!-- Размеры картины -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.dimensions') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.dimensions',) }}
+                        <span class="required">*</span></label>
                     <div class="size-inputs">
                         <div class="size-input-wrapper">
                             <UInput
@@ -151,11 +171,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.width }"
-                                :placeholder="$t('admin_shop_form.labels.width')"
-                                @blur="validateField('width')"
+                                :class="{ 'is-invalid': errors.width, }"
+                                :placeholder="$t('admin_shop_form.labels.width',)"
+                                @blur="validateField('width',)"
                             />
-                            <div v-if="errors.width" class="error-message">
+                            <div
+                                v-if="errors.width"
+                                class="error-message"
+                            >
                                 {{ errors.width }}
                             </div>
                         </div>
@@ -167,11 +190,14 @@
                                 required
                                 min="1"
                                 class="form-control size-input"
-                                :class="{ 'is-invalid': errors.height }"
-                                :placeholder="$t('admin_shop_form.labels.height')"
-                                @blur="validateField('height')"
+                                :class="{ 'is-invalid': errors.height, }"
+                                :placeholder="$t('admin_shop_form.labels.height',)"
+                                @blur="validateField('height',)"
                             />
-                            <div v-if="errors.height" class="error-message">
+                            <div
+                                v-if="errors.height"
+                                class="error-message"
+                            >
                                 {{ errors.height }}
                             </div>
                         </div>
@@ -180,10 +206,8 @@
 
                 <!-- Год создания -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.year') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.year',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model.number="sale.year"
                         type="number"
@@ -191,32 +215,36 @@
                         min="2000"
                         :max="new Date().getFullYear()"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.year }"
-                        :placeholder="$t('admin_shop_form.placeholders.year')"
-                        @blur="validateField('year')"
+                        :class="{ 'is-invalid': errors.year, }"
+                        :placeholder="$t('admin_shop_form.placeholders.year',)"
+                        @blur="validateField('year',)"
                     />
-                    <div v-if="errors.year" class="error-message">
+                    <div
+                        v-if="errors.year"
+                        class="error-message"
+                    >
                         {{ errors.year }}
                     </div>
                 </div>
 
                 <!-- Цена -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.price') }}
-                        <span class="required">*</span></label
-                    >
+                    <label class="form-label">{{ $t('admin_shop_form.labels.price',) }}
+                        <span class="required">*</span></label>
                     <UInput
                         v-model.number="sale.price"
                         type="number"
                         required
                         min="1"
                         class="form-control"
-                        :class="{ 'is-invalid': errors.price }"
-                        :placeholder="$t('admin_shop_form.placeholders.price')"
-                        @blur="validateField('price')"
+                        :class="{ 'is-invalid': errors.price, }"
+                        :placeholder="$t('admin_shop_form.placeholders.price',)"
+                        @blur="validateField('price',)"
                     />
-                    <div v-if="errors.price" class="error-message">
+                    <div
+                        v-if="errors.price"
+                        class="error-message"
+                    >
                         {{ errors.price }}
                     </div>
                 </div>
@@ -225,47 +253,89 @@
             <!-- Технические характеристики -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_shop_form.sections.tech_specs') }}
+                    {{ $t('admin_shop_form.sections.tech_specs',) }}
                 </h2>
 
                 <!-- Основа -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.base') }}
-                        <span class="required">*</span></label
-                    >
-                    <USelect
+                    <label class="form-label">{{ $t('admin_shop_form.labels.base',) }}
+                        <span class="required">*</span></label>
+                    <select
                         v-model="sale.base_id"
-                        :items="baseOptions"
                         required
                         class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.base_id }"
-                        :placeholder="$t('admin_shop_form.placeholders.select_base')"
-                        @blur="validateField('base_id')"
-                    />
-                    <div v-if="errors.base_id" class="error-message">
+                        :class="{ 'is-invalid': errors.base_id, }"
+                        @blur="validateField('base_id',)"
+                    >
+                        <option
+                            value=""
+                            disabled
+                        >
+                            {{ $t('admin_shop_form.placeholders.select_base',) }}
+                        </option>
+                        <option
+                            v-for="base in bases"
+                            :key="base.id"
+                            :value="base.id"
+                        >
+                            {{ locale === 'ru' ? base.name_ru : base.name_en }}
+                        </option>
+                    </select>
+                    <div
+                        v-if="errors.base_id"
+                        class="error-message"
+                    >
                         {{ errors.base_id }}
                     </div>
                 </div>
 
                 <!-- Материал -->
                 <div class="form-group">
-                    <label class="form-label"
-                        >{{ $t('admin_shop_form.labels.materials') }}
-                        <span class="required">*</span></label
-                    >
-                    <USelect
-                        v-model="sale.materials_ids"
-                        :items="materialOptions"
-                        multiple
-                        required
-                        class="form-control drop-down-arrow"
-                        :class="{ 'is-invalid': errors.materials_ids }"
-                        :placeholder="$t('admin_shop_form.placeholders.select_materials')"
-                        @blur="validateField('materials_ids')"
-                    />
-                    <div v-if="errors.materials_ids" class="error-message">
-                        {{ errors.materials_ids }}
+                    <label class="form-label">{{ $t('admin_shop_form.labels.materials',) }}
+                        <span class="required">*</span></label>
+                    <div class="multi-select-wrapper">
+                        <div
+                            class="select-display drop-down-arrow"
+                            :class="{ 'is-invalid': errors.materials_ids, }"
+                            tabindex="0"
+                            @click="materialsToggleDropdown"
+                            @keydown.enter="materialsToggleDropdown"
+                            @blur="validateField('materials_ids',)"
+                        >
+                            {{ selectedMaterialsDisplay || $t('admin_shop_form.placeholders.select_materials',) }}
+                        </div>
+                        <div
+                            v-if="materialsDropdownOpen"
+                            class="dropdown-options form-control"
+                        >
+                            <div
+                                v-for="material in materials"
+                                :key="material.id"
+                                class="option-item"
+                            >
+                                <input
+                                    :id="'material-' + material.id"
+                                    type="checkbox"
+                                    class="material-checkbox"
+                                    :value="material.id"
+                                    :checked="sale.materials_ids.includes(material.id,)"
+                                    @change="onMaterialChange(material.id, $event,)"
+                                >
+                                <label :for="'material-' + material.id">
+                                    {{
+                                        locale === 'ru'
+                                            ? material.name_ru
+                                            : material.name_en
+                                    }}
+                                </label>
+                            </div>
+                        </div>
+                        <div
+                            v-if="errors.materials_ids"
+                            class="error-message"
+                        >
+                            {{ errors.materials_ids }}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -273,40 +343,48 @@
             <!-- Описание -->
             <div class="form-section">
                 <h2 class="section-title">
-                    {{ $t('admin_shop_form.sections.additional_info') }}
+                    {{ $t('admin_shop_form.sections.additional_info',) }}
                 </h2>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_shop_form.labels.description_ru')
+                        $t('admin_shop_form.labels.description_ru',)
                     }}</label>
                     <UTextarea
                         v-model="sale.descr_ru"
                         class="form-control"
-                        :placeholder="$t('admin_shop_form.placeholders.description')"
+                        :placeholder="$t('admin_shop_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ sale.descr_ru.length }}/500</div>
+                    <div class="char-count">
+                        {{ sale.descr_ru.length }}/500
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">{{
-                        $t('admin_shop_form.labels.description_en')
+                        $t('admin_shop_form.labels.description_en',)
                     }}</label>
                     <UTextarea
                         v-model="sale.descr_en"
                         class="form-control"
-                        :placeholder="$t('admin_shop_form.placeholders.description')"
+                        :placeholder="$t('admin_shop_form.placeholders.description',)"
                         :rows="4"
                         :maxlength="500"
                     />
-                    <div class="char-count">{{ sale.descr_en.length }}/500</div>
+                    <div class="char-count">
+                        {{ sale.descr_en.length }}/500
+                    </div>
                 </div>
             </div>
 
             <!-- Кнопки -->
             <div class="form-actions">
-                <UButton type="button" class="btn btn-secondary" @click="resetForm">
-                    {{ $t('admin_shop_form.buttons.clear_form') }}
+                <UButton
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="resetForm"
+                >
+                    {{ $t('admin_shop_form.buttons.clear_form',) }}
                 </UButton>
                 <UButton
                     type="submit"
@@ -314,11 +392,11 @@
                     :disabled="isSubmitting || !isFormValid"
                 >
                     <span v-if="!isSubmitting">{{
-                        $t('admin_shop_form.buttons.add_work')
+                        $t('admin_shop_form.buttons.add_work',)
                     }}</span>
                     <span v-else>
                         <span class="spinner" />
-                        {{ $t('admin_shop_form.buttons.submitting') }}
+                        {{ $t('admin_shop_form.buttons.submitting',) }}
                     </span>
                 </UButton>
             </div>
@@ -327,17 +405,18 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, reactive, computed, onMounted } from 'vue';
-import type { CreateSaleDto, RequestResult } from '../../types';
-definePageMeta({
-    layout: 'admin',
-    middleware: 'admin-auth',
-});
+    import axios from 'axios';
+    import { ref, reactive, computed, onMounted, } from 'vue';
+    import type { CreateSaleDto, RequestResult, } from '~/types';
 
-import { useMaterialStore } from '../../stores/MaterialStore';
+    import { useMaterialStore, } from '~/stores/MaterialStore';
 
-const { t, locale } = useI18n();
+    definePageMeta({
+        layout: 'admin',
+        middleware: 'admin-auth',
+    });
+
+const { t, locale, } = useI18n();
 const toast = useToast();
 const config = useRuntimeConfig();
 const SERVER_URL = config.public.serverUrl;
@@ -359,13 +438,14 @@ const sale = reactive<CreateSaleDto>({
     images: [],
 });
 
-const files = ref<File[]>([]);
-const previewImages = ref<{ file: File; preview: string }[]>([]);
-const isSubmitting = ref(false);
-const isLoading = ref(true);
-const isDragOver = ref(false);
-const fileError = ref<string | null>(null);
-const errorMessage = ref('');
+const files = ref<File[]>([],);
+const previewImages = ref<{ file: File, preview: string }[]>([],);
+const isSubmitting = ref(false,);
+const isLoading = ref(true,);
+const isDragOver = ref(false,);
+const fileError = ref<string | null>(null,);
+const errorMessage = ref('',);
+const materialsDropdownOpen = ref(false,);
 
 const errors = reactive<Record<string, string>>({
     name_ru: '',
@@ -378,38 +458,32 @@ const errors = reactive<Record<string, string>>({
     materials_ids: '',
 });
 
-const fileInput = ref<HTMLInputElement | null>(null);
+const fileInput = ref<HTMLInputElement | null>(null,);
 
 // Computed
-const bases = computed(() => materialStore.bases);
-const materials = computed(() => materialStore.materials);
+const bases = computed(() => materialStore.bases,);
+const materials = computed(() => materialStore.materials,);
 
-const baseOptions = computed(() => {
-    return bases.value.map((base) => ({
-        label: locale.value === 'ru' ? base.base_ru : base.base_en,
-        value: base.id,
-    }));
-});
-
-const materialOptions = computed(() => {
-    return materials.value.map((material) => ({
-        label: locale.value === 'ru' ? material.material_ru : material.material_en,
-        value: material.id,
-    }));
+const selectedMaterialsDisplay = computed(() => {
+    if (sale.materials_ids.length === 0) return '';
+    const selectedNames = materialStore.materials
+        .filter(material => sale.materials_ids.includes(material.id,),)
+        .map(material => (locale.value === 'ru' ? material.name_ru : material.name_en),);
+    return selectedNames.join(', ',);
 });
 
 const isFormValid = computed(() => {
     return (
-        sale.name_ru.trim() !== '' &&
-        sale.name_en.trim() !== '' &&
-        sale.width > 0 &&
-        sale.height > 0 &&
-        sale.year >= 2000 &&
-        sale.year <= new Date().getFullYear() &&
-        sale.price > 0 &&
-        sale.base_id > 0 &&
-        sale.materials_ids.length > 0 &&
-        files.value.length > 0
+        sale.name_ru.trim() !== ''
+            && sale.name_en.trim() !== ''
+        && sale.width > 0
+            && sale.height > 0
+        && sale.year >= 2000
+            && sale.year <= new Date().getFullYear()
+        && sale.price > 0
+            && sale.base_id > 0
+        && sale.materials_ids.length > 0
+            && files.value.length > 0
     );
 });
 
@@ -422,11 +496,11 @@ function handleDragLeave() {
     isDragOver.value = false;
 }
 
-function handleDrop(event: DragEvent) {
+function handleDrop(event: DragEvent,) {
     isDragOver.value = false;
     if (event.dataTransfer && event.dataTransfer.files.length) {
-        const droppedFiles = Array.from(event.dataTransfer.files);
-        addImages(droppedFiles);
+        const droppedFiles = Array.from(event.dataTransfer.files,);
+        addImages(droppedFiles,);
     }
 }
 
@@ -434,90 +508,90 @@ function triggerFileInput() {
     fileInput.value?.click();
 }
 
-function handleFileUpload(event: Event) {
+function handleFileUpload(event: Event,) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length) {
-        const selectedFiles = Array.from(target.files);
-        addImages(selectedFiles);
+        const selectedFiles = Array.from(target.files,);
+        addImages(selectedFiles,);
     }
 }
 
-function addImages(selectedFiles: File[]) {
+function addImages(selectedFiles: File[],) {
     fileError.value = null;
 
     // Check max file count
     if (files.value.length + selectedFiles.length > 10) {
-        fileError.value = t('admin_shop_form.errors.max_files');
+        fileError.value = t('admin_shop_form.errors.max_files',);
         return;
     }
 
     // Check file types
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    const invalidFiles = selectedFiles.filter((file) => !validTypes.includes(file.type));
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png',];
+    const invalidFiles = selectedFiles.filter(file => !validTypes.includes(file.type,),);
 
     if (invalidFiles.length > 0) {
-        fileError.value = t('admin_shop_form.errors.invalid_file_type');
+        fileError.value = t('admin_shop_form.errors.invalid_file_type',);
         return;
     }
 
     // Check file size (max 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
-    const largeFiles = selectedFiles.filter((file) => file.size > maxSize);
+    const largeFiles = selectedFiles.filter(file => file.size > maxSize,);
 
     if (largeFiles.length > 0) {
-        fileError.value = t('admin_shop_form.errors.file_size');
+        fileError.value = t('admin_shop_form.errors.file_size',);
         return;
     }
 
     // Add new files
-    files.value = [...files.value, ...selectedFiles];
-    sale.images = files.value.map((file) => file.name);
+    files.value = [...files.value, ...selectedFiles,];
+    sale.images = files.value.map(file => file.name,);
 
     // Create previews for new images
-    selectedFiles.forEach((file) => {
+    selectedFiles.forEach((file,) => {
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = (e,) => {
             previewImages.value.push({
                 file,
                 preview: e.target?.result as string,
             });
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file,);
     });
 }
 
-function removeImage(index: number) {
-    previewImages.value.splice(index, 1);
-    files.value.splice(index, 1);
-    sale.images.splice(index, 1);
+function removeImage(index: number,) {
+    previewImages.value.splice(index, 1,);
+    files.value.splice(index, 1,);
+    sale.images.splice(index, 1,);
 }
 
-function validateField(fieldName: string) {
+function validateField(fieldName: string,) {
     switch (fieldName) {
         case 'name_ru':
             if (!sale.name_ru.trim()) {
-                errors.name_ru = t('admin_shop_form.errors.name_ru_required');
+                errors.name_ru = t('admin_shop_form.errors.name_ru_required',);
             } else {
                 errors.name_ru = '';
             }
             break;
         case 'name_en':
             if (!sale.name_en.trim()) {
-                errors.name_en = t('admin_shop_form.errors.name_en_required');
+                errors.name_en = t('admin_shop_form.errors.name_en_required',);
             } else {
                 errors.name_en = '';
             }
             break;
         case 'width':
             if (sale.width <= 0) {
-                errors.width = t('admin_shop_form.errors.width_required');
+                errors.width = t('admin_shop_form.errors.width_required',);
             } else {
                 errors.width = '';
             }
             break;
         case 'height':
             if (sale.height <= 0) {
-                errors.height = t('admin_shop_form.errors.height_required');
+                errors.height = t('admin_shop_form.errors.height_required',);
             } else {
                 errors.height = '';
             }
@@ -533,21 +607,21 @@ function validateField(fieldName: string) {
             break;
         case 'price':
             if (sale.price <= 0) {
-                errors.price = t('admin_shop_form.errors.price_required');
+                errors.price = t('admin_shop_form.errors.price_required',);
             } else {
                 errors.price = '';
             }
             break;
         case 'base_id':
             if (sale.base_id <= 0) {
-                errors.base_id = t('admin_shop_form.errors.base_required');
+                errors.base_id = t('admin_shop_form.errors.base_required',);
             } else {
                 errors.base_id = '';
             }
             break;
         case 'materials_ids':
             if (sale.materials_ids.length === 0) {
-                errors.materials_ids = t('admin_shop_form.errors.materials_required');
+                errors.materials_ids = t('admin_shop_form.errors.materials_required',);
             } else {
                 errors.materials_ids = '';
             }
@@ -555,24 +629,45 @@ function validateField(fieldName: string) {
     }
 }
 
+function materialsToggleDropdown() {
+    materialsDropdownOpen.value = !materialsDropdownOpen.value;
+}
+
+function toggleMaterial(materialId: number, checked: boolean,) {
+    if (checked) {
+        if (!sale.materials_ids.includes(materialId,)) {
+            sale.materials_ids.push(materialId,);
+        }
+    } else {
+        const index = sale.materials_ids.indexOf(materialId,);
+        if (index > -1) {
+            sale.materials_ids.splice(index, 1,);
+        }
+    }
+}
+
+function onMaterialChange(materialId: number, event: Event,) {
+    toggleMaterial(materialId, (event.target as HTMLInputElement).checked,);
+}
+
 function validateForm() {
-    validateField('name_ru');
-    validateField('name_en');
-    validateField('width');
-    validateField('height');
-    validateField('year');
-    validateField('price');
-    validateField('base_id');
-    validateField('materials_ids');
+    validateField('name_ru',);
+    validateField('name_en',);
+    validateField('width',);
+    validateField('height',);
+    validateField('year',);
+    validateField('price',);
+    validateField('base_id',);
+    validateField('materials_ids',);
 
     // Check images
     if (files.value.length === 0) {
-        fileError.value = t('admin_shop_form.errors.images_required');
+        fileError.value = t('admin_shop_form.errors.images_required',);
         return false;
     }
 
     // Check no errors
-    return Object.values(errors).every((error) => error === '');
+    return Object.values(errors,).every(error => error === '',);
 }
 
 async function submitForm() {
@@ -589,24 +684,37 @@ async function submitForm() {
         // Build form data
         const formData = new FormData();
 
-        // Add files
-        files.value.forEach((file) => {
-            formData.append('images', file);
+        // Add files under the field name expected by the server
+        files.value.forEach((file,) => {
+            formData.append('image', file,);
         });
 
-        // Add other data
-        formData.append('data', JSON.stringify(sale));
+        // Add flat form fields matching the server's CreateSaleRequest
+        formData.append('name_ru', sale.name_ru,);
+        formData.append('name_en', sale.name_en,);
+        formData.append('descr_ru', sale.descr_ru,);
+        formData.append('descr_en', sale.descr_en,);
+        formData.append('price', String(sale.price),);
+        formData.append('year', String(sale.year),);
+        formData.append('width', String(sale.width),);
+        formData.append('height', String(sale.height),);
+        sale.materials_ids.forEach((materialId,) => {
+            formData.append('material_ids', String(materialId,),);
+        });
+        if (sale.base_id > 0) {
+            formData.append('base_ids', String(sale.base_id,),);
+        }
 
         const response = await axios.post(SERVER_URL + 'sales', formData, {
             headers: {
-                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${localStorage.getItem('token',)}`,
             },
         });
 
-        if (response.status === 200) {
+        if (response.status === 201 || response.status === 200) {
             toast.add({
-                title: t('toast.success.title'),
-                description: t('toast.success.description'),
+                title: t('toast.success.title',),
+                description: t('toast.success.description',),
                 icon: 'i-heroicons-check-circle',
                 color: 'success',
                 duration: 5000,
@@ -614,23 +722,23 @@ async function submitForm() {
             resetForm();
         } else {
             toast.add({
-                title: t('toast.error.title'),
-                description: t('admin_shop_form.messages.submit_failed'),
+                title: t('toast.error.title',),
+                description: t('admin_shop_form.messages.submit_failed',),
                 icon: 'i-heroicons-exclamation-triangle',
                 color: 'error',
                 duration: 5000,
             });
         }
     } catch (error: any) {
-        console.error('Error submitting form:', error);
-        let description = t('admin_shop_form.messages.general_error');
+        console.error('Error submitting form:', error,);
+        let description = t('admin_shop_form.messages.general_error',);
         if (error.response?.status === 413) {
-            description = t('admin_shop_form.messages.file_too_large');
+            description = t('admin_shop_form.messages.file_too_large',);
         } else if (error.response?.status === 400) {
-            description = t('admin_shop_form.messages.invalid_data');
+            description = t('admin_shop_form.messages.invalid_data',);
         }
         toast.add({
-            title: t('toast.error.title'),
+            title: t('toast.error.title',),
             description,
             icon: 'i-heroicons-exclamation-triangle',
             color: 'error',
@@ -662,10 +770,11 @@ function resetForm() {
     }
 
     // Reset errors
-    Object.keys(errors).forEach((key) => {
+    Object.keys(errors,).forEach((key,) => {
         errors[key] = '';
     });
     fileError.value = null;
+    materialsDropdownOpen.value = false;
 }
 
 // Lifecycle
@@ -849,6 +958,95 @@ select:has(option.placeholder:checked) {
 
 :root.dark .drop-down-arrow {
     background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.multi-select-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.select-display {
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    background-color: white;
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+:root.dark .select-display {
+    background-color: #1e293b;
+    border-color: #334155;
+    color: #e2e8f0;
+}
+
+.select-display:hover {
+    border-color: #4a90e2;
+}
+
+:root.dark .select-display:hover {
+    border-color: #3b82f6;
+}
+
+.dropdown-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: white;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+    margin-top: 0.25rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+:root.dark .dropdown-options {
+    background: #1e293b;
+    border-color: #334155;
+}
+
+.option-item {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #333;
+}
+
+:root.dark .option-item {
+    color: #e2e8f0;
+}
+
+.option-item:hover {
+    background-color: #f8f9fa;
+}
+
+:root.dark .option-item:hover {
+    background-color: #334155;
+}
+
+.option-item .material-checkbox {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    accent-color: #4a90e2;
+    cursor: pointer;
+}
+
+:root.dark .option-item .material-checkbox {
+    accent-color: #3b82f6;
+}
+
+.option-item label {
+    cursor: pointer;
+    line-height: 1.4;
 }
 
 .file-drop-area {

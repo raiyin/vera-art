@@ -1,20 +1,100 @@
-import type { GetBaseWork, } from './base_work';
+// ─── WorkBase — shared fields for both Work and Sale ────────────────
+
+export interface WorkBase {
+    id: number
+    str_id: string
+    work_path: string
+    dir: string
+    name_ru: string
+    name_en: string
+    year: number
+    descr_ru?: string
+    descr_en?: string
+    base_id: number
+    width: number
+    height: number
+    images: string[]
+    material_ids?: number[]
+}
+
+// ─── Work (gallery) ─────────────────────────────────────────────────
+
+export interface Work extends WorkBase {
+    __type: 'GetWorkDto'
+}
+
+// ─── Sale (art-store) ───────────────────────────────────────────────
+
+export interface Sale extends WorkBase {
+    price: number
+    __type: 'GetSaleDto'
+}
+
+// ─── Discriminated union ────────────────────────────────────────────
+
+export type CommonWork = Work | Sale;
+
+// ─── Create/Update DTOs ─────────────────────────────────────────────
 
 export interface CreateWorkDto {
+    str_id?: string
+    name_ru: string
+    name_en: string
+    year: number
+    width: number
+    height: number
+    base_id: number
+    descr_ru: string
+    descr_en: string
+    material_ids: number[]
+}
+
+export interface UpdateWorkResponse {
+    id: number
+    str_id: string
+    work_path: string
+    name_ru: string
+    name_en: string
+    year: number
+    width: number
+    height: number
+    base_id: number
+    descr_ru?: string
+    descr_en?: string
+    images: string[]
+}
+
+export interface UpdateWorkRequest {
+    str_id?: string
+    name_ru?: string
+    name_en?: string
+    year?: number
+    width?: number
+    height?: number
+    base_id?: number
+    descr_ru: string
+    descr_en: string
+    material_ids?: number[]
+    images?: string[]
+}
+
+// ─── Sale DTOs ──────────────────────────────────────────────────────
+
+export interface CreateSaleDto {
     width: number
     height: number
     year: number
+    price: number
     name_ru: string
     name_en: string
     base_id: number
     materials_ids: number[]
     descr_ru: string
     descr_en: string
-    type: number | null
     images: string[]
 }
 
-export interface UpdateWorkResponse {
+export interface UpdateSaleResponse {
     id: number
     str_id: string
     dir: string
@@ -26,12 +106,12 @@ export interface UpdateWorkResponse {
     descr_en: string
     width: number
     height: number
-    type: number
+    price: number
     images: string[]
     materials_ids: number[]
 }
 
-export interface UpdateWorkRequest {
+export interface UpdateSaleRequest {
     id: number
     name_ru: string
     name_en: string
@@ -41,11 +121,7 @@ export interface UpdateWorkRequest {
     descr_en: string
     width: number
     height: number
-    type: number
+    price: number
     images: string[]
     materials_ids: number[]
 }
-
-export type TypedGetWorkDto = GetBaseWork & {
-    __type: 'GetWorkDto'
-};
