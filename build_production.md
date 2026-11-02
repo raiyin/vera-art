@@ -1,5 +1,62 @@
 # Сборка и развёртывание проекта в продакшн (VPS на jino.ru, Ubuntu)
 
+## Содержание
+
+- [0. Что уже сделано в панели Джино (сделать до установки)](#0-что-уже-сделано-в-панели-джино-сделать-до-установки)
+- [1. Обзор архитектуры и схема продакшна](#1-обзор-архитектуры-и-схема-продакшна)
+- [2. Требования](#2-требования)
+- [3. Подготовка сервера](#3-подготовка-сервера)
+  - [3.1. Первый вход и пользователь](#31-первый-вход-и-пользователь)
+  - [3.2. Модули ядра и файрвол](#32-модули-ядра-и-файрвол)
+  - [3.3. Установка системных пакетов](#33-установка-системных-пакетов)
+  - [3.4. Swap](#34-swap)
+  - [3.5. Структура каталогов](#35-структура-каталогов)
+- [4. Перенос проекта на сервер](#4-перенос-проекта-на-сервер)
+- [5. База данных](#5-база-данных)
+  - [5.1. Где лежит БД](#51-где-лежит-бд)
+  - [5.2. Перенос существующих данных (рекомендуется)](#52-перенос-существующих-данных-рекомендуется)
+  - [5.3. Чистая установка (без переноса данных)](#53-чистая-установка-без-переноса-данных)
+  - [5.4. Админ-пользователь](#54-админ-пользователь)
+- [6. Сервер (Go)](#6-сервер-go)
+  - [6.1. Каталог и файлы](#61-каталог-и-файлы)
+  - [6.2. Конфигурация `config.yaml`](#62-конфигурация-configyaml)
+  - [6.3. Секреты `.env`](#63-секреты-env)
+  - [6.4. Сборка](#64-сборка)
+- [7. Клиент (Nuxt 4, SSR)](#7-клиент-nuxt-4-ssr)
+  - [7.1. Переменные окружения для сборки (локально)](#71-переменные-окружения-для-сборки-локально)
+  - [7.2. Установка зависимостей и сборка (локально)](#72-установка-зависимостей-и-сборка-локально)
+  - [7.3. Перенос результата сборки на сервер](#73-перенос-результата-сборки-на-сервер)
+  - [7.4. Где лежат изображения (галерея, магазин, новости)](#74-где-лежат-изображения-галерея-магазин-новости)
+- [8. systemd-сервисы](#8-systemd-сервисы)
+  - [8.1. API (Go)](#81-api-go)
+  - [8.2. Web (Nuxt SSR)](#82-web-nuxt-ssr)
+  - [8.3. Запуск](#83-запуск)
+- [9. nginx (внутренний reverse proxy, порт 8080) + HTTPS на панели Джино](#9-nginx-внутренний-reverse-proxy-порт-8080--https-на-панели-джино)
+  - [9.1. Кто слушает 80 и 443](#91-кто-слушает-80-и-443)
+  - [9.2. Схема «TLS на панели» — как она выглядит снаружи](#92-схема-tls-на-панели--как-она-выглядит-снаружи)
+  - [9.3. Конфиг nginx](#93-конфиг-nginx)
+  - [9.4. Проброс из панели Джино](#94-проброс-из-панели-джино)
+  - [9.5. Проверка сквозного пути](#95-проверка-сквозного-пути)
+  - [9.6. Сертификат: выпуск и продление](#96-сертификат-выпуск-и-продление)
+- [10. Отключение регистрации — чек-лист](#10-отключение-регистрации--чек-лист)
+- [11. Платежи (YooKassa)](#11-платежи-yookassa)
+- [12. Проверка работоспособности](#12-проверка-работоспособности)
+- [13. Обновление продакшна после правок](#13-обновление-продакшна-после-правок)
+  - [13.1. Что вообще нужно перезаливать](#131-что-вообще-нужно-перезаливать)
+  - [13.2. Обновление клиента (Nuxt)](#132-обновление-клиента-nuxt)
+  - [13.3. Обновление сервера (Go)](#133-обновление-сервера-go)
+  - [13.4. Изменения в юнитах systemd](#134-изменения-в-юнитах-systemd)
+  - [13.5. Изменения в nginx](#135-изменения-в-nginx)
+  - [13.6. Чего делать не надо](#136-чего-делать-не-надо)
+  - [13.7. Порядок при правках в обоих местах сразу](#137-порядок-при-правках-в-обоих-местах-сразу)
+- [14. Резервное копирование](#14-резервное-копирование)
+- [15. Частые проблемы](#15-частые-проблемы)
+  - [15.1. Закончился диск: `disk I/O error: no space left on device`](#151-закончился-диск-disk-io-error-no-space-left-on-device)
+  - [15.2. Таблица симптомов](#152-таблица-симптомов)
+- [16. Альтернатива: API на поддомене](#16-альтернатива-api-на-поддомене)
+
+---
+
 Документ описывает пошаговую сборку и установку проекта на **виртуальный сервер
 Джино (классический VPS, OpenVZ) с Ubuntu**. Ключевое отличие от «голого»
 сервера: **TLS терминирует веб-сервер панели Джино** — сертификат выпущен и
@@ -142,7 +199,7 @@ Go-сервер не знает о нём и работает как обычн�
 Хост и порт берутся из панели: *Управление → Доступ*.
 
 ```bash
-ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ root@ВЫДЕЛЕННЫЙ_IP
+ssh -p 49338 root@pertsukova.ru
 uname -m            # должно быть x86_64
 cat /etc/os-release # Ubuntu 22.04/24.04
 ```
@@ -197,7 +254,7 @@ lsmod | grep -E '^(iptable_filter|iptable_nat|nf_conntrack)' || \
 извне** (его использует фронт панели). Если всё же включаете `ufw`:
 
 ```bash
-sudo ufw allow SSH_ПОРТ_ИЗ_ПАНЕЛИ/tcp   # иначе потеряете доступ
+sudo ufw allow 49338/tcp   # иначе потеряете доступ
 sudo ufw allow 8080/tcp                  # внутренний порт для панели
 sudo ufw allow 443/tcp
 sudo ufw enable
@@ -297,9 +354,9 @@ gitignored).
 
 ```
 Host artserver
-    HostName ВЫДЕЛЕННЫЙ_IP
+    HostName pertsukova.ru
     User root
-    Port SSH_ПОРТ_ИЗ_ПАНЕЛИ
+    Port 49338
 ```
 
 Проверьте, что ключ пускает root:
@@ -311,7 +368,7 @@ ssh artserver 'id root; uname -m'
 Локально выполните:
 
 ```bash
-rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+rsync -avz --delete -e 'ssh -p 49338' \
   --exclude '.git' \
   --exclude '.DS_Store' \
   --exclude 'screenshots' \
@@ -330,7 +387,7 @@ rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
   --exclude 'server/bin' \
   --exclude 'server/server' \
   ./ \
-  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/
+  root@pertsukova.ru:/opt/artserver/
 
 # и сразу выдаём права пользователю сервисов
 ssh artserver 'chown -R raiyin:raiyin /opt/artserver'
@@ -390,9 +447,9 @@ db, err := sql.Open("sqlite3", "./db/db.sqlite")
 
 ```bash
 # локально: база
-rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' server/db/db.sqlite root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/server/db/db.sqlite
+rsync -avz -e 'ssh -p 49338' server/db/db.sqlite root@pertsukova.ru:/opt/artserver/server/db/db.sqlite
 # локально: изображения (галерея, магазин, новости)
-rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' client/public/content/ root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/public/content/
+rsync -avz -e 'ssh -p 49338' client/public/content/ root@pertsukova.ru:/opt/artserver/client/public/content/
 ```
 
 > **`rsync -avz` переносит права как есть, а nginx читает файлы от пользователя
@@ -944,11 +1001,11 @@ rm -rf .output/public/content
 
 ```bash
 # локально, из корня проекта
-rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+rsync -avz --delete -e 'ssh -p 49338' \
   --exclude '/node_modules' \
   --exclude '/public/content' \
   ./client/.output/ \
-  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/.output/
+  root@pertsukova.ru:/opt/artserver/client/.output/
 
 # на сервере
 sudo chown -R raiyin:raiyin /opt/artserver/client/.output
@@ -1722,7 +1779,7 @@ rm -rf client/.output/public/content
 du -sh client/.output        # ожидается ~15 МБ, не гигабайты
 
 # 4) ЛОКАЛЬНО: собрать можно, но не забыть проверить до заливки
-cd client && PORT=3100 HOST=127.0.0.1 node .output/server/index.mjs & 
+cd client && PORT=3100 HOST=127.0.0.1 node .output/server/index.mjs &
 sleep 4
 curl -s -o /dev/null -w "local: %{http_code}\n" -H 'X-Forwarded-Proto: https' http://127.0.0.1:3100/
 kill %1
@@ -1735,17 +1792,17 @@ file client/.output/server/node_modules/@img/sharp-linux-x64/lib/*.node   # ELF 
 find client/.output -type l ! -exec test -e {} \; | wc -l            # ожидается 0
 
 # 5) ЛОКАЛЬНО, из корня проекта: заливка. Слэши в --exclude обязательны.
-rsync -avz --delete -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+rsync -avz --delete -e 'ssh -p 49338' \
   --exclude '/node_modules' \
   --exclude '/public/content' \
   ./client/.output/ \
-  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/.output/
+  root@pertsukova.ru:/opt/artserver/client/.output/
 
 # 6) Статика public/ (hero-images, favicon) — отдельно от .output
-rsync -avz -e 'ssh -p SSH_ПОРТ_ИЗ_ПАНЕЛИ' \
+rsync -avz -e 'ssh -p 49338' \
   --exclude 'content/' \
   ./client/public/ \
-  root@ВЫДЕЛЕННЫЙ_IP:/opt/artserver/client/public/
+  root@pertsukova.ru:/opt/artserver/client/public/
 
 # 7) НА СЕРВЕРЕ: владелец, проверка sharp, обязательный рестарт
 sudo chown -R raiyin:raiyin /opt/artserver/client/.output /opt/artserver/client/public
