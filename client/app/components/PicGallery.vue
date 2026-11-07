@@ -210,10 +210,24 @@
                 class="work-card flex flex-col overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full relative"
             >
                 <template #header>
-                    <div class="flex flex-col justify-between items-start">
-                        <h3 class="text-lg font-semibold truncate">
-                            {{ getWorkName(work,) }}
-                        </h3>
+                    <div class="flex flex-col justify-between items-start w-full min-w-0">
+                        <UPopover
+                            mode="hover"
+                            :content="{ side: 'top', sideOffset: 8, }"
+                            :disabled="getWorkName(work,).length <= 30"
+                        >
+                            <h3 class="text-lg font-semibold truncate w-full">
+                                {{ getWorkName(work,) }}
+                            </h3>
+
+                            <template #content>
+                                <div
+                                    class="px-3 py-2 max-w-xs text-sm leading-relaxed text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700"
+                                >
+                                    <p>{{ getWorkName(work,) }}</p>
+                                </div>
+                            </template>
+                        </UPopover>
                     </div>
                 </template>
 
